@@ -51,7 +51,7 @@
   /* 變身演出：光芒收束 → 立繪切換瞬間白光 → 光環擴散 */
   window.transformFx = async function (side, actor, skill, phase) {
     if (typeof X === 'undefined' || typeof FXE === 'undefined') return; FXE.ensure(); const S = side === 'P' ? 'L' : 'R', p = fighterPoint(S), c = colOf(actor.id);
-    if (phase === 'before') { SFX.play('buff'); X.text(p.x, p.y - 190, skill.name, { size: 58, color: '#ffffff', color2: c[1] }); X.particles({ x: p.x, y: p.y, n: 40, spd: [-260, -90], life: [.5, .8], size: [3, 7], colors: ['#ffffff', c[0]], shape: 'spark', add: true }); X.glow(p.x, p.y - 20, { color: c[0], r: 220, life: .7, hold: true }); await wait(520); }
+    if (phase === 'before') { SFX.play('buff'); X.particles({ x: p.x, y: p.y, n: 40, spd: [-260, -90], life: [.5, .8], size: [3, 7], colors: ['#ffffff', c[0]], shape: 'spark', add: true }); X.glow(p.x, p.y - 20, { color: c[0], r: 220, life: .7, hold: true }); await wait(520); }
     else { SFX.play('ult'); X.flash('#ffffff', .55, .35); X.ring(p.x, p.y, { r1: 360, color: c[0], w: 10, life: .6 }); X.ring(p.x, p.y, { r1: 240, color: '#ffffff', w: 4, life: .45 }); X.particles({ x: p.x, y: p.y, n: 50, spd: [160, 420], life: [.5, 1], size: [3, 8], colors: ['#ffffff', c[0], c[1]], shape: 'spark', add: true }); await wait(420); }
   };
 })();

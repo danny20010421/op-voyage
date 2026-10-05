@@ -1,0 +1,11 @@
+/* v110：UR++ 稀有度外框、奧義過場改為無邊框的光帶（不再出現長方形色塊） */
+.rar.r-UR\+\+,.c-rar.r-UR\+\+{background:linear-gradient(90deg,#05050c,#3a2a7a,#f4f4ff,#9a8aff,#05050c);background-size:240% 100%;animation:urShift 2.2s linear infinite;color:#ffffff!important;text-shadow:0 0 6px #9a8aff,0 1px 2px #000;box-shadow:0 0 0 1px #f4f4ff inset,0 0 10px rgba(154,138,255,.7)}
+.char:has(.c-rar.r-UR\+\+){border-color:transparent;background:linear-gradient(180deg,#14102a,#05050c) padding-box,linear-gradient(135deg,#f4f4ff,#5a4ad0,#05050c,#f4f4ff) border-box}
+/* ---------- 奧義過場：柔邊光帶 ---------- */
+.b-cutin .cut-band{height:40vh;background:linear-gradient(90deg,rgba(125,29,24,0),rgba(200,50,43,.5) 22%,rgba(232,193,112,.42) 62%,rgba(232,193,112,0));box-shadow:none!important;
+  -webkit-mask-image:linear-gradient(180deg,transparent,#000 35%,#000 65%,transparent);mask-image:linear-gradient(180deg,transparent,#000 35%,#000 65%,transparent)}
+.b-cutin.foe .cut-band{background:linear-gradient(270deg,rgba(42,22,64,0),rgba(90,42,138,.5) 22%,rgba(200,50,43,.42) 62%,rgba(200,50,43,0))}
+.b-cutin .cut-band::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,0) 0 38px,rgba(255,255,255,.14) 38px 40px);animation:cutLines .6s linear infinite;pointer-events:none}
+@keyframes cutLines{from{background-position:0 0}to{background-position:-160px 0}}
+.b-cutin .cut-band img{-webkit-mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);filter:drop-shadow(0 0 18px rgba(0,0,0,.35))}
+@media (prefers-reduced-motion:reduce){.b-cutin .cut-band::before{animation:none}}

@@ -16,6 +16,7 @@
 - `js/story_stage.js`: F:劇情立繪舞台（說話者亮起、聽者變暗、進場與呼吸動畫、旁白黑邊、每句特效 fx／emo）與 NPC→立繪對照表 | R:app.js(say/nextLine) | A:speakerArt,vnStageClear | S:NPC 對照只列確定同一人的（村裡的孩子 kid 不是尤斯塔斯·基德）；擊敗／連戰／蒐集任務完成時也會播該任務的台詞
 - `js/story_ext.js`: F:為 13 篇章補對話、序章、尾聲與支線 | R:data.js | A:- | S:只能「加對話」不能增減任務步驟，否則舊存檔的任務進度會錯位
 
+- `js/fx_v111.js`: F:奧義標題字過場（PRESET 風格表、SUB 角色→[風格, 副標]、cutIn 覆寫、ultTitle） | S:新角色要在 SUB 加一行，否則依屬性挑風格
 - `js/fx_v106.js`: F:主題式專屬特效（TH 主題表、WHO 角色對應、kindOf 招式種類） | S:要讓角色換主題改 WHO；不覆蓋既有 CHOREO
 - `js/fx_v105.js`: F:鷹眼／羅（七武海）／衛伯／巴基斯／斯巴可第 1～4 招專屬編排 | S:DOMContentLoaded 後註冊，不覆蓋既有 CHOREO
 - `js/story_stage.js` (v106): 沒有立繪的說話者用 npc_blank（stageArt／isBlank）
