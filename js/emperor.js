@@ -96,6 +96,6 @@ const EMPEROR_DOMAIN = {
   /* openEmperor(id)：只顯示這位四皇的挑戰（從四皇展示頁進入）；不帶 id 時維持目前的顯示方式 */
   window.openEmperor = function (id) { if (id) { sel = id; solo = true; } state(); if (typeof coins === 'function') coins(); render(); $('emperorScreen').classList.toggle('ep-solo', solo); showScreen('emperorScreen'); AUDIO.playSong && AUDIO.playSong('boss'); };
   window.emperorSolo = () => solo;
-  window.emperorSummary = () => { try { const S = state(); const n = E.list.filter(e => S[e.id].clears).length; return n ? `已擊敗 ${n}/4 位四皇` : '尚未挑戰'; } catch (e) { return ''; } };
+  window.emperorSummary = () => { try { const S = state(); const n = E.list.filter(e => S[e.id].clears).length; return n ? `已擊敗 ${n}/${E.list.length} 位四皇` : '尚未挑戰'; } catch (e) { return ''; } };
   window.addEventListener('DOMContentLoaded', () => { if (typeof SCREENS !== 'undefined' && !SCREENS.includes('emperorScreen')) SCREENS.push('emperorScreen'); const b = $('epBack'); if (b) b.onclick = () => openModes(); });
 })();

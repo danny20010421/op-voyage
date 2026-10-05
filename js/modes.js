@@ -18,7 +18,7 @@
     const give = id => { if (!p.titles.includes(id)) { p.titles.push(id); got.push(id); } };
     CHAPTERS.forEach(c => { if (d.chapters[c.id] && d.chapters[c.id].cleared) give('ch_' + c.id); });
     const tw = (d.tower || {}).best || 0; if (tw >= 10) give('tower10'); if (tw >= 50) give('tower50'); if (tw >= 120) give('tower120'); if (tw >= 250) give('tower250');
-    { const em = d.emperor || {}, n = Object.values(em).filter(x => x && x.clears).length; if (n >= 1) give('emperor1'); if (n >= 4) give('emperor4'); }
+    { const em = d.emperor || {}, n = Object.values(em).filter(x => x && x.clears).length; if (n >= 1) give('emperor1'); if (n >= (typeof EMPEROR_DOMAIN !== 'undefined' ? EMPEROR_DOMAIN.list.length : 5)) give('emperor4'); }
     const rb = (d.runner || {}).best || 0; if (rb >= 500) give('run500'); if (rb >= 2000) give('run2000'); if (rb >= 5000) give('run5000');
     if ((d.treasure || {}).done) give('laughtale');
     const th = d.throne || {}; if ((th.runs || []).length || th.best) give('void1'); if ((th.best || 0) >= 1000000) give('void1m');

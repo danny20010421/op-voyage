@@ -1,0 +1,64 @@
+/* v112：角色培養視窗（手機：上下；電腦：左立繪、右數值） */
+.gw-wrap{position:fixed;inset:0;z-index:2000;display:none;place-items:center;background:rgba(2,6,16,.72);backdrop-filter:blur(3px);padding:max(12px,var(--safeT,0px)) 12px max(12px,var(--safeB,0px))}
+.gw-wrap.show{display:grid}
+@keyframes gwIn{from{opacity:0}to{opacity:1}}
+.gw{position:relative;width:min(1000px,100%);max-height:100%;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#1a2a4c,#0b1428);border:1px solid rgba(235,199,126,.55);box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.gw-head{display:flex;align-items:center;justify-content:center;position:relative;min-height:56px;padding:0 56px;background:linear-gradient(180deg,rgba(235,199,126,.18),transparent)}
+.gw-head h3{margin:0;font:900 22px/1 var(--serif);color:#ffe7a8;letter-spacing:.2em}
+.gw-x{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:40px;height:40px;display:grid;place-items:center;border-radius:50%;border:2px solid #ebc77e;background:#2a1a10;color:#ffe7a8;font-size:22px;line-height:1;cursor:pointer}
+.gw-tabs{display:flex;gap:8px;padding:0 16px 10px}
+.gw-tabs button{flex:1;min-height:40px;border-radius:999px;border:1px solid rgba(235,199,126,.5);background:rgba(255,255,255,.06);color:#e8dcc0;font-weight:900;font-size:15px;cursor:pointer}
+.gw-tabs button.on{background:linear-gradient(180deg,#5a3a1a,#2a1a0a);color:#ffe7a8;box-shadow:inset 0 0 0 1px #ffd34a}
+.gw-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:16px;padding:0 16px 16px;min-height:0;overflow:auto}
+/* 立繪區 */
+.gw-art{position:relative;display:flex;flex-direction:column;align-items:center;min-height:420px;border-radius:16px;background:radial-gradient(ellipse at 50% 60%,color-mix(in srgb,var(--rc) 30%,transparent),transparent 70%),rgba(0,0,0,.2);padding:12px}
+.gw-name{display:flex;align-items:center;gap:8px;align-self:stretch;justify-content:center;min-height:32px}
+.gw-name b{font:900 20px/1.1 var(--serif);color:#fff}.gw-name small{color:#b9c3d2;font-size:12px}
+.gw-art img{flex:1;min-height:0;max-height:46vh;width:100%;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,.5))}
+.gw-art img.lvup{animation:gwUp .7s ease-out}
+@keyframes gwUp{0%{filter:brightness(2.4) drop-shadow(0 0 30px #ffe070)}100%{filter:drop-shadow(0 10px 20px rgba(0,0,0,.5))}}
+.gw-nav{position:absolute;top:50%;width:40px;height:40px;border-radius:50%;border:2px solid #ebc77e;background:rgba(10,16,34,.85);color:#ffe7a8;font-size:24px;line-height:1;display:grid;place-items:center;cursor:pointer;transform:translateY(-50%)}
+.gw-nav.prev{left:10px}.gw-nav.next{right:10px}.gw-nav:disabled{opacity:.3}
+.gw-lv{align-self:stretch;display:grid;gap:4px;justify-items:center;margin-top:6px}
+.gw-bar{position:relative;width:100%;height:14px;border-radius:7px;background:rgba(0,0,0,.5);border:1px solid rgba(235,199,126,.5);overflow:hidden}
+.gw-bar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#3fb6c9,#9dffb8);z-index:1}
+.gw-bar s{position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,224,112,.35) 0 8px,rgba(255,224,112,.15) 8px 16px);animation:gwStripe .6s linear infinite}
+@keyframes gwStripe{to{background-position:16px 0}}
+.gw-lv span{font:700 15px/1 var(--sans);color:#e8eef8}.gw-lv span b{font-family:var(--num);font-size:20px}.gw-lv b.up{color:#9dffb8}
+.gw-lv small{color:#b9c3d2;font-size:12px}
+/* 數值區 */
+.gw-panel{display:flex;flex-direction:column;gap:12px;min-width:0}
+.gw-pow{display:flex;align-items:baseline;justify-content:center;gap:10px;min-height:48px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)}
+.gw-pow span{color:#cdb98a;font-weight:800}.gw-pow b{font:900 28px/1 var(--num);color:#fff}
+.gw em{font-style:normal;color:#5aff8a;font-weight:800;margin-left:6px;font-size:.85em}
+.gw-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0}
+.gw-stats div{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:46px;padding:0 14px;border-radius:12px;background:rgba(0,0,0,.25)}
+.gw-stats dt{color:#b9c3d2;font-size:13px}.gw-stats dd{margin:0;font:800 18px/1 var(--num);color:#fff}
+.gw-panel h4{margin:2px 0 -4px;color:#ffe7a8;font-size:14px;letter-spacing:.1em}
+.gw-books{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.gw-book{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);text-align:center}
+.gw-book.off{opacity:.45}
+.gw-bi{position:relative}.gw-bi .ico{width:48px;height:48px}
+.gw-own{position:absolute;right:-8px;bottom:-4px;min-width:22px;height:20px;padding:0 5px;border-radius:10px;background:#0a1430;border:1px solid #ebc77e;color:#ffe7a8;font:800 12px/18px var(--num)}
+.gw-book b{font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.gw-book small{color:#9dffb8;font-size:12px}
+.gw-step{display:flex;align-items:center;gap:6px}
+.gw-step button{width:32px;height:32px;border-radius:50%;border:1px solid #ebc77e;background:#2a1a10;color:#ffe7a8;font-size:18px;line-height:1;cursor:pointer}.gw-step button:disabled{opacity:.35}
+.gw-step output{min-width:24px;font:800 16px/1 var(--num);color:#fff}
+.gw-acts{display:grid;grid-template-columns:1fr 1.6fr;gap:10px}
+.gw-acts button{min-height:52px;font-size:17px}
+.gw-tip{margin:0;color:#8fa0b8;font-size:12px;text-align:center}
+.gw-skills{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.gw-skills li{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;padding:0 14px;border-radius:12px;background:rgba(0,0,0,.25);border-left:3px solid #3fb6c9}
+.gw-skills li.lock{opacity:.5;border-left-color:#555}.gw-skills li.new{border-left-color:#5aff8a;background:rgba(90,255,138,.1)}.gw-skills li.ult{border-left-color:#ffd34a}
+.gw-skills b{color:#fff;font-size:14px}.gw-skills span{color:#b9c3d2;font-size:12px;white-space:nowrap}.gw-skills li.new span{color:#5aff8a;font-weight:800}
+/* 我的船員：培養按鈕 */
+.sb-acts .gw-open{min-width:120px}
+/* 手機：上下排版（參考手機遊戲的升級畫面） */
+@media (max-width:760px){
+  .gw-wrap{padding:0}.gw{width:100%;height:100%;max-height:none;border-radius:0}
+  .gw-head{padding-top:var(--safeT,0px)}
+  .gw-body{grid-template-columns:1fr;gap:10px;padding:0 12px calc(12px + var(--safeB,0px))}
+  .gw-art{min-height:0;padding:8px}.gw-art img{max-height:30vh}
+  .gw-books{gap:6px}.gw-book{padding:8px 4px}
+}
+.gw .gw-lv span b.up{color:#5aff8a!important}

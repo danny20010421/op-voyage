@@ -24,6 +24,7 @@
     if (ef.imuVoidCut) { let d = target.voidImmune ? 0 : Math.floor(target.hp * R(ef.imuVoidCut[0], ef.imuVoidCut[1])); if (isBoss(target)) d = Math.min(d, Math.floor(target.maxHp * (GAME_SETTINGS.bossPctCap ?? .15))); return { damage: d, meta: {} }; }
     let r = _cso(actor, target, { ...skill, __x110: true }, blocked);
     if (!r) return r;
+    if (ef.bonusTotalPct && r.damage > 0) { const b = Math.floor(r.damage * R(ef.bonusTotalPct[0], ef.bonusTotalPct[1])); r.damage += b; log(`⚡ 追加雷擊 ${b} 點傷害！`); } /* v112 洛基雷電噴吐 */
     /* 免秒殺（洛基、伊姆）；伊姆的秒殺對洛基、喬伊波伊無效 */
     if (r.meta && (r.meta.execute || r.meta.executeBuff) && (has(target, 'immuneExec') || (actor && actor.id === 'imu' && EXEC_IMMUNE.includes(target.id)))) {
       r.meta.execute = false; r.meta.executeBuff = false; r.damage = Math.min(r.damage, Math.floor(target.maxHp * .1)); log(`🛡️ ${target.name} 不會被秒殺！`); }

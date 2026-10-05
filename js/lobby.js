@@ -31,7 +31,7 @@
     /* 右側：主線航路 */
     { const nc = nextChapter(); if ($('l2MissionT')) { if (nc) { const st2 = d.chapters[nc.id] || { step: 0 }, step = nc.steps[Math.min(st2.step || 0, nc.steps.length - 1)]; $('l2MissionT').textContent = nc.name; $('l2MissionS').textContent = `任務 ${Math.min(st2.step || 0, nc.steps.length)}/${nc.steps.length}・${step ? step.title : ''}`; } else { $('l2MissionT').textContent = '偉大航路已全數通關'; $('l2MissionS').textContent = '可以挑戰困難模式或其他冒險'; } } }
     /* 皇帝領海進度 */
-    { const ES = SAVE.data.emperor || {}, n = (typeof EMPEROR_DOMAIN !== 'undefined' ? EMPEROR_DOMAIN.list : []).filter(e => (ES[e.id] || {}).phase > 3).length; if ($('l2EmpTxt')) $('l2EmpTxt').textContent = n ? `已擊敗 ${n}/4 位四皇` : '挑戰四皇'; }
+    { const ES = SAVE.data.emperor || {}, n = (typeof EMPEROR_DOMAIN !== 'undefined' ? EMPEROR_DOMAIN.list : []).filter(e => (ES[e.id] || {}).phase > 3).length; if ($('l2EmpTxt')) $('l2EmpTxt').textContent = n ? `已擊敗 ${n}/${(typeof EMPEROR_DOMAIN !== 'undefined' ? EMPEROR_DOMAIN.list.length : 5)} 位四皇` : '挑戰四皇'; }
     /* 船長的對話泡泡：依目前狀態提醒 */
     sayLine(pid); requestAnimationFrame(syncLayout);
     const L = SAVE.data.login || { day: 0 }, lc = typeof loginClaimable === 'function' && loginClaimable(); $('lbLoginTxt').textContent = lc ? `第 ${L.day + 1} 天可領取` : '今日已領取'; $('lbLogin').classList.toggle('has-dot', !!lc);
