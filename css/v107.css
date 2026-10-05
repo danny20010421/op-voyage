@@ -1,0 +1,7 @@
+/* v107：劇情對話只顯示正在說話的那一位的立繪
+   ① 舞台（左右兩側大立繪）中沒有說話的一方隱藏 ② 舞台開啟時，不再另外在對話框左側顯示小立繪（原本會重複出現同一個角色） */
+.vn-slot.on:not(.talk){opacity:0!important;pointer-events:none}
+body.vn-on #dialog .dlg-bust{display:none!important}
+body.vn-on #dialog.has-bust{padding-left:max(24px,calc(50vw - 560px))}
+@media (max-width:760px){body.vn-on #dialog.has-bust{padding-left:16px;padding-top:12px}}
+.cl-warn{color:#ffd28a!important;font-size:12px!important;line-height:1.5}

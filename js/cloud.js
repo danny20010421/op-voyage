@@ -43,16 +43,27 @@ const CLOUD = (function () {
     fb.auth.onAuthStateChanged(u => { user = u || null; if (user) { put(LS.on, '1'); if (!checked) check(false); } render(); hooks.forEach(f => { try { f(user); } catch (e) { } }); });
     try { await fb.auth.getRedirectResult(); } catch (e) { say(errText(e)); }
     return fb; })().catch(e => { loading = null; throw e; })); }
-  function errText(e) { const c = (e && e.code) || ''; return { 'auth/email-already-in-use': '這個信箱已經註冊過了，請直接登入', 'auth/invalid-email': '信箱格式不正確', 'auth/weak-password': '密碼至少要 6 個字', 'auth/wrong-password': '信箱或密碼錯誤', 'auth/user-not-found': '信箱或密碼錯誤', 'auth/invalid-credential': '信箱或密碼錯誤', 'auth/invalid-login-credentials': '信箱或密碼錯誤', 'auth/too-many-requests': '嘗試太多次，請稍後再試', 'auth/operation-not-allowed': 'Firebase 尚未開啟「電子郵件／密碼」登入方式', 'name-taken': '這個帳號名稱已經有人使用', 'name-invalid': '帳號名稱只能用 2～12 個中英文、數字或底線', 'name-missing': '找不到這個帳號名稱', 'auth/popup-closed-by-user': '登入視窗被關閉了', 'auth/cancelled-popup-request': '登入已取消', 'auth/unauthorized-domain': '這個網址還沒加入 Firebase 的「授權網域」', 'auth/network-request-failed': '網路連線失敗', 'permission-denied': '沒有權限：請確認 Firestore 的安全規則已經發布', 'unavailable': '雲端暫時連不上，請稍後再試' }[c] || (e && e.message) || '發生錯誤'; }
+  function errText(e) { const c = (e && e.code) || ''; return { 'auth/email-already-in-use': '這個信箱已經註冊過了，請直接登入', 'auth/invalid-email': '信箱格式不正確', 'auth/weak-password': '密碼至少要 6 個字', 'auth/wrong-password': '信箱或密碼錯誤', 'auth/user-not-found': '信箱或密碼錯誤', 'auth/invalid-credential': '信箱或密碼錯誤', 'auth/invalid-login-credentials': '信箱或密碼錯誤', 'auth/too-many-requests': '嘗試太多次，請稍後再試', 'auth/operation-not-allowed': 'Firebase 尚未開啟「電子郵件／密碼」登入方式', 'name-taken': '這個帳號名稱已經有人使用', 'name-invalid': '帳號名稱只能用 2～12 個中英文、數字或底線', 'name-missing': '找不到這個帳號名稱', 'auth/popup-closed-by-user': '登入視窗被關閉了', 'auth/cancelled-popup-request': '登入已取消', 'auth/unauthorized-domain': `這個網址（${location.hostname}）還沒加入 Firebase 的「授權網域」`, 'auth/internal-error': 'Google 登入暫時失敗，請重新整理後再試', 'auth/popup-blocked': '瀏覽器擋下了登入視窗，請允許彈出式視窗', 'auth/network-request-failed': '網路連線失敗', 'permission-denied': '沒有權限：請確認 Firestore 的安全規則已經發布', 'unavailable': '雲端暫時連不上，請稍後再試' }[c] || (((e && e.message) || '發生錯誤') + (c ? `（${c}）` : '')); }
   const ref = () => fb.db.collection('saves').doc(user.uid);
 
   /* ---------- 登入／登出 ---------- */
-  async function login() {
-    if (busy) return; busy = true; say('正在開啟 Google 登入…');
-    try { await sdk(); const P = new fb.F.auth.GoogleAuthProvider(); P.setCustomParameters({ prompt: 'select_account' });
-      try { await fb.auth.signInWithPopup(P); }
-      catch (e) { if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment', 'auth/web-storage-unsupported'].includes(e.code)) { say('改用整頁登入…'); await fb.auth.signInWithRedirect(P); return; } throw e; }
-    } catch (e) { say(errText(e), 'err'); } finally { busy = false; render(); }
+  /* v107：Google 登入修正
+     - 舊版在按下按鈕「之後」才下載 Firebase（1～3 秒），瀏覽器認定登入視窗不是玩家點出來的而擋掉，接著改用整頁登入；
+       但整頁登入在 GitHub Pages 上會被瀏覽器的第三方儲存限制擋住，回到遊戲時仍是未登入。
+     - 現在打開雲端存檔面板就先下載 Firebase；按下按鈕時立刻開啟登入視窗（仍在玩家的點擊之內，不會被擋）。 */
+  const inApp = /FBAN|FBAV|Instagram|Line\/|MicroMessenger|; wv\)/i.test(navigator.userAgent || '');
+  const standalone = (() => { try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } })();
+  function login() {
+    if (busy) return;
+    if (inApp) { say('LINE、Facebook、Instagram 內建的瀏覽器不允許 Google 登入。請點右上角選單「用瀏覽器開啟」（Chrome 或 Safari）後再登入，或改用信箱登入。', 'err'); return; }
+    if (!fb) { say('Google 登入準備中…'); sdk().then(() => say('準備完成，請再按一次「使用 Google 登入」')).catch(e => say(errText(e), 'err')); return; }
+    busy = true; say('正在開啟 Google 登入…'); render();
+    const P = new fb.F.auth.GoogleAuthProvider(); P.setCustomParameters({ prompt: 'select_account' });
+    fb.auth.signInWithPopup(P).catch(e => {
+      if (e.code === 'auth/popup-blocked') say('瀏覽器擋下了登入視窗。請允許這個網站開啟「彈出式視窗」後再按一次，或改用信箱登入。', 'err');
+      else if (['auth/operation-not-supported-in-this-environment', 'auth/web-storage-unsupported'].includes(e.code)) { say('改用整頁登入…'); return fb.auth.signInWithRedirect(P); }
+      else say(errText(e), 'err');
+    }).finally(() => { busy = false; render(); });
   }
   /* ---------- 帳號密碼（真實信箱＋自訂帳號名稱） ---------- */
   const NAME_RE = /^[A-Za-z0-9_\u4e00-\u9fff]{2,12}$/, nameKey = n => String(n || '').trim().toLowerCase();
@@ -131,7 +142,7 @@ const CLOUD = (function () {
   function open() {
     if (!panel) { panel = document.createElement('div'); panel.className = 'dl-wrap cl-wrap'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', '雲端存檔'); panel.onclick = e => { if (e.target === panel) close(); }; }
     document.body.appendChild(panel); render();
-    if (get(LS.on) && !fb) sdk().catch(e => say(errText(e)));
+    if (!fb) sdk().catch(e => say(errText(e))); /* v107：一打開就先下載，按 Google 登入時才不會被擋 */
   }
   function close() { if (panel) panel.remove(); }
   function render() {
@@ -143,7 +154,7 @@ const CLOUD = (function () {
         <label class="set-row cl-auto"><span><b>自動同步</b><small>存檔有變動時每 60 秒上傳一次</small></span><input type="checkbox" class="sw" data-a="auto" ${auto ? 'checked' : ''}></label>
         <button class="btn-ghost sm cl-out" data-a="out">登出</button>`
       : `<div class="cl-tabs" role="tablist"><button class="${mode === 'google' ? 'on' : ''}" data-m="google">Google 登入</button><button class="${mode === 'login' ? 'on' : ''}" data-m="login">信箱登入</button><button class="${mode === 'reg' ? 'on' : ''}" data-m="reg">註冊</button></div>
-        ${mode === 'google' ? `<p class="dl-sub">用 Google 帳號登入，就能在手機、平板、電腦之間接續遊戲進度。存檔只有你自己看得到。</p><button class="btn-gold big cl-in" data-a="in" ${busy ? 'disabled' : ''}>使用 Google 登入</button>`
+        ${mode === 'google' ? `<p class="dl-sub">用 Google 帳號登入，就能在手機、平板、電腦之間接續遊戲進度。存檔只有你自己看得到。</p>${standalone ? '<p class="dl-sub cl-warn">從主畫面 App 開啟時，部分手機（特別是 iPhone）的 Google 登入視窗無法回到遊戲。如果登入失敗，請改用「信箱登入」。</p>' : ''}<button class="btn-gold big cl-in" data-a="in" ${busy ? 'disabled' : ''}>使用 Google 登入</button>`
         : mode === 'login' ? `<div class="cl-form"><label>電子郵件<input id="clId" type="email" autocomplete="email" value="${esc2(form.id || '')}"></label><label>密碼<input id="clPw" type="password" autocomplete="current-password"></label>
             <button class="btn-gold big cl-in" data-a="pwin" ${busy ? 'disabled' : ''}>登入</button><button class="btn-ghost sm" data-a="forgot">忘記密碼？寄重設信到這個信箱</button></div>`
         : `<div class="cl-form"><label>帳號名稱<small>2～12 個中英文、數字或底線；只用來讓好友找到你，登入請用信箱</small><input id="clName" autocomplete="nickname" maxlength="12" value="${esc2(form.name || '')}"></label><label>電子郵件<small>請填真實信箱，忘記密碼時會寄重設信到這裡</small><input id="clEmail" type="email" autocomplete="email" value="${esc2(form.email || '')}"></label><label>密碼<small>至少 6 個字</small><input id="clPw" type="password" autocomplete="new-password"></label><label>再輸入一次密碼<input id="clPw2" type="password" autocomplete="new-password"></label>
