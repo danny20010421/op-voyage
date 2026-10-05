@@ -43,7 +43,7 @@ const CLOUD = (function () {
     fb.auth.onAuthStateChanged(u => { user = u || null; if (user) { put(LS.on, '1'); if (!checked) check(false); } render(); hooks.forEach(f => { try { f(user); } catch (e) { } }); });
     try { await fb.auth.getRedirectResult(); } catch (e) { say(errText(e)); }
     return fb; })().catch(e => { loading = null; throw e; })); }
-  function errText(e) { const c = (e && e.code) || ''; return { 'auth/email-already-in-use': '這個信箱已經註冊過了，請直接登入', 'auth/invalid-email': '信箱格式不正確', 'auth/weak-password': '密碼至少要 6 個字', 'auth/wrong-password': '信箱或密碼錯誤', 'auth/user-not-found': '信箱或密碼錯誤', 'auth/invalid-credential': '信箱或密碼錯誤', 'auth/invalid-login-credentials': '信箱或密碼錯誤', 'auth/too-many-requests': '嘗試太多次，請稍後再試', 'auth/operation-not-allowed': 'Firebase 尚未開啟「電子郵件／密碼」登入方式', 'name-taken': '這個帳號名稱已經有人使用', 'name-invalid': '帳號名稱只能用 2～12 個中英文、數字或底線', 'name-missing': '找不到這個帳號名稱', 'auth/popup-closed-by-user': '登入視窗被關閉了', 'auth/cancelled-popup-request': '登入已取消', 'auth/unauthorized-domain': `這個網址（${location.hostname}）還沒加入 Firebase 的「授權網域」`, 'auth/internal-error': 'Google 登入暫時失敗，請重新整理後再試', 'auth/popup-blocked': '瀏覽器擋下了登入視窗，請允許彈出式視窗', 'auth/network-request-failed': '網路連線失敗', 'permission-denied': '沒有權限：請確認 Firestore 的安全規則已經發布', 'unavailable': '雲端暫時連不上，請稍後再試' }[c] || (((e && e.message) || '發生錯誤') + (c ? `（${c}）` : '')); }
+  function errText(e) { const c = (e && e.code) || ''; return { 'auth/email-already-in-use': '這個信箱已經註冊過了，請直接登入', 'auth/invalid-email': '信箱格式不正確', 'auth/weak-password': '密碼至少要 6 個字', 'auth/wrong-password': '信箱或密碼錯誤', 'auth/user-not-found': '信箱或密碼錯誤', 'auth/invalid-credential': '信箱或密碼錯誤', 'auth/invalid-login-credentials': '信箱或密碼錯誤', 'auth/too-many-requests': '嘗試太多次，請稍後再試', 'auth/operation-not-allowed': 'Firebase 尚未開啟「電子郵件／密碼」登入方式', 'name-taken': '這個帳號名稱已經有人使用', 'name-invalid': '帳號名稱只能用 2～12 個中英文、數字或底線', 'name-missing': '找不到這個帳號名稱', 'auth/popup-closed-by-user': '登入視窗被關閉了', 'auth/cancelled-popup-request': '登入已取消', 'auth/unauthorized-domain': `這個網址（${location.hostname}）還沒加入 Firebase 的「授權網域」`, 'auth/internal-error': 'Google 登入暫時失敗，請重新整理後再試', 'auth/popup-blocked': '瀏覽器擋下了登入視窗，請允許彈出式視窗', 'auth/network-request-failed': '網路連線失敗', 'permission-denied': '沒有權限：Firebase 的 Firestore「規則」還沒更新。請把專案裡 firestore.rules 的內容貼到 Firebase 主控台 → Firestore Database → 規則，按「發布」', 'rules-usernames': '帳號名稱無法登記：Firestore 規則缺少 usernames 的設定。請把專案裡 firestore.rules 的內容貼到 Firebase 主控台 → Firestore Database → 規則，按「發布」後再註冊一次', 'unavailable': '雲端暫時連不上，請稍後再試' }[c] || (((e && e.message) || '發生錯誤') + (c ? `（${c}）` : '')); }
   const ref = () => fb.db.collection('saves').doc(user.uid);
 
   /* ---------- 登入／登出 ---------- */
@@ -76,9 +76,11 @@ const CLOUD = (function () {
   async function register(name, email, pw) {
     if (busy) return; busy = true; say('正在建立帳號…');
     try { await sdk(); name = String(name || '').trim(); if (!NAME_RE.test(name)) fail('name-invalid');
-      const pre = await fb.db.collection('usernames').doc(nameKey(name)).get(); if (pre.exists) fail('name-taken');
+      /* v108：先查名稱是否被用（這一步沒登入，若 Firestore 規則不允許就略過，改在建立帳號後的交易裡檢查） */
+      try { const pre = await fb.db.collection('usernames').doc(nameKey(name)).get(); if (pre.exists) fail('name-taken'); } catch (e) { if (e.code === 'name-taken') throw e; }
       const cr = await fb.auth.createUserWithEmailAndPassword(email.trim(), pw);
-      try { await claimName(name, cr.user.uid, email.trim()); await cr.user.updateProfile({ displayName: name }); } catch (e) { try { await cr.user.delete(); } catch (x) { } throw e; }
+      try { await claimName(name, cr.user.uid, email.trim()); await cr.user.updateProfile({ displayName: name }); }
+      catch (e) { try { await cr.user.delete(); } catch (x) { } if (e.code === 'permission-denied') { const x = new Error('rules-usernames'); x.code = 'rules-usernames'; throw x; } throw e; }
       if (typeof playerProfile === 'function') { const P = playerProfile(); P.account = name; SAVE.save(); }
       try { await cr.user.sendEmailVerification(); } catch (e) { }
       say(`帳號「${name}」建立完成！`, 'ok');
