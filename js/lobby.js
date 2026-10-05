@@ -34,15 +34,20 @@
     { const ES = SAVE.data.emperor || {}, n = (typeof EMPEROR_DOMAIN !== 'undefined' ? EMPEROR_DOMAIN.list : []).filter(e => (ES[e.id] || {}).phase > 3).length; if ($('l2EmpTxt')) $('l2EmpTxt').textContent = n ? `已擊敗 ${n}/4 位四皇` : '挑戰四皇'; }
     /* 船長的對話泡泡：依目前狀態提醒 */
     sayLine(pid); requestAnimationFrame(syncLayout);
-    const L = SAVE.data.login || { day: 0 }, lc = typeof loginClaimable === 'function' && loginClaimable(); $('lbLoginTxt').textContent = lc ? `第 ${L.day + 1} 天獎勵可領取` : `今天已領取・明天第 ${(L.day % 7) + 1} 天`; $('lbLogin').classList.toggle('has-dot', !!lc);
-    if (!evTimer) evTimer = setInterval(() => { if (currentScreen === 'modeScreen' && (typeof EVENT_POOLS !== 'undefined') && EVENT_POOLS.length > 1) { evIdx = (evIdx + 1) % EVENT_POOLS.length; renderEvent(true); } }, 5000);
+    const L = SAVE.data.login || { day: 0 }, lc = typeof loginClaimable === 'function' && loginClaimable(); $('lbLoginTxt').textContent = lc ? `第 ${L.day + 1} 天可領取` : '今日已領取'; $('lbLogin').classList.toggle('has-dot', !!lc);
+    if (!evTimer) evTimer = setInterval(() => { const L = lobbyPools(); if (currentScreen === 'modeScreen' && L.length > 1) { evIdx = (evIdx + 1) % L.length; renderEvent(true); } }, 5000);
   }
+  /* 大廳只輪播「開放中＋預告中」的活動；都沒有時才顯示休息中的 */
+  function lobbyPools() { if (typeof EVENT_POOLS === 'undefined') return []; const all = typeof eventPoolsSorted === 'function' ? eventPoolsSorted() : EVENT_POOLS, on = all.filter(p => typeof eventPhase !== 'function' || eventPhase(p.id) !== 'rest'); return on.length ? on : all; }
   function renderEvent(anim) {
-    if (typeof EVENT_POOLS === 'undefined' || !EVENT_POOLS.length) { $('lbEvent').hidden = true; return; }
-    const P = EVENT_POOLS[evIdx % EVENT_POOLS.length], img = $('lbEventImg');
+    const L = lobbyPools(); if (!L.length) { $('lbEvent').hidden = true; return; }
+    const P = L[evIdx % L.length], img = $('lbEventImg');
     if (anim) { img.classList.remove('in'); void img.offsetWidth; }
-    const act = typeof eventSchedule === 'function' ? eventSchedule() : null, on = !act || act.active === P.id;
-    img.src = P.banner; img.classList.add('in'); $('lbEventName').textContent = P.tab + (on ? '' : '・休息中'); $('lbEvent').classList.toggle('ev-rest', !on);
+    const ph = typeof eventPhase === 'function' ? eventPhase(P.id) : 'live', W = typeof eventWindow === 'function' ? eventWindow(P.id) : null;
+    const md = ms => { const d = new Date(ms + 8 * 3600e3); return `${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}`; };
+    img.src = P.banner; img.classList.add('in'); $('lbEventName').textContent = P.tab + (ph === 'live' ? '' : ph === 'soon' && W ? `・${md(W.s)} 開放` : '・休息中');
+    $('lbEvent').classList.toggle('ev-rest', ph === 'rest'); $('lbEvent').classList.toggle('ev-soon', ph === 'soon');
+    const tag = $('lbEvent').querySelector('.l2-pick-tag'); if (tag) tag.textContent = ph === 'soon' ? '限定召喚 預告' : ph === 'live' ? '限定召喚 UP' : '限定召喚';
     $('lbEvent').dataset.pool = P.id;
   }
   /* 量出頂部列與限定召喚卡的實際位置，讓左右面板與船長立繪不會被遮住（各裝置字型、換行高度不同） */
@@ -101,7 +106,7 @@
     $('lbModesClose').onclick = () => openModesSheet(false);
     $('lbModes').onclick = e => { if (e.target === $('lbModes')) openModesSheet(false); };
     document.querySelectorAll('#lbModes [data-mode]').forEach(b => b.addEventListener('click', () => openModesSheet(false)));
-    $('lbEvent').onclick = () => { const id = $('lbEvent').dataset.pool; openGacha('modeScreen'); requestAnimationFrame(() => requestAnimationFrame(() => { const t = document.querySelector(`#poolTabs [data-pool="ev:${id}"]`); if (t) t.click(); })); };
+    $('lbEvent').onclick = () => { const id = $('lbEvent').dataset.pool; openGacha('modeScreen'); requestAnimationFrame(() => requestAnimationFrame(() => { const t = document.querySelector(`#poolTabs [data-pool="ev:${id}"]`); if (t) t.click(); else if (window.openEventPreview) openEventPreview(id); })); };
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('lbModes').classList.contains('show')) openModesSheet(false); });
     /* 每次回到大廳時更新 */
     /* 關閉船員／背包等視窗後，大廳立即反映變更（例如更換船長） */

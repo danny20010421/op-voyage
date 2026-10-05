@@ -1,0 +1,20 @@
+<!doctype html><script type="importmap">{"imports":{"three":"../vendor/three/three.module.js"}}</script>
+<canvas id=c width=320 height=240></canvas><script type=module>
+import * as THREE from 'three';
+const r=new THREE.WebGLRenderer({canvas:document.getElementById('c')}); r.debug.checkShaderErrors=true;
+const S=new THREE.Scene(); S.fog=new THREE.Fog(0x88aacc,10,200); const cam=new THREE.PerspectiveCamera(50,4/3,.1,500); cam.position.set(0,8,30);
+const out=[]; const oe=console.error; console.error=(...a)=>{out.push(a.join(' ').slice(0,400));};
+const U={uTime:{value:3}};
+for(const kind of [0,1,2,3]){const pos=[],sd=[];for(let i=0;i<200;i++){pos.push((Math.random()-.5)*30,0,(Math.random()-.5)*30);sd.push(Math.random())}
+const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('seed',new THREE.Float32BufferAttribute(sd,1));
+const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true,uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{uCol:{value:new THREE.Color('#ffb7cf')},uVy:{value:-.9},uSz:{value:.7},uKind:{value:kind}}]),vertexShader:`attribute float seed; uniform float uTime, uVy, uSz; varying float vA, vR;\n#include <fog_pars_vertex>\nvoid main(){ float H = 22.; float t = uTime*abs(uVy) + seed*H; float y = uVy < 0. ? H - mod(t, H) : mod(t, H); float k = uTime*.4 + seed*31.;
+            vec3 p = position + vec3(sin(k)*2.2 + uTime*.35*(seed-.3), y, cos(k*.8)*2.2); vA = smoothstep(0., 2., y) * smoothstep(H, H - 4., y); vR = uTime*(1.5 + seed*2.) + seed*9.;
+            vec4 mvPosition = modelViewMatrix*vec4(p,1.); gl_Position = projectionMatrix*mvPosition; gl_PointSize = uSz*(.7 + seed*.6)*220./-mvPosition.z;\n#include <fog_vertex>\n}`,fragmentShader:`uniform vec3 uCol; uniform float uKind; varying float vA, vR;\n#include <fog_pars_fragment>\nvoid main(){ vec2 c = gl_PointCoord - .5; float a;
+            if (uKind > 2.5) { a = smoothstep(.5, 0., length(c)); a *= a; }
+            else if (uKind > 1.5) { float r = length(c); a = smoothstep(.5, .42, r) * (.35 + smoothstep(.3, .46, r)); }
+            else if (uKind > .5) { float cs = cos(vR), sn = sin(vR); vec2 q = mat2(cs, -sn, sn, cs) * c; q.y *= 2.2; a = smoothstep(.5, .36, length(q)); }
+            else { a = smoothstep(.5, .1, length(c)) * .6; }
+            gl_FragColor = vec4(uCol, a*vA*.85); if (gl_FragColor.a < .01) discard;\n#include <fog_fragment>\n}`});
+m.uniforms.uTime=U.uTime; const p=new THREE.Points(g,m); p.frustumCulled=false; S.add(p);}
+r.render(S,cam); const gl=r.getContext(); document.title='done:'+gl.getError()+':'+out.length; window.__out=out;
+</script>

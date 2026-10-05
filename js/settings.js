@@ -1,6 +1,8 @@
+/* 安裝 App：瀏覽器允許安裝時先記下來，設定頁按「安裝」才跳出系統安裝視窗 */
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__installPrompt = e; });
 /* 設定頁（大廳「設定」與首頁「設定」共用）＋ 新手教學（大廳聚光燈導覽）。
    設定存在 localStorage：op_gfx（畫質）、op_motion（減少動態）、op_bspeed（預設戰鬥速度）、op_vibe（震動回饋）、op_live_pop（即時對戰邀請通知）、op_text（文字大小）。 */
-const GAME_VERSION = 'v96';
+const GAME_VERSION = 'v99';
 (function () {
   const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, put = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { } };
   /* ---------- 套用設定 ---------- */
@@ -37,11 +39,11 @@ const GAME_VERSION = 'v96';
       <h4>好友與通知</h4>${row('即時對戰邀請通知', '好友邀請你對戰時，在任何畫面跳出提示', sw('op_live_pop', get('op_live_pop') !== '0'))}
         ${row('好友與對戰', U ? `已登入：${U.email || ''}` : '登入後可以加好友、留言、對戰', `<button class="btn-gold sm" data-go="social">開啟</button>`)}
         ${row('雲端存檔', '在手機、平板、電腦之間接續進度', `<button class="btn-ghost sm" data-go="cloud">開啟</button>`)}
-      <h4>開發中</h4>${row('3D 場景樣板（東海・風車村）', 'Three.js 版新登島場景試作：卡通光影、即時陰影、細節民宅、起伏地形、海面、正午／黃昏／夜晚', `<a class="btn-gold sm" href="sample_east.html">開啟</a>`)}
-      <h4>說明</h4>${row('新手教學', '重新觀看大廳導覽', `<button class="btn-ghost sm" data-go="guide">觀看</button>`)}
+
+      <h4>說明</h4>${row('新手教學', '重新觀看大廳導覽', `<button class="btn-ghost sm" data-go="guide">觀看</button>`)}${row('安裝 App', '把遊戲安裝到手機主畫面，像 App 一樣全螢幕開啟', `<button class="btn-gold sm" data-go="install">安裝</button>`)}${row('屬性克制', '哪些屬性克制哪些屬性、傷害倍率', `<button class="btn-ghost sm" data-go="help-type">查看</button>`)}${row('遊戲說明', '戰鬥規則、各種玩法介紹', `<button class="btn-ghost sm" data-go="help-game">查看</button>`)}
         ${row('取得最新版本', '更新後畫面怪怪的，或想確認是最新版時使用（存檔不受影響）', `<button class="btn-ghost sm" data-go="refresh">重新整理</button>`)}
         ${row('玩家 ID', prof.id || '—', `<button class="btn-ghost sm" data-go="copy">複製</button>`)}
-        <p class="st-ver">偉大航路 ${GAME_VERSION}・資料版本 ${typeof DATA_VERSION !== 'undefined' ? DATA_VERSION : ''}</p></div></div>`;
+        <p class="st-ver">海賊新時代 ${GAME_VERSION}・資料版本 ${typeof DATA_VERSION !== 'undefined' ? DATA_VERSION : ''}</p></div></div>`;
     const q = s => panel.querySelectorAll(s);
     panel.querySelector('[data-x]').onclick = close;
     q('[data-sw=sound]').forEach(i => i.onchange = () => { AUDIO.setPref({ muted: !i.checked }); if (typeof syncSound === 'function') syncSound(); });
@@ -55,7 +57,7 @@ const GAME_VERSION = 'v96';
     }));
     q('[data-go]').forEach(b => b.onclick = () => { const g = b.dataset.go;
       if (g === 'social') { close(); openSocial(); } else if (g === 'cloud') { close(); openCloud(); } else if (g === 'guide') { close(); if (typeof openModes === 'function' && currentScreen !== 'modeScreen') openModes(); setTimeout(() => GUIDE.start(true), 400); }
-      else if (g === 'refresh') refresh(); else if (g === 'copy') { try { navigator.clipboard.writeText(prof.id); toast('已複製玩家 ID'); } catch (e) { toast(prof.id); } } });
+      else if (g === 'install') { if (window.__installPrompt) { window.__installPrompt.prompt(); window.__installPrompt.userChoice.finally(() => { window.__installPrompt = null; }); } else if (/iPhone|iPad|iPod/.test(navigator.userAgent)) alert('iPhone／iPad：請用 Safari 開啟遊戲 → 點下方「分享」→「加入主畫面」。'); else if (matchMedia('(display-mode: standalone)').matches) toast('已經是 App 模式了！', 'gold'); else alert('Android：請用 Chrome 開啟遊戲 → 右上角選單「⋮」→「安裝應用程式」或「加到主畫面」。\n電腦：網址列右側的「安裝」圖示。'); } else if (g === 'help-type' || g === 'help-game') { close(); openHelp(g === 'help-type' ? 'type' : 'game'); } else if (g === 'refresh') refresh(); else if (g === 'copy') { try { navigator.clipboard.writeText(prof.id); toast('已複製玩家 ID'); } catch (e) { toast(prof.id); } } });
   }
   async function refresh() { try { if (window.caches) { const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))); } if (navigator.serviceWorker) { const rs = await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r => r.update().catch(() => { }))); } } catch (e) { } toast('正在取得最新版本…', 'gold'); setTimeout(() => location.reload(), 500); }
   function open() { if (!panel) { panel = document.createElement('div'); panel.className = 'dl-wrap st-wrap'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', '設定'); panel.onclick = e => { if (e.target === panel) close(); }; } document.body.appendChild(panel); render(); }
@@ -66,7 +68,7 @@ const GAME_VERSION = 'v96';
 /* ---------- 新手教學：大廳聚光燈導覽 ---------- */
 const GUIDE = (function () {
   const STEPS = [
-    { t: '歡迎來到偉大航路！', d: '這裡是大廳，所有冒險都從這裡出發。跟著導覽花一分鐘認識主要功能吧！' },
+    { t: '歡迎來到海賊新時代！', d: '這裡是大廳，所有冒險都從這裡出發。跟著導覽花一分鐘認識主要功能吧！' },
     { s: '#lbGo', t: '出航', d: '主線劇情：在海圖上選擇篇章，登島探索、完成任務、打倒 BOSS。通關後還能挑戰「困難模式」拿星星。' },
     { s: '#lbTeam', t: '出戰陣容', d: '戰鬥時最多 3 位船員依序上場。點這裡可以更換、調整順序，等級越高越強。' },
     { s: '#lbModesBtn', t: '冒險', d: '奪寶大冒險、勇者之塔（250 層）、懸賞金交易所、皇帝領海、虛空王座，都在這裡。' },

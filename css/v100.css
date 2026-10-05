@@ -1,0 +1,28 @@
+/* v100：限定活動檔期（開放中／預告／休息）樣式＋按鍵對齊修正。8px 網格、同列等高、垂直置中 */
+/* 活動頁的倒數列：左右兩段，同一列垂直置中；手機寬度不足時換成上下兩行並置中 */
+#evPane .ev-clock{width:100%;justify-self:stretch;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:8px 16px;text-align:left;line-height:1.3}
+#evPane .ev-clock span{display:inline-flex;align-items:center;gap:4px}
+#evPane .ev-clock.soon{background:rgba(79,134,255,.14);border-color:#6f9bff}
+#evPane .ev-clock.soon b{color:#cfe0ff}
+@media (max-width:520px){#evPane .ev-clock{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px}}
+/* 抽獎按鈕：預告／休息時改成一顆跨兩欄的停用按鈕，高度與兩顆抽獎鈕相同 */
+.ev-pulls .ev-wait{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:64px;opacity:1;cursor:default;border-style:dashed}
+.ev-pulls button{display:flex;align-items:center;justify-content:center;line-height:1.2;gap:2px}
+/* 召喚池標籤的狀態徽章：三種徽章同高、同字級，和文字垂直置中 */
+.pool-tabs button{display:inline-flex;align-items:center;gap:6px}
+.pool-tabs button img{flex:none;width:24px;height:24px;object-fit:contain}
+.pool-hot,.pool-soon,.pool-off{display:inline-flex;align-items:center;justify-content:center;height:16px;margin-left:0!important;padding:0 6px!important;border-radius:8px;font-style:normal;font-size:10px!important;font-weight:800;line-height:1;letter-spacing:0}
+.pool-soon{background:#3f6fe0;color:#fff}
+/* 角色背包・碎片區的活動標題：活動名與狀態同一列置中 */
+.sd-group h4{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px}
+.sd-ph{font-size:11px;font-weight:700;letter-spacing:0;padding:2px 8px;border-radius:8px;line-height:1.4}
+.sd-ph.live{background:rgba(232,182,74,.18);color:#ffe7a8}
+.sd-ph.soon{background:rgba(79,134,255,.2);color:#cfe0ff}
+.sd-ph.rest{background:rgba(255,255,255,.08);color:#b9c3d2}
+/* 大廳左下的限定召喚卡：預告中用藍色標籤 */
+#lbEvent.ev-soon .l2-pick-tag{background:linear-gradient(90deg,#2e5fd6,#5fa0ff)}
+/* 大廳個人名片：「ID＋複製圖示」原本被擠到下一行，改成同一行垂直置中（手機版仍照舊隱藏 ID） */
+@media (min-width:761px){#modeScreen .lbpf-txt small{flex-wrap:nowrap}#modeScreen .lbpf-txt small{flex-direction:row!important}#modeScreen .lbpf-id{display:inline-flex!important;flex-direction:row!important;align-items:center!important;flex-wrap:nowrap;white-space:nowrap;line-height:1}
+  #modeScreen .lbpf-cp{display:inline-flex;align-items:center;justify-content:center;width:20px!important;height:20px!important;min-width:0!important;min-height:0!important;padding:0!important;margin:0!important;line-height:1;flex:none;position:static!important}}
+/* 大廳左側圖示欄：副標過長時不再超出欄寬造成整格偏移 */
+.l2-ic{min-width:0}.l2-ic small{max-width:100%}

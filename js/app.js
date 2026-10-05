@@ -278,6 +278,8 @@ const STEP_INSERTS = { enies: { after: 4, n: 1 }, wano: { after: 6, n: 2 } }, ST
 function chState() { const st = SAVE.data.chapters[CH.id], m = STEP_INSERTS[CH.id], m2 = STEP_INSERTS49[CH.id];
   if (st && m && !st.v41) { st.v41 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m.after) st.step += m.n; SAVE.save(); }
   if (st && m2 && !st.v49) { st.v49 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m2.after) st.step += m2.n; SAVE.save(); }
+  /* v103：頂上戰爭篇在卡普之前插入黑鬍子（七武海）小 BOSS（第 6 步） */
+  const m3 = { marineford: { after: 4, n: 1 } }[CH.id]; if (st && m3 && !st.v103) { st.v103 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m3.after) st.step += m3.n; SAVE.save(); }
   return st; }
 function curStep() { const st = chState(); return st.cleared && st.step >= CH.steps.length ? null : CH.steps[Math.min(st.step, CH.steps.length - 1)]; }
 /* 敵人等級：開啟等級同步時，陣容太強會讓敵人跟著變強 */
@@ -403,10 +405,14 @@ function renderQuest() {
   const q = $('questBox'); q.classList.remove('flash'); void q.offsetWidth; q.classList.add('flash');
   bindQuestMini();
 }
+/* 收尾對白：等目前的對話結束、回到島上畫面後才播放（從戰鬥完成的任務，關掉戰鬥結果後才出現） */
+function playAfterLines(lines) { const t0 = Date.now(), h = setInterval(() => { if (Date.now() - t0 > 30000) return clearInterval(h); if (dialogOpen || currentScreen !== 'worldScreen') return; clearInterval(h); try { say(lines); } catch (e) { console.warn(e); } }, 350); }
 function completeStep() {
   const st = chState(), idx = st.step, s = CH.steps[idx];
   if (!st.rewarded.includes(idx)) { st.rewarded.push(idx); addBerry(80 * ((CHAPTER_DIFFICULTY[CH.id] || {}).order || 1)); addTokens(s.reward, s.title); gainExp(SAVE.data.player, (s.reward || 1) * 50 + ENEMY_LEVEL[CH.id] * 4); }
   st.step++; st.talked = []; st.keys = 0; st.defeated = []; SAVE.save(); track('steps'); SFX.play('quest'); stepStarted(); CHAIN = null;
+  /* v105：所有任務類型完成後都能播放收尾對白（對決與問答原本就會自己播放，避免重複） */
+  if (s && s.after && s.after.length && s.type !== 'duel' && !s.questions) playAfterLines(s.after);
   if (s.unlockBoss) setTimeout(() => toast('BOSS 的屏障解除了', 'gold'), 500);
   const nx = CH.steps[st.step];
   if (nx && nx.type === 'defeat' && st.defeated.length >= nx.count) { setTimeout(completeStep, 600); }
@@ -518,7 +524,7 @@ function onBattleEnd(r) {
   }
   if (!r.win) return {};
   if (r.isBoss) {
-    if (s && s.type === 'boss') { window.__tbcNext = true; const before = SAVE.data.tokens; const first = !st.cleared; st.cleared = true; completeStep(); if (first) { SAVE.data.tokens += GAME_SETTINGS.clearBonus; msgs.push(`首次通關獎勵：寶藏幣 ×${GAME_SETTINGS.clearBonus}`); Object.entries(CHAR_OBTAIN).forEach(([cid, o]) => { if (o.reward === CH.id && !owned(cid)) { addCrew(cid, 10); msgs.push(`<b>${CHARACTERS[cid].name}</b> 加入了角色背包！（LV 10）`); } }); } SAVE.save(); coins(); const got = SAVE.data.tokens - before; if (got) msgs.unshift(`這一戰共得到寶藏幣 ×${got}`); { const bid = CH.boss, ob = CHAR_OBTAIN[bid] || {}, rate = first ? (ob.bossFirst ?? ob.boss ?? GAME_SETTINGS.bossJoinFirst) : (ob.bossRepeat ?? ob.boss ?? GAME_SETTINGS.bossJoinRepeat), again = ob.boss != null ? ob.boss : GAME_SETTINGS.bossJoinRepeat; if (!owned(bid) && rate <= 0) msgs.push(ob.reward === '_emperor' ? `${CHARACTERS[bid].name} 只能在「皇帝領海」挑戰中取得。` : `${CHARACTERS[bid].name} 無法透過戰鬥取得，只能在懸賞處召喚。`); else if (!owned(bid)) { if (Math.random() < rate) { addCrew(bid, GAME_SETTINGS.bossJoinLv); msgs.push(`<b>${CHARACTERS[bid].name}</b> 被你的實力打動，加入了角色背包！（LV ${GAME_SETTINGS.bossJoinLv}）`); } else msgs.push(`${CHARACTERS[bid].name} 這次沒有加入。再次擊敗時仍有 ${Math.round(again * 100)}% 機率加入。`); } } pendingClear = { first }; }
+    if (s && s.type === 'boss') { window.__tbcNext = true; const before = SAVE.data.tokens; const first = !st.cleared; st.cleared = true; completeStep(); if (first) { SAVE.data.tokens += GAME_SETTINGS.clearBonus; msgs.push(`首次通關獎勵：寶藏幣 ×${GAME_SETTINGS.clearBonus}`); Object.entries(CHAR_OBTAIN).forEach(([cid, o]) => { if (o.reward === CH.id && !owned(cid)) { addCrew(cid, 10); msgs.push(`<b>${CHARACTERS[cid].name}</b> 加入了角色背包！（LV 10）`); } }); } SAVE.save(); coins(); const got = SAVE.data.tokens - before; if (got) msgs.unshift(`這一戰共得到寶藏幣 ×${got}`); { const bid = CH.boss, ob = CHAR_OBTAIN[bid] || {}, rate = first ? (ob.bossFirst ?? ob.boss ?? GAME_SETTINGS.bossJoinFirst) : (ob.bossRepeat ?? ob.boss ?? GAME_SETTINGS.bossJoinRepeat), again = ob.boss != null ? ob.boss : GAME_SETTINGS.bossJoinRepeat; if (!owned(bid) && rate <= 0) msgs.push(ob.reward === '_emperor' ? `${CHARACTERS[bid].name} 只能在「皇帝領海」挑戰中取得。` : ob.eventOnly ? `${CHARACTERS[bid].name} 只能從限定活動抽獎池取得。` : `${CHARACTERS[bid].name} 無法透過戰鬥取得，只能在懸賞處召喚。`); else if (!owned(bid)) { if (Math.random() < rate) { addCrew(bid, GAME_SETTINGS.bossJoinLv); msgs.push(`<b>${CHARACTERS[bid].name}</b> 被你的實力打動，加入了角色背包！（LV ${GAME_SETTINGS.bossJoinLv}）`); } else msgs.push(`${CHARACTERS[bid].name} 這次沒有加入。再次擊敗時仍有 ${Math.round(again * 100)}% 機率加入。`); } } pendingClear = { first }; }
   } else {
     if (s && s.type === 'duel' && r.enemyId === s.enemy) { const b = SAVE.data.tokens; completeStep(); msgs.push(`⚔ 對決勝利！任務完成：${s.title}（寶藏幣 +${SAVE.data.tokens - b}）`); if (s.joins && !owned(s.joins)) { addCrew(s.joins, s.joinLv || 20); msgs.push(`<b>${CHARACTERS[s.joins].name}</b> 加入了你的船隊！`); } if (s.after) setTimeout(() => say(s.after), 900); return { message: msgs.join('<br>') }; }
     /* 只有「擊敗／連戰／奪鑰」任務進行中的戰鬥才會讓敵人消失；提前打倒的敵人會留在原地，避免任務卡住 */
@@ -795,7 +801,8 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.topbar-right').forEach(tr => {
     const btns = [...tr.querySelectorAll('.btn-ghost,.btn-gold')]; if (btns.length < 2) return;
     const m = document.createElement('button'); m.className = 'icon-btn m-menu'; m.setAttribute('aria-label', '選單'); m.textContent = '☰'; tr.appendChild(m);
-    m.onclick = () => { const snd = tr.querySelector('[data-snd]'); $('menuGrid').innerHTML = btns.map((b, i) => `<button class="${b.classList.contains('btn-gold') ? 'btn-gold' : 'btn-ghost'}" data-i="${i}">${b.textContent}</button>`).join('') + (snd ? `<button class="btn-ghost" data-snd-m>音樂：${AUDIO.pref.muted ? '關' : '開'}</button>` : '');
+    m.onclick = () => { const snd = tr.querySelector('[data-snd]'); $('menuGrid').innerHTML = btns.map((b, i) => /角色背包|懸賞處/.test(b.textContent) ? '' : `<button class="${b.classList.contains('btn-gold') ? 'btn-gold' : 'btn-ghost'}" data-i="${i}">${b.textContent}</button>`).join('') + '<button class="btn-ghost" data-help="type">屬性克制</button><button class="btn-ghost" data-help="battle">戰鬥說明</button><button class="btn-ghost" data-help="game">遊戲介紹</button><button class="btn-ghost" data-help="guide">新手教學</button>' + (snd ? `<button class="btn-ghost" data-snd-m>音樂：${AUDIO.pref.muted ? '關' : '開'}</button>` : '');
+      $('menuGrid').querySelectorAll('[data-help]').forEach(x => x.onclick = () => { closeSheet(); const k = x.dataset.help; if (k === 'guide') { if (currentScreen !== 'modeScreen') openModes(); setTimeout(() => GUIDE.start(true), 400); } else openHelp(k); }); /* 手機選單：遊戲說明與幫助（角色背包、懸賞處在大廳下方已經有了） */
       $('menuGrid').querySelectorAll('[data-i]').forEach(x => x.onclick = () => { closeSheet(); btns[+x.dataset.i].click(); });
       const sm = $('menuGrid').querySelector('[data-snd-m]'); if (sm) sm.onclick = () => { toggleSound(); sm.textContent = '音樂：' + (AUDIO.pref.muted ? '關' : '開'); };
       $('menuSheet').classList.add('show'); };

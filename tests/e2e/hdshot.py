@@ -13,7 +13,7 @@ with sync_playwright() as p:
     for j in jobs:
         w,h=j.get('vp',[1280,720]); pg=b.new_page(viewport={'width':w,'height':h},device_scale_factor=1); errs=[]
         pg.on('pageerror',lambda e: errs.append(str(e)[:600])); pg.on('console',lambda m: errs.append('c:'+m.text[:600]) if m.type in('error','warning') else None)
-        pg.goto(f'http://127.0.0.1:{PORT}/sample_east.html'+j.get('q','')); pg.wait_for_timeout(j.get("load",1500))
+        pg.goto(f'http://127.0.0.1:{PORT}/dev/sample_east.html'+j.get('q','')); pg.wait_for_timeout(j.get("load",1500))
         if j.get('js'): pg.evaluate("()=>{"+j['js']+"}")
         pg.wait_for_timeout(j.get('wait',6000))
         pg.screenshot(path=f""+os.path.join(HERE,'shots','')+f"{j['name']}.png")

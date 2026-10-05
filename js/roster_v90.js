@@ -35,7 +35,7 @@
   Object.assign(CHAR_OBTAIN, {
     brook: { boss: 0, eventOnly: true, npc: '僅能用碎片兌換（限定活動，目前沒有開放中的活動）' },
     tama: { boss: 0, reward: 'wano', npc: '和之國篇 NPC・通關後免費加入' },
-    dorry: { boss: 0, eventOnly: true, npc: '巨人篇 NPC・僅能從限定抽獎池取得（目前沒有開放中的活動）' },
+    dorry: { boss: 0, eventOnly: true, npc: '11 月限定活動抽獎池「艾爾巴夫第一彈」：集滿 150 碎片合成' },
     koza: { boss: 0, reward: 'alabasta', npc: '阿拉巴斯坦篇 NPC・通關後免費加入' }
   });
   /* 已經通關的玩家：補發這次新增的通關獎勵角色 */

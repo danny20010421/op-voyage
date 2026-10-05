@@ -477,3 +477,30 @@ body.vn-on #worldScreen>*:not(.dialog):not(.vn-stage):not(canvas):not(#worldCanv
 .sb-tile.v2 .t-art{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;display:block}
 .sb-tile.v2 .t-art img{position:absolute!important;inset:0;width:100%!important;height:100%!important;object-fit:cover}
 .sb-tile.v2 .t-name{position:static!important;flex:0 0 20px;height:20px;line-height:20px;font-size:11px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px;background:rgba(6,12,26,.88)}
+/* ===== 遊戲說明 ===== */
+.hp-card{width:min(760px,96vw);max-height:min(86dvh,820px);display:flex;flex-direction:column;padding:0!important;overflow:hidden}
+.hp-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 6px}.hp-head h3{margin:0;font-size:20px;color:#ffd98a}
+.hp-tabs{display:flex;gap:6px;padding:4px 18px 10px;border-bottom:1px solid rgba(255,255,255,.1)}
+.hp-tabs button{flex:1;min-height:40px;border-radius:10px;border:1px solid rgba(235,199,126,.35);background:rgba(255,255,255,.04);color:#e8e2d4;font-weight:700}
+.hp-tabs button.on{background:linear-gradient(180deg,#f4d48a,#c9973a);color:#2a1a08;border-color:transparent}
+.hp-body{overflow:auto;padding:14px 18px 20px;line-height:1.7;color:#e8e2d4;font-size:14px}
+.hp-lead ul,.hp-sec ul{margin:6px 0 10px;padding-left:20px}.hp-lead li,.hp-sec li{margin:3px 0}
+.hp-sec h4{margin:12px 0 4px;color:#ffd98a;font-size:15px}
+.hp-tip{font-size:13px;color:#b8c2d6;background:rgba(255,255,255,.04);border-left:3px solid #ebc77e;padding:8px 10px;border-radius:6px}
+.hp-lead b.up{color:#7ae08a}.hp-lead b.dn{color:#ff8a7a}
+.hp-tablewrap{overflow-x:auto;margin:10px 0}
+.hp-table{width:100%;border-collapse:collapse;font-size:13px}.hp-table th,.hp-table td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;vertical-align:middle}
+.hp-table thead th{color:#ffd98a;font-weight:800;white-space:nowrap}.hp-table em{color:#6a7488;font-style:normal}
+.hp-type{display:inline-block;margin:2px 4px 2px 0;padding:1px 8px;border-radius:99px;background:color-mix(in srgb,var(--t) 30%,transparent);border:1px solid var(--t);color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
+/* v97：劇情演出圖層——舞台在對話框下面（對話框保持清楚明亮），島上介面完全隱藏，不再隱隱約約透出來 */
+.vn-stage{z-index:29!important}
+#dialog.dialog{z-index:31!important;opacity:1}
+body.vn-on #worldScreen>*:not(.dialog):not(.vn-stage):not(canvas):not(#worldCanvas){opacity:0!important;visibility:hidden!important;transition:opacity .25s,visibility 0s .25s}
+body.vn-on #dialog,body.vn-on #dialog *{filter:none!important}
+.hp-body b.hp-up{color:#7ae08a!important}.hp-body b.hp-dn{color:#ff8a7a!important}
+/* ===== 品牌：海賊新時代 ===== */
+.login-main .logo h1.brand{margin:0 0 10px;line-height:0}
+.brand-logo{display:block;width:min(560px,86vw);height:auto;filter:drop-shadow(0 4px 18px rgba(0,0,0,.55)) drop-shadow(0 0 2px rgba(0,0,0,.6))}
+.ld-title{line-height:0;margin:0 0 6px}.ld-logo{display:block;width:min(460px,78vw);height:auto;margin:0 auto;filter:drop-shadow(0 4px 14px rgba(0,0,0,.6))}
+@media (max-width:760px){.brand-logo{width:min(420px,88vw);margin:0 auto}}
+.hn-logo img{display:block;height:30px;width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}

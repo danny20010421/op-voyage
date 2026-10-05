@@ -1,7 +1,7 @@
 /* 皇帝領海・四皇展示頁：四位皇帝以直立大幅立繪並列，選擇一位才進入他專屬的挑戰頁。 */
 (function () {
-  const SEA = { whitebeard: '新世界・白鬍子的領海', bigmom: '新世界・萬國托特蘭', kaido: '新世界・和之國', shanks: '新世界・紅髮的領海' };
-  const MARK = { whitebeard: '白', bigmom: '母', kaido: '獸', shanks: '紅' };
+  const SEA = { whitebeard: '新世界・白鬍子的領海', bigmom: '新世界・萬國托特蘭', kaido: '新世界・和之國', shanks: '新世界・紅髮的領海', blackbeard: '新世界・蜂巢島' };
+  const MARK = { whitebeard: '白', bigmom: '母', kaido: '獸', shanks: '紅', blackbeard: '黑' };
   let el = null;
   function phaseOf(id) { const S = (SAVE.data.emperor || {})[id] || {}; return S.phase || 1; }
   function open() {

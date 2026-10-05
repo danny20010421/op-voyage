@@ -71,18 +71,18 @@
       const k = spot(1.18, 1.38, 26, -99, true); if (k) { const [x, z, f] = k, c = Math.cos(f), sn = Math.sin(f); b.sphere(x, -4, z, 14, 14, '#6a5a52', 1.05, .1); b.sphere(x - 5 * c, 6, z + 5 * sn, 3.2, 8, '#1a1418'); b.sphere(x + 5 * c, 6, z - 5 * sn, 3.2, 8, '#1a1418'); b.cyl(x + 9 * c, 10, z - 9 * sn, 2, .3, 9, 8, '#e8dcc8', null, 0, [3 * c, -3 * sn]); b.cyl(x - 9 * c, 10, z + 9 * sn, 2, .3, 9, 8, '#e8dcc8', null, 0, [-3 * c, 3 * sn]); }
     },
     /* 蜂巢島：骷髏造型的海賊要塞與海賊學校 */
-    dark(b, H, r, O, spot) {
+    _darkOld(b, H, r, O, spot) { /* 已改為正式版場景 */
       const s = spot(.45, .8, 16, 1.4); if (s) { const [x, z] = s, y = H(x, z) - .4; b.box(x, y, z, 14, 6, 10, '#4a4048'); b.sphere(x, y + 9, z, 6.5, 14, '#d8ccc0', .95); b.sphere(x - 2.4, y + 9.6, z + 5.2, 1.6, 8, '#1a1418'); b.sphere(x + 2.4, y + 9.6, z + 5.2, 1.6, 8, '#1a1418'); b.box(x, y + 4.8, z + 5.6, 4, 1.6, .6, '#e8dcc8');
         tower(b, x - 8, y, z, 1.4, 11, '#3a3440', '#1a1418'); tower(b, x + 8, y, z, 1.4, 11, '#3a3440', '#1a1418'); flag(b, x, y + 15.5, z, '#1a1418'); O.push([x, z, 9]); }
     },
     /* 蛋頭島：蛋形研究所圓頂、未來塔、漂浮的龐克記錄 */
-    egghead(b, H, r, O, spot) {
+    _eggheadOld(b, H, r, O, spot) { /* 已改為正式版場景 */
       const s = spot(.45, .8, 16, 1.4); if (s) { const [x, z] = s, y = H(x, z) - .4; b.cyl(x, y, z, 9, 8, 2, 20, '#e8f0f8'); b.sphere(x, y + 6, z, 8, 18, '#f8fbff', 1.3); for (let i = 0; i < 10; i++) { const a = i / 10 * 6.28; b.box(x + Math.cos(a) * 7.4, y + 4, z + Math.sin(a) * 7.4, 1.2, 4, .3, '#5ac8f0', -a + 1.57); }
         b.cyl(x, y + 16, z, 1.2, .8, 4, 10, '#d8e8f8'); b.sphere(x, y + 22, z, 4, 14, '#ff9ac0', .85); b.sphere(x + 1.4, y + 22.6, z + 1, 2, 8, '#ff7aa8'); O.push([x, z, 10]); }
       for (let k = 0; k < 3; k++) { const t = spot(.3, .8, 8, 1.2); if (!t) break; const [x, z] = t, y = H(x, z) - .3; b.cyl(x, y, z, 1.6, 1.2, 10 + k * 3, 12, '#e8f0f8'); b.cyl(x, y + 10 + k * 3, z, 2.2, 2.2, .6, 12, '#5ac8f0'); b.sphere(x, y + 11 + k * 3, z, 1.4, 10, '#bfefff'); O.push([x, z, 2.4]); }
     },
     /* 巨人島：寶樹亞當與巨人的村落 */
-    giant(b, H, r, O, spot) {
+    _giantOld(b, H, r, O, spot) { /* 已改為正式版場景 */
       const s = spot(.45, .78, 22, 1.4); if (s) { const [x, z] = s, y = H(x, z) - .5; b.cyl(x, y, z, 5, 3.4, 26, 14, '#6a4a30'); for (let i = 0; i < 6; i++) { const a = i / 6 * 6.28; b.cyl(x + Math.cos(a) * 4, y - .5, z + Math.sin(a) * 4, 1.8, .6, 4, 7, '#5a3e28', null, 0, [Math.cos(a) * 2.5, Math.sin(a) * 2.5]); }
         [[0, 30, 0, 12], [-8, 26, 4, 8], [8, 27, -3, 8.5], [3, 34, 6, 7], [-4, 33, -6, 7]].forEach(([dx, dy, dz, R]) => b.sphere(x + dx, y + dy, z + dz, R, 12, mix('#3f7a3a', '#5a9a44', r()), .7, .2, (r() * 999) | 0)); O.push([x, z, 7]); }
       for (let k = 0; k < 2; k++) { const t = spot(.3, .8, 14, 1.3); if (!t) break; const [x, z] = t, y = H(x, z) - .4; b.box(x, y, z, 10, 8, 8, '#a88a68'); b.cyl(x, y + 8, z, 8, 0, 5, 4, '#6a5a3a', null, Math.PI / 4); b.box(x, y, z + 4.05, 3, 5, .3, '#5a3e28'); O.push([x, z, 7]); }

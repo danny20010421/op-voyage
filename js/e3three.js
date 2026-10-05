@@ -143,6 +143,26 @@ class R3 {
       this.island.add(new THREE.Points(g, new THREE.ShaderMaterial({ transparent: true, depthWrite: false, uniforms: { uTime: U.uTime, uTex: { value: this.puff || (this.puff = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), r = x.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(.5, 'rgba(255,255,255,.45)'); r.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = r; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })()) } },
         vertexShader: `attribute float seed; uniform float uTime; varying float vA; void main(){ float t = fract(uTime*.08 + seed); vec3 p = position + vec3(t*2.5 + sin(t*6.+seed*20.)*.4, t*7., t); vA = (1.-t)*smoothstep(0.,.1,t)*.5; vec4 mv = modelViewMatrix*vec4(p,1.); gl_Position = projectionMatrix*mv; gl_PointSize = (1.2 + t*3.5)*300./-mv.z; }`,
         fragmentShader: `uniform sampler2D uTex; varying float vA; void main(){ gl_FragColor = vec4(vec3(.96), texture2D(uTex, gl_PointCoord).a*vA); }` }))); }
+    this.dark = id === 'dark' || id === 'thriller'; /* 先算好，避免第一次進暗色島時光點顏色沿用上一座島 */
+    /* v100：各島的環境飄落物（和之國櫻花、阿拉巴斯坦風沙、蜂巢島火星、魚人島氣泡……），讓遠景有空氣感 */
+    { const AMB = { east: ['#ffffff', 140, -.5, .5, 1], alabasta: ['#e8c38a', 380, -.25, .55, 0], skypiea: ['#ffffff', 160, -.35, .9, 1], enies: ['#d8e6ff', 160, -.6, .5, 0], thriller: ['#9aa29a', 260, -.3, .7, 0],
+        marineford: ['#ffd9a0', 200, .5, .45, 0], fishman: ['#bff0ff', 260, 1.2, .55, 2], dressrosa: ['#ffd84a', 200, -.6, .55, 1], wholecake: ['#ff9ad2', 240, -.7, .55, 1], wano: ['#ffb7cf', 340, -.9, .7, 1],
+        dark: ['#ff8a3a', 300, 1.1, .45, 3], egghead: ['#7ff6ff', 220, .6, .45, 3], giant: ['#9cc46a', 260, -.7, .75, 1] }[id];
+      if (AMB) { const [col, cnt, vy, sz, kind] = AMB, NA = this.low ? Math.round(cnt * .45) : cnt, pos = [], sdC = []; let s4 = 1357; const rn = () => (s4 = s4 * 16807 % 2147483647) / 2147483647;
+        for (let i = 0; i < NA; i++) { const x = (rn() - .5) * 170, z = (rn() - .5) * 170; pos.push(x, Math.max(0, S.H(x, z)), z); sdC.push(rn()); }
+        const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('seed', new THREE.Float32BufferAttribute(sdC, 1));
+        const pts = new THREE.Points(g, new THREE.ShaderMaterial({ transparent: true, depthWrite: false, fog: true, blending: kind === 3 ? THREE.AdditiveBlending : THREE.NormalBlending,
+          uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { uCol: { value: new THREE.Color(col) }, uVy: { value: vy }, uSz: { value: sz }, uKind: { value: kind } }]),
+          vertexShader: `attribute float seed; uniform float uTime, uVy, uSz; varying float vA, vR;\n#include <fog_pars_vertex>\nvoid main(){ float H = 22.; float t = uTime*abs(uVy) + seed*H; float y = uVy < 0. ? H - mod(t, H) : mod(t, H); float k = uTime*.4 + seed*31.;
+            vec3 p = position + vec3(sin(k)*2.2 + uTime*.35*(seed-.3), y, cos(k*.8)*2.2); vA = smoothstep(0., 2., y) * smoothstep(H, H - 4., y); vR = uTime*(1.5 + seed*2.) + seed*9.;
+            vec4 mvPosition = modelViewMatrix*vec4(p,1.); gl_Position = projectionMatrix*mvPosition; gl_PointSize = uSz*(.7 + seed*.6)*220./-mvPosition.z;\n#include <fog_vertex>\n}`,
+          fragmentShader: `uniform vec3 uCol; uniform float uKind; varying float vA, vR;\n#include <fog_pars_fragment>\nvoid main(){ vec2 c = gl_PointCoord - .5; float a;
+            if (uKind > 2.5) { a = smoothstep(.5, 0., length(c)); a *= a; }
+            else if (uKind > 1.5) { float r = length(c); a = smoothstep(.5, .42, r) * (.35 + smoothstep(.3, .46, r)); }
+            else if (uKind > .5) { float cs = cos(vR), sn = sin(vR); vec2 q = mat2(cs, -sn, sn, cs) * c; q.y *= 2.2; a = smoothstep(.5, .36, length(q)); }
+            else { a = smoothstep(.5, .1, length(c)) * .6; }
+            gl_FragColor = vec4(uCol, a*vA*.85); if (gl_FragColor.a < .01) discard;\n#include <fog_fragment>\n}` }));
+        pts.material.uniforms.uTime = U.uTime; pts.frustumCulled = false; pts.renderOrder = 3; this.island.add(pts); } }
     /* 空中的光點與綠色島的小花 */
     { const pos = [], sdB = []; let sd2 = 99; const rn = () => (sd2 = sd2 * 16807 % 2147483647) / 2147483647; for (let i = 0; i < 260; i++) { const x = (rn() - .5) * 150, z = (rn() - .5) * 150, h = S.H(x, z); if (h < 0) continue; pos.push(x, h + .8 + rn() * 4, z); sdB.push(rn()); }
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('seed', new THREE.Float32BufferAttribute(sdB, 1)); const mc = id === 'fishman' ? new THREE.Color(.6, .9, 1) : this.dark || id === 'thriller' ? new THREE.Color(.75, 1, .45) : new THREE.Color(1, .92, .6);

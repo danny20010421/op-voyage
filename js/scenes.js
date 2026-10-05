@@ -80,6 +80,16 @@
       [y + 1.4, y + h + 1.4].forEach(wy => [.3, .7].forEach(f => { b.box(x0 + w * f, wy, z1 + .03, 1, 1, .08, '#2c3e58'); b.box(x0 + w * f, wy, z0 - .03, 1, 1, .08, '#2c3e58'); }));
       const rb = K.roof(x0 - .4, z0 - .4, x1 + .4, z1 + .4); rb.box(x, y + h * 2, z, w + .8, .4, d + .8, shade(roof, .8)); rb.cyl(x, y + h * 2 + .4, z, Math.max(w, d) * .75, 0, 2.6, 4, roof, null, Math.PI / 4); }
   };
+  /* 共用的擺放工具（v99）：避開道路、NPC、任務地點、既有碰撞與平台，找地勢平坦的空地 */
+  function placer(D, O, H, chId) {
+    const ch = (typeof CHAPTERS !== 'undefined' ? CHAPTERS : []).find(c => c.id === chId) || { npcs: [], steps: [] }, st = ch.steps || [];
+    const keep = [...ch.npcs.map(n => n.pos), ...(D.L.spots || []), D.L.spawn, D.L.boss, ...st.flatMap(x => [x.start, x.goal, x.pos].filter(Boolean)), ...st.flatMap(x => [...(x.spots || []), ...(x.points || [])]), ...st.flatMap(x => (x.guards || []).flatMap(g => g.path))];
+    const free = (x, z, c) => !onPath(x, z, c + 3.5) && keep.every(p => Math.hypot(x - p[0], z - p[1]) > c + 5) && O.every(o => Math.hypot(x - o[0], z - o[1]) > c + o[2]) && D.ST.plats.every(p => x + c < p.x0 - 2 || x - c > p.x1 + 2 || z + c < p.z0 - 2 || z - c > p.z1 + 2);
+    const flatOk = (x, z, c, tol) => { let lo = 99, hi = -99; for (let k = 0; k < 12; k++) { const a = k / 12 * 6.283; for (const rr of [c * .5, c]) { const h = H(x + Math.cos(a) * rr, z + Math.sin(a) * rr); lo = Math.min(lo, h); hi = Math.max(hi, h); } } return lo > .9 && hi - lo < (tol || 3); };
+    const ring = (rs, n) => { const out = []; rs.forEach(R => { for (let k = 0; k < (n || 28); k++) { const a = k / (n || 28) * 6.283 + R * .11; out.push([Math.round(Math.cos(a) * R), Math.round(Math.sin(a) * R)]); } }); return out; };
+    const find = (c, rs, tol, test) => ring(rs).find(([x, z]) => free(x, z, c) && flatOk(x, z, c, tol) && (!test || test(x, z)));
+    return { ch, keep, free, flatOk, ring, find };
+  }
   const P = {
     tree(b, x, y, z, s, r, col) {
       /* 樹：樹幹＋一根側枝＋三團樹葉，輪廓更蓬鬆 */
@@ -491,7 +501,7 @@
       for (let i = 0; i < 40; i++) { const a = r() * Math.PI * 2, d = 22 + r() * 54, px = Math.cos(a) * d, pz = Math.sin(a) * d; if (bad(px, pz) || Math.hypot(px, pz + 62) < 18 || Math.abs(px) < 6 || Math.hypot(px + 46, pz + 44) < 8) continue; const py = H(px, pz); if (py < 1.2) continue; if (r() < .6) { P.tree(b, px, py, pz, .7 + r() * .5, r, mix('#9ad07a', '#c2e59a', r())); O.push([px, pz, 1.2]); } else b.sphere(px, py + .6, pz, 1.4 + r(), 7, '#ffffff', .6, .1, i + 3); }
       D.clouds = []; for (let i = 0; i < 14; i++) { const a = r() * Math.PI * 2, d = 90 + r() * 70; D.clouds.push([Math.cos(a) * d, -2 + r() * 14, Math.sin(a) * d, 4 + r() * 6, r() * 6]); }
     },
-    dark(b, H, r, O, D) {
+    _darkOld(b, H, r, O, D) {
       // 蜂巢島：黑鬍子海賊團的海賊島（暮色、骷髏山、海賊城鎮、港口）
       const col = (x, y, z) => { const n = hash(x, z); if (y < .9) return mix('#3a3230', '#4a3e38', n); if (y > 3.6) return mix('#7a5a40', '#8a6a4a', n); return mix('#6b4a32', '#7d583c', n * .9); };
       b.terrain(200, 70, H, col);
@@ -695,6 +705,100 @@
         else { b.cyl(x, y, z, 1.2, 1.2, .7, 14, '#e8b070', ['#ff8ab0', '#8a5a3a', '#ffffff'][i % 3]); O.push([x, z, 1.3]); } }
       P.arena(b, D.L.boss[0], H(D.L.boss[0], D.L.boss[1]), D.L.boss[1], 14, '#f0c8d8', 14);
     },
+    dark(b, H, r, O, D) {
+      /* ======== 蜂巢島（正式版，立體地圖）：骷髏岩要塞（螺旋石階爬到骷髏眼睛的瞭望台）、海盜港口（棧橋與黑鬍子的船）、可以進去的酒館、海賊學校訓練場、岩柱之間要跳的踏石 ======== */
+      const K2 = D.K, { free, flatOk, ring, find } = placer(D, O, H, 'dark');
+      const col = (x, y, z) => { const n = hash(x, z); if (y < .9) return mix('#8a7a62', '#9a8a70', n); if (onPath(x, z, 3)) return mix('#7a5a3a', '#86664a', n); return mix('#6b4a30', '#7a5838', n * .6 + Math.sin(x * .17 + z * .12) * .2); };
+      b.terrain(200, 80, H, col);
+      const rock = '#5a4a40', rock2 = '#4a3c34', wood = '#6a4a2a', bone = '#efe6d2';
+      /* --- 骷髏岩要塞 --- */
+      { const c = find(8, [52, 46, 58, 40], 3.5); if (c) { const [cx, cz] = c, y0 = H(cx, cz) - .1, top = K2.tower(b, cx, cz, y0, 7, 2.6, '#7a6a5a', rock, 7 * 2.6);
+          K2.slab(b, cx - 5, cz - 5, cx + 5, cz + 5, top + .02, rock2, .5, '#6a5a4a'); [[-5, -5, 5, -5], [-5, 5, 5, 5], [-5, -5, -5, 5], [5, -5, 5, 5]].forEach(([a, c2, e, f]) => K2.rail(b, cx + a, cz + c2, cx + e, cz + f, top, '#3a2a1a'));
+          const sx = cx > 0 ? cx + 12.5 : cx - 12.5; b.sphere(sx, top + 2, cz, 7, 14, bone, 1.05); b.sphere(sx - Math.sign(sx - cx) * 5.4, top + 3, cz - 2.4, 1.8, 10, '#1a1210', 1); b.sphere(sx - Math.sign(sx - cx) * 5.4, top + 3, cz + 2.4, 1.8, 10, '#1a1210', 1); b.box(sx - Math.sign(sx - cx) * 5.2, top - 2.6, cz, 2.6, 2.2, 6, bone);
+          for (let k = -2; k <= 2; k++) b.box(sx - Math.sign(sx - cx) * 6.4, top - 1.4, cz + k * 1.1, .4, 1.2, .8, '#1a1210'); D.ST.walls.push({ x0: sx - 6, x1: sx + 6, z0: cz - 6, z1: cz + 6, y0: top - 6, y1: top + 9 }); /* 骷髏放在塔的外側，不擋樓梯 */
+          b.cyl(cx, top, cz + 4.6, .14, .12, 8, 6, '#2a1a10'); b.box(cx + 1.4, top + 6.6, cz + 4.6, 2.8, 1.8, .06, '#1a1a1e'); b.sphere(cx + 1.4, top + 6.6, cz + 4.64, .5, 8, bone); O.push([cx, cz, .01]); O.push([sx, cz, 6]); } }
+      /* --- 海盜港口：伸進海裡的棧橋，末端停著黑鬍子海賊團的船 --- */
+      { let done = false; for (let k = 0; k < 20 && !done; k++) { const ang = k / 20 * 6.283, ux = Math.cos(ang), uz = Math.sin(ang), ax = Math.abs(ux) > Math.abs(uz) ? 'x' : 'z', dx = ax === 'x' ? Math.sign(ux) : 0, dz = ax === 'z' ? Math.sign(uz) : 0;
+          for (let R = 66; R > 44 && !done; R -= 2) { const px = Math.round(ux * R), pz = Math.round(uz * R); if (H(px, pz) < 1 || !free(px, pz, 3) || H(px + dx * 6, pz + dz * 6) > -.3 || H(px + dx * 30, pz + dz * 30) > -.5) continue;
+            const y = Math.max(1.2, H(px, pz)); K2.bridge(b, px, pz, px + dx * 20, pz + dz * 20, y, 3.4, '#7a5a36', '#3a2a1a');
+            for (let q = 2; q <= 20; q += 3) [-1, 1].forEach(sd => b.cyl(px + dx * q + (ax === 'z' ? sd * 1.8 : 0), -3, pz + dz * q + (ax === 'x' ? sd * 1.8 : 0), .22, .22, y + 3.2, 6, '#4a3420'));
+            const shx = px + dx * 20 + (ax === 'z' ? 7.5 : 0), shz = pz + dz * 20 + (ax === 'x' ? 7.5 : 0); P.ship2(b, shx, .6, shz, Math.atan2(dx, dz), 1.3, { len: 15, w: 5, masts: [-.12, .2], sail: '#2a2a2e', hull: '#3a2a20', deck: '#6a4a2a', trim: '#8a6a3a', flag: '#1c1c22' });
+            const [bx, bz] = [px + dx * 10 + (ax === 'z' ? -4.5 : 0), pz + dz * 10 + (ax === 'x' ? -4.5 : 0)]; for (let q = 0; q < 4; q++) b.cyl(bx + (q % 2) * .9, y, bz + Math.floor(q / 2) * .9, .4, .4, .9, 8, '#7a5a3a'); done = true; } } }
+      /* --- 可以進去的酒館 --- */
+      { const c = find(6, [30, 36, 24, 42]); if (c) { const [x, z] = c; K2.house2(b, x, z, 10, 8, H(x, z), '#6a4a34', '#2a1a14', Math.abs(x) > Math.abs(z) ? (x > 0 ? 'x-' : 'x+') : (z > 0 ? 'z-' : 'z+')); b.box(x, H(x, z) + 7.6 + 3.2, z + 4.3, 4, 1.2, .2, '#c8963a'); O.push([x, z, .01]); } }
+      /* --- 海賊學校訓練場：木柵欄圍起來的場地與木人樁 --- */
+      { const c = find(8, [24, 32, 40]); if (c) { const [x, z] = c, y = H(x, z); for (let k = 0; k < 20; k++) { const a = k / 20 * 6.283; b.box(x + Math.cos(a) * 8, y - .2, z + Math.sin(a) * 8, .3, 1.6, .9, wood, -a); }
+          for (let k = 0; k < 4; k++) { const a = k * 1.57 + .4; b.cyl(x + Math.cos(a) * 3.5, y - .2, z + Math.sin(a) * 3.5, .35, .35, 2.4, 8, '#8a6a44'); b.box(x + Math.cos(a) * 3.5, y + 1.6, z + Math.sin(a) * 3.5, 1.6, .25, .25, '#8a6a44', a); } O.push([x, z, 8.6]); } }
+      /* --- 岩柱踏石：一根比一根高，要跳上去，終點是寶箱 --- */
+      { const c = find(9, [36, 44, 28], 4); if (c) { const [x0, z0] = c; let top = H(x0, z0); for (let q = 0; q < 6; q++) { const a = q * 1.05, x = x0 + Math.cos(a) * (2.5 + q * 1.1), z = z0 + Math.sin(a) * (2.5 + q * 1.1), gy = H(x, z), t = gy + 1.1 + q * 1.05;
+          b.cyl(x, gy - .4, z, 1.5, 1.2, t - gy + .4, 7, mix(rock, rock2, q / 6)); K2.slab(b, x - 1.3, z - 1.3, x + 1.3, z + 1.3, t, '#6a5a4a', .3); top = t; }
+          const ex = x0 + Math.cos(6.3) * 9.1, ez = z0 + Math.sin(6.3) * 9.1; b.box(ex, top, ez, 1.2, .9, .8, '#c9973a'); b.box(ex, top + .9, ez, 1.3, .3, .9, '#e8b84a'); O.push([x0, z0, .01]); } }
+      P.arena(b, D.L.boss[0], H(D.L.boss[0], D.L.boss[1]), D.L.boss[1], 14, '#5a4a40', 12);
+      /* --- 骨頭、木箱、火把、枯樹 --- */
+      for (let i = 0; i < 60; i++) { const a = r() * Math.PI * 2, d = 18 + r() * 56, x = Math.cos(a) * d, z = Math.sin(a) * d; if (bad(x, z) || !free(x, z, 1.3) || H(x, z) < 1.1) continue; const y = H(x, z), k2 = r();
+        if (k2 < .3) { P.rock(b, x, y, z, 1 + r() * 1.8, r, mix(rock, rock2, r())); O.push([x, z, 1.4]); } else if (k2 < .55) { b.box(x, y - .1, z, 1.1, 1, 1.1, '#7a5a36', r()); b.box(x + .3, y + .9, z, .9, .8, .9, '#86663e', r()); O.push([x, z, .9]); } else if (k2 < .75) { b.cyl(x, y - .1, z, .1, .12, 2.4, 6, '#3a2a1a'); b.sphere(x, y + 2.5, z, .32, 6, '#ffb04a', 1.3); O.push([x, z, .4]); } else { b.cyl(x, y - .3, z, .3, .15, 3.6, 6, '#3a2a20'); b.cyl(x, y + 2.2, z, .1, .04, 1.6, 5, '#3a2a20', null, 0, [1, .4]); O.push([x, z, .8]); } }
+    },
+    egghead(b, H, r, O, D) {
+      /* ======== 蛋頭島（正式版，立體地圖）：三層台地上的蛋形研究所、兩座未來塔與頂端的光之橋、一路往上跳的懸浮平台與龐克記錄、未來城市 ======== */
+      const K2 = D.K, { free, flatOk, ring, find } = placer(D, O, H, 'egghead');
+      const col = (x, y, z) => { const n = hash(x, z); if (y < .9) return mix('#e8f4f0', '#f4fbf8', n); if (onPath(x, z, 3)) return mix('#d8e8f0', '#e8f4fa', n); return mix('#7ab88a', '#8ac89a', n * .6 + Math.sin(x * .13 + z * .1) * .2); };
+      b.terrain(200, 80, H, col);
+      const white = '#f4f6fa', metal = '#c8d0dc', neon = '#5af0ff', pink = '#ff6ad0';
+      /* --- 蛋形研究所：三層台地，正面大樓梯，頂端巨大的蛋 --- */
+      { const c = ring([50, 44, 56]).find(([x, z]) => free(x, z, 13) && flatOk(x, z, 13, 3.4)); if (c) { const [x, z] = c, y = H(x, z) - .1, f = z < 0 ? 1 : -1, lv = [[26, 16], [18, 11], [12, 8]]; let base = y, cz = z;
+          lv.forEach(([w, d], k) => { const top = base + 4; cz = z - f * k * 1.8; b.box(x, base - .5, cz, w, top - base + .5, d, k % 2 ? metal : white); D.ST.walls.push({ x0: x - w / 2, x1: x + w / 2, z0: cz - d / 2, z1: cz + d / 2, y0: base - 1, y1: top - 1.3 }); K2.slab(b, x - w / 2, cz - d / 2, x + w / 2, cz + d / 2, top, white, .3, '#e8eef6'); b.box(x, top - .3, cz + f * (d / 2 + .03), w * .9, .14, .08, neon);
+            const fe = cz + f * d / 2; if (k === 0) K2.stairs(b, x - 2.6, fe + f * 7, x + 2.6, fe, Math.min(base, H(x, fe + f * 7)), top, 'z', '#dde4ee'); else { const fp = (z - f * (k - 1) * 1.8) + f * lv[k - 1][1] / 2; K2.stairs(b, x - 2, fp - f * .15, x + 2, fe, base, top, 'z', '#dde4ee'); } base = top; });
+          b.sphere(x, base + 4.4, cz, 5, 16, '#fff8e8', 1.4); b.sphere(x, base + 4.4, cz, 5.05, 16, '#ffe9b0', 1.4, .2); D.ST.walls.push({ x0: x - 4.5, x1: x + 4.5, z0: cz - 4.5, z1: cz + 4.5, y0: base, y1: base + 11 }); b.cyl(x, base + 11.5, cz, .2, .1, 3, 6, metal); b.sphere(x, base + 14.6, cz, .5, 8, neon);
+          O.push([x, z, .01]); } }
+      /* --- 兩座未來塔：螺旋樓梯爬上去，頂端用光之橋連起來 --- */
+      { const c = ring([30, 36, 42, 48, 54, 24], 36).find(([x, z]) => free(x, z, 13) && flatOk(x, z, 12, 5)); if (c) { const [mx, mz] = c, ax = Math.abs(mx) > Math.abs(mz) ? 'z' : 'x', d2 = 9, p1 = ax === 'x' ? [mx - d2, mz] : [mx, mz - d2], p2 = ax === 'x' ? [mx + d2, mz] : [mx, mz + d2];
+          const yA = Math.max(H(...p1), H(...p2)) - .1, yB = yA, /* 兩座塔同一個高度，頂端才能用橋連起來 */ tA = K2.tower(b, p1[0], p1[1], yA, 6, 2.6, metal, white, 6 * 2.6), tB = K2.tower(b, p2[0], p2[1], yB, 6, 2.6, metal, white, 6 * 2.6), tt = Math.max(tA, tB);
+          [p1, p2].forEach(([tx, tz], i) => { const tp = i ? tB : tA; K2.slab(b, tx - 5, tz - 5, tx + 5, tz + 5, tp + .02, '#e8eef6', .4, white); b.cyl(tx, tp, tz, 1.2, .3, 6, 10, white); b.sphere(tx, tp + 6.4, tz, .7, 8, i ? pink : neon); });
+          if (Math.abs(tA - tB) < .6) { if (ax === 'x') K2.bridge(b, p1[0] + 5, mz, p2[0] - 5, mz, tt, 2.4, '#bfefff', neon); else K2.bridge(b, mx, p1[1] + 5, mx, p2[1] - 5, tt, 2.4, '#bfefff', neon); } O.push([mx, mz, .01]); } }
+      /* --- 懸浮平台：一片比一片高，最上面是龐克記錄（大腦雲） --- */
+      { const c = find(9, [24, 30, 36], 4); if (c) { const [x0, z0] = c; let top = H(x0, z0); for (let q = 0; q < 7; q++) { const a = q * .95, x = x0 + Math.cos(a) * (2.5 + q * 1.05), z = z0 + Math.sin(a) * (2.5 + q * 1.05), t = H(x, z) + 1.1 + q * 1.05;
+          K2.slab(b, x - 1.3, z - 1.3, x + 1.3, z + 1.3, t, '#e8eef6', .35); b.box(x, t - .45, z, 2.2, .08, 2.2, neon); b.cyl(x, t - 1.2, z, .5, .1, .7, 8, '#bfefff'); top = t; }
+          const ex = x0 + Math.cos(6.65) * 9.85, ez = z0 + Math.sin(6.65) * 9.85; for (let k = 0; k < 6; k++) b.sphere(ex + (hash(k, 1) - .5) * 2.4, top + 2.6 + hash(1, k) * 1.6, ez + (hash(k, 2) - .5) * 2.4, 1 + hash(k, 3) * .6, 10, '#ffd8f0', 1.2); O.push([x0, z0, .01]); } }
+      /* --- 未來城市：白色膠囊建築、全像招牌、可以進去的研究室 --- */
+      { const c = find(5, [22, 28, 34]); if (c) { const [x, z] = c; K2.house2(b, x, z, 9, 7, H(x, z), white, '#5ab0e0', Math.abs(x) > Math.abs(z) ? (x > 0 ? 'x-' : 'x+') : (z > 0 ? 'z-' : 'z+')); O.push([x, z, .01]); } }
+      { let k = 0; ring([26, 32, 38, 46]).forEach(([x, z]) => { if (k >= 8 || !free(x, z, 3) || !flatOk(x, z, 3)) return; const y = H(x, z), h = 3 + r() * 4; b.cyl(x, y - .2, z, 2.2, 1.8, h, 14, white); b.sphere(x, y + h, z, 1.9, 12, '#e8eef6', .6); b.cyl(x, y + h * .5, z, 2.25, 2.25, .3, 14, k % 2 ? neon : pink); b.box(x, y + h + 2, z, 2.6, 1.2, .1, k % 2 ? pink : neon, Math.atan2(-x, -z)); O.push([x, z, 2.6]); k++; }); }
+      P.arena(b, D.L.boss[0], H(D.L.boss[0], D.L.boss[1]), D.L.boss[1], 14, '#dde4ee', 14);
+      for (let i = 0; i < 60; i++) { const a = r() * Math.PI * 2, d = 18 + r() * 56, x = Math.cos(a) * d, z = Math.sin(a) * d; if (bad(x, z) || !free(x, z, 1.3) || H(x, z) < 1.1) continue; const y = H(x, z);
+        if (r() < .55) { b.cyl(x, y - .2, z, .18, .15, 2.6, 6, '#e8eef6'); b.sphere(x, y + 3, z, 1.4, 10, mix('#ff9ad8', '#9ad8ff', r()), .9); O.push([x, z, 1.2]); } else { b.cyl(x, y - .1, z, .1, .1, 3, 6, metal); b.sphere(x, y + 3.1, z, .35, 8, neon, 1.3); O.push([x, z, .4]); } }
+    },
+    giant(b, H, r, O, D) {
+      /* ======== 巨人篇・艾爾巴夫（正式版，立體地圖）：寶樹亞當（繞著樹幹的樓梯爬到樹上平台）、巨人的長桌（椅子當踏台跳上桌面）、可以進去的巨人長屋、維京長船 ======== */
+      const K2 = D.K, { free, flatOk, ring, find } = placer(D, O, H, 'giant');
+      const col = (x, y, z) => { const n = hash(x, z); if (y < .9) return mix('#9a8a6a', '#aa9a78', n); if (onPath(x, z, 3)) return mix('#8a6a44', '#967650', n); return mix('#3f5a2c', '#4f6a36', n * .6 + Math.sin(x * .1 + z * .13) * .2); };
+      b.terrain(200, 80, H, col);
+      const bark = '#5a3e26', bark2 = '#6a4a2e', wood = '#8a5a34', leaf = ['#2f6a2a', '#3f7a32', '#4a8a3a'];
+      /* --- 寶樹亞當 --- */
+      { const c = find(9, [30, 38, 24, 46], 3.5); if (c) { const [cx, cz] = c, y0 = H(cx, cz) - .1, top = K2.tower(b, cx, cz, y0, 8, 2.6, wood, bark, 8 * 2.6);
+          b.cyl(cx, y0 - .5, cz, 4.2, 3.4, 8 * 2.6 + 16, 14, bark2); for (let k = 0; k < 8; k++) { const a = k / 8 * 6.283; b.cyl(cx + Math.cos(a) * 4, y0 - .6, cz + Math.sin(a) * 4, 1.6, .5, 4, 7, bark, null, 0, [Math.cos(a) * 3, Math.sin(a) * 3]); }
+          K2.slab(b, cx - 5, cz - 5, cx + 5, cz + 5, top + .02, '#7a5232', .5, '#8a6240'); [[-5, -5, 5, -5], [-5, 5, 5, 5], [-5, -5, -5, 5], [5, -5, 5, 5]].forEach(([a, c2, e, f]) => K2.rail(b, cx + a, cz + c2, cx + e, cz + f, top, '#4a3020'));
+          for (let k = 0; k < 14; k++) { const a = k / 14 * 6.283, rr = 7 + hash(k, 3) * 7; b.sphere(cx + Math.cos(a) * rr, top + 12 + hash(k, 5) * 8, cz + Math.sin(a) * rr, 5 + hash(k, 7) * 3, 10, leaf[k % 3], .7); } b.sphere(cx, top + 22, cz, 9, 12, leaf[1], .7);
+          D.ST.walls.push({ x0: cx - 3.4, x1: cx + 3.4, z0: cz - 3.4, z1: cz + 3.4, y0: top, y1: top + 16 }); O.push([cx, cz, .01]); } }
+      /* --- 巨人的長桌：椅子當踏台，一路跳上桌面 --- */
+      { const c = find(10, [40, 34, 46, 28]); if (c) { const [x, z] = c, y = H(x, z) - .1, ax = Math.abs(x) > Math.abs(z) ? 'z' : 'x', tH = 5.2, L = 16, W = 5;
+          const x0 = ax === 'x' ? x - L / 2 : x - W / 2, x1 = ax === 'x' ? x + L / 2 : x + W / 2, z0 = ax === 'x' ? z - W / 2 : z - L / 2, z1 = ax === 'x' ? z + W / 2 : z + L / 2;
+          K2.slab(b, x0, z0, x1, z1, y + tH, '#8a5a34', .6, '#9a6a40'); [[x0 + .6, z0 + .6], [x1 - .6, z0 + .6], [x0 + .6, z1 - .6], [x1 - .6, z1 - .6]].forEach(([lx, lz]) => { b.box(lx, y - .2, lz, 1, tH - .4, 1, '#6a4428'); D.ST.walls.push({ x0: lx - .5, x1: lx + .5, z0: lz - .5, z1: lz + .5, y0: y - 1, y1: y + tH - .8 }); });
+          const sd = ax === 'x' ? [0, -(W / 2 + 3)] : [-(W / 2 + 3), 0]; [1.8, 3.6].forEach((h, k) => { const sx = x + sd[0] + (ax === 'z' ? 0 : (k - .5) * 4), sz = z + sd[1] + (ax === 'x' ? 0 : (k - .5) * 4); K2.slab(b, sx - 1.4, sz - 1.4, sx + 1.4, sz + 1.4, y + h, '#7a4a2a', h); });
+          const ex = x + sd[0] * .6 + (ax === 'z' ? 0 : 2), ez = z + sd[1] * .6 + (ax === 'x' ? 0 : 2); K2.slab(b, ex - 1.2, ez - 1.2, ex + 1.2, ez + 1.2, y + 4.6, '#7a4a2a', 4.6);
+          for (let k = 0; k < 4; k++) { const mx = ax === 'x' ? x - 6 + k * 4 : x, mz = ax === 'x' ? z : z - 6 + k * 4; b.cyl(mx, y + tH, mz, 1, .9, 1.8, 10, '#c8a070'); b.cyl(mx, y + tH + 1.8, mz, 1.05, 1.05, .2, 10, '#fff4dc'); } O.push([x, z, .01]); } }
+      /* --- 可以進去的巨人長屋 --- */
+      { const c = find(7, [26, 32, 20, 40]); if (c) { const [x, z] = c; K2.house2(b, x, z, 14, 10, H(x, z), '#7a5a3a', '#4a3a2a', Math.abs(x) > Math.abs(z) ? (x > 0 ? 'x-' : 'x+') : (z > 0 ? 'z-' : 'z+')); b.cyl(x - 6.5, H(x, z) + 7.6, z - 4.5, .25, .1, 3, 6, '#efe6d2', null, 0, [-.6, -.6]); b.cyl(x + 6.5, H(x, z) + 7.6, z - 4.5, .25, .1, 3, 6, '#efe6d2', null, 0, [.6, -.6]); O.push([x, z, .01]); } }
+      /* --- 維京長船：停在岸邊，從斜坡走上甲板 --- */
+      { let done = false; for (let k = 0; k < 20 && !done; k++) { const ang = k / 20 * 6.283, ux = Math.cos(ang), uz = Math.sin(ang), ax = Math.abs(ux) > Math.abs(uz) ? 'x' : 'z', dx = ax === 'x' ? Math.sign(ux) : 0, dz = ax === 'z' ? Math.sign(uz) : 0;
+          for (let R = 66; R > 44 && !done; R -= 2) { const px = Math.round(ux * R), pz = Math.round(uz * R); if (H(px, pz) < 1 || !free(px, pz, 3) || H(px + dx * 8, pz + dz * 8) > -.3 || H(px + dx * 28, pz + dz * 28) > -.5) continue;
+            const sc = 1.5, shx = px + dx * 18, shz = pz + dz * 18, sh = P.ship2(b, shx, .6, shz, Math.atan2(dx, dz), sc, { len: 16, w: 4.6, masts: [0], mastH: 9, head: 'lion', sail: '#c8322b', hull: '#6a4428', deck: '#9a6a40', trim: '#d8b070', flag: '#1c3a6a' });
+            const p0 = sh.L(-sh.W * .4, -sh.Ln * .42), p1 = sh.L(sh.W * .4, sh.Ln * .44); D.ST.plats.push({ x0: Math.min(p0[0], p1[0]), z0: Math.min(p0[1], p1[1]), x1: Math.max(p0[0], p1[0]), z1: Math.max(p0[1], p1[1]), y0: sh.deckY + .05, y1: sh.deckY + .05 });
+            const half = sh.Ln / 2; if (ax === 'x') K2.stairs(b, shx - dx * (half + 7), shz - 1.3, shx - dx * (half - .6), shz + 1.3, H(shx - dx * (half + 7), shz), sh.deckY + .05, 'x', '#8a6a44'); else K2.stairs(b, shx - 1.3, shz - dz * (half + 7), shx + 1.3, shz - dz * (half - .6), H(shx, shz - dz * (half + 7)), sh.deckY + .05, 'z', '#8a6a44');
+            const [mx, mz] = sh.L(0, 0); D.ST.walls.push({ x0: mx - .45, x1: mx + .45, z0: mz - .45, z1: mz + .45, y0: sh.deckY, y1: sh.deckY + 14 }); done = true; } } }
+      P.arena(b, D.L.boss[0], H(D.L.boss[0], D.L.boss[1]), D.L.boss[1], 14, '#6a5a44', 12);
+      /* --- 巨大的松樹、岩石、符文石 --- */
+      for (let i = 0; i < 70; i++) { const a = r() * Math.PI * 2, d = 18 + r() * 58, x = Math.cos(a) * d, z = Math.sin(a) * d; if (bad(x, z) || !free(x, z, 1.8) || H(x, z) < 1.1) continue; const y = H(x, z), k2 = r();
+        if (k2 < .6) { P.pine(b, x, y, z, 1.4 + r() * 1.2); O.push([x, z, 1.8]); } else if (k2 < .85) { P.rock(b, x, y, z, 1.2 + r() * 2.4, r, mix('#6a6a62', '#7a7a70', r())); O.push([x, z, 1.8]); } else { b.box(x, y - .3, z, 1.2, 3.4, .5, '#7a7a72', r()); b.box(x, y + 1.6, z + .26, .7, .1, .02, '#5af0ff'); O.push([x, z, 1]); } }
+    },
     _eniesOld(b, H, r, O, D) { /* 舊版要塞地形：頂上戰爭、蛋頭島仍沿用 */
       const col = (x, y, z) => { const n = hash(x, z); if (y < .9) return mix('#9a9a92', '#aaa89e', n); if (Math.abs(x) < 7 && z < 40) return mix('#c9c3b0', '#d6d0bd', n); return mix('#7d8a6a', '#8e9a78', n); };
       b.terrain(200, 70, H, col);
@@ -850,7 +954,7 @@
       for (let z = 44; z > -40; z -= 10) [-6, 6].forEach(x => { const y = H(x, z); b.cyl(x, y - .3, z, .12, .12, 2.6, 5, '#2b2b2b'); b.cyl(x, y + 2.4, z, .5, .5, 1, 8, '#ff9a4a', '#c8322b'); });
       D.petals = true;
     },
-    giant(b, H, r, O, D) {
+    _giantOld(b, H, r, O, D) {
       const col = (x, y, z) => { const n = hash(x, z); if (y < .9) return mix('#b89c6a', '#c7ab78', n); return mix('#3e6a2c', '#4f7d36', n); };
       b.terrain(200, 70, H, col);
       // 巨木
@@ -875,6 +979,7 @@
       /* 起伏的丘陵（村子與道路附近保持平坦） */ bump: (x, z) => { const v = Math.hypot(x + 2, z - 34); return (Math.sin(x * .05 + 1.2) * Math.cos(z * .045) * 2.6 + Math.sin(x * .11 - z * .08) * .9) * sm(18, 34, v); },
       /* 從東邊山坡流進海裡的小溪 */ carve: (x, z, h) => { const zc = -26 - (x - 14) * .14 + Math.sin(x * .12) * 2.2; if (x < 12) return h; const d = Math.abs(z - zc), k = 1 - sm(1.4, 4.2, d); return h * (1 - k) + Math.min(h, -1.1) * k; } },
     alabasta: { R: 80, flats: [[0, 44, 26], [0, -60, 18, 1.8], [0, 0, 14]], hill: 2.2, bump: (x, z) => Math.sin(x * .09 + z * .05) * 1.4, carve: (x, z, h) => { const d = Math.hypot(x + 18, z - 18); return d < 8 ? Math.max(.4, h - (1 - d / 8) * 2.4) : h; } }, /* 尤巴的綠洲已經乾涸：坑底高於海面，不會出現水 */
+    egghead: { R: 80, flats: [[0, 44, 26], [0, -62, 18, 2], [0, 0, 16]], hill: 1.4 },
     wholecake: { R: 80, flats: [[0, 44, 26], [0, -60, 18, 2], [0, 0, 16]], hill: 1.6, bump: (x, z) => Math.sin(x * .06 - z * .05) * 1.2 },
     dressrosa: { R: 80, flats: [[0, 44, 26], [0, -60, 18, 2], [0, 0, 16]], hill: 1.8, bump: (x, z) => Math.sin(x * .07 + z * .04) * 1.1 },
     skypiea: { R: 76, flats: [[0, 44, 26], [0, -62, 18, 2.6], [0, 0, 16]], hill: 1.2 },
@@ -892,8 +997,8 @@
   /* 頂上戰爭篇：沿用要塞型的司法島地形 */
   queueMicrotask(() => { if (!BUILD.marineford || BUILD.marineford === BUILD.enies) BUILD.marineford = BUILD._eniesOld; OPTS.marineford = Object.assign({}, OPTS.enies, { carve: null }); WATER.marineford = WATER.enies; if (THEME.enies && !THEME.marineford) THEME.marineford = THEME.enies;
     /* 蛋糕島篇：有正式版就用自己的，否則沿用空島的舊版粉彩雲朵地形 */ if (!BUILD.wholecake || BUILD.wholecake === BUILD.skypiea) { BUILD.wholecake = BUILD._skypieaOld; OPTS.wholecake = OPTS.skypiea; } WATER.wholecake = WATER.dressrosa || WATER.skypiea; if (THEME.skypiea && !THEME.wholecake) THEME.wholecake = THEME.skypiea;
-    /* v63：恐怖三桅帆船沿用蜂巢島的陰暗地形、蛋頭島沿用要塞型地形、德雷斯羅薩沿用阿拉巴斯坦的石造城鎮 */ if (BUILD.dressrosa) { WATER.dressrosa = WATER.dressrosa || WATER.alabasta; if (THEME.alabasta && !THEME.dressrosa) THEME.dressrosa = THEME.alabasta; } if (BUILD.thriller) { OPTS.thriller = OPTS.thriller || Object.assign({}, OPTS.dark); WATER.thriller = WATER.thriller || WATER.dark; if (THEME.dark && !THEME.thriller) THEME.thriller = THEME.dark; } /* 恐怖三桅帆船已有正式版場景 */
-    [['thriller', 'dark'], ['egghead', 'enies'], ['dressrosa', 'alabasta']].filter(([a]) => !(a === 'thriller' && BUILD.thriller) && !(a === 'dressrosa' && BUILD.dressrosa)).forEach(([a, b]) => { BUILD[a] = a === 'dressrosa' ? BUILD._alabastaOld : a === 'egghead' ? BUILD._eniesOld : BUILD[b]; OPTS[a] = a === 'egghead' ? Object.assign({}, OPTS[b], { carve: null }) : OPTS[b]; WATER[a] = WATER[b]; if (THEME[b] && !THEME[a]) THEME[a] = THEME[b]; }); });
+    /* v63：恐怖三桅帆船沿用蜂巢島的陰暗地形、蛋頭島沿用要塞型地形、德雷斯羅薩沿用阿拉巴斯坦的石造城鎮 */ if (BUILD.egghead) { WATER.egghead = WATER.egghead || WATER.enies; if (THEME.enies && !THEME.egghead) THEME.egghead = THEME.enies; } if (BUILD.dressrosa) { WATER.dressrosa = WATER.dressrosa || WATER.alabasta; if (THEME.alabasta && !THEME.dressrosa) THEME.dressrosa = THEME.alabasta; } if (BUILD.thriller) { OPTS.thriller = OPTS.thriller || Object.assign({}, OPTS.dark); WATER.thriller = WATER.thriller || WATER.dark; if (THEME.dark && !THEME.thriller) THEME.thriller = THEME.dark; } /* 恐怖三桅帆船已有正式版場景 */
+    [['thriller', 'dark'], ['egghead', 'enies'], ['dressrosa', 'alabasta']].filter(([a]) => !(a === 'thriller' && BUILD.thriller) && !(a === 'dressrosa' && BUILD.dressrosa) && !(a === 'egghead' && BUILD.egghead)).forEach(([a, b]) => { BUILD[a] = a === 'dressrosa' ? BUILD._alabastaOld : a === 'egghead' ? BUILD._eniesOld : BUILD[b]; OPTS[a] = a === 'egghead' ? Object.assign({}, OPTS[b], { carve: null }) : OPTS[b]; WATER[a] = WATER[b]; if (THEME[b] && !THEME[a]) THEME[a] = THEME[b]; }); });
   const THEME = {
     east: { grass: '#5d9a3e', flower: ['#ffd26c', '#ff7f9f', '#ffffff'], stall: '#b8433a' },
     alabasta: { grass: '#8a9a4a', flower: ['#ff9a4a'], stall: '#3f6fa3', dry: true },

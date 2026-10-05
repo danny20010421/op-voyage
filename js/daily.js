@@ -5,7 +5,7 @@
   /* ---------- 匯出存檔（大廳提醒與選單共用） ---------- */
   function exportSave() {
     const blob = new Blob([JSON.stringify({ game: 'op_voyage', v: DATA_VERSION, at: new Date().toISOString(), save: SAVE.data })], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `偉大航路存檔_${today()}.json`; document.body.appendChild(a); a.click(); a.remove();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `海賊新時代存檔_${today()}.json`; document.body.appendChild(a); a.click(); a.remove();
     SAVE.data.lastExport = Date.now(); SAVE.save(); toast('已匯出存檔，請妥善保存這個檔案', 'gold');
   }
   window.exportSave = exportSave;

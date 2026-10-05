@@ -1,0 +1,10 @@
+/* 對齊量測：① 按鈕內容（文字＋圖示）相對按鈕中心的垂直／水平偏移 ② 同一列並排按鈕高度不一致 */
+const vis=e=>{const r=e.getBoundingClientRect();if(r.width<8||r.height<8||r.bottom<0||r.top>innerHeight||r.right<0||r.left>innerWidth)return null;let p=e;while(p&&p!==document.body){const s=getComputedStyle(p);if(s.display==='none'||s.visibility==='hidden'||+s.opacity===0)return null;p=p.parentElement}return r};
+const cbox=e=>{const rg=document.createRange();rg.selectNodeContents(e);const rs=[...rg.getClientRects()].filter(r=>r.width>0&&r.height>0);if(!rs.length)return null;return{t:Math.min(...rs.map(r=>r.top)),b:Math.max(...rs.map(r=>r.bottom)),l:Math.min(...rs.map(r=>r.left)),r:Math.max(...rs.map(r=>r.right))}};
+const off=[],rows=[];const B=[...document.querySelectorAll('button,[role=button],.icon-btn')].map(e=>[e,vis(e)]).filter(x=>x[1]);
+B.forEach(([e,r])=>{const s=getComputedStyle(e);const c=cbox(e);if(!c)return;const pt=parseFloat(s.paddingTop),pb=parseFloat(s.paddingBottom);if(Math.abs(pt-pb)>3)return;/* 刻意不對稱的不算 */
+ const dy=((c.t+c.b)/2)-((r.top+r.bottom)/2);const ta=s.textAlign,jc=s.justifyContent;const center=ta==='center'||jc==='center';const dx=center?((c.l+c.r)/2)-((r.left+r.right)/2):0;
+ if(c.b-c.t<r.height-2&&(Math.abs(dy)>=3||Math.abs(dx)>=4))off.push(`${(e.id||e.getAttribute('aria-label')||e.textContent.trim()).slice(0,14)}[${e.className.toString().split(' ')[0]}] dy=${dy.toFixed(1)} dx=${dx.toFixed(1)}`)});
+const par=new Map();B.forEach(([e,r])=>{const k=e.parentElement;if(!par.has(k))par.set(k,[]);par.get(k).push([e,r])});
+par.forEach(L=>{if(L.length<2)return;const g={};L.forEach(([e,r])=>{const k=Math.round(r.top/6);(g[k]=g[k]||[]).push([e,r])});Object.values(g).forEach(row=>{if(row.length<2)return;const hs=row.map(x=>Math.round(x[1].height));if(Math.max(...hs)-Math.min(...hs)>2)rows.push(row.map(([e,r])=>(e.id||e.textContent.trim()).slice(0,8)+':'+Math.round(r.height)).join(' | '))})});
+return 'OFFSET['+off.length+'] '+off.slice(0,25).join(' ; ')+' || ROWS['+rows.length+'] '+rows.slice(0,12).join(' ; ');

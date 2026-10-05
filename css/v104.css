@@ -1,0 +1,12 @@
+/* v104：變身演出（立繪切換前後的白光） */
+.morph-out img{animation:morphOut .5s ease-in}
+.morph-in img{animation:morphIn .75s cubic-bezier(.2,.8,.2,1)}
+@keyframes morphOut{0%{filter:none;transform:scale(1)}100%{filter:brightness(3.2) saturate(.2) drop-shadow(0 0 24px #fff);transform:scale(.97)}}
+@keyframes morphIn{0%{filter:brightness(4) saturate(0) drop-shadow(0 0 36px #fff);transform:scale(1.08)}60%{filter:brightness(1.3) drop-shadow(0 0 12px rgba(255,255,255,.6))}100%{filter:none;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.morph-out img,.morph-in img{animation:none}}
+/* v104：大廳貨幣「＋」按鈕觸控範圍加大到 44px（外觀不變）；手機左側圖示欄文字 10.5px → 11px */
+.lb-plus{position:relative}.lb-plus::after{content:'';position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%)}
+@media (max-width:760px){.l2-ic>span,.l2-ic b,.l2-ic em{font-size:11px!important}}
+/* v105：對話框的 NPC 徽章（沒有立繪的 NPC 顯示名字第一個字）在新版對話框中被拉成整條，固定為方形並靠左 */
+#dialog .dlg-face{flex:0 0 72px!important;width:72px!important;max-width:72px!important;height:72px!important;align-self:flex-start}
+@media (max-width:760px){#dialog .dlg-face{flex-basis:56px!important;width:56px!important;max-width:56px!important;height:56px!important}}

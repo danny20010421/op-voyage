@@ -19,9 +19,11 @@ async () => {
     if (!pick) { const atk = av.filter(([s]) => !s.ultimate); const w = atk.map(([s]) => (s.type === 'attack' ? (s.power || 60) : 70) + 20); let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < atk.length; i++) { r -= w[i]; if (r < 0) { pick = atk[i]; break; } } pick = pick || av[0]; }
     const skill = pick[0]; skill.pp--;
     const sk = JSON.parse(JSON.stringify(skill));
+    if (A.status.attackFail > 0 && Math.random() < (A.status.attackFailChance || 0)) { A.status.attackFail--; return; } /* 與 battle.js 相同：攻擊失效 */
     if (sk.type === 'attack' && B.status.invuln > 0) return;
     if (sk.type === 'attack' && B.status.dodge > 0) { B.status.dodge--; return; }
     const r = computeSkillOutcome(A, B, sk, {});
+    if (sk.type === 'attack' && B.status.reflect > 0) { const m = B.status.reflectMultiplier || 1; B.status.reflect = 0; B.status.reflectMultiplier = 1; applyDamage(A, Math.max(1, Math.round(r.damage * m)), side); return; } /* 與 battle.js 相同：反彈 */
     if (r.damage > 0) applyDamage(B, r.damage, side === 'L' ? 'R' : 'L', r.meta);
     applySkillEffects(A, B, sk, r);
     if (r.damage > 0 && sk.type === 'attack' && B.status.thornTurns > 0) applyDamage(A, Math.round(r.damage * (B.status.thornRatio || .5)), side);

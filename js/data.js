@@ -1,5 +1,5 @@
 /* 資料版本：每次改動角色或劇情資料時加一。後台設定若來自舊版本會自動停用，避免舊劇情覆蓋新內容。 */
-const DATA_VERSION = 42;
+const DATA_VERSION = 47;
 /* 七日登入獎勵：第 7 天領完後從第 1 天重新開始 */
 const LOGIN_REWARDS = [
  {day:1, label:'貝里 5,000', berry:5000},
@@ -57,7 +57,7 @@ const CHARACTERS = {
 /* 屬性相剋（攻擊方 → 被克制的屬性）；倍率可在後台調整 */
 /* 屬性相剋（攻擊方: [被剋制的屬性]）。格鬥＞闇＞超能＞格鬥、火＞冰＞水＞火 各為三角關係 */
 const TYPE_CHART = {"格鬥":["闇","自然"],"火":["冰","獸"],"冰":["水","龍"],"雷電":["水","魚人"],"水":["火","自然"],"自然":["雷電"],"超能":["格鬥","巨人"],"闇":["超能"],"龍":["龍","巨人"],"獸":["魚人","超能"],"魚人":["火","格鬥"],"巨人":["獸","格鬥"]};
-const CHAR_OBTAIN = {"robin":{"boss":0,"npc":"阿拉巴斯坦篇 NPC"},"crocodile":{"bossFirst":0.06,"bossRepeat":0.1},"enel":{"boss":0},"shirahoshi":{"boss":0,"npc":"魚人島篇 NPC"},"yamato":{"boss":0,"npc":"和之國篇 NPC"},"kaido":{"boss":0},"luffy":{"boss":0},"hody":{"boss":0},"lucci":{"boss":0},"blackbeard":{"bossFirst":0.05,"bossRepeat":0.08},"loki":{"bossFirst":0.03,"bossRepeat":0.06},"akainu":{"boss":0,"gachaOnly":true},"marine":{"boss":0,"npcOnly":true,"npc":"各地的海軍小兵（無法取得）"},"mayor":{"boss":0,"reward":"east","npc":"完成東海篇後免費加入"},"kid":{"boss":0,"npc":"和之國篇 NPC"},"law":{"boss":0,"npc":"和之國篇 NPC"},"imu":{"boss":0,"npcOnly":true,"npc":"暫時無法獲得（勇者之塔第 100、120 層 BOSS）"},"moria":{"boss":0,"eventOnly":true,"npc":"限定活動抽獎池：集滿 100 碎片合成"},"hancock":{"boss":0,"eventOnly":true,"npc":"限定活動抽獎池：集滿 100 碎片合成"},"perona":{"boss":0,"reward":"_combo","needs":["mihawk","moria"],"npc":"同時擁有鷹眼與莫莉亞後免費加入（無法抽獎獲得）"},"vivi":{"boss":0,"reward":"alabasta","npc":"完成阿拉巴斯坦篇後免費加入"},"franky":{"boss":0,"reward":"enies","npc":"司法島篇 NPC，完成司法島篇後免費加入"},"ace":{"boss":0,"reward":"marineford","npc":"完成頂上戰爭篇後免費加入"},"garp_mf":{"boss":0,"reward":"_duel","npc":"頂上戰爭篇：在處刑台前的對決中擊敗卡普後加入"},"garp_hc":{"boss":0},"morgan":{"boss":0,"reward":"east","npc":"東海篇：對決後，完成東海篇劇情免費加入"},"lordcoast":{"boss":0,"reward":"east","npc":"東海篇：對決後，完成東海篇劇情免費加入"},"bigmom":{"boss":0,"npc":"蛋糕島篇 BOSS（僅能從懸賞召喚取得）"},"magellan":{"boss":0,"npc":"僅能從懸賞召喚取得"},"morgans":{"boss":0,"npcOnly":true,"npc":"NPC・世界經濟新聞社長（無法取得）"},"catarina":{"boss":0,"npc":"蜂巢島篇：對決"},"katakuri":{"boss":0,"npc":"蛋糕島篇：對決"},"marco":{"boss":0},"mihawk":{"boss":0,"eventOnly":true,"npc":"限定活動抽獎池「十字公會」：集滿 100 碎片合成"},"buggy":{"boss":0,"eventOnly":true,"npc":"限定活動抽獎池「十字公會」：集滿 100 碎片合成"}};
+const CHAR_OBTAIN = {"robin":{"boss":0,"npc":"阿拉巴斯坦篇 NPC"},"crocodile":{"bossFirst":0.06,"bossRepeat":0.1},"enel":{"boss":0},"shirahoshi":{"boss":0,"npc":"魚人島篇 NPC"},"yamato":{"boss":0,"npc":"和之國篇 NPC"},"kaido":{"boss":0},"luffy":{"boss":0},"hody":{"boss":0},"lucci":{"boss":0},"blackbeard":{"bossFirst":0.05,"bossRepeat":0.08},"loki":{"bossFirst":0.03,"bossRepeat":0.06},"akainu":{"boss":0,"gachaOnly":true},"marine":{"boss":0,"npcOnly":true,"npc":"各地的海軍小兵（無法取得）"},"mayor":{"boss":0,"reward":"east","npc":"完成東海篇後免費加入"},"kid":{"boss":0,"npc":"和之國篇 NPC"},"law":{"boss":0,"npc":"和之國篇 NPC"},"imu":{"boss":0,"npcOnly":true,"npc":"暫時無法獲得（勇者之塔第 100、120 層 BOSS）"},"moria":{"boss":0,"eventOnly":true,"npc":"七武海系列限定抽獎池「女帝＆莫莉亞」（每年 10/01～12/31）：集滿 100 碎片合成"},"hancock":{"boss":0,"eventOnly":true,"npc":"七武海系列限定抽獎池「女帝＆莫莉亞」（每年 10/01～12/31）：集滿 100 碎片合成"},"perona":{"boss":0,"reward":"_combo","needs":["mihawk","moria"],"npc":"同時擁有鷹眼與莫莉亞後免費加入（無法抽獎獲得）"},"vivi":{"boss":0,"reward":"alabasta","npc":"完成阿拉巴斯坦篇後免費加入"},"franky":{"boss":0,"reward":"enies","npc":"司法島篇 NPC，完成司法島篇後免費加入"},"ace":{"boss":0,"reward":"marineford","npc":"完成頂上戰爭篇後免費加入"},"garp_mf":{"boss":0,"reward":"_duel","npc":"頂上戰爭篇：在處刑台前的對決中擊敗卡普後加入"},"garp_hc":{"boss":0},"morgan":{"boss":0,"reward":"east","npc":"東海篇：對決後，完成東海篇劇情免費加入"},"lordcoast":{"boss":0,"reward":"east","npc":"東海篇：對決後，完成東海篇劇情免費加入"},"bigmom":{"boss":0,"npc":"蛋糕島篇 BOSS（僅能從懸賞召喚取得）"},"magellan":{"boss":0,"npc":"僅能從懸賞召喚取得"},"morgans":{"boss":0,"npcOnly":true,"npc":"NPC・世界經濟新聞社長（無法取得）"},"catarina":{"boss":0,"npc":"蜂巢島篇：對決"},"katakuri":{"boss":0,"npc":"蛋糕島篇：對決"},"marco":{"boss":0},"mihawk":{"boss":0,"eventOnly":true,"npc":"七武海系列限定抽獎池「十字公會」（每年 07/01～09/30）：集滿 100 碎片合成"},"buggy":{"boss":0,"eventOnly":true,"npc":"七武海系列限定抽獎池「十字公會」（每年 07/01～09/30）：集滿 100 碎片合成"}};
 const CHARACTER_ORDER = ["luffy0", "zoro", "sanji", "robin", "franky", "luffy", "crocodile", "moria", "hancock", "law", "mihawk", "akainu", "lucci", "garp_mf", "garp_hc", "morgan", "magellan", "blackbeard", "catarina", "kaido", "yamato", "marco", "ace", "bigmom", "katakuri", "buggy", "enel", "shirahoshi", "hody", "kid", "loki", "lordcoast", "vivi", "perona", "marine", "mayor", "morgans", "imu"];
 /* 編號段：1–20 草帽一夥、21–30 王下七武海、31–40 海軍與世界政府、41–70 四皇勢力、101 起其他角色、901 起 NPC。
    預留編號在圖鑑顯示「？？？」剪影；建立角色後把 no 設成該號碼，剪影就會自動換成角色。 */
@@ -267,19 +267,49 @@ const COLLECTION_SETS = [
 ];
 const SET_BONUS_CAP = 10;
 /* 限定活動抽獎池：抽角色碎片，集滿 100 片合成限定 SSR */
-const EVENT_POOL = { id:"moria_hancock", tab:"女帝＆莫莉亞", name:"女帝＆莫莉亞 限定活動", banner:"assets/ui/event_banner.webp?v=32", need:100,
+const EVENT_POOL = { id:"moria_hancock", tab:"女帝＆莫莉亞", series:"七武海系列", name:"七武海系列 女帝＆莫莉亞 限定活動", banner:"assets/ui/event_banner.webp?v=32", need:100,
  shards:[{char:"moria", rate:0.02, icon:"assets/ui/shard_moria.webp?v=32", color:"#b57cff"},{char:"hancock", rate:0.02, icon:"assets/ui/shard_hancock.webp?v=32", color:"#ff6fae"}],
  amount:[[20,0.6],[30,0.3],[50,0.1]], pity:120, newbieFree:10, dailyFree:3, bountyBonus:2, tokenCost:1 };
 /* 所有限定活動池：之後新增活動，只要在這個陣列多加一個物件 */
 /* 十字公會限定池（小丑巴基、鷹眼） */
-const EVENT_POOL_CROSS = { id:"cross_guild", tab:"十字公會", name:"十字公會 限定活動", banner:"assets/ui/event_banner_cross.webp?v=41", need:100,
+const EVENT_POOL_CROSS = { id:"cross_guild", tab:"十字公會", series:"七武海系列", name:"七武海系列 十字公會 限定活動", banner:"assets/ui/event_banner_cross.webp?v=41", need:100,
  shards:[{char:"buggy", rate:0.02, icon:"assets/ui/shard_buggy.webp?v=40", color:"#ff5a5a"},{char:"mihawk", rate:0.02, icon:"assets/ui/shard_mihawk.webp?v=40", color:"#e0407a"}],
  amount:[[20,0.6],[30,0.3],[50,0.1]], pity:120, newbieFree:10, dailyFree:3, bountyBonus:2, tokenCost:1 };
-/* 限定活動輪替：從 2026-09-28（台灣時間）起，每 14 天換一期，依 EVENT_POOLS 的順序循環 */
-const EVENT_ROTATION = { start: '2026-09-28', days: 14 };
-function eventSchedule(t = Date.now()) { const [y, m, d] = EVENT_ROTATION.start.split('-').map(Number), s0 = Date.UTC(y, m - 1, d) - 8 * 3600e3, per = EVENT_ROTATION.days * 864e5, k = Math.floor((t - s0) / per), n = EVENT_POOLS.length, idx = ((k % n) + n) % n;
-  return { active: EVENT_POOLS[idx].id, endsAt: s0 + (k + 1) * per, returnAt: id => { const j = EVENT_POOLS.findIndex(p => p.id === id); let w = (j - idx + n) % n; return s0 + (k + w) * per; } }; }
-const EVENT_POOLS = [EVENT_POOL_CROSS, EVENT_POOL];
+/* 艾爾巴夫第一彈限定池（多利、布洛基）：集滿 150 碎片合成 */
+const EVENT_POOL_ELBAF = { id:"elbaf_01", tab:"艾爾巴夫 No.01", name:"艾爾巴夫第一彈 限定活動", banner:"assets/ui/event_banner_elbaf.webp?v=100", need:150,
+ shards:[{char:"dorry", rate:0.02, icon:"assets/ui/shard_dorry.webp?v=100", color:"#4f86ff"},{char:"brogy", rate:0.02, icon:"assets/ui/shard_brogy.webp?v=100", color:"#f2b632"}],
+ amount:[[20,0.6],[30,0.3],[50,0.1]], pity:120, newbieFree:10, dailyFree:3, bountyBonus:2, tokenCost:1 };
+/* 七武海系列第三彈（多佛朗明哥、托拉法爾加·羅（七武海）、愛德華·衛伯）：橫幅與碎片圖為暫用，之後換成正式美術 */
+const EVENT_POOL_DQ = { id:"shichi_dq", tab:"明哥＆羅＆衛伯", series:"七武海系列", name:"七武海系列 明哥＆羅＆衛伯 限定活動", banner:"assets/ui/event_banner_dq.webp?v=102", need:100,
+ shards:[{char:"doflamingo", rate:0.02, icon:"assets/ui/shard_doflamingo.webp?v=102", color:"#ff5ac8"},{char:"law_w", rate:0.02, need:80, icon:"assets/ui/shard_law_w.webp?v=102", color:"#4fb4ff"},{char:"weevil", rate:0.02, icon:"assets/ui/shard_weevil.webp?v=102", color:"#f0d250"}],
+ amount:[[20,0.6],[30,0.3],[50,0.1]], pity:120, newbieFree:10, dailyFree:3, bountyBonus:2, tokenCost:1 };
+/* 限定活動檔期（台灣時間）。
+   every:'year' ＝ 每年固定時間（start／end 寫 MM-DD hh:mm；end 早於 start 代表跨年）；沒寫 every ＝ 只有一次（寫完整日期）。
+   end 是「下一刻就關閉」的時間點（例：end '10-01 00:00' ＝ 9/30 23:59 截止）。
+   開始前 previewDays 天（或 preview 指定時間起）顯示「預告」：不能抽、不發抽獎券，時間一到自動開放。
+   沒有檔期的活動池＝休息中（碎片保留、可以合成）。 */
+const EVENT_CALENDAR = [
+ { id:'cross_guild',   every:'year', start:'07-01 00:00', end:'10-01 00:00', label:'七武海系列・7～9 月', previewDays:31 },
+ { id:'moria_hancock', every:'year', start:'10-01 00:00', end:'01-01 00:00', label:'七武海系列・10～12 月', previewDays:31 },
+ { id:'shichi_dq',     every:'year', start:'01-01 00:00', end:'03-31 00:00', label:'七武海系列・1～3 月', previewDays:31 },
+ { id:'elbaf_01',      start:'2026-11-01 00:00', end:'2026-12-01 00:00', label:'11 月限定', preview:'2026-10-05 00:00' }
+];
+const twTime = s => { const [d, t = '00:00'] = s.split(' '), [y, m, dd] = d.split('-').map(Number), [h, mi] = t.split(':').map(Number); return Date.UTC(y, m - 1, dd, h, mi) - 8 * 3600e3; };
+/* 把檔期展開成實際時間區間（每年的檔期展開前後各一年） */
+function eventWindows(id, t = Date.now()) { const Y = new Date(t + 8 * 3600e3).getUTCFullYear(), out = [];
+  EVENT_CALENDAR.filter(c => c.id === id).forEach(c => {
+    if (c.every === 'year') { for (let y = Y - 1; y <= Y + 1; y++) { const s0 = twTime(`${y}-${c.start}`), e0 = twTime(`${c.end.slice(0, 5) <= c.start.slice(0, 5) ? y + 1 : y}-${c.end}`); out.push({ ...c, s: s0, e: e0, p: s0 - (c.previewDays || 0) * 864e5 }); } }
+    else { const s0 = twTime(c.start); out.push({ ...c, s: s0, e: twTime(c.end), p: c.preview ? twTime(c.preview) : s0 - (c.previewDays || 0) * 864e5 }); } });
+  return out.sort((a, b) => a.s - b.s); }
+/* 'live' 開放中、'soon' 預告中、'rest' 休息中（已結束或尚未排檔） */
+function eventPhase(id, t = Date.now()) { const W = eventWindows(id, t); if (W.some(w => t >= w.s && t < w.e)) return 'live'; if (W.some(w => t < w.s && t >= w.p)) return 'soon'; return 'rest'; }
+function eventWindow(id, t = Date.now()) { const W = eventWindows(id, t); return W.find(w => t >= w.s && t < w.e) || W.find(w => t < w.s) || null; }
+/* 舊介面相容：active＝目前開放中的第一個活動，endsAt＝它的截止時間，returnAt(id)＝該活動下次開放時間（沒有排檔回傳 0） */
+function eventSchedule(t = Date.now()) { const live = EVENT_POOLS.filter(p => eventPhase(p.id, t) === 'live'), a = live[0];
+  return { active: a ? a.id : null, live: live.map(p => p.id), endsAt: a ? eventWindow(a.id, t).e : 0, phase: id => eventPhase(id, t), win: id => eventWindow(id, t), returnAt: id => { const w = eventWindow(id, t); return w && t < w.s ? w.s : 0; } }; }
+/* 排序：開放中 → 預告中 → 休息中 */
+const EVENT_POOLS = [EVENT_POOL, EVENT_POOL_ELBAF, EVENT_POOL_DQ, EVENT_POOL_CROSS];
+function eventPoolsSorted(t = Date.now()) { const R = { live: 0, soon: 1, rest: 2 }; return EVENT_POOLS.slice().sort((a, b) => R[eventPhase(a.id, t)] - R[eventPhase(b.id, t)]); }
 /* 皮膚：裝備後改變外觀，並解鎖角色的 skinSkills 技能 */
 /* 皮膚：grantWith＝擁有該角色時自動獲得；soon＝尚未推出（以「？」顯示） */
 const SKINS = { imu_true:{char:"imu", name:"伊姆（真實型態）", image:"assets/chars/imu_skin.webp?v=26", avatar:"assets/chars/imu_skin_face.webp?v=26", obtainable:false, how:"目前無法獲得"},

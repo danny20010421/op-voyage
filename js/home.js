@@ -15,7 +15,7 @@
   ];
   function features() { homePanel('遊戲特色', `<div class="feat-grid">${FEATURES.map(f => `<article class="feat"><i aria-hidden="true">${f[0]}</i><h3>${f[1]}</h3><p>${f[2]}</p></article>`).join('')}</div><div class="home-cta"><button class="btn-primary big" data-go="start">揚帆出航</button></div>`, b => { b.querySelector('[data-go=start]').onclick = () => { closeModal('homeModal'); $('startBtn').click(); }; }); }
   function community() {
-    const url = location.href.split('#')[0], text = '一起來玩《海賊王 偉大航路》！', enc = encodeURIComponent;
+    const url = location.href.split('#')[0], text = '一起來玩《海賊新時代》！', enc = encodeURIComponent;
     homePanel('社區', `<p class="home-lead">邀請朋友一起出航，分享你的陣容與冒險。</p><div class="share-grid">
       <button class="share" data-share="copy"><i>🔗</i><b>複製遊戲連結</b><small>貼到任何地方分享</small></button>
       <a class="share line" href="https://social-plugins.line.me/lineit/share?url=${enc(url)}" target="_blank" rel="noopener"><i>💬</i><b>分享到 LINE</b><small>傳給好友或群組</small></a>
@@ -35,7 +35,7 @@
     homePanel('客服中心', `<div class="faq">${FAQ.map((f, i) => `<details ${i === 0 ? 'open' : ''}><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join('')}</div>
       <div class="sup-actions"><button class="btn-gold" data-s="export">匯出存檔</button><label class="btn-ghost file-btn">匯入存檔<input type="file" accept="application/json" data-s="import" hidden></label><button class="btn-ghost" data-s="reload">重新整理並更新</button></div>`,
       b => {
-        b.querySelector('[data-s=export]').onclick = () => { const blob = new Blob([JSON.stringify({ game: 'op_voyage', v: DATA_VERSION, at: new Date().toISOString(), save: SAVE.data })], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `偉大航路存檔_${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast('已下載存檔檔案', 'gold'); };
+        b.querySelector('[data-s=export]').onclick = () => { const blob = new Blob([JSON.stringify({ game: 'op_voyage', v: DATA_VERSION, at: new Date().toISOString(), save: SAVE.data })], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `海賊新時代存檔_${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast('已下載存檔檔案', 'gold'); };
         b.querySelector('[data-s=import]').onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { const d = JSON.parse(t); if (!d || d.game !== 'op_voyage' || !d.save) throw 0; confirmBox('匯入存檔？', '目前這台裝置上的進度會被取代，無法復原。', '匯入', () => { localStorage.setItem(SAVE.key, JSON.stringify(d.save)); SAVE.load(); toast('存檔已匯入', 'gold'); closeModal('homeModal'); if (typeof loginInfo === 'function') loginInfo(); refreshAvatar(); }); }).catch(() => toast('這不是有效的存檔檔案', 'warn')); };
         b.querySelector('[data-s=reload]').onclick = () => { location.href = location.pathname + '?r=' + Date.now(); };
       });

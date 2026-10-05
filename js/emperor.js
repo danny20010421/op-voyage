@@ -1,4 +1,4 @@
-/* 皇帝領海挑戰：四皇（白鬍子、BIG MOM、凱多、紅髮）。
+/* 皇帝領海挑戰：四皇（白鬍子、BIG MOM、凱多、紅髮、黑鬍子）。
    第一階段：連續擊敗旗下全部隊長（體力與技能次數延續，中途不能離開）；第二階段：連續擊敗兩個分身；第三階段：挑戰真身。
    通關第三階段後，該位四皇加入船隊（四皇已移出召喚池，只能從這裡取得）。
    隊長名單：原作幹部還沒做成角色前，先用現有角色補上（依 seed 固定，不會每次都換）。 */
@@ -16,7 +16,8 @@ const EMPEROR_DOMAIN = {
     { id: 'whitebeard', crew: '白鬍子海賊團', color: '#5ab0e0', captains: ['marco', 'ace'], fill: 6, sea: '新世界・白鬍子的領海', quote: '咕啦啦啦……來吧，小鬼們！' },
     { id: 'bigmom', crew: 'BIG MOM 海賊團', color: '#e85a9a', captains: ['katakuri'], fill: 7, sea: '萬國・托特蘭', quote: '瑪嘛嘛嘛！你想要的，是生命還是點心？' },
     { id: 'kaido', crew: '百獸海賊團', color: '#5a6a8a', captains: [], fill: 8, sea: '和之國・鬼之島', quote: '烏囉囉囉……讓我享受一場像樣的戰鬥吧！' },
-    { id: 'shanks', crew: '紅髮海賊團', color: '#c8322b', captains: [], fill: 8, sea: '艾爾巴夫外海', quote: '……要打的話，我也不會手下留情。' }
+    { id: 'shanks', crew: '紅髮海賊團', color: '#c8322b', captains: [], fill: 8, sea: '艾爾巴夫外海', quote: '……要打的話，我也不會手下留情。' },
+    { id: 'blackbeard', crew: '黑鬍子海賊團', color: '#4a3a6a', captains: ['catarina'], fill: 7, sea: '蜂巢島', quote: '塞哈哈哈哈！人的夢想是不會終結的！' } /* v102 */
   ]
 };
 (function () {

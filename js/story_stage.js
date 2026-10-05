@@ -8,6 +8,11 @@
     if (!who) return null; if (who[0] === '@') { const k = who.slice(1); return CHARACTERS[k] && CHARACTERS[k].image ? k : null; }
     let k = MAP[who]; if (typeof k === 'function') k = k(chId || (typeof CH !== 'undefined' && CH ? CH.id : '')); return k && CHARACTERS[k] && CHARACTERS[k].image ? k : null;
   }
+  /* v106：還沒有立繪的角色／NPC 先用無臉人形示意（之後有立繪會自動換掉） */
+  const NPC_BLANK = 'assets/chars/npc_blank.webp?v=106', NPC_BLANK_FACE = 'assets/chars/npc_blank_face.webp?v=106';
+  const isBlank = k => typeof k === 'string' && k.startsWith('__npc');
+  function stageArt(who, chId) { const k = speakerArt(who, chId); return k || (who ? '__npc:' + who : null); }
+  window.NPC_BLANK = NPC_BLANK; window.NPC_BLANK_FACE = NPC_BLANK_FACE;
   window.speakerArt = speakerArt;
   let el = null, left = null, right = null, cur = { l: null, r: null };
   const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -19,13 +24,13 @@
   function put(slot, key, side) {
     const img = slot.querySelector('img'); if (cur[side] === key) return; cur[side] = key;
     if (!key) { slot.classList.remove('on', 'in'); return; }
-    img.src = charArt(key); slot.dataset.k = key; slot.classList.remove('in'); void slot.offsetWidth; slot.classList.add('on', 'in');
+    img.src = isBlank(key) ? NPC_BLANK : charArt(key); slot.classList.toggle('blank', isBlank(key)); slot.dataset.k = key; slot.classList.remove('in'); void slot.offsetWidth; slot.classList.add('on', 'in');
     const v = (typeof CHAR_VIS !== 'undefined' && CHAR_VIS[key]) || null; slot.style.setProperty('--vs', v && v.scale ? Math.min(1.25, Math.max(.75, v.scale)) : 1);
   }
   function captain() { return (typeof WORLD !== 'undefined' && WORLD && WORLD.playerId && CHARACTERS[WORLD.playerId] && CHARACTERS[WORLD.playerId].image) ? WORLD.playerId : null; }
   /* 依這一句決定舞台 */
   function stage(line) {
-    ensure(); const [who, , opt] = line, o = opt || {}, chId = typeof CH !== 'undefined' && CH ? CH.id : '', art = speakerArt(who, chId), cap = captain();
+    ensure(); const [who, , opt] = line, o = opt || {}, chId = typeof CH !== 'undefined' && CH ? CH.id : '', art = stageArt(who, chId), cap = captain();
     el.classList.add('show'); el.classList.toggle('narr', !who); document.body.classList.add('vn-on');
     if (!who) { left.classList.remove('talk'); right.classList.remove('talk'); }
     else if (art) {
@@ -50,6 +55,6 @@
     if (typeof completeStep === 'function' && typeof curStep === 'function') { const _c = completeStep; window.completeStep = function () { const s = curStep(); const r = _c.apply(this, arguments);
       if (s && ['defeat', 'gauntlet', 'collect', 'timedCollect'].includes(s.type) && Array.isArray(s.lines) && s.lines.length) setTimeout(() => { if (!dialogOpen && typeof say === 'function') say(s.lines); }, 1100); return r; }; }
     /* 對話框的小頭像：有立繪的 NPC 改用角色頭像 */
-    if (typeof faceFor === 'function') { const _f = faceFor; window.faceFor = function (who) { const r = _f(who); const k = who && who[0] !== '@' ? speakerArt(who) : null; if (k && CHARACTERS[k].avatar) r.html = `<img src="${CHARACTERS[k].avatar}" alt="">`; return r; }; }
+    if (typeof faceFor === 'function') { const _f = faceFor; window.faceFor = function (who) { const r = _f(who); const k = who && who[0] !== '@' ? speakerArt(who) : null; if (k && CHARACTERS[k].avatar) r.html = `<img src="${CHARACTERS[k].avatar}" alt="">`; else if (who && !k && !(who[0] === '@' && CHARACTERS[who.slice(1)])) r.html = `<img src="${NPC_BLANK_FACE}" alt="">`; return r; }; }
   });
 })();

@@ -6,11 +6,13 @@
   /* 一般樓層：把全部角色打亂成一輪輪出場，相鄰兩層不重複，同一位角色約隔一整輪才會再出現 */
   let SEQ = null;
   function buildSeq() {
-    const pool = CHARACTER_ORDER.filter(id => !TOWER.bosses.includes(id) || !['imu'].includes(id)).filter(id => id !== 'imu' && !((CHAR_OBTAIN[id] || {}).npcOnly && id !== 'marine' && id !== 'mayor')); /* NPC 專屬角色（如摩甘茲）不會出現在勇者之塔 */
+    const pool = CHARACTER_ORDER.filter(id => !TOWER.bosses.includes(id) || !['imu'].includes(id)).filter(id => id !== 'imu' && !((CHAR_OBTAIN[id] || {}).npcOnly && id !== 'marine' && id !== 'mayor')); /* NPC 專屬角色（如摩甘茲）不會出現在勇者之塔 */ 
+    const okR = ['RRR', 'SR', 'SSR', 'UR', 'UR+']; for (let i = pool.length - 1; i >= 0; i--) if (!okR.includes((typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[pool[i]]) || 'SR')) pool.splice(i, 1); /* v97：稀有度低於 RRR 的角色不會出現在勇者之塔 */
     let seed = 20260928; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     const seq = []; while (seq.length < TOWER.floors) { const a = pool.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } if (seq.length && a[0] === seq[seq.length - 1]) a.push(a.shift()); seq.push(...a); }
     return seq;
   }
+  window.towerFoe = f => foeOf(f); /* 測試用 */
   function foeOf(f) {
     if (isBoss(f)) return TOWER.bosses[(f / 10 - 1) % TOWER.bosses.length];
     SEQ = SEQ || buildSeq(); let k = 0; for (let x = 1; x < f; x++) if (!isBoss(x)) k++;
