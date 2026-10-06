@@ -132,6 +132,6 @@
     const box = document.createElement('div'); box.className = 'dl-wrap'; const draw = () => { box.innerHTML = `<div class="dl-card mk-tut"><img src="assets/ui/exchange_logo.webp?v=59" alt=""><h3>${steps[i][0]}</h3><p>${steps[i][1]}</p><div class="mk-tut-dots">${steps.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div><button class="btn-gold big" id="mkTutNext">${i < steps.length - 1 ? '下一步' : '開始交易'}</button></div>`; box.querySelector('#mkTutNext').onclick = () => { if (++i >= steps.length) { SAVE.data.mktTut = true; SAVE.save(); box.remove(); } else draw(); }; }; draw(); document.body.appendChild(box); }
   window.openExchange = function () { init(); advance(); showScreen('exchangeScreen'); render(); tutorial(); clearInterval(timer); timer = setInterval(() => { if (currentScreen !== 'exchangeScreen') { clearInterval(timer); timer = null; return; } loop(); }, TICK); };
   window.addEventListener('DOMContentLoaded', () => { const b = $('xcBack'); if (b) b.onclick = () => openModes(); addEventListener('resize', () => { if (currentScreen === 'exchangeScreen') drawChart(); }); });
-  window.mkSummary = () => { try { init(); advance(); const ix = indexVal(); return `指數 ${fmt(ix.v)}（${sgn(ix.c)}）`; } catch (e) { return ''; } };
+  window.mkSummary = () => { try { init(); advance(); const ix = indexVal(); return `指數 ${fmt(ix.v)} ${sgn(ix.c)}`; } catch (e) { return ''; } };
   window.__mk = { advance, buy, sell, M, X, STOCKS, isOpen, render, snapshot };
 })();

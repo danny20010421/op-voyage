@@ -198,13 +198,13 @@
   function topBar() { return `<div class="vp-me"><span class="vp-mb cn"><img src="${COIN}" alt=""></span><div><b>${fmt(SAVE.data.tokens)} 寶藏幣</b><small>VIP${level()}・累積儲值 ${fmt(st().paid || 0)}</small></div></div><div class="vp-acts"><button class="btn-ghost" data-a="member">查看 VIP 福利</button></div>`; }
   function render() {
     const m = wrap(), L = level();
-    m.innerHTML = `<div class="vp" data-tab="${tab}">
+    m.innerHTML = `<div class="vp" data-view="${tab}">
       <header class="vp-head"><h2>VIP 會員中心</h2><button class="vp-x" aria-label="關閉">×</button></header>
       <nav class="vp-tabs" role="tablist">${[['member', '會員'], ['card', '月費'], ['top', '儲值']].map(([k, n]) => `<button role="tab" aria-selected="${tab === k}" class="${tab === k ? 'on' : ''} ${(k === 'card' && onSale() && !mcSt()) || (k === 'member' && dailyReady()) ? 'dot' : ''}" data-tab="${k}">${n}</button>`).join('')}</nav>
       <div class="vp-body">${tab === 'member' ? memberHTML() : tab === 'card' ? cardHTML() : topHTML()}</div>
       <footer class="vp-bar">${tab === 'member' ? memberBar() : tab === 'card' ? cardBar() : topBar()}</footer></div>`;
     m.querySelector('.vp-x').onclick = close;
-    m.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); });
+    m.querySelectorAll(".vp-tabs [data-tab]").forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); });
     m.querySelectorAll('[data-lv]').forEach(b => b.onclick = () => { sel = +b.dataset.lv; render(); const n = m.querySelector('.vp-lvs .on'); if (n) n.scrollIntoView({ inline: 'center', block: 'nearest' }); });
     m.querySelectorAll('[data-pay]').forEach(b => b.onclick = NO_PAY);
     const A = (k, f) => { const b = m.querySelector(`[data-a="${k}"]`); if (b) b.onclick = f; };
@@ -233,7 +233,12 @@
     const side = document.querySelector('#lobby .l2-side'); let mc = $('l2Month');
     if (side && onSale() && !mcSt()) { if (!mc) { mc = document.createElement('button'); mc.id = 'l2Month'; mc.className = 'l2-month'; mc.setAttribute('aria-label', '限時月費：萬聖火龍燼'); mc.innerHTML = `<img src="${CHARACTERS.king ? CHARACTERS.king.avatar : ''}" alt=""><span><b>限時月費</b><small>SSR 燼＋萬聖皮膚</small></span>`; mc.onclick = () => openVIP('card'); side.appendChild(mc); } }
     else if (mc) mc.remove();
+    fitMonth();
   }
+  /* 月費小卡放在右側欄最下面；若會碰到下方導覽列或被裁切，就先隱藏（VIP 會員圖示仍可進入） */
+  function fitMonth() { const mc = $('l2Month'); if (!mc) return; mc.hidden = false; const nav = document.querySelector('#lobby .l2-nav, .l2-nav'); const r = mc.getBoundingClientRect();
+    const limit = nav ? nav.getBoundingClientRect().top - 8 : innerHeight - 8; if (r.height && (r.bottom > limit || r.height < 48)) mc.hidden = true; }
+  window.addEventListener('resize', () => setTimeout(fitMonth, 120));
   window.vipRefreshLobby = refreshLobby;
 
   /* ---------- 月費宣傳：每次進入遊戲顯示一次；可設定今日不再顯示；點宣傳圖前往購買 ---------- */

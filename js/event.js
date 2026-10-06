@@ -59,14 +59,15 @@
     const card = s => { const c = CHARACTERS[s.char], n = E.shards[s.char], own = owned(s.char), pct = Math.min(100, n / NEED(P(), s.char) * 100);
       return `<div class="ev-shard" style="--c:${s.color}"><img src="${s.icon}" alt=""><div class="ev-sh-info"><b><span class="rar c-rar r-${(typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[s.char]) || 'SSR'}">${(typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[s.char]) || 'SSR'}</span> ${c.name}<small>${c.title}</small></b><div class="ev-bar"><i style="width:${pct}%"></i></div><small>碎片 ${n}/${NEED(P(), s.char)}・單抽機率 ${Math.round(s.rate * 1000) / 10}%</small></div>
         ${own ? '<span class="ev-owned">已擁有</span>' : `<button class="btn-gold sm" data-synth="${s.char}" ${n >= NEED(P(), s.char) ? '' : 'disabled'}>合成</button>`}</div>`; };
-    const cost1 = E.tickets >= 1 ? '1 張抽獎券' : `${P().tokenCost} 枚寶藏幣`, cost10 = E.tickets >= 10 ? '10 張抽獎券' : `${P().tokenCost * 10} 枚寶藏幣`;
+    const UT = (SAVE.data.inventory || {}).event_ticket || 0, TT = E.tickets + UT; /* v115：限定抽獎券（月費、VIP 禮包）可在任一限定池使用 */
+    const cost1 = TT >= 1 ? '1 張抽獎券' : `${P().tokenCost} 枚寶藏幣`, cost10 = TT >= 10 ? '10 張抽獎券' : `${P().tokenCost * 10} 枚寶藏幣`;
     const ph = phase(P().id), W = typeof eventWindow === 'function' ? eventWindow(P().id) : null, soon = ph === 'soon';
     const clock = ph === 'live' && W ? `<div class="ev-clock on"><span>${W.label || '本期限定'}・${md(W.s)}～${md(W.e - 60e3)} ${hm(W.e - 60e3)}</span><span>剩 <b>${left(W.e - Date.now())}</b></span></div>`
       : soon && W ? `<div class="ev-clock soon"><span>活動預告・${md(W.s)} ${hm(W.s)} 開放</span><span>還有 <b>${left(W.s - Date.now())}</b></span></div>`
       : `<div class="ev-clock"><span>活動休息中・${W ? `下次 ${md(W.s)} 開放` : '復刻時間另行公告'}</span><span>碎片保留，可照常合成</span></div>`;
     pane.innerHTML = clock + `<div class="ev-banner"><img src="${P().banner}" alt="${P().name}"></div>
       <div class="ev-side">
-        <div class="ev-tickets"><span>🎟️ 活動抽獎券 <b>${soon ? '—' : E.tickets}</b></span><small>新手免費 ${P().newbieFree} 抽・每天免費 ${P().dailyFree} 抽・每日懸賞全部完成 +${P().bountyBonus} 抽</small></div>
+        <div class="ev-tickets"><span>🎟️ 活動抽獎券 <b>${soon ? '—' : E.tickets}</b>${UT ? `<em class="ev-ut">＋限定抽獎券 ${UT}</em>` : ''}</span><small>新手免費 ${P().newbieFree} 抽・每天免費 ${P().dailyFree} 抽・每日懸賞全部完成 +${P().bountyBonus} 抽</small></div>
         ${P().shards.map(card).join('')}
         <div class="ev-pulls">${ph === 'live' ? `<button class="btn-gold" id="evPull1">抽 1 次<small>${cost1}</small></button><button class="btn-primary" id="evPull10">抽 10 次<small>${cost10}</small></button>` : `<button class="btn-ghost ev-wait" disabled>${soon && W ? `${md(W.s)} ${hm(W.s)} 開放抽獎` : '活動休息中'}<small>${soon ? '開放當天發放新手 10 抽＋每日免費 3 抽' : '碎片可在角色背包合成'}</small></button>`}</div>
         <p class="ev-pity">再 <b>${Math.max(1, P().pity - E.pity)}</b> 抽內必定出現角色碎片</p>
@@ -93,7 +94,8 @@
     if (busy) return; const E = st();
     if (typeof timeLocked === 'function' && timeLocked()) { toast('裝置時間異常，限定抽獎暫停。請開啟「自動設定日期與時間」', 'warn'); return; }
     if (!isActive()) { const W = typeof eventWindow === 'function' ? eventWindow(P().id) : null; toast(W ? `這個活動 ${md(W.s)} ${hm(W.s)} 開放，還有 ${left(W.s - Date.now())}` : '這個活動目前休息中，復刻時間另行公告'); return; }
-    if (E.tickets >= n) E.tickets -= n; else if (SAVE.data.tokens >= n * P().tokenCost) SAVE.data.tokens -= n * P().tokenCost; else { toast(`抽獎券不足，也沒有足夠的寶藏幣（需要 ${n * P().tokenCost} 枚）`, 'warn'); return; }
+    const inv = SAVE.data.inventory = SAVE.data.inventory || {}, ut = inv.event_ticket || 0;
+    if (E.tickets >= n) E.tickets -= n; else if (E.tickets + ut >= n) { inv.event_ticket = ut - (n - E.tickets); E.tickets = 0; } else if (SAVE.data.tokens >= n * P().tokenCost) SAVE.data.tokens -= n * P().tokenCost; else { toast(`抽獎券不足，也沒有足夠的寶藏幣（需要 ${n * P().tokenCost} 枚）`, 'warn'); return; }
     busy = true; const res = []; for (let i = 0; i < n; i++) res.push(rollOne(E)); grant(E, res); SAVE.save(); if (typeof coins === 'function') coins();
     try { await animate(res); } finally { busy = false; render(); }
   }

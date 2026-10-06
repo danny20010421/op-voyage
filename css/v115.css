@@ -162,19 +162,19 @@ img.vipf{box-shadow:0 0 0 2px var(--f1),0 0 0 4px var(--f2),0 0 12px var(--f2)}
 /* ---------- 版面：電腦與平板 ---------- */
 @media (min-width:900px){
   .vp-body{padding:0 24px 24px}
-  .vp[data-tab=member] .vp-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);grid-template-rows:auto auto auto;column-gap:24px;align-content:start}
-  .vp[data-tab=member] .vp-lvs{grid-column:1/-1}
-  .vp[data-tab=member] .vp-hero{grid-column:1;grid-row:2/4;align-self:start;position:sticky;top:0}
-  .vp[data-tab=member] .vp-hero-in{grid-template-columns:1fr;justify-items:center;text-align:center;min-height:420px;padding:32px 24px 48px}
-  .vp[data-tab=member] .vp-ht{align-items:center}.vp[data-tab=member] .vp-st{align-self:center}.vp[data-tab=member] .vp-prog{width:100%}
-  .vp[data-tab=member] .vp-hb{order:-1;width:208px;height:208px}
-  .vp[data-tab=member] .vp-sec{grid-column:2;grid-row:2;margin-top:8px}
-  .vp[data-tab=member] .vp-perks{grid-column:2;grid-row:3}
-  .vp[data-tab=card] .vp-body{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:24px;align-content:start}
-  .vp[data-tab=card] .mc-ban{grid-column:1;grid-row:1/4;align-self:start}
-  .vp[data-tab=card] .vp-sec{grid-column:2;grid-row:1;margin-top:8px}
-  .vp[data-tab=card] .mc-items{grid-column:2;grid-row:2;grid-template-columns:1fr}
-  .vp[data-tab=card] .vp-tip{grid-column:2;grid-row:3;text-align:left}
+  .vp[data-view=member] .vp-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);grid-template-rows:auto auto auto;column-gap:24px;align-content:start}
+  .vp[data-view=member] .vp-lvs{grid-column:1/-1}
+  .vp[data-view=member] .vp-hero{grid-column:1;grid-row:2/4;align-self:start;position:sticky;top:0}
+  .vp[data-view=member] .vp-hero-in{grid-template-columns:1fr;justify-items:center;text-align:center;min-height:420px;padding:32px 24px 48px}
+  .vp[data-view=member] .vp-ht{align-items:center}.vp[data-view=member] .vp-st{align-self:center}.vp[data-view=member] .vp-prog{width:100%}
+  .vp[data-view=member] .vp-hb{order:-1;width:208px;height:208px}
+  .vp[data-view=member] .vp-sec{grid-column:2;grid-row:2;margin-top:8px}
+  .vp[data-view=member] .vp-perks{grid-column:2;grid-row:3}
+  .vp[data-view=card] .vp-body{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:24px;align-content:start}
+  .vp[data-view=card] .mc-ban{grid-column:1;grid-row:1/4;align-self:start}
+  .vp[data-view=card] .vp-sec{grid-column:2;grid-row:1;margin-top:8px}
+  .vp[data-view=card] .mc-items{grid-column:2;grid-row:2;grid-template-columns:1fr}
+  .vp[data-view=card] .vp-tip{grid-column:2;grid-row:3;text-align:left}
 }
 /* ---------- 版面：手機 ---------- */
 @media (max-width:760px){
@@ -208,8 +208,8 @@ img.vipf{box-shadow:0 0 0 2px var(--f1),0 0 0 4px var(--f2),0 0 12px var(--f2)}
   .vp-head{min-height:44px}.vp-tabs{padding-bottom:8px}.vp-tabs button{height:36px}
   .vp-bar{min-height:60px;padding-top:8px;padding-bottom:calc(8px + var(--safeB,0px))}.vp-acts button{height:44px}
   .vp-hero-in{min-height:140px}.vp-hb{width:110px;height:110px}.vp-ht>b{font-size:36px}
-  .vp[data-tab=card] .vp-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px;align-content:start}
-  .vp[data-tab=card] .mc-ban{grid-row:1/4}.vp[data-tab=card] .vp-sec{margin-top:4px}.vp[data-tab=card] .mc-items{grid-template-columns:1fr}
+  .vp[data-view=card] .vp-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px;align-content:start}
+  .vp[data-view=card] .mc-ban{grid-row:1/4}.vp[data-view=card] .vp-sec{margin-top:4px}.vp[data-view=card] .mc-items{grid-template-columns:1fr}
   .tp-packs{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.tp-p{min-height:0;gap:6px;padding:12px}.tp-art{min-height:56px;flex:none}.tp-art img{width:52px;height:52px}.tp-p.p1 .tp-art img,.tp-p.p2 .tp-art img{width:48px;height:48px}.tp-p>b{font-size:22px}.tp-p button{height:44px}
   .vp-lead{margin-bottom:8px}
   .mc-ad-img img{max-height:calc(100dvh - 104px)}.mc-ad-c{gap:8px}.mc-ad-a button{height:40px}

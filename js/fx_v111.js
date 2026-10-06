@@ -29,7 +29,7 @@
     crocodile: ['scorch', '吞沒一切的沙漠風暴'], doflamingo: ['love', '無處可逃的絲線牢籠'], kuma: ['taboo', '所有痛苦，由我承受'],
     moria: ['void', '千百道影子，歸於一身'], law: ['ocean', '手術室裡，我說了算'], hancock: ['love', '美麗，就是一切的理由'],
     kuma_eh: ['prism', '為了女兒，跨越天際'], law_w: ['ocean', 'ROOM 之中，一刺貫心'], weevil: ['goldflame', '老爹的力量，在我手中'],
-    blackbeard_w: ['void', '黑暗，吞噬一切'], mihawk_w: ['crimson', '頂點之劍，無人能及'], ace: ['blaze', '燃燒吧，火拳的意志'],
+    blackbeard_w: ['void', '黑暗，吞噬一切'], mihawk_w: ['crimson', '頂點之劍，無人能及'], ace: ['blaze', '燃燒吧，火拳的意志'], king: ['blaze', '露娜莉亞之火，焚盡天空'],
     marco: ['ocean', '青藍之炎，永不熄滅'], katakuri: ['chroma', '我已看見你的未來'], catarina: ['abyss', '九尾狐火，變幻無常'],
     burgess: ['scorch', '冠軍的力量，粉碎大地'], vasco: ['goldflame', '一口烈酒，化為火柱'], shanks: ['crimson', '霸王之氣，斬開天地'],
     blackbeard: ['void', '黑暗的野心，永無止境'], buggy: ['chroma', '盛大的表演，開始了！'], whitebeard: ['taboo', '世界最強的男人'],

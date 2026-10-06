@@ -1,0 +1,110 @@
+/* v114：框內資訊垂直、水平置中；技能詳細說明；冒險選單標題對齊 */
+
+/* ---------- 角色培養：等級列（同一字型、同一字級、同一中線） ---------- */
+.gw-lv{justify-items:stretch;gap:8px}
+.gw-lvl{display:flex;align-items:center;justify-content:center;gap:6px;height:24px;font:800 18px/1 var(--num);color:#e8eef8;font-variant-numeric:tabular-nums}
+.gw-lvl>*{display:block;line-height:1}
+.gw-lvl .k{color:#ebc77e;letter-spacing:.06em}
+.gw-lvl b{font:inherit;color:#fff}
+.gw-lvl .ar{color:#8fa0b8}
+.gw .gw-lvl b.up{color:#5aff8a!important}
+.gw-lvl .mx{color:#8fa0b8}
+.gw-lv small{display:block;text-align:center;line-height:16px;min-height:16px}
+
+/* 戰力：框內置中（原本用基線對齊，字貼在框的上緣） */
+.gw-pow{align-items:center;min-height:56px;padding:0 16px}
+.gw-pow>*{line-height:1}
+.gw-pow em{align-self:center}
+
+/* 數值格、經驗書：數字與文字同一中線 */
+.gw-stats div{align-items:center}
+.gw-stats dt,.gw-stats dd{display:flex;align-items:center;line-height:1}
+.gw-stats dd em{margin-left:4px}
+.gw-book{justify-content:center}
+.gw-book b,.gw-book small{line-height:1.25}
+.gw-step{justify-content:center}
+.gw-step button{display:grid;place-items:center;padding:0}
+.gw-step output{display:grid;place-items:center;height:32px}
+.gw-own{display:grid;place-items:center;line-height:1}
+.gw-tabs button{display:grid;place-items:center;line-height:1}
+.gw-acts button{display:grid;place-items:center;line-height:1.2}
+.gw-name{min-height:32px}.gw-name>*{line-height:1.2}
+.gw-name .rar{display:inline-grid;place-items:center;height:22px;padding:0 8px;line-height:1}
+
+/* ---------- 角色培養：技能列 ---------- */
+.gw-skills li.gw-sk{display:block;padding:0;min-height:0;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;position:relative;overflow:hidden;transition:background .2s}
+.gw-skh{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 12px 0 10px}
+.gw-skn{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.1);color:#ffe7a8;font:800 13px/1 var(--num)}
+.gw-skh b{flex:1;min-width:0;font-size:14px;line-height:1.3;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gw-skt{flex:none;display:grid;place-items:center;height:22px;padding:0 8px;border-radius:999px;font:800 11px/1 var(--sans);font-style:normal;letter-spacing:.06em;background:rgba(255,120,90,.2);color:#ffb39d;border:1px solid rgba(255,120,90,.45)}
+.gw-skt.sup{background:rgba(90,200,255,.16);color:#9fdcff;border-color:rgba(90,200,255,.45)}
+.gw-skt.ult{background:rgba(255,211,74,.18);color:#ffe07a;border-color:rgba(255,211,74,.55)}
+.gw-sks{flex:none;min-width:72px;text-align:right;color:#b9c3d2;font-size:12px;line-height:1;white-space:nowrap}
+.gw-sk.new .gw-sks{color:#5aff8a;font-weight:800}
+.gw-chev{flex:none;width:16px;height:16px;display:grid;place-items:center}
+.gw-chev::before{content:'';width:7px;height:7px;border-right:2px solid #ebc77e;border-bottom:2px solid #ebc77e;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.gw-sk.open .gw-chev::before{transform:translateY(2px) rotate(-135deg)}
+.gw-skd{display:none;padding:0 14px 14px 44px}
+.gw-sk.open{background:rgba(0,0,0,.38)}
+.gw-sk.open .gw-skd{display:block;animation:gwSkIn .2s ease-out}
+@keyframes gwSkIn{from{transform:translateY(-4px)}to{transform:none}}
+.gw-sk:hover{background:rgba(255,255,255,.06)}
+.gw-sk:focus-visible{outline:2px solid #ebc77e;outline-offset:2px}
+.gw-sk.lock{opacity:.6}
+.gw-skm{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 10px}
+.gw-skm div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:48px;border-radius:10px;background:rgba(255,255,255,.06)}
+.gw-skm dt{color:#8fa0b8;font-size:11px;line-height:1}
+.gw-skm dd{margin:0;color:#fff;font:800 16px/1 var(--num)}
+.gw-skm dd small{color:#8fa0b8;font-size:11px;margin-left:1px}
+.gw-skp{margin:0;color:#dfe6f0;font-size:13px;line-height:1.7;text-align:left}
+.gw-skg{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.gw-skg .tag{display:inline-grid;place-items:center;height:22px;padding:0 8px;border-radius:999px;line-height:1}
+/* 觸控：長按時的進度條、點一下時提示要長按 */
+.gw-sk::after{content:'';position:absolute;left:0;bottom:0;height:3px;width:0;background:#ebc77e;pointer-events:none}
+.gw-sk.pressing{background:rgba(255,255,255,.08)}
+.gw-sk.pressing::after{width:100%;transition:width .45s linear}
+.gw-sk.hint .gw-sks{animation:gwHint .9s}
+@keyframes gwHint{30%,70%{color:#ffe07a}}
+@media (hover:none),(pointer:coarse){.gw-chev{display:none}.gw-sk:hover{background:rgba(0,0,0,.25)}.gw-skd{display:none!important}}
+
+/* 長按彈出的技能說明卡 */
+.gw-pop{position:fixed;inset:0;z-index:2100;display:grid;place-items:center;padding:16px;background:rgba(2,6,16,.6);opacity:0;transition:opacity .15s}
+.gw-pop.show{opacity:1}
+.gw-popc{width:min(440px,100%);max-height:calc(100dvh - 32px);overflow:auto;padding:0 16px 16px;border-radius:16px;background:linear-gradient(180deg,#1f3156,#0d172e);border:1px solid rgba(235,199,126,.6);box-shadow:0 20px 50px rgba(0,0,0,.6);transform:scale(.96);transition:transform .15s}
+.gw-pop.show .gw-popc{transform:none}
+.gw-popc.ult{border-color:#ffd34a}
+.gw-popc header{display:flex;align-items:center;gap:10px;min-height:56px}
+.gw-popc header b{flex:1;min-width:0;font:900 17px/1.3 var(--serif);color:#fff}
+.gw-popx{flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;border:2px solid #ebc77e;background:#2a1a10;color:#ffe7a8;font-size:22px;line-height:1;cursor:pointer;margin-right:-4px}
+.gw-popc .gw-skp{font-size:14px}
+.gw-pops{margin:12px 0 0;display:grid;place-items:center;min-height:32px;border-radius:999px;background:rgba(255,255,255,.06);color:#cdd6e2;font-size:12px;line-height:1}
+
+/* ---------- 冒險選單：圖片等高、標題同一水平線 ---------- */
+.lb-sheet .mode-grid{grid-auto-rows:1fr;align-items:stretch}
+.lb-sheet .mode-card{min-height:0!important;height:100%;container-type:inline-size}
+.lb-sheet .mc-body{flex:1;justify-content:flex-start;gap:8px}
+.lb-sheet .mc-body b{display:block;white-space:nowrap;overflow:hidden;text-overflow:clip;line-height:1.2;height:1.2em;letter-spacing:.06em}
+.lb-sheet .mc-body small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;line-height:1.6;min-height:4.8em}
+.lb-sheet .mc-body em{margin-top:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+/* 直式卡片（平板以上）：固定圖片高度，標題字級依卡片寬度縮放，六個字也能一行放下 */
+@media (min-width:861px){
+  .lb-sheet .mc-art{flex:none;height:clamp(160px,26vh,240px);min-height:0}
+  .lb-sheet .mc-body{padding:16px}
+  .lb-sheet .mc-body b{font-size:22px;font-size:clamp(16px,11.5cqi,24px)}
+  .lb-sheet .mc-body small{font-size:12.5px}
+  .lb-sheet .mc-body em{font-size:14px;font-size:min(14px,7.6cqi)}
+}
+/* 橫式卡片（手機）：每張卡等高，圖片固定寬度，文字區垂直置中 */
+@media (max-width:860px){
+  .lb-sheet .mode-card{flex-direction:row}
+  .lb-sheet .mc-art{flex:0 0 38%;min-height:128px}
+  .lb-sheet .mc-body{justify-content:center;padding:12px 16px}
+  .lb-sheet .mc-body b{font-size:20px}
+  .lb-sheet .mc-body small{-webkit-line-clamp:2;min-height:3.2em;font-size:12.5px}
+  .lb-sheet .mc-body em{margin-top:0;font-size:14px}
+}
+/* 很矮的橫向手機：兩欄 */
+@media (max-height:500px) and (orientation:landscape) and (max-width:1000px){
+  .lb-sheet .mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .lb-sheet .mc-art{flex-basis:34%;min-height:112px}
+}

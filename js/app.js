@@ -280,6 +280,8 @@ function chState() { const st = SAVE.data.chapters[CH.id], m = STEP_INSERTS[CH.i
   if (st && m2 && !st.v49) { st.v49 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m2.after) st.step += m2.n; SAVE.save(); }
   /* v103：頂上戰爭篇在卡普之前插入黑鬍子（七武海）小 BOSS（第 6 步） */
   const m3 = { marineford: { after: 4, n: 1 } }[CH.id]; if (st && m3 && !st.v103) { st.v103 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m3.after) st.step += m3.n; SAVE.save(); }
+  /* v115：和之國篇在屋頂決戰之前插入「炎災」燼小 BOSS（第 11 步） */
+  const m4 = { wano: { after: 10, n: 1 } }[CH.id]; if (st && m4 && !st.v115) { st.v115 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m4.after) st.step += m4.n; SAVE.save(); }
   return st; }
 function curStep() { const st = chState(); return st.cleared && st.step >= CH.steps.length ? null : CH.steps[Math.min(st.step, CH.steps.length - 1)]; }
 /* 敵人等級：開啟等級同步時，陣容太強會讓敵人跟著變強 */
@@ -702,8 +704,10 @@ function spinCapsules(ms) {
 }
 function openBag() {
   const inv = SAVE.data.inventory, ids = Object.keys(ITEMS).filter(id => inv[id] > 0);
-  $('bagList').innerHTML = ids.length ? ids.map(id => { const it = ITEMS[id]; return `<div class="bagItem static r-${it.rarity}">${itemIcon(it)}<span class="bi-name">${it.name}<small>${it.desc}</small></span><b>×${inv[id]}</b>${it.effect.skinTicket ? `<button class="btn-gold sm" data-ticket>使用</button>` : ''}</div>`; }).join('') : '<div class="bagEmpty">背包是空的。完成劇情任務拿到寶藏幣，就能到懸賞處抽道具。</div>';
+  $('bagList').innerHTML = ids.length ? ids.map(id => { const it = ITEMS[id]; return `<div class="bagItem static r-${it.rarity}">${itemIcon(it)}<span class="bi-name">${it.name}<small>${it.desc}</small></span><b>×${inv[id]}</b>${it.effect.skinTicket ? `<button class="btn-gold sm" data-ticket>使用</button>` : ''}${it.effect.charSelect ? `<button class="btn-gold sm" data-csel>使用</button>` : ''}${it.effect.eventTicket ? `<button class="btn-gold sm" data-evt>前往</button>` : ''}</div>`; }).join('') : '<div class="bagEmpty">背包是空的。完成劇情任務拿到寶藏幣，就能到懸賞處抽道具。</div>';
   $('bagList').querySelectorAll('[data-ticket]').forEach(b => b.onclick = openSkinTicket);
+  $('bagList').querySelectorAll('[data-csel]').forEach(b => b.onclick = () => window.openCharSelect && openCharSelect());
+  $('bagList').querySelectorAll('[data-evt]').forEach(b => b.onclick = () => { closeModal('bagModal'); const e = $('lbEvent'); if (e && currentScreen === 'modeScreen') e.click(); else openGacha(currentScreen); });
   openModal('bagModal');
 }
 /* 限定皮膚選擇卷：從 ticket 皮膚裡任選一款尚未擁有的 */

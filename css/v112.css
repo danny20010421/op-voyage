@@ -9,15 +9,15 @@
 .gw-tabs{display:flex;gap:8px;padding:0 16px 10px}
 .gw-tabs button{flex:1;min-height:40px;border-radius:999px;border:1px solid rgba(235,199,126,.5);background:rgba(255,255,255,.06);color:#e8dcc0;font-weight:900;font-size:15px;cursor:pointer}
 .gw-tabs button.on{background:linear-gradient(180deg,#5a3a1a,#2a1a0a);color:#ffe7a8;box-shadow:inset 0 0 0 1px #ffd34a}
-.gw-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:16px;padding:0 16px 16px;min-height:0;overflow:auto}
+.gw-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:start;gap:16px;padding:0 16px 16px;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 /* 立繪區 */
-.gw-art{position:relative;display:flex;flex-direction:column;align-items:center;min-height:420px;border-radius:16px;background:radial-gradient(ellipse at 50% 60%,color-mix(in srgb,var(--rc) 30%,transparent),transparent 70%),rgba(0,0,0,.2);padding:12px}
+.gw-art{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:16px;background:radial-gradient(ellipse at 50% 60%,color-mix(in srgb,var(--rc) 30%,transparent),transparent 70%),rgba(0,0,0,.2);padding:12px}
 .gw-name{display:flex;align-items:center;gap:8px;align-self:stretch;justify-content:center;min-height:32px}
 .gw-name b{font:900 20px/1.1 var(--serif);color:#fff}.gw-name small{color:#b9c3d2;font-size:12px}
-.gw-art img{flex:1;min-height:0;max-height:46vh;width:100%;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,.5))}
+.gw-art img{flex:none;display:block;width:100%;height:clamp(220px,46vh,460px);object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,.5))} /* v113：固定高度，不再被壓扁成 0（部分手機瀏覽器） */
 .gw-art img.lvup{animation:gwUp .7s ease-out}
 @keyframes gwUp{0%{filter:brightness(2.4) drop-shadow(0 0 30px #ffe070)}100%{filter:drop-shadow(0 10px 20px rgba(0,0,0,.5))}}
-.gw-nav{position:absolute;top:50%;width:40px;height:40px;border-radius:50%;border:2px solid #ebc77e;background:rgba(10,16,34,.85);color:#ffe7a8;font-size:24px;line-height:1;display:grid;place-items:center;cursor:pointer;transform:translateY(-50%)}
+.gw-nav{position:absolute;top:calc(50% - 20px);z-index:2;width:40px;height:40px;border-radius:50%;border:2px solid #ebc77e;background:rgba(10,16,34,.85);color:#ffe7a8;font-size:24px;line-height:1;display:grid;place-items:center;cursor:pointer;transform:translateY(-50%)}
 .gw-nav.prev{left:10px}.gw-nav.next{right:10px}.gw-nav:disabled{opacity:.3}
 .gw-lv{align-self:stretch;display:grid;gap:4px;justify-items:center;margin-top:6px}
 .gw-bar{position:relative;width:100%;height:14px;border-radius:7px;background:rgba(0,0,0,.5);border:1px solid rgba(235,199,126,.5);overflow:hidden}
@@ -58,7 +58,15 @@
   .gw-wrap{padding:0}.gw{width:100%;height:100%;max-height:none;border-radius:0}
   .gw-head{padding-top:var(--safeT,0px)}
   .gw-body{grid-template-columns:1fr;gap:10px;padding:0 12px calc(12px + var(--safeB,0px))}
-  .gw-art{min-height:0;padding:8px}.gw-art img{max-height:30vh}
+  .gw-art{padding:8px}.gw-art img{height:clamp(170px,30vh,300px)}
   .gw-books{gap:6px}.gw-book{padding:8px 4px}
 }
 .gw .gw-lv span b.up{color:#5aff8a!important}
+
+/* v113：各裝置通用性 */
+.gw-lv{position:relative;z-index:1}
+.gw-name{flex-wrap:wrap;row-gap:2px;padding:0 44px;text-align:center}
+@media (max-width:760px){.gw{height:100dvh}.gw-head h3{font-size:19px}.gw-pow b{font-size:24px}.gw-stats div{min-height:42px;padding:0 10px}.gw-stats dd{font-size:16px}.gw-acts button{min-height:48px;font-size:16px}}
+@media (max-width:380px){.gw-books{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.gw-book b{font-size:11.5px}.gw-step{gap:3px}.gw-step button{width:28px;height:28px;font-size:16px}.gw-stats dt{font-size:12px}}
+/* 橫向手機：左右排版、立繪縮小 */
+@media (max-height:500px) and (orientation:landscape){.gw{height:100dvh;border-radius:0}.gw-wrap{padding:0}.gw-body{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}.gw-art img{height:clamp(140px,48vh,260px)}.gw-head{min-height:44px}.gw-tabs{padding-bottom:6px}.gw-tabs button{min-height:32px}}

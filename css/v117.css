@@ -1,0 +1,28 @@
+/* v117：版面檢查修正（角色背包立繪按鈕、放大按鈕、大廳名片經驗條、橫向手機左側圖示、月費小卡） */
+
+/* 角色背包：立繪改為可伸縮，下方「培養／上陣」按鈕不再被裁切 */
+#cxPane_crew .sb-stage{box-sizing:border-box;padding-bottom:16px!important}
+#cxPane_crew .sb-stage>img{flex:1 1 auto!important;min-height:0!important;height:auto!important;width:100%;object-fit:contain}
+#cxPane_crew .sb-acts{flex:none;margin-bottom:0!important}
+
+/* 立繪「放大」按鈕：所有裝置都看得到、點得到 */
+#cxPane_crew .zv-hint{pointer-events:auto!important;cursor:pointer;display:inline-flex!important;align-items:center;gap:6px;height:32px;padding:0 12px!important;right:16px!important;bottom:72px!important;border-radius:999px!important;
+  background:rgba(8,14,32,.72)!important;border:1px solid rgba(235,199,126,.7);color:#ffe7a8!important;font-size:13px!important;font-weight:800;line-height:1;z-index:3}
+#cxPane_crew .zv-hint svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+#cxPane_crew .zv-hint:focus-visible{outline:2px solid #ffe7a8;outline-offset:2px}
+@media (max-width:860px){#cxPane_crew .zv-hint{bottom:80px!important;right:12px!important}}
+
+/* 大廳玩家名片：經驗條不超出名片 */
+.lbpf-txt{min-width:0}
+#modeScreen .lbpf-xp{width:100%!important;max-width:220px}
+
+/* 橫向手機：左側圖示改 4 欄 2 列，不再壓到下方的限定召喚卡 */
+@media (max-height:500px) and (orientation:landscape){
+  .l2-rail{grid-template-columns:repeat(4,52px)!important;padding:4px!important;gap:0!important}
+  .l2-rail .l2-ic>.l2-svg{width:30px!important;height:30px!important;padding:6px!important}
+  .l2-rail .l2-ic b{font-size:10px}.l2-rail .l2-ic small,.l2-rail .l2-bar{display:none!important}
+}
+
+/* 月費小卡：空間不夠時（由程式量測）隱藏，改由左側「VIP 會員」進入 */
+.l2-month[hidden]{display:none!important}
+.lbpf-txt>b{overflow:visible!important}

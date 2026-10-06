@@ -108,6 +108,8 @@ function renderAdmin(tab) {
       <label class="btn-ghost filebtn">匯入後台設定<input type="file" accept="application/json" id="admImport"></label>
       <button class="btn-ghost" data-t="tokens">給自己 10 枚寶藏幣</button>
       <button class="btn-ghost" data-t="tokens1000">獲得 1000 枚寶藏幣</button>
+      <button class="btn-ghost" data-t="vip1000">模擬儲值 1000（測試 VIP）</button>
+      <button class="btn-ghost" data-t="vipreset">清除儲值紀錄（VIP0）</button>
       <span class="adm-get"><select id="admGetChar">${CHARACTER_ORDER.map(id => `<option value="${id}">${CHARACTERS[id].name}${owned(id) ? '（已擁有）' : ''}</option>`).join('')}</select><button class="btn-ghost" data-t="getChar">馬上獲得此角色</button></span>
       <span class="adm-get"><select id="admGetSkin">${Object.entries(SKINS).filter(([k, s]) => !s.soon).map(([k, s]) => `<option value="${k}">${CHARACTERS[s.char].name}・${s.name}</option>`).join('')}</select><button class="btn-ghost" data-t="getSkin">馬上獲得此皮膚</button></span>
       <button class="btn-ghost" data-t="unlock">標記全部篇章已通關</button>
@@ -156,6 +158,8 @@ function saveAdmin() {
   const t = document.querySelector('#adminNav .on').dataset.tab; renderAdmin(t); $('adminStatus').textContent = '已儲存並套用'; $('adminStatus').className = 'astatus ok';
 }
 function adminTool(t) {
+  if (t === 'vip1000') { if (window.VIP) VIP.recharge(1000, '後台測試'); return; }
+  if (t === 'vipreset') { SAVE.data.vip = { paid: 0, once: [], day: '' }; SAVE.save(); if (window.vipRefreshLobby) vipRefreshLobby(); toast('已清除儲值紀錄'); return; }
   if (t === 'tokens1000') { SAVE.data.tokens += 1000; SAVE.save(); coins(); toast('獲得 1000 枚寶藏幣', 'gold'); return; }
   if (t === 'getChar') { const id = $('admGetChar').value; if (owned(id)) { toast(`${CHARACTERS[id].name} 已經在船上了`); return; } addCrew(id, 50); toast(`${CHARACTERS[id].name} 加入了船隊（LV 50）`, 'gold'); renderAdmin('tools'); return; }
   if (t === 'getSkin') { const k = $('admGetSkin').value, S = SAVE.data.skins = SAVE.data.skins || { owned: [], equip: {} }; S.owned = S.owned || []; if (S.owned.includes(k)) { toast('已經擁有這款皮膚'); return; } S.owned.push(k); SAVE.save(); toast(`獲得皮膚「${SKINS[k].name}」`, 'gold'); return; }

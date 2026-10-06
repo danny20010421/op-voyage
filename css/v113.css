@@ -1,0 +1,13 @@
+/* v113：立繪放大檢視 */
+.zv{position:fixed;inset:0;z-index:3000;display:none;place-items:center;background:radial-gradient(ellipse at center,rgba(20,30,60,.92),rgba(0,0,0,.96));touch-action:none;overscroll-behavior:contain;user-select:none;-webkit-user-select:none}
+.zv.show{display:grid}
+.zv img{max-width:94vw;max-height:calc(100dvh - 120px);object-fit:contain;transform-origin:center;will-change:transform;cursor:zoom-in;-webkit-user-drag:none;pointer-events:none;filter:drop-shadow(0 20px 40px rgba(0,0,0,.6))}
+.zv.zoomed{cursor:grab}.zv.zoomed img{cursor:grab}
+.zv-x{position:absolute;top:calc(12px + var(--safeT,0px));right:12px;width:46px;height:46px;border-radius:50%;border:2px solid #ebc77e;background:rgba(10,16,34,.85);color:#ffe7a8;font-size:26px;line-height:1;display:grid;place-items:center;cursor:pointer;z-index:2}
+.zv-tip{position:absolute;left:50%;bottom:calc(14px + var(--safeB,0px));transform:translateX(-50%);margin:0;padding:6px 14px;border-radius:999px;background:rgba(0,0,0,.55);color:#d6dfec;font-size:12px;white-space:nowrap;pointer-events:none}
+body.zv-open{overflow:hidden}
+/* 立繪上的提示 */
+#cxPane_crew .sb-stage>img{cursor:zoom-in;touch-action:pan-y}
+.zv-hint{position:absolute;right:12px;bottom:72px;z-index:2;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.45);color:#d6dfec;font-size:11px;pointer-events:none}
+.zv-hint .zh-m{display:none}
+@media (hover:none),(pointer:coarse){.zv-hint .zh-d{display:none}.zv-hint .zh-m{display:inline}}
