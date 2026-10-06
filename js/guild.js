@@ -62,7 +62,7 @@ const GUILD = (function () {
   }
 
   /* ---------- 留言板 ---------- */
-  async function post(text, sys) { text = String(text || '').trim().slice(0, 100); if (!text || !gid) return; try { await F().db.runTransaction(async t => { const d = await t.get(ref()); const x = d.data(); if (!x) return; const chat = [...(x.chat || []), { from: U().uid, name: myName, text, at: Date.now(), sys: !!sys }].slice(-40); t.update(ref(), { chat }); }); } catch (e) { msg = CLOUD.errText(e); render(); } }
+  async function post(text, sys) { text = String(text || '').trim().slice(0, 100); if (!text || !gid) return; try { await F().db.runTransaction(async t => { const d = await t.get(ref()); const x = d.data(); if (!x) return; const chat = [...(x.chat || []), { from: U().uid, name: myName, text, at: Date.now(), sys: !!sys, vip: typeof vipLevel === 'function' ? vipLevel() : 0 }].slice(-40); t.update(ref(), { chat }); }); } catch (e) { msg = CLOUD.errText(e); render(); } }
 
   /* ---------- 船團 BOSS ---------- */
   function fight() {
@@ -91,31 +91,51 @@ const GUILD = (function () {
       <h4 class="sc-h">加入船團</h4><div class="sc-search"><input id="gdQ" placeholder="輸入船團名稱搜尋"><button class="btn-ghost" data-a="search">搜尋</button></div>
       ${list === null ? '<p class="sc-hint">讀取中…</p>' : list.length ? `<ul class="sc-list">${list.map(x => `<li class="sc-p"><span class="sc-who"><b>⚓ ${esc3(x.name)}</b><small>團長 ${esc3(x.leaderName || '')}・${x.members.length}/${G.maxMembers} 人</small>${x.notice ? `<small class="sc-bio">「${esc3(x.notice)}」</small>` : ''}</span><span class="sc-act"><button class="btn-gold sm" data-join="${x.id}" ${x.members.length >= G.maxMembers ? 'disabled' : ''}>加入</button></span></li>`).join('')}</ul>` : '<p class="sc-hint">找不到船團。自己建立一個，邀請好友加入吧！</p>'}</div>`;
     if (!g) return '<p class="sc-hint">讀取中…</p>';
-    const B = g.boss || {}, BC = CHARACTERS[B.id] || CHARACTERS.kaido, lead = g.leader === U().uid, M = me();
-    const head = `<div class="gd-head"><b>⚓ ${esc3(g.name)}</b><small>團長 ${esc3(g.leaderName || '')}・${g.members.length}/${G.maxMembers} 人</small>${g.notice ? `<p>📢 ${esc3(g.notice)}</p>` : ''}</div>
-      <nav class="sc-tabs gd-tabs">${[['boss', '船團 BOSS'], ['mem', '成員'], ['chat', '留言板'], ['set', '設定']].map(([k, n]) => `<button class="${sub === k ? 'on' : ''}" data-sub="${k}">${n}</button>`).join('')}</nav>`;
-    if (sub === 'boss') { const rank = Object.entries(g.dmg || {}).sort((a, b) => b[1] - a[1]);
-      return head + `<div class="gd-boss"><img src="${BC.image}" alt=""><div><small>本週 BOSS（每週一更換）</small><b>${BC.name}</b><div class="lv-hp gd-hp"><i style="width:${B.maxHp ? B.hp / B.maxHp * 100 : 0}%"></i></div><small>${(B.hp || 0).toLocaleString()} / ${(B.maxHp || 0).toLocaleString()}</small>
-          ${B.dead ? `<p class="gd-dead">🏆 已被擊敗！最後一擊：${esc3(B.killer || '')}</p><button class="btn-gold" data-a="claim" ${M.claimed === gid + g.week ? 'disabled' : ''}>${M.claimed === gid + g.week ? '已領取擊破獎勵' : '領取擊破獎勵'}</button>` : `<button class="btn-gold big" data-a="fight" ${tries() > 0 ? '' : 'disabled'}>挑戰（今天剩 ${tries()} 次）</button>`}</div></div>
-        <p class="sc-hint">每場戰鬥 BOSS 最多 ${G.fightHp.toLocaleString()} 體力、開場全能力 +1、技能次數無限（奧義最多 2 次）。打出的傷害會扣在全船團共用的血量上；每次挑戰得到貝里 ${G.tryBerry.toLocaleString()}，BOSS 被擊敗後每位成員可領寶藏幣 ×${G.killReward.tokens}、貝里 ${G.killReward.berry.toLocaleString()}。出戰的是你的一般出戰陣容。</p>
-        <h4 class="sc-h">本週傷害排行</h4>${rank.length ? `<ol class="sc-rank gd-rank">${rank.map(([u, d], i) => `<li class="${u === U().uid ? 'me' : ''} ${i < 3 ? 'top' + (i + 1) : ''}"><b>${i + 1}</b><span><em>${esc3(g.names[u] || '前成員')}</em></span><strong>${d.toLocaleString()}</strong></li>`).join('')}</ol>` : '<p class="sc-hint">本週還沒有人挑戰。</p>'}`; }
-    if (sub === 'mem') return head + `<ul class="sc-list">${g.members.map(u => `<li class="sc-p"><span class="sc-who"><b>${u === g.leader ? '👑 ' : ''}${esc3(g.names[u] || '')}</b><small>本週傷害 ${((g.dmg || {})[u] || 0).toLocaleString()}</small></span><span class="sc-act">${lead && u !== U().uid ? `<button class="btn-ghost sm sc-x" data-kick="${u}">請離</button>` : ''}</span></li>`).join('')}</ul><p class="sc-hint">邀請好友：請對方在「好友 → 船團」搜尋船團名稱「${esc3(g.name)}」加入。</p>`;
-    if (sub === 'chat') return head + `<ul class="gd-chat" id="gdChat">${(g.chat || []).map(c => `<li class="${c.sys ? 'sys' : ''} ${c.from === U().uid ? 'mine' : ''}"><b>${esc3(c.name || '')}</b><p>${esc3(c.text)}</p><small>${fmtD(c.at)}</small></li>`).join('') || '<li class="sys"><p>還沒有留言，打聲招呼吧！</p></li>'}</ul><div class="sc-search"><input id="gdMsg" maxlength="100" placeholder="說點什麼…（最多 100 字）"><button class="btn-gold" data-a="post">送出</button></div>`;
-    return head + `<div class="sc-acc">${lead ? `<label>船團公告<span class="sc-search"><input id="gdN2" maxlength="80" value="${esc3(g.notice || '')}"><button class="btn-ghost" data-a="notice">儲存</button></span></label>` : '<p class="sc-hint">只有團長可以修改公告與請離成員。</p>'}<button class="btn-ghost" data-a="leave">離開船團</button></div>`;
+    /* v116 版面：左側船團資訊、右側公告＋內容，內容分頁在右緣（手機在上方） */
+    const B = g.boss || {}, BC = CHARACTERS[B.id] || CHARACTERS.kaido, lead = g.leader === U().uid, M = me(), dmg = g.dmg || {};
+    const tot = Object.values(dmg).reduce((a, b) => a + b, 0), mine = dmg[U().uid] || 0, pct = B.maxHp ? Math.max(0, Math.min(100, B.hp / B.maxHp * 100)) : 0;
+    const no = String(gid || '').replace(/[^A-Za-z0-9]/g, '').slice(-6).toUpperCase() || '—', made = g.createdAt ? new Date(g.createdAt) : null;
+    const IC = p => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+    const rows = [[IC('<path d="M4 7h16M4 12h16M4 17h10"/>'), '船團編號', no], [IC('<circle cx="9" cy="8" r="3"/><path d="M3 20c.5-3.5 3-5.5 6-5.5s5.5 2 6 5.5"/><path d="M16 4.5a3 3 0 0 1 0 6M18 14.8c1.8.8 2.8 2.6 3 5.2"/>'), '船團人數', `${g.members.length}/${G.maxMembers}`],
+      [IC('<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>'), '團長', esc3(g.leaderName || '')], [IC('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>'), '建立日期', made ? `${made.getFullYear()}/${made.getMonth() + 1}/${made.getDate()}` : '—'],
+      [IC('<path d="M5 19L19 5M14 5h5v5"/><path d="M5 9V5h4"/>'), '本週總傷害', tot.toLocaleString()], [IC('<path d="M12 3l2.5 5.5L20 9.3l-4 4 1 5.7-5-2.8-5 2.8 1-5.7-4-4 5.5-.8z"/>'), '我的本週傷害', mine.toLocaleString()]];
+    const crest = `<svg class="gl-crest" viewBox="0 0 64 72" aria-hidden="true"><defs><linearGradient id="glc1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a8"/><stop offset="1" stop-color="#b8862c"/></linearGradient><linearGradient id="glc2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e3a6a"/><stop offset="1" stop-color="#0a1630"/></linearGradient></defs><path d="M32 3l26 9v20c0 18-11 30-26 37C17 62 6 50 6 32V12z" fill="url(#glc1)"/><path d="M32 9l20 7v16c0 14.5-8.5 24.5-20 30.5C20.5 56.5 12 46.5 12 32V16z" fill="url(#glc2)"/><g fill="none" stroke="#ffe7a8" stroke-width="3" stroke-linecap="round"><circle cx="32" cy="22" r="4"/><path d="M32 26v24M24 32h16M20 42c2 6 7 9 12 9s10-3 12-9"/></g></svg>`;
+    const info = `<section class="gl-info"><div class="gl-id">${crest}<div class="gl-nm"><b>${esc3(g.name)}</b><small>${g.notice ? '「' + esc3(g.notice) + '」' : '還沒有船團口號'}</small></div></div>
+      <h4 class="gl-h">船團資訊</h4><dl class="gl-rows">${rows.map(([ic, k, v]) => `<div><dt><span class="gl-ri">${ic}</span>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
+      <div class="gl-ibtn"><button class="btn-ghost" data-a="invite">邀請好友</button><button class="btn-ghost" data-sub="set">${lead ? '船團管理' : '船團設定'}</button></div></section>`;
+    const TABS = [['boss', '設施'], ['mem', '成員'], ['chat', '留言'], ['set', '設定']];
+    const tabs = `<nav class="gl-tabs" role="tablist">${TABS.map(([k, n]) => `<button role="tab" aria-selected="${sub === k}" class="${sub === k ? 'on' : ''} ${k === 'boss' && (B.dead ? M.claimed !== gid + g.week : tries() > 0) ? 'dot' : ''}" data-sub="${k}"><span>${n}</span></button>`).join('')}</nav>`;
+    const notice = `<div class="gl-notice"><div><h4>船團公告</h4><p>${g.notice ? esc3(g.notice) : '無'}</p></div>${lead ? `<button class="gl-pen" data-sub="set" aria-label="編輯公告">${IC('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/>')}</button>` : ''}</div>`;
+    let main = '';
+    if (sub === 'boss') { const rank = Object.entries(dmg).sort((a, b) => b[1] - a[1]), claimed = M.claimed === gid + g.week;
+      main = `<div class="gl-fac">
+        <article class="gl-card boss ${B.dead ? 'dead' : ''}"><div class="gl-cimg"><img src="${BC.image}" alt="${esc3(BC.name)}"><span class="gl-ctag">本週 BOSS・每週一更換</span>
+          <div class="gl-hp"><div class="gl-hpb"><i style="width:${pct}%"></i></div><small>${(B.hp || 0).toLocaleString()} / ${(B.maxHp || 0).toLocaleString()}</small></div></div>
+          <footer><div><b>${esc3(BC.name)}</b><small>${B.dead ? `已被擊敗・最後一擊 ${esc3(B.killer || '')}` : `今天剩 ${tries()} / ${G.dailyTries} 次挑戰`}</small></div>
+          ${B.dead ? `<button class="btn-gold" data-a="claim" ${claimed ? 'disabled' : ''}>${claimed ? '已領取' : '領取獎勵'}</button>` : `<button class="btn-gold" data-a="fight" ${tries() > 0 ? '' : 'disabled'}>挑戰</button>`}</footer></article>
+        <article class="gl-card"><div class="gl-cbody"><ol class="gl-rank">${rank.length ? rank.slice(0, 6).map(([u, d], i) => `<li class="${u === U().uid ? 'me' : ''}"><b class="n${i < 3 ? i + 1 : ''}">${i + 1}</b><span>${esc3(g.names[u] || '前成員')}</span><em>${d.toLocaleString()}</em></li>`).join('') : '<li class="none">本週還沒有人挑戰</li>'}</ol></div>
+          <footer><div><b>傷害排行</b><small>本週・前 6 名</small></div></footer></article>
+        <article class="gl-card"><div class="gl-cbody gl-rew"><div><i class="coin-ico"></i><b>×${G.killReward.tokens}</b><small>寶藏幣</small></div><div><i class="berry-ico">B</i><b>${(G.killReward.berry / 1e4).toLocaleString()}萬</b><small>貝里</small></div><p>每次挑戰另得貝里 ${G.tryBerry.toLocaleString()}</p></div>
+          <footer><div><b>擊破獎勵</b><small>BOSS 被擊敗後每位成員可領</small></div></footer></article></div>
+        <p class="gl-tip">每場戰鬥 BOSS 最多 ${G.fightHp.toLocaleString()} 體力、開場全能力 +1、技能次數無限（奧義最多 2 次）。打出的傷害會扣在全船團共用的血量上；出戰的是你的一般出戰陣容。</p>`; }
+    else if (sub === 'mem') main = `<ul class="gl-mem">${g.members.map(u => `<li class="${u === U().uid ? 'me' : ''}"><span class="gl-mav">${u === g.leader ? IC('<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>') : esc3((g.names[u] || '?').slice(0, 1))}</span><div><b>${esc3(g.names[u] || '')}</b><small>${u === g.leader ? '團長' : '船員'}・本週傷害 ${(dmg[u] || 0).toLocaleString()}</small></div>${lead && u !== U().uid ? `<button class="btn-ghost sm" data-kick="${u}">請離</button>` : ''}</li>`).join('')}</ul><p class="gl-tip">邀請好友：請對方在「船團」搜尋船團名稱「${esc3(g.name)}」加入。</p>`;
+    else if (sub === 'chat') main = `<ul class="gd-chat gl-chat" id="gdChat">${(g.chat || []).map(c => `<li class="${c.sys ? 'sys' : ''} ${c.from === U().uid ? 'mine' : ''} ${!c.sys && c.vip >= 2 ? 'vipb v' + c.vip : ''}"><b>${esc3(c.name || '')}${!c.sys && window.vipTag ? vipTag(c.vip) : ''}</b><p>${esc3(c.text)}</p><small>${fmtD(c.at)}</small></li>`).join('') || '<li class="sys"><p>還沒有留言，打聲招呼吧！</p></li>'}</ul><div class="gl-send"><input id="gdMsg" maxlength="100" placeholder="說點什麼…（最多 100 字）" aria-label="留言"><button class="btn-gold" data-a="post">送出</button></div>`;
+    else main = `<div class="gl-set">${lead ? `<label><span>船團公告</span><div class="gl-send"><input id="gdN2" maxlength="80" value="${esc3(g.notice || '')}" aria-label="船團公告"><button class="btn-gold" data-a="notice">儲存</button></div></label>` : '<p class="gl-tip">只有團長可以修改公告與請離成員。</p>'}<button class="btn-ghost gl-leave" data-a="leave">離開船團</button></div>`;
+    return `<div class="gl">${info}<section class="gl-main">${notice}<div class="gl-panel sub-${sub}"><div class="gl-pin">${main}</div>${tabs}</div></section></div>`;
   }
   function render() {
     if (!panel || !panel.isConnected) return;
-    panel.innerHTML = `<div class="dl-card sc-card gd-card"><header><h3>⚓ 船團</h3><button class="icon-btn sm" data-x aria-label="關閉">×</button></header><div class="sc-body">${body()}</div>${msg ? `<p class="cl-status">${esc3(msg)}</p>` : ''}</div>`;
+    panel.innerHTML = `<div class="gl-shell ${gid && g ? 'in' : 'out'}"><header class="gl-head"><h3>船團</h3><button class="gl-x" data-x aria-label="關閉">×</button></header><div class="gl-body sc-body">${body()}</div>${msg ? `<p class="cl-status">${esc3(msg)}</p>` : ''}</div>`;
     const q = s => panel.querySelector(s), on = (s, f) => panel.querySelectorAll(s).forEach(b => b.onclick = () => f(b));
     q('[data-x]').onclick = close; on('[data-sub]', b => { sub = b.dataset.sub; msg = ''; render(); });
     on('[data-a=login]', () => { close(); openCloud(); }); on('[data-a=social]', () => { close(); openSocial('me'); });
     on('[data-a=create]', () => create((q('#gdName') || {}).value, (q('#gdNotice') || {}).value)); on('[data-a=search]', () => browse((q('#gdQ') || {}).value)); on('[data-join]', b => join(b.dataset.join));
     on('[data-a=fight]', fight); on('[data-a=claim]', claim); on('[data-kick]', b => kick(b.dataset.kick)); on('[data-a=leave]', leave); on('[data-a=notice]', () => saveNotice((q('#gdN2') || {}).value));
-    const send = () => { const i = q('#gdMsg'); if (i && i.value.trim()) { post(i.value); i.value = ''; } }; on('[data-a=post]', send); const mi = q('#gdMsg'); if (mi) mi.onkeydown = e => { if (e.key === 'Enter') send(); };
+    const send = () => { const i = q('#gdMsg'); if (i && i.value.trim()) { post(i.value); i.value = ''; } }; on('[data-a=post]', send); on('[data-a=invite]', () => { const t = `一起加入我的船團「${g ? g.name : ''}」！在遊戲的「船團」搜尋這個名稱就能加入。`; try { navigator.clipboard.writeText(t); toast('已複製邀請訊息'); } catch (e) { toast(t); } }); const mi = q('#gdMsg'); if (mi) mi.onkeydown = e => { if (e.key === 'Enter') send(); };
     const ch = q('#gdChat'); if (ch) ch.scrollTop = ch.scrollHeight;
   }
   async function open(s) {
-    if (s) sub = s; if (!panel) { panel = document.createElement('div'); panel.className = 'dl-wrap sc-wrap gd-wrap'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', '船團'); panel.onclick = e => { if (e.target === panel) close(); }; }
+    if (s) sub = s; if (!panel) { panel = document.createElement('div'); panel.className = 'gl-wrap'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', '船團'); panel.onclick = e => { if (e.target === panel) close(); }; }
     document.body.appendChild(panel); msg = ''; render();
     try { await CLOUD.sdk(); } catch (e) { msg = CLOUD.errText(e); render(); return; }
     if (!U()) { render(); return; }

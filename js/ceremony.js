@@ -17,9 +17,9 @@
     opt = opt || {}; if (!list || !list.length) { if (done) done(); return; }
     const chars = list.filter(x => x.char), rest = list.filter(x => !x.char);
     const box = document.createElement('div'); box.className = 'cer-wrap'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', opt.title || '恭喜獲得');
-    const cardOf = (g, i) => { if (g.char) { const c = CHARACTERS[g.char], r = rarOf(g.char); return `<div class="cer-char" style="--rc:${RC(r)};--d:${.25 + i * .18}s"><span class="cer-rays"></span><img src="${charArt(g.char)}" alt=""><span class="cer-cn"><i class="rar c-rar r-${r}">${r}</i><b>${c.name}</b><small>加入船隊！</small></span></div>`; }
+    const cardOf = (g, i) => { if (g.char) { const c = CHARACTERS[g.char], r = rarOf(g.char); return `<div class="cer-char" style="--rc:${RC(r)};--d:${.25 + i * .18}s"><span class="cer-rays"></span><img src="${charArt(g.char)}" alt="" style="--fp:${CHARACTERS[g.char].cardFocus || '50% 30%'}"><span class="cer-cn"><i class="rar c-rar r-${r}">${r}</i><b>${c.name}</b><small>加入船隊！</small></span></div>`; }
       const it = g.item ? ITEMS[g.item] : null, r = it ? (it.rarity || 'R') : g.rar || 'R';
-      return `<div class="cer-item" style="--rc:${RC(r)};--d:${.35 + (chars.length + i) * .1}s"><span class="cer-ic">${it ? itemIcon(it) : `<em>${g.emoji || '🎁'}</em>`}</span><b>${it ? it.name : g.name}</b><small>×${(g.count || 1).toLocaleString()}</small></div>`; };
+      return `<div class="cer-item" style="--rc:${RC(r)};--d:${.35 + (chars.length + i) * .1}s"><span class="cer-ic">${it ? itemIcon(it) : g.img ? `<img class="cer-img" src="${g.img}" alt="">` : `<em>${g.emoji || '🎁'}</em>`}</span><b>${it ? it.name : g.name}</b><small>×${(g.count || 1).toLocaleString()}</small></div>`; };
     box.innerHTML = `<div class="cer-card"><div class="cer-burst" aria-hidden="true"></div><h2 class="cer-title">${opt.title || '恭喜獲得'}</h2>${opt.sub ? `<p class="cer-sub">${opt.sub}</p>` : ''}
       ${chars.length ? `<div class="cer-chars">${chars.map(cardOf).join('')}</div>` : ''}${rest.length ? `<div class="cer-items">${rest.map((g, i) => cardOf(g, i)).join('')}</div>` : ''}
       <button class="btn-gold big cer-ok">確定</button></div>`;

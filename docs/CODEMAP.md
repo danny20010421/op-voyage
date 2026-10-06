@@ -16,6 +16,15 @@
 - `js/story_stage.js`: F:劇情立繪舞台（說話者亮起、聽者變暗、進場與呼吸動畫、旁白黑邊、每句特效 fx／emo）與 NPC→立繪對照表 | R:app.js(say/nextLine) | A:speakerArt,vnStageClear | S:NPC 對照只列確定同一人的（村裡的孩子 kid 不是尤斯塔斯·基德）；擊敗／連戰／蒐集任務完成時也會播該任務的台詞
 - `js/story_ext.js`: F:為 13 篇章補對話、序章、尾聲與支線 | R:data.js | A:- | S:只能「加對話」不能增減任務步驟，否則舊存檔的任務進度會錯位
 
+- `js/bag_v116.js`: F:背包 openBag（取代 app.js 版；分類 CAT_OF、獲取方式 SRC/GO、使用 USE）、頭像快取參數 FACES、橫式立繪偵測（.cer-char/.cx-art img 加 .wide） | S:vip_v115 之後載入；新道具要補 CAT_OF 與 SRC
+- `css/v116.css`: F:背包 .bg2-*、船團 .gl-*（舊 .gd-card/.gd-wrap 是新手導覽的類別，船團不要再用）
+- `js/vip_v115.js`: F:VIP 會員中心 openVIP（會員／月費／儲值）、VIP 等級 vipLevel（SAVE.data.vip.paid）、福利 PERK（貝里／經驗加成包住 addBerry、gainExp）、月費 MC（SAVE.data.mcard、每日寶藏幣 mcClaim）、登入宣傳 mc-ad（SAVE.data.mcAdHide）、新道具 event_ticket／char_select、openCharSelect、大廳徽章 refreshLobby、VIP.recharge（儲值入帳，目前只給後台測試） | R:modes.js openModes、lobby.js renderLobby、event.js（限定抽獎券）、social.js／guild.js（vipTag） | S:月費檔期改 MC；新月費要新的 id 與皮膚 monthCard 欄位
+- `js/roster_v115.js`: F:燼（king）、皮膚 king_halloween、和之國篇小 BOSS 步驟 | S:必須在 roster_v91 之前載入；步驟插入的舊存檔轉換在 app.js chState（v115）
+- `js/ext_v115.js`: F:效果 ppUpRandom、kingFlame（減傷＋反彈，熄滅時加速） | S:ext_v110 之後載入
+- `js/fx_v115.js`: F:燼第 1～4 招專屬動畫
+- `css/v115.css`: F:寶藏幣新圖示（覆蓋 .coin-ico）、VIP 會員中心、月費宣傳、VIP 徽章／頭像框／聊天氣泡
+- `js/grow_v112.js`: F:角色培養視窗 openGrow（升級頁、技能頁；v114 起技能列電腦點擊展開 skDetail、觸控長按 0.45 秒彈出 .gw-pop 說明卡） | R:crew.js(#cxPane_crew .sb-acts) | S:樣式在 css/v112.css＋v113.css＋v114.css；z-index 2000（說明卡 2100）
+- `css/v114.css`: F:培養視窗置中對齊（.gw-lvl 等級列、.gw-pow）、技能詳細說明樣式、冒險選單 #lbModes 卡片等高與標題對齊（container query 縮放標題字級）
 - `js/fx_v111.js`: F:奧義標題字過場（PRESET 風格表、SUB 角色→[風格, 副標]、cutIn 覆寫、ultTitle） | S:新角色要在 SUB 加一行，否則依屬性挑風格
 - `js/fx_v106.js`: F:主題式專屬特效（TH 主題表、WHO 角色對應、kindOf 招式種類） | S:要讓角色換主題改 WHO；不覆蓋既有 CHOREO
 - `js/fx_v105.js`: F:鷹眼／羅（七武海）／衛伯／巴基斯／斯巴可第 1～4 招專屬編排 | S:DOMContentLoaded 後註冊，不覆蓋既有 CHOREO
