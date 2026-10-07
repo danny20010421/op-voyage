@@ -10,10 +10,11 @@
   if (typeof computeSkillOutcome !== 'function') return;
   const R = (a, b) => a + Math.random() * (b - a);
   const B = () => (typeof battle !== 'undefined' && battle) || null;
-  const sideOf = f => { const b = B(); if (!b) return 'R'; return f === b.player || (b.team || []).includes(f) ? 'L' : 'R'; };
+  const sideOf = f => { const b = B(); if (!b) return 'R'; if (typeof b.sideOf === 'function') return b.sideOf(f); /* 即時對戰：雙方輪流當 player，改用隊伍判斷 */ return f === b.player || (b.team || []).includes(f) ? 'L' : 'R'; };
+  const scrSide = f => { const b = B(); return b && f === b.player ? 'L' : 'R'; }; /* 畫面上的左右（浮字、回復數字用） */
   const isBossFoe = t => { const b = B(); return !!(b && b.isBoss && t === b.enemy && !t.voidImmune); };
   const capOf = t => Math.floor(t.maxHp * ((typeof GAME_SETTINGS !== 'undefined' && GAME_SETTINGS.bossPctCap) ?? .15));
-  const rarIdx = t => { const O = window.RAR_ORDER || ['C', 'U', 'R', 'RR', 'RRR', 'SR', 'SSR', 'UR', 'UR+', 'UR++']; const r = (typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[t.id]) || 'SR'; const i = O.indexOf(r); return i < 0 ? O.length : i; };
+  const rarIdx = t => { const O = window.RAR_ORDER || ['C', 'U', 'R', 'RR', 'RRR', 'SR', 'SSR', 'UR', 'UR+', 'UR++']; const r = (typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[t.id]) || 'SR'; const i = O.indexOf(r); return i < 0 ? (r === 'UR++' ? O.length : -1) : i; }; /* v130：N 等不在順序表裡的稀有度視為最低 */
   const ssrIdx = () => (window.RAR_ORDER || []).indexOf('SSR');
   const say = (S, t, k) => { try { if (typeof floatText === 'function') floatText(S, t, k || 'status'); } catch (e) { } };
 
@@ -30,6 +31,8 @@
     }
     return tok;
   };
+  /* 連戰的「迎戰下一位」：上一場洛克斯秒殺了敵人 → 下一場的敵人開場恐懼 */
+  window.rocksFearCarry = () => { const b = B(); if (b && b.__carryFearNext) window.__carryFear = 1; };
   window.rocksPost = function (tok) {
     if (!tok) return; const { actor, target } = tok;
     if (actor.status.skillNullify === 0 && tok.nul) actor.status.skillNullify = tok.nul;
@@ -47,7 +50,7 @@
       const lg = window.log; window.log = (...a) => { if (!/倍率 x0/.test(String(a[0]))) lg(...a); }; /* 借用的倍率計算會印出「倍率 x0.0」，不顯示 */
       let r; try { r = _cso.call(this, actor, target, { ...skill, __rk: true, effect: { randomMultiplierRange: [.01, .01], executeChance: p } }, false) || { damage: 0, meta: {} }; } finally { window.log = lg; }
       r.meta = r.meta || {};
-      if (!r.meta.execute && !r.meta.executeBuff && !r.meta.bossExec && !low) {
+      if (!r.meta.execute && !r.meta.executeBuff && !r.meta.bossExec && (!low || r.damage < 2)) {
         if (target.voidImmune) { r.damage = 0; log(`👑 ${target.name} 不受比例傷害影響！`); }
         else { let d = Math.max(1, Math.floor(target.hp / 2)); if (isBossFoe(target)) d = Math.min(d, capOf(target)); r.damage = d; log(`🗡️ 殺：${target.name} 被奪去一半的體力！`); }
       }
@@ -60,6 +63,8 @@
     return r;
   };
 
+  /* 蓄的有效期間：用戰鬥回合數計算（洛克斯換下場時也照樣倒數）。使用當回合＝第 0 回合，之後 n 回合內有效 */
+  const storeOn = st => !!st && st.on !== false && (((B() && B().round) || 1) - (st.r0 || 1)) <= (st.n || 5);
   /* ---------- 技能附加效果 ---------- */
   const _ase = applySkillEffects;
   applySkillEffects = function (actor, target, skill, result) {
@@ -67,11 +72,11 @@
     if (ef.rocksShun) { const c = Math.round(R(ef.rocksShun[0], ef.rocksShun[1]) * 100) / 100; actor.status.executeBuffTurns = 2; actor.status.executeBuffChance = c; log(`⚡ 瞬：${actor.name} 下回合攻擊有 ${Math.round(c * 100)}% 機率直接秒殺！`); }
     if (ef.rocksStore) {
       const st = actor.status.rocksStore;
-      if (!st) { actor.status.rocksStore = { dmg: 0, left: ef.rocksStore, side: sideOf(actor), on: true }; log(`🌀 蓄：${actor.name} 開始記錄敵人造成的傷害（${ef.rocksStore} 回合內有效）`); say(sideOf(actor), '蓄力'); }
+      if (!st) { actor.status.rocksStore = { dmg: 0, n: ef.rocksStore, r0: (B() && B().round) || 1, side: sideOf(actor), on: true }; log(`🌀 蓄：${actor.name} 開始記錄敵人造成的傷害（${ef.rocksStore} 回合內有效）`); say(scrSide(actor), '蓄力'); }
       else {
         actor.status.rocksStore = null;
-        if (!st.on) { log(`🌀 蓄：已經超過 ${ef.rocksStore} 回合，累積的力量消散了……`); say(sideOf(actor), '失敗', 'miss'); }
-        else if (target && target.hp > 0 && st.dmg > 0) { const d = Math.round(st.dmg); log(`🌀 蓄：把累積的 ${d} 點傷害全數奉還給 ${target.name}！`); applyDamage(target, d, sideOf(target), { ignoreShield: true }); }
+        if (!storeOn(st)) { log(`🌀 蓄：已經超過 ${st.n || ef.rocksStore} 回合，累積的力量消散了……`); say(scrSide(actor), '失敗', 'miss'); }
+        else if (target && target.hp > 0 && st.dmg > 0) { const d = Math.round(st.dmg); log(`🌀 蓄：把累積的 ${d} 點傷害全數奉還給 ${target.name}！`); applyDamage(target, d, scrSide(target), { ignoreShield: true }); }
         else log('🌀 蓄：沒有累積到傷害。');
       }
     }
@@ -92,7 +97,7 @@
     f.status.rocksGuard = null; f.hp = Math.min(f.maxHp, Math.max(0, f.hp) + Math.round(f.maxHp * G.heal));
     f.status.nextAttackMultValue = Math.round(R(G.mult[0], G.mult[1]) * 10) / 10; f.status.nextAttackMultTurns = 2;
     log(`🏴‍☠️ 戴維的秘密：${f.name} 在瀕死邊緣站了回來（+${Math.round(G.heal * 100)}% 體力），下回合攻擊傷害 ×${f.status.nextAttackMultValue}！`);
-    try { if (typeof showHeal === 'function') showHeal(sideOf(f), Math.round(f.maxHp * G.heal)); if (typeof banner === 'function') banner('戴維的秘密', sideOf(f) === 'L' ? 'me' : 'boss'); } catch (e) { }
+    try { if (typeof showHeal === 'function') showHeal(scrSide(f), Math.round(f.maxHp * G.heal)); if (typeof banner === 'function') banner('戴維的秘密', scrSide(f) === 'L' ? 'me' : 'boss'); } catch (e) { }
     return true;
   }
   if (typeof applyDamage === 'function') {
@@ -101,7 +106,7 @@
       const before = target ? target.hp : 0, r = _ad.apply(this, arguments), b = B();
       if (target && b) {
         const lost = Math.max(0, before - target.hp);
-        if (lost > 0) new Set([b.player, b.enemy].concat(b.team || [])).forEach(f => { const st = f && f.status && f.status.rocksStore; if (st && st.on && f.hp > 0 && sideOf(target) === st.side) st.dmg += lost; });
+        if (lost > 0) new Set([b.player, b.enemy].concat(b.team || [])).forEach(f => { const st = f && f.status && f.status.rocksStore; if (st && storeOn(st) && f.hp > 0 && sideOf(target) === st.side) st.dmg += lost; });
         guard(target);
       }
       return r;
@@ -112,7 +117,6 @@
     const _ets = endTurnStatus;
     endTurnStatus = function (c) {
       const r = _ets.apply(this, arguments); if (!c || !c.status) return r;
-      const st = c.status.rocksStore; if (st && st.on) { st.left--; if (st.left <= 0) { st.on = false; log(`🌀 ${c.name} 的「蓄」已經超過 5 回合，無法再奉還。`); } }
       if (c.status.rocksFearTurns > 0) c.status.rocksFearTurns--;
       if (c.hp <= 0) guard(c); /* 持續傷害倒下時也會觸發保命 */
       return r;
@@ -120,14 +124,19 @@
   }
   if (typeof checkBattleEnd === 'function') {
     const _cbe = checkBattleEnd;
-    checkBattleEnd = function () { const b = B(); if (b) [b.player, b.enemy].forEach(f => { if (f && f.hp <= 0) guard(f); }); return _cbe.apply(this, arguments); };
+    checkBattleEnd = function () {
+      const b = B(); if (b) [b.player, b.enemy].forEach(f => { if (f && f.hp <= 0) guard(f); });
+      const r = _cbe.apply(this, arguments);
+      if (b && b.__fearCand) { const v = b.__fearCand; b.__fearCand = null;
+        if (v.hp <= 0) { log('😱 洛克斯的威壓！對手下一位出場的角色會陷入恐懼，無法攻擊！'); if (v === b.player || (b.team || []).includes(v)) b.__nextFoeFear = 'L'; else b.__carryFearNext = true; } }
+      return r;
+    };
   }
 
   /* ---------- 出招：無視處理＋秒殺後的恐懼 ---------- */
-  function fearNext(victim) {
-    const S = sideOf(victim); log(`😱 洛克斯的威壓！對手下一位出場的角色會陷入恐懼，無法攻擊！`);
-    if (S === 'L') B().__nextFoeFear = 'L'; else window.__carryFear = Date.now();
-  }
+  /* 秒殺後的恐懼：先記下候選，等 checkBattleEnd 處理完復活（美音魔王、不死鳥、命數等）仍然倒下才成立。
+     我方倒下 → 下一位換上場的角色恐懼（doSwitch）；敵方倒下 → 連戰的下一場（emperor.js／rocks_v129.js 的「下一位」才帶過去，見 rocksFearCarry）。 */
+  function fearNext(victim) { const b = B(); if (b) b.__fearCand = victim; }
   if (typeof executeAction === 'function') {
     const _ea = executeAction;
     executeAction = async function (side, idx) {
@@ -147,6 +156,6 @@
   }
   if (typeof startBattle === 'function') {
     const _sb = startBattle;
-    startBattle = function () { const r = _sb.apply(this, arguments); const t = window.__carryFear; window.__carryFear = 0; if (t && Date.now() - t < 120000 && B()) { inflict(B().enemy, 'fear', 1, true); log(`😱 ${B().enemy.name} 被洛克斯的威壓震懾，陷入恐懼！`); try { renderHUD(true); } catch (e) { } } return r; };
+    startBattle = function () { const r = _sb.apply(this, arguments); document.querySelectorAll('#battleScreen .kd-dim.on').forEach(x => x.classList.remove('on')); const t = window.__carryFear; window.__carryFear = 0; if (t && B()) { inflict(B().enemy, 'fear', 1, true); log(`😱 ${B().enemy.name} 被洛克斯的威壓震懾，陷入恐懼！`); try { renderHUD(true); } catch (e) { } } return r; };
   }
 })();

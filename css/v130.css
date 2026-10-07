@@ -1,0 +1,13 @@
+/* v130：提示訊息（toast）要蓋在所有全畫面視窗上面（洛克斯挑戰、皇帝領海展示頁等是 z-index 7000～9600）。 */
+.toast{z-index:9900}
+/* v130：平板直式（761～860px 寬）登入頁的「船上告示」收合標籤原本放在畫面中間偏下，會蓋住遊戲標誌；比照手機放在右上角。 */
+@media (min-width:761px) and (max-width:860px){
+  #loginScreen .news-board.collapsed{position:absolute!important;top:calc(70px + var(--safeT))!important;bottom:auto!important;width:auto!important;left:auto!important;right:12px!important;margin:0!important;transform:none!important;padding:8px 14px!important;border-radius:99px!important}
+  #loginScreen .news-board:not(.collapsed){position:absolute!important;top:calc(70px + var(--safeT))!important;bottom:auto!important;margin:0!important;transform:none!important;left:12px!important;right:auto!important;width:calc(100% - 24px)!important;max-width:none!important;box-sizing:border-box}
+  #loginScreen .news-board.collapsed::before{display:none}
+  #loginScreen .news-board.collapsed header{border:0!important;padding:0!important;margin:0!important;display:flex;align-items:center;gap:8px}
+  #loginScreen .news-board.collapsed h2{font-size:15px!important;margin:0!important;letter-spacing:.06em}
+  #loginScreen .news-board.collapsed time{display:none}
+  #loginScreen .news-board.collapsed .nt-count{font-size:12px}
+  #loginScreen .news-board:not(.collapsed){max-height:58vh;max-height:58dvh;overflow:auto;left:12px!important;right:12px!important;width:auto!important}
+}

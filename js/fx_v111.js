@@ -39,7 +39,7 @@
     monet: ['frost', '白色的世界，靜靜凍結'], sugar: ['love', '變成玩具，忘掉一切'], kid: ['crimson', '磁力的極致，粉碎一切'],
     kinemon: ['goldflame', '狐火流，斬斷火焰'], yamato: ['frost', '繼承御田之名'], vegapunk: ['thunder', '人類最後的希望之火'],
     york: ['chroma', '天龍人的命令'], loki: ['taboo', '詛咒的王子，覺醒了'], dorry: ['blaze', '艾爾巴夫戰士的驕傲'],
-    brogy: ['scorch', '百年決鬥的終結一擊'], imu: ['void', '世界之王，降臨']
+    brogy: ['scorch', '百年決鬥的終結一擊'], imu: ['void', '世界之王，降臨'], rocks: ['crimson', '神之谷的傳說，再臨'], uta: ['love', '新時代的歌聲'], roger: ['crimson', '海賊王的一刀']
   };
   const BY_TYPE = { '火': 'blaze', '冰': 'frost', '雷電': 'thunder', '闇': 'void', '水': 'ocean', '魚人': 'ocean', '自然': 'scorch', '獸': 'abyss', '龍': 'scorch', '巨人': 'blaze', '超能': 'prism', '格鬥': 'crimson' };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);

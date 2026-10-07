@@ -84,7 +84,7 @@
     cancelAnimationFrame(pvRaf); pvTick(); pvUi();
   }
   function pvTick() {
-    pvRaf = requestAnimationFrame(pvTick); const a = pv; if (!a) return; const t = a.currentTime || 0;
+    const a = pv; if (!a) { pvRaf = 0; return; } pvRaf = requestAnimationFrame(pvTick); const t = a.currentTime || 0; /* v130：試聽停止（或自動播放被擋）時不再每幀空轉 */
     if (t >= PV_LEN - .7 && !a._out) { a._out = 1; fadeEl(a, 0, 600, () => { if (pv !== a) return; a.currentTime = 0; a._out = 0; fadeEl(a, musicVol(), 700); }); }
     const b = $('rgPvBar'), o = $('rgPvT'); if (b) b.style.transform = `scaleX(${Math.min(1, t / PV_LEN)})`; if (o) o.textContent = fmtT(Math.min(PV_LEN, t));
   }
@@ -131,6 +131,7 @@
     if (bufCache[src]) return bufCache[src];
     ensureCtx(); const r = await fetch(src); if (!r.ok) throw new Error('音樂載入失敗'); const ab = await r.arrayBuffer();
     const buf = await new Promise((ok, no) => { const p = actx.decodeAudioData(ab, ok, no); if (p && p.then) p.then(ok, no); });
+    Object.keys(bufCache).forEach(k => { if (k !== src) delete bufCache[k]; }); /* v130：只保留目前這首的解碼音訊（每首約 60MB，手機記憶體吃不消） */
     return (bufCache[src] = buf);
   }
   /* 打擊音：WebAudio 合成（與歌曲同一個時鐘，不會延遲） */

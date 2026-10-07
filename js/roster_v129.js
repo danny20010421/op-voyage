@@ -1,7 +1,7 @@
 /* v129：紅髮削弱、新角色洛克斯（UR++・戴維）、洛克斯挑戰用的哥爾·D·羅傑（只在挑戰中出現的敵人）。
    載入順序：roster_v128.js 之後、roster_v91.js 之前。技能效果 rocksTrue / rocksShun / rocksKill / rocksStore / rocksSecret 在 ext_v129.js；挑戰在 rocks_v129.js。 */
 (function () {
-  const V = 129;
+  const V = 130; /* v130：立繪縮小重新壓縮 */
   /* ---------- 紅髮：同稀有度（洛基除外）勝率約 75%（tests/duel-sim.js，玩家式出招：奧義一能用就放）----------
      體質 0.9 → 0.85；神避秒殺 40% → 20%、倍率 5～40 → 5～30。調整前約 88%，調整後約 75%。 */
   const SH = CHARACTERS.shanks;

@@ -14,8 +14,8 @@ const ROCKS_TRIAL = {
       { id: 'roger', lv: 95, mod: { hp: 1.1, title: '神之谷・海賊王' } },
       { id: 'garp_hc', lv: 95, mod: { hp: 1.5, dmg: 1.15, allUp: 1, name: '卡普', title: '神之谷・海軍英雄' } }] },
     { name: '第三關・洛克斯的分身', desc: '強攻分身（傷害 ×1.25、攻擊 +2）與強守分身（體力 ×1.15、防禦 +3）。', stages: () => [
-      { id: 'rocks', lv: 95, mod: { hp: .75, dmg: 1.25, atk: 2, name: '洛克斯（強攻分身）', title: '戴維的分身', image: 'assets/chars/rocks_atk.webp?v=129', avatar: 'assets/chars/rocks_atk_face.webp?v=129' } },
-      { id: 'rocks', lv: 95, mod: { hp: 1.15, dmg: .75, def: 3, name: '洛克斯（強守分身）', title: '戴維的分身', image: 'assets/chars/rocks_def.webp?v=129', avatar: 'assets/chars/rocks_def_face.webp?v=129' } }] },
+      { id: 'rocks', lv: 95, mod: { hp: .75, dmg: 1.25, atk: 2, name: '洛克斯（強攻分身）', title: '戴維的分身', image: 'assets/chars/rocks_atk.webp?v=130', avatar: 'assets/chars/rocks_atk_face.webp?v=129' } },
+      { id: 'rocks', lv: 95, mod: { hp: 1.15, dmg: .75, def: 3, name: '洛克斯（強守分身）', title: '戴維的分身', image: 'assets/chars/rocks_def.webp?v=130', avatar: 'assets/chars/rocks_def_face.webp?v=129' } }] },
     { name: '第四關・洛克斯真身', desc: '體力 14,000、開場全能力 +1，倒下後會復活一次。擊敗後洛克斯直接加入船隊。', stages: () => [
       { id: 'rocks', lv: 100, boss: true, mod: { hpFixed: 14000, allUp: 1, name: '洛克斯', title: '戴維・真身' } }] }
   ]
@@ -99,7 +99,7 @@ const ROCKS_TRIAL = {
     const R = RUN, s = R.stages[R.i];
     startBattle({ team: R.team, enemyId: s.id, enemyLv: s.lv, enemyMod: s.mod, bg: T.bg, chapterId: 'emperor', isBoss: !!s.boss, revives: s.boss ? 1 : 0, onEnd: r => end(r), onLeave: () => open() });
     const e = battle && battle.enemy;
-    if (e && s.mod && s.mod.image) { e.image = s.mod.image; e.baseImage = s.mod.image; if (s.mod.avatar) e.avatar = s.mod.avatar; if (typeof refreshFighterImage === 'function') refreshFighterImage(e); if (typeof renderHUD === 'function') renderHUD(true); }
+    if (e && s.mod && s.mod.image) { e.image = s.mod.image; e.baseImage = s.mod.image; if (s.mod.avatar) { e.avatar = s.mod.avatar; const av = document.getElementById('bAvR'); if (av) av.src = e.avatar; } if (typeof refreshFighterImage === 'function') refreshFighterImage(e); if (typeof renderHUD === 'function') renderHUD(true); }
     log(`洛克斯挑戰：${T.phases[R.ph - 1].name} 第 ${R.i + 1}/${R.stages.length} 場`);
   }
   function end(r) {
@@ -109,7 +109,7 @@ const ROCKS_TRIAL = {
     if (R.i < R.stages.length - 1) {
       R.team = teamSnapshot().map((x, k) => ({ ...x, lv: R.team[k].lv })); if (battle && battle.__nextFoeStun === 'R') window.__carryStun = true;
       R.i++; const nx = R.stages[R.i];
-      return { message: `第 ${R.i}/${R.stages.length} 場勝利！體力與技能次數會延續。<br>下一位：<b>${nameOf(nx)}</b>（LV ${nx.lv}）`, next: { label: '迎戰下一位', fn: () => fight() } };
+      return { message: `第 ${R.i}/${R.stages.length} 場勝利！體力與技能次數會延續。<br>下一位：<b>${nameOf(nx)}</b>（LV ${nx.lv}）`, next: { label: '迎戰下一位', fn: () => { if (window.rocksFearCarry) rocksFearCarry(); fight(); } } };
     }
     RUN = null; const msgs = [`🏆 ${T.phases[R.ph - 1].name} 突破！`];
     team().forEach(id => gainExp(id, 800 + R.ph * 400, true));

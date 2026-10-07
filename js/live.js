@@ -37,7 +37,7 @@ const LIVE = (function () {
     const sb = battle; battle = sim.b; try { return fn(); } finally { QUIET.forEach(n => { window[n] = saved[n]; }); window.log = sl; battle = sb; } }
   function mkFighter(p) { const f = buildFighter(p.id, p.lv, p.skin || null); applyRarityScale(f); f.status.revive = 0; return f; }
   const H = () => sim.H[sim.hi], G = () => sim.G[sim.gi];
-  function mkSim(Ht, Gt, hi, gi) { const b = { player: Ht[hi || 0], enemy: Gt[gi || 0], team: Ht, pi: hi || 0, isBoss: false, round: 1, opts: { pvp: true }, difficulty: CHAPTER_DIFFICULTY.pvp || CHAPTER_DIFFICULTY.east, chapterId: 'pvp', gameOver: false, voidDamage: 0, live: true }; return { H: Ht, G: Gt, hi: hi || 0, gi: gi || 0, b }; }
+  function mkSim(Ht, Gt, hi, gi) { const b = { player: Ht[hi || 0], enemy: Gt[gi || 0], team: Ht, pi: hi || 0, isBoss: false, round: 1, sideOf: f => (Ht.includes(f) ? 'h' : 'g'), opts: { pvp: true }, difficulty: CHAPTER_DIFFICULTY.pvp || CHAPTER_DIFFICULTY.east, chapterId: 'pvp', gameOver: false, voidDamage: 0, live: true }; return { H: Ht, G: Gt, hi: hi || 0, gi: gi || 0, b }; }
   function owner(o) { if (!o) return null; let k = sim.H.indexOf(o); if (k >= 0) return 'h' + k; k = sim.G.indexOf(o); return k >= 0 ? 'g' + k : null; }
   const byOwner = s => s ? (s[0] === 'h' ? sim.H : sim.G)[+s.slice(1)] : null;
   function restore() { if (sim || !room || !room.sim) return; try { const S = JSON.parse(room.sim); sim = mkSim(S.H, S.G, S.hi, S.gi); sim.b.round = S.round || 1; ['eruption', 'iceAge'].forEach(k => { if (S[k]) sim.b[k] = { ...S[k], owner: byOwner(S[k].owner) }; }); } catch (e) { } }
@@ -47,8 +47,9 @@ const LIVE = (function () {
   /* 一位角色的行動（照 battle.js 的 executeAction，但不播放動畫） */
   /* v129 洛克斯：出招前後的「無視」處理（rocksPre／rocksPost，見 ext_v129.js） */
   function act(actor, target, idx) {
-    const sk = idx === -1 ? null : actor.skills[idx], tok = sk && window.rocksPre ? rocksPre(actor, target, sk) : null;
-    try { return act0(actor, target, idx); } finally { if (tok) rocksPost(tok); }
+    const sk = idx === -1 ? null : actor.skills[idx], ok = sk && sk.pp > 0 && !sk.locked; /* v130：沒次數或未解鎖時 act0 會改用別招，不套用洛克斯的無視 */
+    const tok = ok && window.rocksPre ? rocksPre(actor, target, sk) : null; actor.__rocksExec = false;
+    try { return act0(actor, target, idx); } finally { if (tok) rocksPost(tok); if (actor.__rocksExec && actor.status.rocksFearTurns > 0 && target.hp <= 0) sim.b.__fearCand = target; actor.__rocksExec = false; }
   }
   function act0(actor, target, idx) {
     if (actor.hp <= 0) return; let skill = idx === -1 ? STRUGGLE : actor.skills[idx]; if (!skill || skill.pp <= 0 || skill.locked) { const a = autoIdx(actor); skill = a === -1 ? STRUGGLE : actor.skills[a]; }
@@ -77,7 +78,7 @@ const LIVE = (function () {
   const alive = T => T.some(f => f.hp > 0);
   function setCtx(side) { const me = side === 'h' ? H() : G(), op = side === 'h' ? G() : H(); sim.b.player = me; sim.b.enemy = op; sim.b.team = side === 'h' ? sim.H : sim.G; sim.b.pi = side === 'h' ? sim.hi : sim.gi; }
   function swap(side, k) { const T = side === 'h' ? sim.H : sim.G, cur = side === 'h' ? sim.hi : sim.gi; if (k === cur || !T[k] || T[k].hp <= 0) return false; if (side === 'h') sim.hi = k; else sim.gi = k; const f = T[k]; if (f.__dadPending && window.grantDad) { f.__dadPending = false; grantDad(f); } log(`🔁 ${T[cur].name} 退下，${f.name} 上場！`); return true; }
-  function nextUp(side) { const T = side === 'h' ? sim.H : sim.G, cur = side === 'h' ? sim.hi : sim.gi; if (T[cur].hp > 0) return; const k = T.findIndex(f => f.hp > 0); if (k >= 0) { if (side === 'h') sim.hi = k; else sim.gi = k; log(`➡️ ${T[k].name} 上場！`); } }
+  function nextUp(side) { const T = side === 'h' ? sim.H : sim.G, cur = side === 'h' ? sim.hi : sim.gi; if (T[cur].hp > 0) return; const k = T.findIndex(f => f.hp > 0); if (k >= 0) { if (side === 'h') sim.hi = k; else sim.gi = k; log(`➡️ ${T[k].name} 上場！`); if (sim.b.__fearCand === T[cur]) { sim.b.__fearCand = null; inflict(T[k], 'fear', 1, true); log(`😱 洛克斯的威壓！${T[k].name} 陷入恐懼，無法攻擊！`); } } } /* v130：洛克斯秒殺後，下一位出場的角色恐懼 */
   function resolve(ah, ag) {
     EV = [];
     const end = quiet(() => {
@@ -89,7 +90,7 @@ const LIVE = (function () {
       const hFirst = hF !== gF ? hF : sh === sg ? Math.random() < .5 : sh > sg, order = hFirst ? ['h', 'g'] : ['g', 'h'];
       for (const s of order) { const i = idx(s); if (i == null) continue; const a = s === 'h' ? H() : G(), t = s === 'h' ? G() : H(); if (a.hp <= 0 || t.hp <= 0) continue; setCtx(s); act(a, t, i); [H(), G()].forEach(rise); }
       setCtx('h'); if (H().hp > 0) endTurnStatus(H()); setCtx('g'); if (G().hp > 0) endTurnStatus(G()); [H(), G()].forEach(rise);
-      nextUp('h'); nextUp('g'); setCtx('h');
+      nextUp('h'); nextUp('g'); sim.b.__fearCand = null; setCtx('h');
       return !alive(sim.H) || !alive(sim.G);
     });
     sim.b.round++;

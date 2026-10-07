@@ -10,11 +10,11 @@ const FXE = (() => {
      flash／tint 這類全畫面效果改在畫面座標畫滿（SW、SH）。畫布仍留在 .b-arena 裡，圖層順序不變（傷害數字、橫幅在上面）。 */
   let S = 1, OX = 0, OY = 0, SW = 0, SH = 0;
   function sync() {
-    const A = cv.parentElement, scr = A.closest('.screen') || A.offsetParent; if (!A || !scr || !A.offsetWidth) return false;
+    const A = cv.parentElement; if (!A || !A.offsetWidth) return false; const scr = A.closest('.screen') || A.offsetParent; if (!scr) return false;
     const aR = A.getBoundingClientRect(), sR = scr.getBoundingClientRect();
     W = A.offsetWidth; H = A.offsetHeight; S = aR.width / W || 1; OX = aR.left - sR.left; OY = aR.top - sR.top; SW = sR.width; SH = sR.height;
     const st = cv.style, px = v => v.toFixed(2) + 'px';
-    st.right = st.bottom = 'auto'; st.left = px(-OX / S); st.top = px(-OY / S); st.width = px(SW / S); st.height = px(SH / S);
+    const key = [OX, OY, S, SW, SH].map(v => v.toFixed(2)).join(); if (cv.__k !== key) { cv.__k = key; st.right = st.bottom = 'auto'; st.left = px(-OX / S); st.top = px(-OY / S); st.width = px(SW / S); st.height = px(SH / S); } /* 位置沒變就不重寫樣式 */
     return true;
   }
   function ensure() {

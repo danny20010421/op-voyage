@@ -80,7 +80,7 @@ const EMPEROR_DOMAIN = {
     if (R.i < R.stages.length - 1) {
       R.team = teamSnapshot().map((t, k) => ({ ...t, lv: R.team[k].lv })); if (battle && battle.__nextFoeStun === 'R') window.__carryStun = true;
       R.i++; const nx = R.stages[R.i];
-      return { message: `第 ${R.i}/${R.stages.length} 場勝利！體力與技能次數會延續。<br>下一位：<b>${(nx.mod && nx.mod.name) || CHARACTERS[nx.id].name}</b>（LV ${nx.lv}）`, next: { label: '迎戰下一位', fn: () => fight() } };
+      return { message: `第 ${R.i}/${R.stages.length} 場勝利！體力與技能次數會延續。<br>下一位：<b>${(nx.mod && nx.mod.name) || CHARACTERS[nx.id].name}</b>（LV ${nx.lv}）`, next: { label: '迎戰下一位', fn: () => { if (window.rocksFearCarry) rocksFearCarry(); fight(); } } };
     }
     RUN = null; const msgs = [`🏆 ${PHASE_NAME[R.ph]} 突破！`];
     team().forEach(id => gainExp(id, 600 + R.ph * 400, true));

@@ -38,7 +38,7 @@
     const books = BOOKS.map(b => { const n = inv()[b] || 0, q = qty[b] || 0, it = ITEMS[b];
       return `<div class="gw-book ${n ? '' : 'off'}" data-b="${b}"><div class="gw-bi">${typeof itemIcon === 'function' ? itemIcon(it) : ''}<span class="gw-own">${n}</span></div><b>${it.name}</b><small>+${it.effect.exp.toLocaleString()}</small>
         <div class="gw-step"><button data-q="-1" aria-label="減少" ${q ? '' : 'disabled'}>−</button><output>${q}</output><button data-q="1" aria-label="增加" ${q < n && lv < MAX_LV ? '' : 'disabled'}>＋</button></div></div>`; }).join('');
-    const m = el();
+    const m = el(), oldImg = m.querySelector('.gw-art img'); /* v130：重畫時沿用同一張立繪（不重新解碼大圖，避免每按一下就閃一下） */
     m.innerHTML = `<div class="gw" style="--rc:${col}">
       <header class="gw-head"><h3>角色培養</h3><button class="gw-x" aria-label="關閉">×</button></header>
       <nav class="gw-tabs"><button data-tab="lv" class="${tab === 'lv' ? 'on' : ''}">升級</button><button data-tab="sk" class="${tab === 'sk' ? 'on' : ''}">技能</button></nav>
@@ -54,6 +54,7 @@
           <p class="gw-tip">經驗書可在懸賞處的道具商店、勇者之塔、寶箱取得。</p>`
           : `<ol class="gw-skills">${skills}</ol><p class="gw-tip">${coarse() ? '長按技能可查看詳細說明。' : '點擊技能可展開詳細說明。'}技能會在指定等級自動學會；先選擇經驗書，就能預覽升級後會學會哪些技能。</p>`}
         </section></div></div>`;
+    { const ni = m.querySelector('.gw-art img'); if (oldImg && ni && oldImg.getAttribute('src') === ni.getAttribute('src')) { oldImg.className = ni.className; ni.replaceWith(oldImg); } }
     m.querySelector('.gw-x').onclick = close;
     m.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; openSk = -1; render(); });
     bindSkills(m, c);

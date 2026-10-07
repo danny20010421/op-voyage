@@ -52,7 +52,7 @@
     }
     $('twFloors').innerHTML = rows.join('');
     $('twFloors').querySelectorAll('.tw-f.clear,.tw-f.now').forEach(li => { const pick = () => { sel = +li.dataset.f; render(); }; li.onclick = pick; li.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } }; });
-    requestAnimationFrame(() => { const el = $('twFloors').querySelector('.tw-f.sel'); if (el) el.scrollIntoView({ block: 'center' }); });
+    requestAnimationFrame(() => { const L = $('twFloors'), el = L.querySelector('.tw-f.sel'); if (!el) return; /* v130：只捲動樓層清單本身，不要把整頁捲走（小螢幕上方的挑戰卡會被切掉） */ if (L.scrollHeight > L.clientHeight + 2) L.scrollTop = el.offsetTop - L.offsetTop - (L.clientHeight - el.offsetHeight) / 2; const W = L.closest('.tw-wrap'); if (W) W.scrollTop = 0; });
     const f = sel, replay = f < s.floor, c = { ...CHARACTERS[foeOf(f)], ...(skinOf(f) ? { image: SKINS[skinOf(f)].image, name: SKINS[skinOf(f)].name } : {}) }, r = rewardOf(f), L = lvStats(CHARACTERS[foeOf(f)], lvOf(f));
     $('twPanel').innerHTML = (done ? `<p class="tw-top">🏆 已登頂 ${TOWER.floors} 層！點左側任一層可以重複挑戰。</p>` : '') +
       `<div class="tw-foe ${isBoss(f) ? 'boss' : ''}"><div class="tw-art"><img src="${c.image}" alt=""></div>

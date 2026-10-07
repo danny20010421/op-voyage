@@ -10,7 +10,8 @@
   window.kaidoDragonFx = async function (S, actor, swap) {
     const el = document.getElementById('bF' + S);
     if (typeof X === 'undefined' || typeof FXE === 'undefined' || typeof fighterPoint !== 'function') { swap(); return; }
-    let dim = null;
+    let dim = null, swapped = false; const doSwap = () => { if (!swapped) { swapped = true; swap(); } };
+    try {
     FXE.ensure(); const p = fighterPoint(S), top = p.y - 150;
     if (typeof SFX !== 'undefined') SFX.play('thunder');
     dim = layer('kd-dim'); if (dim) { void dim.offsetWidth; dim.classList.add('on'); }
@@ -26,7 +27,7 @@
     X.bolt(p.x - 30, -20, p.x + 10, p.y - 40, { color: '#8fd8ff', w: 10, life: .4 });
     flash(.4, .35);
     if (typeof shake === 'function') shake();
-    swap();
+    doSwap();
     if (el) { el.classList.remove('morph-out'); el.classList.add('morph-in'); setTimeout(() => el.classList.remove('morph-in'), 800); }
     X.ring(p.x, p.y, { r1: 380, color: '#8fd8ff', w: 10, life: .65 });
     X.ring(p.x, p.y, { r1: 250, color: '#c58bff', w: 5, life: .5 });
@@ -34,6 +35,8 @@
     X.text(p.x, p.y - 220, '龍人型態', { size: 62, color: '#e8f6ff', color2: '#3a5aff' });
     for (let i = 0; i < 3; i++) setTimeout(() => X.bolt(p.x + R(-20, 20), p.y - 80, p.x + R(-200, 200), p.y + R(-160, 40), { color: COL[i], w: 6, life: .22 }), 120 + i * 120);
     await wait(700);
-    if (dim) dim.classList.remove('on');
+    } finally { /* v130：演出中途出錯也一定恢復畫面亮度與立繪，並完成變身 */
+      if (dim) dim.classList.remove('on'); if (el) el.classList.remove('morph-out'); doSwap();
+    }
   };
 })();

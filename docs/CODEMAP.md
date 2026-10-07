@@ -24,6 +24,8 @@
 - `js/rocks_v129.js`／`css/v129.css`: F:洛克斯挑戰（ROCKS_TRIAL：4 關連戰，SAVE.data.rocks）與皇帝領海展示頁下方入口橫條 | D:emperor_hall.js（包住 openEmperorHall）、EMPEROR_DOMAIN、startBattle | S:不加進 EMPEROR_DOMAIN.list（大廳與成就的四皇計數不能變）
 - `js/fx.js`（v129）: S:特效畫布每幀依 .b-arena 的 getBoundingClientRect 反向放大蓋滿 .screen，setTransform 把戰場座標換到畫面；全畫面效果用 screenSpace() 畫
 - `tests/duel-sim.js`: F:指定角色對戰模擬（window.__DUEL = { id, opps, rar, n, ultFirst }）
+- `js/fx_v130.js`／`css/v130.css`: F:補上缺少的第 5 招奧義動畫（荷帝、羅傑；只在 CHOREO 沒有時才補）；toast 圖層、平板直式登入頁公告位置 | S:新角色的第 5 招一定要有 CHOREO[id][4]（或變身演出），可用瀏覽器檢查 CHARACTER_ORDER 中沒有動畫的奧義
+- `js/grow_v112.js`（v130）: S:重畫培養視窗時沿用舊的立繪 <img>（src 相同才沿用），避免大圖重新解碼閃爍
 - `js/lobby_v121.js`＋`css/v121.css`: F:手機直式大廳的船長對話框放在限定召喚上方（量測左側圖示欄、右側欄、限定召喚橫條；依序：置中 → 偏左 → 縮小字級 → 收縮展開膠囊 say-fold／say-open） | A:lobbyPlaceSay
 - `js/roster_v118.js`／`ext_v118.js`／`fx_v118.js`: F:尼卡魯夫（luffy_nika）與效果 dmgToShield、nikaThunder（battle.js 的 onEvaded 掛鉤）、nikaTeamHeal、nikaTriple、nikaLegacy
 - `js/bag_v116.js`: F:背包 openBag（取代 app.js 版；分類 CAT_OF、獲取方式 SRC/GO、使用 USE）、頭像快取參數 FACES、橫式立繪偵測（.cer-char/.cx-art img 加 .wide） | S:vip_v115 之後載入；新道具要補 CAT_OF 與 SRC

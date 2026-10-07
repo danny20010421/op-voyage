@@ -4,7 +4,7 @@
    載入順序：data_ext.js 之後、roster_v91.js 之前（與其他 roster 檔相同）。 */
 (function () {
   const K = typeof CHARACTERS !== 'undefined' && CHARACTERS.kaido; if (!K) return;
-  const V = 128;
+  const V = 130; /* v130：立繪縮小重新壓縮 */
   K.image = `assets/chars/kaido_v128.webp?v=${V}`;
   K.ultimateBg = `assets/chars/kaido_v128.webp?v=${V}`;
   K.avatar = `assets/chars/kaido_face_v128.webp?v=${V}`;
