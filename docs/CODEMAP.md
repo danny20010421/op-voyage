@@ -61,6 +61,7 @@
 - `dev/east3.js` + `dev/sample_east.html`: F:東海 3D 場景樣板（開發用獨立頁面，用 <base href="../"> 對齊根目錄） | R:vendor/three | A:- | S:只是樣板，不影響正式關卡
 
 ## 大廳與介面
+- `css/v127.css`: F:劇情對話框 #dialog 最終覆蓋：沒有 .show 時隱藏、名牌 .dlg-name 絕對定位在左上角、固定最小高度 | S:舊規則（lobby2.css opacity:1、style.css display:block）會讓隱藏中的對話框露出來，不要移除這裡的 :not(.show)
 - `js/lobby.js` + `css/lobby2.css`: F:大廳（左側圖示、限定召喚、主線航路、出戰陣容、皇帝領海徽章、下方 7 欄導覽列：3 分頁＋盾形「出航」徽章＋3 分頁） | R:lobbyicons.js,settings.js(GUIDE) | A:renderLobby,lobbySyncLayout | S:左右面板的位置依實際量到的頂部列高度（--l2tb）與限定召喚卡底部（--l2eb）；遵守 8px 網格與同列等高置中
 - `js/settings.js`: F:設定頁與新手教學 | R:lobby.js | A:openSettings,GUIDE | S:教學只能捲動可捲動的容器，不能捲整個頁面
 - `js/ceremony.js`: F:「恭喜獲得」儀式畫面與篇章收穫結算 | R:app.js | A:showRewards | S:進島時記錄快照，通關時比對差異

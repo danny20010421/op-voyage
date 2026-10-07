@@ -71,7 +71,7 @@
   if (typeof gainExp === 'function') { const _ge = gainExp; let inner = 0; gainExp = function (id, n, silent, noShare) { if (!inner && noShare !== true && n > 0) { const b = Math.round(n * (perk(level()).exp || 0) / 100); if (b > 0) n += b; } inner++; try { return _ge.call(this, id, n, silent, noShare); } finally { inner--; } }; } /* 分給其他船員的經驗（gainExp 內部再呼叫）不重複加成 */
 
   /* ---------- 月費 ---------- */
-  const MC = { id: '2026-10', name: '萬聖火龍燼', label: '2026 年 10 月限時月費', start: +new Date(2026, 9, 1), end: +new Date(2026, 10, 1) - 1000, price: 1200, days: 30, daily: 10, tickets: 10, select: 1, char: 'king', skin: 'king_halloween', banner: 'assets/ui/monthcard_2610.webp?v=115' };
+  const MC = { id: '2026-10', name: '萬聖火龍燼', label: '2026 年 10 月限時月費', start: +new Date(2026, 9, 1), end: +new Date(2026, 10, 1) - 1000, price: 300, /* v127：1200 → 300（使用者指定） */ days: 30, daily: 10, tickets: 10, select: 1, char: 'king', skin: 'king_halloween', banner: 'assets/ui/monthcard_2610.webp?v=115' };
   const mcSt = () => { const d = SAVE.data; d.mcard = d.mcard || {}; return d.mcard[MC.id]; };
   const onSale = () => Date.now() >= MC.start && Date.now() <= MC.end;
   const mcDay = () => { const s = mcSt(); return s ? dayNum(dayStr()) - dayNum(s.buy) + 1 : 0; }; /* 第幾天（購買當天是第 1 天） */

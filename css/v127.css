@@ -1,0 +1,12 @@
+/* v127 劇情對話框
+   1. 沒有對話時整個對話框隱藏：舊規則（lobby2.css 的 opacity:1、style.css 的 display:block）讓沒有 .show 的對話框仍然看得到，
+      進島時會出現一個沒有字、只有空白頭像框與藍色名牌的「空白對話框」。
+   2. 說話者名牌固定在左上角同一個位置（使用者指定），不再因為有沒有立繪、有沒有頭像、旁白或角色而左右跳動。 */
+#dialog.dialog:not(.show){opacity:0!important;visibility:hidden!important;pointer-events:none!important;transition:opacity .2s,visibility 0s .2s,transform .2s}
+#dialog.dialog.show{visibility:visible!important}
+#dialog .dlg-name,#dialog.has-bust .dlg-name,#dialog.narr .dlg-name{position:absolute!important;left:max(16px,calc(50vw - 568px))!important;top:-18px!important;margin:0!important;z-index:2;white-space:nowrap}
+#dialog .dlg-name:empty{display:none}
+#dialog{padding-top:40px!important}
+@media (max-height:520px){#dialog{padding-top:32px!important}}
+/* 對話框高度固定（旁白一行、角色兩行時名牌不會上下跳） */
+#dialog.dialog{min-height:calc(168px + var(--safeB,0px));box-sizing:border-box}
