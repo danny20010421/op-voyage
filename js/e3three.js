@@ -17,15 +17,23 @@ const lin = v => Math.pow(v, 2.2);
 const col3 = a => new THREE.Color().setRGB(a[0], a[1], a[2], THREE.SRGBColorSpace);
 const U = { uTime: { value: 0 }, uRim: { value: new THREE.Color(1, .95, .85) }, uRimK: { value: .3 }, uWind: { value: 1 } };
 const grad = (() => { const t = new THREE.DataTexture(new Uint8Array([72, 72, 72, 255, 150, 150, 150, 255, 215, 215, 215, 255, 255, 255, 255, 255]), 4, 1, THREE.RGBAFormat); t.minFilter = t.magFilter = THREE.NearestFilter; t.generateMipmaps = false; t.needsUpdate = true; return t; })();
+/* v125 表面細節：依世界座標的雜訊讓地面、牆面、屋頂有深淺斑駁與細紋（三向投影，牆面不會出現直條紋），取代原本一整片單色的面 */
+const DETAIL_GLSL = `float _h3(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+float _n3(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f); return mix(mix(_h3(i),_h3(i+vec2(1,0)),f.x),mix(_h3(i+vec2(0,1)),_h3(i+vec2(1,1)),f.x),f.y); }
+float _detail(vec2 p){ return _n3(p*.28)*.45 + _n3(p*1.3+7.1)*.3 + _n3(p*5.7+3.3)*.17 + _h3(floor(p*22.))*.08; }`;
 function toon(o = {}) {
   const m = new THREE.MeshToonMaterial({ vertexColors: o.vc !== false, gradientMap: grad, color: o.color || 0xffffff, side: o.side || THREE.FrontSide });
   m.onBeforeCompile = sh => { Object.assign(sh.uniforms, U);
+    if (o.detail) { sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP; varying vec3 vWN;').replace('#include <begin_vertex>', '#include <begin_vertex>\n vWP = (modelMatrix * vec4(transformed, 1.0)).xyz; vWN = normalize(mat3(modelMatrix) * objectNormal);');
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP; varying vec3 vWN;\n' + DETAIL_GLSL).replace('#include <color_fragment>', `#include <color_fragment>
+ { vec3 an = abs(normalize(vWN)); an /= (an.x + an.y + an.z); float d = _detail(vWP.xz)*an.y + _detail(vWP.zy + 13.)*an.x + _detail(vWP.xy + 29.)*an.z;
+   float k = mix(.76, 1.2, d); float steep = 1. - smoothstep(.55, .85, normalize(vWN).y); float w = _n3(vWP.xz*.06 + 41.) - .5; diffuseColor.rgb *= k * mix(1., .88, steep * an.y) * vec3(1. + w*.14, 1. + w*.04, 1. - w*.12); }`); }
     if (o.grass) sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nuniform float uTime, uWind; varying float vGy;').replace('#include <begin_vertex>', `#include <begin_vertex>
       vec4 _wp = modelMatrix * instanceMatrix * vec4(transformed, 1.0); float _k = position.y*position.y*.55; float _s = sin(uTime*1.6 + _wp.x*.35 + _wp.z*.27)*.6 + sin(uTime*2.7 + _wp.x*.9)*.25; transformed.x += _s*_k*uWind; transformed.z += _s*.6*_k*uWind; vGy = position.y;`);
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>\nuniform vec3 uRim; uniform float uRimK;${o.grass ? ' varying float vGy;' : ''}`)
       .replace('#include <color_fragment>', `#include <color_fragment>${o.grass ? '\n diffuseColor.rgb *= mix(.42, 1.02, clamp(vGy,0.,1.));' : ''}`)
       .replace('#include <dithering_fragment>', '#include <dithering_fragment>\n float _rim = pow(1.0 - abs(dot(normalize(normal), normalize(vViewPosition))), 3.0); gl_FragColor.rgb += uRim * _rim * uRimK;'); };
-  m.customProgramCacheKey = () => 'e3t' + (o.grass ? 'g' : '');
+  m.customProgramCacheKey = () => 'e3t' + (o.grass ? 'g' : '') + (o.detail ? 'd' : '');
   return m;
 }
 function outlineMat(thick) {
@@ -40,11 +48,11 @@ const WATERC = { east: ['#145e9e', '#3fd0c4'], alabasta: ['#1a6aa0', '#5ad8c8'],
 class R3 {
   constructor(canvas) {
     this.canvas = canvas; this.low = localStorage.getItem('op_gfx') === 'low'; this.maxDpr = this.low ? .75 : Math.min(devicePixelRatio || 1, 2); this.dpr = this.maxDpr;
-    const rd = this.rd = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' }); rd.shadowMap.enabled = true; rd.shadowMap.type = THREE.PCFShadowMap; rd.toneMapping = THREE.ACESFilmicToneMapping; rd.toneMappingExposure = .95;
+    const rd = this.rd = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' }); rd.shadowMap.enabled = true; rd.shadowMap.type = this.low ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap; rd.toneMapping = THREE.ACESFilmicToneMapping; rd.toneMappingExposure = .95;
     const S = this.scene = new THREE.Scene(); S.fog = new THREE.Fog(0xbfe3f6, 120, 480); this.camera = new THREE.PerspectiveCamera(52, 1, .4, 1600);
     this.hemi = new THREE.HemisphereLight(0xc6dcff, 0x7a8a5a, 1); S.add(this.hemi);
     const sun = this.sun = new THREE.DirectionalLight(0xfff2dc, 2.6); sun.castShadow = true; const n = this.low ? 1024 : 4096; sun.shadow.mapSize.set(n, n); Object.assign(sun.shadow.camera, { left: -75, right: 75, top: 75, bottom: -75, near: 1, far: 420 }); sun.shadow.bias = -.0004; sun.shadow.normalBias = .06; S.add(sun); S.add(sun.target);
-    this.mat = toon(); this.olStatic = outlineMat(.03); this.olObj = outlineMat(.04);
+    this.mat = toon({ detail: !this.low }); this.olStatic = outlineMat(.03); this.olObj = outlineMat(.04);
     /* 天空 */
     this.SKY = { uZen: { value: new THREE.Color() }, uHor: { value: new THREE.Color() }, uSun: { value: new THREE.Vector3(.4, .8, .3) }, uSunCol: { value: new THREE.Color(1, .95, .85) }, uFog: { value: new THREE.Color() }, uCloud: { value: 1 }, uTime: U.uTime };
     this.sky = new THREE.Mesh(new THREE.SphereGeometry(1400, 48, 24), new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false, uniforms: this.SKY,
@@ -67,7 +75,13 @@ class R3 {
   }
   /* ---------- 與原本引擎相同的介面 ---------- */
   resize() { const c = this.canvas, w = Math.max(1, c.clientWidth), h = Math.max(1, c.clientHeight); if (this._w === w && this._h === h && this._d === this.dpr) return; this._w = w; this._h = h; this._d = this.dpr; this.rd.setPixelRatio(this.dpr); this.rd.setSize(w, h, false); this.composer.setPixelRatio(this.dpr); this.composer.setSize(w, h); this.aspect = w / h; }
-  mesh(b) { const n = b.count; if (!n) return { n: 0 }; const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(b.p, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(b.n, 3)); const c = new Float32Array(b.c.length); for (let i = 0; i < c.length; i++) c[i] = lin(b.c[i]); g.setAttribute('color', new THREE.BufferAttribute(c, 3)); g.computeBoundingSphere();
+  mesh(b) { const n = b.count; if (!n) return { n: 0 }; const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(b.p, 3));
+    /* v125：地形（Builder.smooth 範圍）改用平滑法線，山坡不再一格一格的 */
+    const nrm = (b.smooth && b.smooth.length) ? Float32Array.from(b.n) : b.n;
+    if (b.smooth && b.smooth.length) b.smooth.forEach(([s0, s1]) => { const acc = new Map(), key = i => Math.round(b.p[i * 3] * 50) + ',' + Math.round(b.p[i * 3 + 2] * 50);
+      for (let i = s0; i < s1; i++) { const k = key(i); let a = acc.get(k); if (!a) acc.set(k, a = [0, 0, 0]); a[0] += b.n[i * 3]; a[1] += b.n[i * 3 + 1]; a[2] += b.n[i * 3 + 2]; }
+      for (let i = s0; i < s1; i++) { const a = acc.get(key(i)), l = Math.hypot(a[0], a[1], a[2]) || 1; nrm[i * 3] = a[0] / l; nrm[i * 3 + 1] = a[1] / l; nrm[i * 3 + 2] = a[2] / l; } });
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3)); const c = new Float32Array(b.c.length); for (let i = 0; i < c.length; i++) c[i] = lin(b.c[i]); g.setAttribute('color', new THREE.BufferAttribute(c, 3)); g.computeBoundingSphere();
     const h = { geo: g, n, pool: [], used: 0, big: n > 20000 }; this.handles.add(h); return h; }
   free(h) { if (!h || !h.geo) return; h.pool.forEach(o => { this.scene.remove(o); if (o.material !== this.mat && o.material.dispose) o.material.dispose(); }); h.geo.dispose(); this.handles.delete(h); }
   texture(url) { if (this.tex.has(url)) return this.tex.get(url); const rec = { ready: false, w: 1, h: 1 }; rec.t = new THREE.TextureLoader().load(url, t => { rec.ready = true; rec.w = t.image.naturalWidth || t.image.width; rec.h = t.image.naturalHeight || t.image.height; }); rec.t.colorSpace = THREE.SRGBColorSpace; rec.t.anisotropy = 8; rec.t.generateMipmaps = false; rec.t.minFilter = THREE.LinearFilter; /* 立繪不做 mipmap，避免遠看變糊 */ this.tex.set(url, rec); return rec; }
@@ -82,13 +96,13 @@ class R3 {
     let o = h.pool[h.used];
     if (!o) { const alpha = !!opts.alpha;
       if (alpha) o = new THREE.Mesh(h.geo, new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: true }));
-      else { o = new THREE.Mesh(h.geo, this.mat); o.castShadow = true; o.receiveShadow = true; if (!opts.noOutline && !h.big) { const ol = new THREE.Mesh(h.geo, this.olObj); ol.matrixAutoUpdate = false; o.add(ol); } if (opts.noCull) o.material = this.matDS || (this.matDS = toon({ side: THREE.DoubleSide })); }
+      else { o = new THREE.Mesh(h.geo, this.mat); o.castShadow = true; o.receiveShadow = true; if (!opts.noOutline && !h.big) { const ol = new THREE.Mesh(h.geo, this.olObj); ol.matrixAutoUpdate = false; o.add(ol); } if (opts.noCull) o.material = this.matDS || (this.matDS = toon({ side: THREE.DoubleSide, detail: !this.low })); }
       o.matrixAutoUpdate = false; o.userData.alpha = alpha; h.pool.push(o); this.scene.add(o); }
     h.used++; o.visible = true;
     if (model) o.matrix.fromArray(model); else o.matrix.identity(); o.matrixWorldNeedsUpdate = true;
     const t = opts.tint;
     if (o.userData.alpha) { o.material.color.setRGB(t ? t[0] : 1, t ? t[1] : 1, t ? t[2] : 1, THREE.SRGBColorSpace); o.material.opacity = t ? t[3] : .5; }
-    else if (t && (t[0] !== 1 || t[1] !== 1 || t[2] !== 1)) { if (!o.userData.own) { o.material = toon({ side: opts.noCull ? THREE.DoubleSide : THREE.FrontSide }); o.userData.own = true; } o.material.color.setRGB(t[0], t[1], t[2], THREE.SRGBColorSpace); }
+    else if (t && (t[0] !== 1 || t[1] !== 1 || t[2] !== 1)) { if (!o.userData.own) { o.material = toon({ side: opts.noCull ? THREE.DoubleSide : THREE.FrontSide, detail: !this.low }); o.userData.own = true; } o.material.color.setRGB(t[0], t[1], t[2], THREE.SRGBColorSpace); }
   }
   sprite(url, x, y, z, w, h, opts) {
     opts = opts || {};
@@ -131,12 +145,13 @@ class R3 {
     /* 草地：地面是綠色系的島才長草 */
     const gr = E.ground ? new THREE.Color(E.ground) : null, green = gr && gr.g > gr.r * 1.05 && gr.g > gr.b; this.grass = null;
     if (green && !this.low) { const blade = new THREE.PlaneGeometry(.14, 1, 1, 4); blade.translate(0, .5, 0); const bp = blade.attributes.position; for (let i = 0; i < bp.count; i++) { const y = bp.getY(i); bp.setX(i, bp.getX(i) * (1 - y * .85)); bp.setZ(i, y * y * .18); } const nr = blade.attributes.normal; for (let i = 0; i < nr.count; i++) nr.setXYZ(i, 0, 1, 0);
-      const NG = 70000, gm = new THREE.InstancedMesh(blade, toon({ vc: false, grass: true, side: THREE.DoubleSide }), NG); gm.receiveShadow = true; const Mx = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), c = new THREE.Color(); let n = 0;
+      const NG = 95000, gm = new THREE.InstancedMesh(blade, toon({ vc: false, grass: true, side: THREE.DoubleSide }), NG); gm.receiveShadow = true; const Mx = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), c = new THREE.Color(); let n = 0;
       const base = gr.clone().multiplyScalar(1.05), tip = gr.clone().lerp(new THREE.Color('#d8f080'), .4), path = (chapter.layout && chapter.layout.path) || [], obs = S.obstacles || [];
       const pd = (x, z) => { let d = 1e9; for (let i = 0; i < path.length - 1; i++) { const a = path[i], b = path[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / (dx * dx + dz * dz || 1))); d = Math.min(d, Math.hypot(x - a[0] - dx * t, z - a[1] - dz * t)); } return d; };
-      let sd = 777; const rnd = () => (sd = sd * 16807 % 2147483647) / 2147483647;
+      let sd = 777; const rnd = () => (sd = sd * 16807 % 2147483647) / 2147483647; const dry = gr.clone().lerp(new THREE.Color('#c8b878'), .5);
+      const vh = (i, j) => { const v = Math.sin(i * 127.1 + j * 311.7) * 43758.5453; return v - Math.floor(v); }, vn = (x, z) => { const i = Math.floor(x), j = Math.floor(z), fx = x - i, fz = z - j, u = fx * fx * (3 - 2 * fx), w = fz * fz * (3 - 2 * fz); return (vh(i, j) * (1 - u) + vh(i + 1, j) * u) * (1 - w) + (vh(i, j + 1) * (1 - u) + vh(i + 1, j + 1) * u) * w; }, patch = (x, z) => vn(x * .09, z * .09) * .65 + vn(x * .3, z * .3) * .35;
       for (let k = 0; k < 400000 && n < NG; k++) { const x = (rnd() - .5) * 200, z = (rnd() - .5) * 200, h = S.H(x, z); if (h < 1.2) continue; const sl = Math.abs(S.H(x + .7, z) - h) + Math.abs(S.H(x, z + .7) - h); if (sl > .6 || pd(x, z) < 3.2 || obs.some(o => Math.hypot(x - o[0], z - o[1]) < o[2] * .8)) continue;
-        e.set(0, rnd() * 6.28, 0); q.setFromEuler(e); Mx.compose(new THREE.Vector3(x, h - .05, z), q, new THREE.Vector3(.8 + rnd() * .5, .55 + rnd() * .8, 1)); gm.setMatrixAt(n, Mx); c.copy(base).lerp(tip, rnd()); gm.setColorAt(n, c); n++; }
+        const pt = patch(x, z); e.set(0, rnd() * 6.28, 0); q.setFromEuler(e); Mx.compose(new THREE.Vector3(x, h - .05, z), q, new THREE.Vector3(.8 + rnd() * .5, (.5 + rnd() * .75) * (.8 + pt * .5), 1)); gm.setMatrixAt(n, Mx); c.copy(base).lerp(tip, rnd() * .6 + pt * .4).lerp(dry, Math.max(0, .55 - pt) * .5); gm.setColorAt(n, c); n++; } /* v125：草地分成一片片深淺、高低不同的草叢 */
       gm.count = n; gm.instanceMatrix.needsUpdate = true; if (gm.instanceColor) gm.instanceColor.needsUpdate = true; this.island.add(gm); this.grass = gm; }
     /* 煙囪冒煙 */
     if ((S.chimneys || []).length) { const pos = [], sdA = []; S.chimneys.forEach(p => { for (let i = 0; i < 12; i++) { pos.push(p[0], p[1], p[2]); sdA.push(i / 12 + Math.random() * .05); } }); const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('seed', new THREE.Float32BufferAttribute(sdA, 1));
@@ -172,6 +187,12 @@ class R3 {
     if (green) { const fl = new THREE.IcosahedronGeometry(.13, 0), FN = this.low ? 800 : 3000, fm = new THREE.InstancedMesh(fl, toon({ vc: false }), FN), FC = ['#ffffff', '#ffe14a', '#ff8ab0', '#b08aff', '#ff9a5a'].map(c => new THREE.Color(c)), Mx = new THREE.Matrix4(), path = (chapter.layout && chapter.layout.path) || []; let n = 0, sd3 = 4242; const rn = () => (sd3 = sd3 * 16807 % 2147483647) / 2147483647;
       for (let k = 0; k < 60000 && n < FN; k++) { const x = (rn() - .5) * 180, z = (rn() - .5) * 180, h = S.H(x, z); if (h < 1.3) continue; if (Math.abs(S.H(x + .7, z) - h) > .4) continue; if (path.some((p, i) => i < path.length - 1 && Math.hypot(x - p[0], z - p[1]) < 4)) continue; Mx.makeTranslation(x, h + .35 + rn() * .35, z); fm.setMatrixAt(n, Mx); fm.setColorAt(n, FC[(rn() * 5) | 0]); n++; }
       fm.count = n; if (fm.instanceColor) fm.instanceColor.needsUpdate = true; this.island.add(fm); }
+    /* v125：地面小石子與碎石（所有島；避開道路與水裡），讓地面不再空蕩 */
+    if (!this.low && id !== 'skypiea') { const PN = 2600, rg = new THREE.DodecahedronGeometry(1, 0), pm = new THREE.InstancedMesh(rg, toon({ vc: false }), PN), Mx = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), c = new THREE.Color(), gcol = E.ground ? new THREE.Color(E.ground) : new THREE.Color('#8a8a7a');
+      const RC = [new THREE.Color('#8e8a80'), new THREE.Color('#a49a88'), new THREE.Color('#6e6a64'), gcol.clone().multiplyScalar(.62)], path = (chapter.layout && chapter.layout.path) || []; let n = 0, s5 = 2468; const rn = () => (s5 = s5 * 16807 % 2147483647) / 2147483647;
+      for (let k = 0; k < 40000 && n < PN; k++) { const x = (rn() - .5) * 190, z = (rn() - .5) * 190, h = S.H(x, z); if (h < .25) continue; const nearPath = path.some((p, i) => i < path.length - 1 && Math.hypot(x - p[0], z - p[1]) < 2.4); if (nearPath && rn() < .7) continue;
+        const sz = rn() < .9 ? .06 + rn() * .14 : .2 + rn() * .3; e.set(rn() * 3, rn() * 6.28, rn() * 3); q.setFromEuler(e); Mx.compose(new THREE.Vector3(x, h - sz * .35, z), q, new THREE.Vector3(sz * (1 + rn() * .6), sz * (.55 + rn() * .4), sz * (1 + rn() * .5))); pm.setMatrixAt(n, Mx); pm.setColorAt(n, c.copy(RC[(rn() * 4) | 0]).multiplyScalar(.85 + rn() * .3)); n++; }
+      pm.count = n; pm.castShadow = false; pm.receiveShadow = true; if (pm.instanceColor) pm.instanceColor.needsUpdate = true; this.island.add(pm); }
     this.chapterId = id; this.dark = id === 'dark' || id === 'thriller';
   }
   flush() {
@@ -188,7 +209,8 @@ class R3 {
     this.composer.render();
   }
 }
-if (window.E3 && ok && enabled()) { window.E3.Renderer = R3; window.E3.Renderer3 = R3; window.E3.RendererOld = OLD;
+if (window.E3 && ok && enabled()) { try { window.E3_HD = localStorage.getItem('op_gfx') !== 'low'; } catch (e) { window.E3_HD = true; } /* v125：地形加倍與平滑、圓形物件分段變多（engine3d.js Builder） */
+  window.E3.Renderer = R3; window.E3.Renderer3 = R3; window.E3.RendererOld = OLD;
   /* 載入島嶼時，讓新渲染器建立水面與草地 */
   if (window.World) { const L = window.World.prototype.load; window.World.prototype.load = function (ch, pid, st) { const r = L.apply(this, arguments); if (this.r && this.r.setIsland) this.r.setIsland(this.scene, ch); return r; }; }
 }

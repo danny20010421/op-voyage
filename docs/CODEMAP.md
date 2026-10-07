@@ -51,8 +51,8 @@
 - `js/fx.js`、`js/fx_choreo.js`、`js/fx_ult.js`: F:特效引擎、角色專屬編排、其餘角色的奧義與一般招式主題特效 | R:battle.js | A:X,CHOREO,playChoreo | S:X.text 會自動縮字並限制在畫面內；新增專屬編排時 fx_ult 不會覆蓋
 
 ## 登島 3D
-- `js/engine3d.js`: F:舊版輕量 WebGL 引擎與幾何建構器 Builder | R:scenes.js | A:E3.Renderer,E3.Builder,E3.M | S:Builder.box 的 y 是底部不是中心
-- `js/e3three.js`: F:Three.js 版渲染器，介面與 E3.Renderer 相同，13 座島共用 | R:engine3d.js,world.js,vendor/three | A:R3（取代 E3.Renderer）,setIsland | S:設定 op_r3=0 或不支援 WebGL2 時退回舊引擎；水面、天空不畫舊網格
+- `js/engine3d.js`: F:舊版輕量 WebGL 引擎與幾何建構器 Builder | R:scenes.js | A:E3.Renderer,E3.Builder,E3.M | S:Builder.box 的 y 是底部不是中心；v125 起 global.E3_HD（e3three.js 設定）開啟時，terrain 網格加倍並用 triV 逐頂點顏色、記錄 Builder.smooth 範圍讓渲染器算平滑法線，sphere／cyl 分段 ×1.5
+- `js/e3three.js`: F:Three.js 版渲染器，介面與 E3.Renderer 相同，13 座島共用；v125 toon({detail}) 世界座標表面細節、柔邊陰影、草叢分片、地面小石子 | R:engine3d.js,world.js,vendor/three | A:R3（取代 E3.Renderer）,setIsland | S:設定 op_r3=0 或不支援 WebGL2 時退回舊引擎；水面、天空不畫舊網格
 - `js/scenes.js`: F:各島地形、建築、植被、NPC 造型（npcMesh／LOOKS） | R:landmarks.js,data.js | A:SCENES.buildScene,SCENES.npcMesh | S:建築與道具要避開 layout.path、NPC 位置與任務地點（CHAPTERS 是 const，要用 typeof CHAPTERS 取得，不能用 global.CHAPTERS）；被碰撞包住的 NPC 會自動推到外側；13 座島全部是正式版；共用擺放工具 placer(D,O,H,章節id)；`_xxxOld` 是舊版函式，已不再使用；P.ship 已改用細節版 P.ship2（回傳甲板高度與局部座標）；德雷斯羅薩暫用 _alabastaOld、蛋糕島暫用 _skypieaOld、蛋頭島暫用 _eniesOld、蜂巢島用 dark
 - **立體結構（scenes.js 的 K）**: F:可走的平台／樓梯／橋（plats）、會擋人的牆（walls）、走進去會隱藏的屋頂（roofs）、兩層樓可進入的房子 house2 | R:world.js | A:scene.G(x,z,y),scene.onPlat,scene.walls,scene.roofs | S:只支援與 x／z 軸對齊的矩形；K.tower 是外圍螺旋樓梯高塔；牆頂要比上方地板低 0.6 以上，否則走上去會被牆卡住；樓梯每階高度 ≤0.38、玩家自動跨上 ≤0.8 的高度，超過要跳；平台高度相差要 >0.8 才不會誤判成同一層
 - **環境飄落物（e3three.js setIsland 的 AMB 表）**: 每座島一組 [顏色, 數量, 上升/下降速度, 大小, 形狀 0塵 1花瓣 2氣泡 3光點]；低畫質自動減量

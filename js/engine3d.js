@@ -42,8 +42,15 @@
   function mix(a, b, t) { a = hex(a); b = hex(b); return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
 
   /* 以三角形清單建構平面著色網格 */
+  /* v125 高精細模式（Three.js 渲染器、非低畫質時由 e3three.js 開啟 global.E3_HD）：地形網格加倍並改為平滑法線＋逐頂點顏色、球體與圓柱分段變多 */
+  const HD = () => !!global.E3_HD;
   class Builder {
-    constructor() { this.p = []; this.n = []; this.c = []; }
+    constructor() { this.p = []; this.n = []; this.c = []; this.smooth = []; }
+    triV(a, b, c, ca, cb, cc) { /* 每個頂點各自的顏色（地形用，顏色在三角形內平滑漸變） */
+      const ux=b[0]-a[0], uy=b[1]-a[1], uz=b[2]-a[2], vx=c[0]-a[0], vy=c[1]-a[1], vz=c[2]-a[2];
+      let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx; const l=Math.hypot(nx,ny,nz)||1; nx/=l; ny/=l; nz/=l;
+      this.p.push(...a, ...b, ...c); for (let i = 0; i < 3; i++) this.n.push(nx, ny, nz); this.c.push(ca[0], ca[1], ca[2], cb[0], cb[1], cb[2], cc[0], cc[1], cc[2]);
+    }
     tri(a, b, c, col) {
       const ux=b[0]-a[0], uy=b[1]-a[1], uz=b[2]-a[2], vx=c[0]-a[0], vy=c[1]-a[1], vz=c[2]-a[2];
       let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx; const l=Math.hypot(nx,ny,nz)||1; nx/=l; ny/=l; nz/=l;
@@ -61,6 +68,7 @@
       this.quad(v[2], v[1], v[5], v[6], shade(col, .92)); this.quad(v[0], v[3], v[7], v[4], shade(col, .92));
     }
     cyl(cx, cy, cz, rb, rt, h, seg, col, colTop, ry, tilt) {
+      if (HD() && seg >= 5) seg = Math.min(24, Math.round(seg * 1.5));
       col = hex(col); colTop = colTop ? hex(colTop) : shade(col, 1.08);
       const tx = tilt ? tilt[0] : 0, tz = tilt ? tilt[1] : 0; const f = this._xf([cx, cy, cz], ry || 0);
       for (let i = 0; i < seg; i++) {
@@ -72,6 +80,7 @@
       }
     }
     sphere(cx, cy, cz, r, seg, col, sy, jitter, seed) {
+      if (HD() && seg >= 5) { seg = Math.min(20, Math.round(seg * 1.5)); if (jitter) jitter *= .75; }
       col = hex(col); sy = sy || 1; const rings = Math.max(3, Math.floor(seg / 2)); let s = seed || 1;
       const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
       const pts = [];
@@ -91,7 +100,14 @@
       }
     }
     terrain(size, res, hfn, cfn, ox, oz) {
-      ox = ox || 0; oz = oz || 0; const st = size / res, h0 = -size / 2;
+      ox = ox || 0; oz = oz || 0;
+      if (HD()) { /* 高精細：網格加倍、頂點顏色、之後由渲染器算平滑法線 */
+        res = Math.min(220, res * 2); const st = size / res, h0 = -size / 2, start = this.p.length / 3;
+        const V = []; for (let z = 0; z <= res; z++) { const row = []; for (let x = 0; x <= res; x++) { const wx = ox + h0 + x*st, wz = oz + h0 + z*st, wy = hfn(wx, wz); row.push([[wx, wy, wz], cfn(wx, wy, wz)]); } V.push(row); }
+        for (let z = 0; z < res; z++) for (let x = 0; x < res; x++) { const a = V[z][x], b = V[z][x+1], c = V[z+1][x+1], d = V[z+1][x];
+          this.triV(a[0], c[0], b[0], a[1], c[1], b[1]); this.triV(a[0], d[0], c[0], a[1], d[1], c[1]); }
+        this.smooth.push([start, this.p.length / 3]); return; }
+      const st = size / res, h0 = -size / 2;
       const H = []; for (let z = 0; z <= res; z++) { H.push([]); for (let x = 0; x <= res; x++) { const wx = ox + h0 + x*st, wz = oz + h0 + z*st; H[z].push([wx, hfn(wx, wz), wz]); } }
       for (let z = 0; z < res; z++) for (let x = 0; x < res; x++) {
         const a = H[z][x], b = H[z][x+1], c = H[z+1][x+1], d = H[z+1][x];

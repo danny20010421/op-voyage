@@ -340,6 +340,7 @@
   DEFAULT_NEWS.unshift({ id: 'd1044', date: '2026-10-07', tag: '更新', title: '歌姬挑戰畫面全新改版', body: '・遊玩畫面改為美音的霓虹舞台：潑墨背景、漫畫格、半立體音軌、霓虹膠囊音符，左側 LIFE、右側 FEVER\n・FEVER 滿了 8 秒內對美音傷害 ×2\n・長按音符按滿 70% 就算 PERFECT\n・譜面加量：EASY 317／NORMAL 700／HARD 1608 個音符\n・美音碎片：每首不同的歌第一次拿到 S 以上就得 20 片（已拿過 S 的歌自動補發）\n・手機大廳對話框空間夠就置中，小手機改為點一下展開' });
   DEFAULT_NEWS.unshift({ id: 'd1045', date: '2026-10-07', tag: '更新', title: '歌姬挑戰新歌〈私は最強〉', body: '・新增 Ado〈私は最強〉：EASY 4／NORMAL 8／HARD 12\n・又多一首歌可以拿美音碎片（每首歌第一次 S 以上 +20 片）' });
   DEFAULT_NEWS.unshift({ id: 'd1046', date: '2026-10-07', tag: '修正', title: '歌姬挑戰：修正點擊閃爍、音軌加長', body: '・修正手機點擊音軌時畫面會閃一下黑色\n・音軌加長、音符移動變慢，有更多時間看清楚音符\n・背景的美音會跟著節拍上下晃動' });
+  DEFAULT_NEWS.unshift({ id: 'd1047', date: '2026-10-07', tag: '更新', title: '登島 3D 場景更精細・歌姬挑戰音軌調整', body: '・登島場景：地形更細緻平滑、樹木與柱子更圓、地面與牆面有深淺紋理、柔邊陰影、草叢更茂密、地面多了小石子（設定頁可切換低畫質）\n・歌姬挑戰：音軌遠端下移到美音胸部，不再遮住臉' });
   /* 東海篇：斧手摩根改用專屬造型（金色短髮、鐵下巴、斧頭手、海軍大衣） */
   { const E = CHAPTERS.find(c => c.id === 'east'); const m = E && E.npcs.find(n => n.id === 'morgan_n'); if (m) m.look = 'morgan'; }
   /* 白鬍子新立繪 */ CHARACTERS.whitebeard.image = 'assets/chars/whitebeard.webp?v=78'; CHARACTERS.whitebeard.ultimateBg = CHARACTERS.whitebeard.image;
