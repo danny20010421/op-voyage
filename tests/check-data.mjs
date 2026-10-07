@@ -9,10 +9,10 @@ vm.runInContext(rd('js/data_ext.js'), ctx);
 vm.runInContext(rd('js/story_ext.js'), ctx);
 /* 後載入的角色擴充（多利、布洛基等）；活動池會用到 */
 vm.runInContext('var CHAR_RARITY = {};', ctx);
-for (const f of ['js/roster_v89.js', 'js/roster_v90.js', 'js/roster_v92.js', 'js/roster_v101.js', 'js/roster_v103.js', 'js/roster_v109.js', 'js/roster_v110.js', 'js/roster_v112.js', 'js/roster_v115.js', 'js/roster_v118.js', 'js/roster_v121.js', 'js/roster_v91.js']) { try { vm.runInContext(rd(f), ctx); } catch (e) { warn.push(`${f} 無法在資料檢查中載入：${e.message}`); } }
+for (const f of ['js/roster_v89.js', 'js/roster_v90.js', 'js/roster_v92.js', 'js/roster_v101.js', 'js/roster_v103.js', 'js/roster_v109.js', 'js/roster_v110.js', 'js/roster_v112.js', 'js/roster_v115.js', 'js/roster_v118.js', 'js/roster_v121.js', 'js/roster_v128.js', 'js/roster_v91.js']) { try { vm.runInContext(rd(f), ctx); } catch (e) { warn.push(`${f} 無法在資料檢查中載入：${e.message}`); } }
 const { CHARACTERS: C, CHARACTER_ORDER: O, CHAR_OBTAIN: OB, CHAPTERS: CH, TREASURE: T, COLLECTION_SETS: S, EVENT_POOLS: EP, ITEMS: IT, LOGIN_REWARDS: LR } = ctx;
 const exists = u => fs.existsSync(root + String(u).split('?')[0]);
-const hub = rd('js/hub.js'), battle = rd('js/battle_core.js') + rd('js/battle.js') + rd('js/ext_effects.js') + rd('js/ext_v102.js') + rd('js/ext_v110.js') + rd('js/ext_v109.js') + rd('js/ext_v115.js') + rd('js/ext_v118.js') + rd('js/ext_v121.js');
+const hub = rd('js/hub.js'), battle = rd('js/battle_core.js') + rd('js/battle.js') + rd('js/ext_effects.js') + rd('js/ext_v102.js') + rd('js/ext_v110.js') + rd('js/ext_v109.js') + rd('js/ext_v115.js') + rd('js/ext_v118.js') + rd('js/ext_v121.js') + rd('js/ext_v128.js');
 const nos = {};
 for (const id of O) {
   const c = C[id]; if (!c) { errs.push(`CHARACTER_ORDER 有不存在的角色 ${id}`); continue; }

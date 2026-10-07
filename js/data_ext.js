@@ -343,6 +343,7 @@
   DEFAULT_NEWS.unshift({ id: 'd1047', date: '2026-10-07', tag: '更新', title: '登島 3D 場景更精細・歌姬挑戰音軌調整', body: '・登島場景：地形更細緻平滑、樹木與柱子更圓、地面與牆面有深淺紋理、柔邊陰影、草叢更茂密、地面多了小石子（設定頁可切換低畫質）\n・歌姬挑戰：音軌遠端下移到美音胸部，不再遮住臉' });
   DEFAULT_NEWS.unshift({ id: 'd1048', date: '2026-10-07', tag: '修正', title: '歌姬挑戰：特效減量，音符更清楚', body: '・打中音符的光柱只亮在音軌下方，不再遮住後面的音符\n・拿掉閃電狀的放射線，粒子與光暈縮小\n・PERFECT 與 50 COMBO 不再震動畫面、閃金光\n・美音的攻擊特效變淡\n・登入頁的遊戲介紹與遊戲特色已更新' });
   DEFAULT_NEWS.unshift({ id: 'd1049', date: '2026-10-07', tag: '修正', title: '劇情對話修正・月費調降為 300 寶藏幣', body: '・修正進入劇情關卡時出現空白對話框\n・說話者名字固定在對話框左上角，不再跳來跳去\n・10 月限時月費「萬聖火龍燼」調降為 300 寶藏幣' });
+  DEFAULT_NEWS.unshift({ id: 'd1050', date: '2026-10-07', tag: '更新', title: '四皇凱多換新立繪・龍人型態登場', body: '・凱多換上全新立繪\n・使用第 5 招「升龍・火焰八卦」後，雷光劈下，化為龍人型態（立繪變大）\n・龍人型態會維持到凱多倒下或戰鬥結束' });
   /* 東海篇：斧手摩根改用專屬造型（金色短髮、鐵下巴、斧頭手、海軍大衣） */
   { const E = CHAPTERS.find(c => c.id === 'east'); const m = E && E.npcs.find(n => n.id === 'morgan_n'); if (m) m.look = 'morgan'; }
   /* 白鬍子新立繪 */ CHARACTERS.whitebeard.image = 'assets/chars/whitebeard.webp?v=78'; CHARACTERS.whitebeard.ultimateBg = CHARACTERS.whitebeard.image;

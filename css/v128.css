@@ -1,0 +1,10 @@
+/* v128 凱多龍人型態的變身演出：畫面變暗與閃光用 DOM 圖層（不畫在戰場 canvas 上）。
+   戰場鏡頭拉遠（角色很大時 .b-arena 會縮小）時，canvas 上的全畫面染色會變成一個方框；改在 #battleScreen 上疊圖層就不會。
+   .kd-dim 在背景（z 0）與戰場（z 2）之間：只壓暗背景，角色與雷光維持明亮。.kd-flash 是短暫的白光，強度適中。 */
+#battleScreen .kd-dim{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .3s ease;
+  background:radial-gradient(120% 90% at 50% 40%,rgba(30,10,60,.55),rgba(4,2,14,.82))}
+#battleScreen .kd-dim.on{opacity:1}
+#battleScreen .kd-flash{position:absolute;inset:0;z-index:60;pointer-events:none;opacity:0;background:var(--c,#fff)}
+#battleScreen .kd-flash.go{animation:kdFlash var(--d,.3s) ease-out}
+@keyframes kdFlash{from{opacity:var(--a,.35)}to{opacity:0}}
+@media (prefers-reduced-motion:reduce){#battleScreen .kd-flash.go{animation:none}}

@@ -2,7 +2,7 @@
    設定存在 op_visual_v1，不會因為改版（DATA_VERSION）而失效；戰鬥時由 visualOverride() 讀取。 */
 (function () {
   const KEY = 'op_visual_v1', load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } };
-  const FORMS = { loki: ['尼德霍格巨龍', 'formImage'], marco: ['不死鳥型態', 'phoenixForm'] };
+  const FORMS = { loki: ['尼德霍格巨龍', 'formImage'], marco: ['不死鳥型態', 'phoenixForm'], kaido: ['龍人型態', 'kaidoDragon'] };
   function entries() {
     const L = [];
     CHARACTER_ORDER.forEach(id => { const c = CHARACTERS[id]; L.push({ key: 'char:' + id, label: `角色・${c.name}`, img: c.image, scale: c.battleScale || 1, face: !!c.faceLeft, base: c.scale || .9 }); });
