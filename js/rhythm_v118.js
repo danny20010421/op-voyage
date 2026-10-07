@@ -202,12 +202,11 @@
     const hb = Math.max(64, ...['.rgx-boss', '.rgx-title', '.rgx-right'].map(q => { const e = G.root.querySelector(q); return e ? e.getBoundingClientRect().bottom - r.top : 0; })); /* HUD 底部（各區塊實際量測） */
     G.lw = land ? Math.min(760, r.width * .58, r.height * 1.5) : Math.min(640, r.width - 8); G.cxm = r.width / 2; G.lx = Math.round(G.cxm - G.lw / 2);
     G.jy = Math.round(r.height * (land ? .87 : .86)); G.top = Math.round(hb + 8);
-    G.farY = Math.round(Math.max(G.top + 16, r.height * (short ? .3 : land ? .34 : .4))); /* v123：音軌加長（遠端拉高），看得到音符的時間更長 */
-    /* v124：美音立繪不能被音軌卡住脖子或臉——立繪裡頭頂約在 26%、胸前蝴蝶結約在 46% 高度。
-       立繪大小＝讓「臉在 HUD 下方、蝴蝶結在音軌遠端上方（留晃動空間）」的最大尺寸；太小時改把音軌遠端往下移一點 */
-    { const FACE = .26, CHEST = .46, PAD = 16, k = CHEST - FACE, cap = land ? r.height * 1.15 : G.jy * 1.15, min = land ? r.height * .9 : G.jy * .75;
-      let H = Math.min(cap, (G.farY - G.top - PAD) / k); if (H < min) { H = min; G.farY = Math.round(G.top + PAD + k * H); }
-      G.utaH = Math.round(H); G.utaT = Math.round(G.farY - PAD - CHEST * H); }
+    /* v125：音軌遠端放在美音胸部的位置（使用者指定）。立繪裡頭頂約 26%、胸部約 52% 高度：
+       先決定立繪大小（臉在 HUD 下方），音軌遠端＝胸部那一條線；音軌至少保留畫面高度 36%（橫式 38%），不夠時縮小立繪 */
+    { const FACE = .26, CHEST = .52, minLane = r.height * (land ? .38 : .36);
+      let H = land ? r.height * 1.15 : G.jy * 1.15; H = Math.min(H, (G.jy - minLane - G.top) / (CHEST - FACE));
+      G.utaH = Math.round(H); G.utaT = Math.round(G.top - FACE * H); G.farY = Math.round(G.top + (CHEST - FACE) * H); }
     G.hz = (G.farY - G.jy * SF) / (1 - SF); G.sH = (r.height - G.hz) / (G.jy - G.hz);
     const R = G.root.style; R.setProperty('--utaH', G.utaH + 'px'); R.setProperty('--utaT', G.utaT + 'px'); R.setProperty('--lx', G.lx + 'px'); R.setProperty('--lw', G.lw + 'px'); R.setProperty('--jy', G.jy + 'px'); R.setProperty('--top', G.top + 'px'); R.setProperty('--far', G.farY + 'px');
     G.judgeY = Math.round(G.farY + (G.jy - G.farY) * .55);
