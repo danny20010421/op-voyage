@@ -9,10 +9,10 @@ vm.runInContext(rd('js/data_ext.js'), ctx);
 vm.runInContext(rd('js/story_ext.js'), ctx);
 /* 後載入的角色擴充（多利、布洛基等）；活動池會用到 */
 vm.runInContext('var CHAR_RARITY = {};', ctx);
-for (const f of ['js/roster_v89.js', 'js/roster_v90.js', 'js/roster_v92.js', 'js/roster_v101.js', 'js/roster_v103.js', 'js/roster_v109.js', 'js/roster_v110.js', 'js/roster_v112.js', 'js/roster_v115.js', 'js/roster_v118.js', 'js/roster_v121.js', 'js/roster_v128.js', 'js/roster_v91.js']) { try { vm.runInContext(rd(f), ctx); } catch (e) { warn.push(`${f} 無法在資料檢查中載入：${e.message}`); } }
+for (const f of ['js/roster_v89.js', 'js/roster_v90.js', 'js/roster_v92.js', 'js/roster_v101.js', 'js/roster_v103.js', 'js/roster_v109.js', 'js/roster_v110.js', 'js/roster_v112.js', 'js/roster_v115.js', 'js/roster_v118.js', 'js/roster_v121.js', 'js/roster_v128.js', 'js/roster_v129.js', 'js/roster_v91.js']) { try { vm.runInContext(rd(f), ctx); } catch (e) { warn.push(`${f} 無法在資料檢查中載入：${e.message}`); } }
 const { CHARACTERS: C, CHARACTER_ORDER: O, CHAR_OBTAIN: OB, CHAPTERS: CH, TREASURE: T, COLLECTION_SETS: S, EVENT_POOLS: EP, ITEMS: IT, LOGIN_REWARDS: LR } = ctx;
 const exists = u => fs.existsSync(root + String(u).split('?')[0]);
-const hub = rd('js/hub.js'), battle = rd('js/battle_core.js') + rd('js/battle.js') + rd('js/ext_effects.js') + rd('js/ext_v102.js') + rd('js/ext_v110.js') + rd('js/ext_v109.js') + rd('js/ext_v115.js') + rd('js/ext_v118.js') + rd('js/ext_v121.js') + rd('js/ext_v128.js');
+const hub = rd('js/hub.js'), battle = rd('js/battle_core.js') + rd('js/battle.js') + rd('js/ext_effects.js') + rd('js/ext_v102.js') + rd('js/ext_v110.js') + rd('js/ext_v109.js') + rd('js/ext_v115.js') + rd('js/ext_v118.js') + rd('js/ext_v121.js') + rd('js/ext_v128.js') + rd('js/ext_v129.js');
 const nos = {};
 for (const id of O) {
   const c = C[id]; if (!c) { errs.push(`CHARACTER_ORDER 有不存在的角色 ${id}`); continue; }
@@ -24,7 +24,7 @@ for (const id of O) {
     ['formImage', 'phoenixForm'].forEach(k => { const im = s.effect && s.effect[k] && s.effect[k].image; if (im && !exists(im)) errs.push(`${id} 變身圖不存在 ${im}`); }); });
 }
 Object.entries(nos).forEach(([n, a]) => { if (a.length > 1) errs.push(`編號重複 No.${n}: ${a}`); });
-Object.keys(C).forEach(id => { if (!O.includes(id)) warn.push(`${id} 不在 CHARACTER_ORDER`); });
+Object.keys(C).forEach(id => { if (!O.includes(id) && !C[id].npcOnly) warn.push(`${id} 不在 CHARACTER_ORDER`); }); /* npcOnly：只在挑戰中出現的敵人（例：羅傑） */
 CH.forEach(c => { if (!exists(c.art)) errs.push(`篇章插圖不存在 ${c.id}`); if (!C[c.boss]) errs.push(`篇章 ${c.id} 的 BOSS ${c.boss} 不存在`); c.steps.forEach(s => { ['npc', 'enemy', 'joins'].forEach(k => { if (s[k] && k !== 'npc' && !C[s[k]]) errs.push(`篇章 ${c.id} 任務 ${s.title} 的 ${k}=${s[k]} 不存在`); if (k === 'npc' && s.npc && !c.npcs.some(n => n.id === s.npc)) errs.push(`篇章 ${c.id} 任務 ${s.title} 的 NPC ${s.npc} 不存在`); }); }); });
 T.pieces.forEach(p => { if (!CH.some(c => c.id === p.chapter)) errs.push(`歷史本文的篇章 ${p.chapter} 不存在`); });
 S.forEach(s => s.members.forEach(m => { if (!C[m]) errs.push(`羈絆 ${s.name} 的成員 ${m} 不存在`); }));

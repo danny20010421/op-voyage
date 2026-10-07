@@ -344,6 +344,7 @@
   DEFAULT_NEWS.unshift({ id: 'd1048', date: '2026-10-07', tag: '修正', title: '歌姬挑戰：特效減量，音符更清楚', body: '・打中音符的光柱只亮在音軌下方，不再遮住後面的音符\n・拿掉閃電狀的放射線，粒子與光暈縮小\n・PERFECT 與 50 COMBO 不再震動畫面、閃金光\n・美音的攻擊特效變淡\n・登入頁的遊戲介紹與遊戲特色已更新' });
   DEFAULT_NEWS.unshift({ id: 'd1049', date: '2026-10-07', tag: '修正', title: '劇情對話修正・月費調降為 300 寶藏幣', body: '・修正進入劇情關卡時出現空白對話框\n・說話者名字固定在對話框左上角，不再跳來跳去\n・10 月限時月費「萬聖火龍燼」調降為 300 寶藏幣' });
   DEFAULT_NEWS.unshift({ id: 'd1050', date: '2026-10-07', tag: '更新', title: '四皇凱多換新立繪・龍人型態登場', body: '・凱多換上全新立繪\n・使用第 5 招「升龍・火焰八卦」後，雷光劈下，化為龍人型態（立繪變大）\n・龍人型態會維持到凱多倒下或戰鬥結束' });
+  DEFAULT_NEWS.unshift({ id: 'd1051', date: '2026-10-08', tag: '新角色', title: '新角色洛克斯（UR++）・洛克斯挑戰開放', body: '・集齊皇帝領海全部 6 位四皇後，皇帝領海展示頁下方開放「洛克斯挑戰」\n・四道關卡：六皇連戰 → 羅傑與卡普 → 洛克斯的兩個分身 → 洛克斯真身，通過後洛克斯直接加入\n・紅髮傑克斯強度調降（神避秒殺 40% → 20%、倍率上限 40 → 30）\n・修正施放技能時特效出現方塊邊框' });
   /* 東海篇：斧手摩根改用專屬造型（金色短髮、鐵下巴、斧頭手、海軍大衣） */
   { const E = CHAPTERS.find(c => c.id === 'east'); const m = E && E.npcs.find(n => n.id === 'morgan_n'); if (m) m.look = 'morgan'; }
   /* 白鬍子新立繪 */ CHARACTERS.whitebeard.image = 'assets/chars/whitebeard.webp?v=78'; CHARACTERS.whitebeard.ultimateBg = CHARACTERS.whitebeard.image;

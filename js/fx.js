@@ -3,20 +3,36 @@ const LOWFX = matchMedia('(pointer:coarse)').matches || Math.min(screen.width, s
 const FXE = (() => {
   let cv, cx, list = [], raf = 0, last = 0, W = 0, H = 0, dpr = 1;
   const R = (a, b) => a + Math.random() * (b - a), TAU = Math.PI * 2;
+  /* v129：特效畫布固定蓋滿整個戰鬥畫面（不再跟著戰場鏡頭縮小）。
+     戰場 .b-arena 在角色很大時會 scale(--cam) 拉遠鏡頭；以前畫布在戰場裡一起縮小，全畫面染色／閃光就變成一個方框。
+     現在每一幀量測戰場實際位置與縮放（getBoundingClientRect，含拉遠過渡與震動），把畫布反向放大到蓋滿 .screen，
+     特效仍用「戰場座標」畫（fighterPoint、W、H 都是戰場未縮放的尺寸），由 setTransform 換算到畫面上，位置與角色一致。
+     flash／tint 這類全畫面效果改在畫面座標畫滿（SW、SH）。畫布仍留在 .b-arena 裡，圖層順序不變（傷害數字、橫幅在上面）。 */
+  let S = 1, OX = 0, OY = 0, SW = 0, SH = 0;
+  function sync() {
+    const A = cv.parentElement, scr = A.closest('.screen') || A.offsetParent; if (!A || !scr || !A.offsetWidth) return false;
+    const aR = A.getBoundingClientRect(), sR = scr.getBoundingClientRect();
+    W = A.offsetWidth; H = A.offsetHeight; S = aR.width / W || 1; OX = aR.left - sR.left; OY = aR.top - sR.top; SW = sR.width; SH = sR.height;
+    const st = cv.style, px = v => v.toFixed(2) + 'px';
+    st.right = st.bottom = 'auto'; st.left = px(-OX / S); st.top = px(-OY / S); st.width = px(SW / S); st.height = px(SH / S);
+    return true;
+  }
   function ensure() {
     if (!cv) { cv = document.getElementById('bCanvas'); cx = cv.getContext('2d');
       // 手機：發光模糊降到三成，減少掉幀
       if (LOWFX) { const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur'); Object.defineProperty(cx, 'shadowBlur', { set(v) { d.set.call(cx, v * .3); }, get() { return d.get.call(cx); } }); } }
-    const r = cv.parentElement.getBoundingClientRect(); dpr = Math.min(2, window.devicePixelRatio || 1);
-    if (cv.width !== Math.round(r.width * dpr) || cv.height !== Math.round(r.height * dpr)) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); }
-    W = r.width; H = r.height;
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (!sync()) { const r = cv.parentElement.getBoundingClientRect(); W = r.width; H = r.height; SW = W; SH = H; S = 1; OX = OY = 0; }
+    if (cv.width !== Math.round(SW * dpr) || cv.height !== Math.round(SH * dpr)) { cv.width = Math.round(SW * dpr); cv.height = Math.round(SH * dpr); }
   }
+  const screenSpace = c => c.setTransform(dpr, 0, 0, dpr, 0, 0);
   function add(e) { ensure(); e.t = 0; e.life = e.life || .6; list.push(e); if (!raf) { last = performance.now(); raf = requestAnimationFrame(loop); } return e; }
   function loop(now) {
     const dt = Math.min(.05, (now - last) / 1000) * (window.BSPEED || 1); last = now;
-    cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H);
-    list = list.filter(e => { e.t += dt; const k = Math.min(1, e.t / e.life); cx.save(); cx.globalCompositeOperation = e.add ? 'lighter' : 'source-over'; try { e.draw(cx, k, dt, e.t); } catch (err) { } cx.restore(); return e.t < e.life; });
-    if (list.length) raf = requestAnimationFrame(loop); else { raf = 0; cx.clearRect(0, 0, W, H); }
+    sync(); if (cv.width !== Math.round(SW * dpr) || cv.height !== Math.round(SH * dpr)) { cv.width = Math.round(SW * dpr); cv.height = Math.round(SH * dpr); }
+    screenSpace(cx); cx.clearRect(0, 0, SW, SH);
+    list = list.filter(e => { e.t += dt; const k = Math.min(1, e.t / e.life); cx.save(); cx.setTransform(dpr * S, 0, 0, dpr * S, dpr * OX, dpr * OY); cx.globalCompositeOperation = e.add ? 'lighter' : 'source-over'; try { e.draw(cx, k, dt, e.t); } catch (err) { } cx.restore(); return e.t < e.life; });
+    if (list.length) raf = requestAnimationFrame(loop); else { raf = 0; screenSpace(cx); cx.clearRect(0, 0, SW, SH); }
   }
   function clear() { list = []; }
   const ease = { out: k => 1 - Math.pow(1 - k, 3), in: k => k * k * k, io: k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2, back: k => 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2) };
@@ -30,12 +46,12 @@ const FXE = (() => {
   function spr(c, img, x, y, s) { c.drawImage(img, x - s, y - s, s * 2, s * 2); }
 
   const P = {
-    flash(color, life, a) { return add({ life: life || .25, draw(c, k) { c.globalAlpha = (a || .7) * Math.pow(1 - k, 2); c.fillStyle = color; c.fillRect(0, 0, W, H); } }); },
-    tint(color, life, a) { return add({ life, draw(c, k) { c.globalAlpha = (a || .3) * fade(k, .15, .7); c.fillStyle = color; c.fillRect(0, 0, W, H); } }); },
+    flash(color, life, a) { return add({ life: life || .25, draw(c, k) { c.globalAlpha = (a || .7) * Math.pow(1 - k, 2); c.fillStyle = color; screenSpace(c); c.fillRect(0, 0, SW, SH); } }); },
+    tint(color, life, a) { return add({ life, draw(c, k) { c.globalAlpha = (a || .3) * fade(k, .15, .7); c.fillStyle = color; screenSpace(c); c.fillRect(0, 0, SW, SH); } }); },
     glow(x, y, o) { o = o || {}; const img = glowSpr(o.color || '#ffbe78'); return add({ add: true, life: o.life || .4, draw(c, k) { c.globalAlpha = o.hold ? fade(k, .1, .6) : 1 - k; spr(c, img, x, y, (o.r || 120) * (o.grow === false ? 1 : .5 + ease.out(k) * .7)); } }); },
     burst(x, y, o) { o = o || {}; const col = o.color || '#ffaa5a'; P.glow(x, y, { color: col, r: (o.r || 110) * 1.4, life: .42 }); P.glow(x, y, { color: '#ffffff', r: (o.r || 110) * .5, life: .25 }); P.particles({ x, y, n: o.n || 20, spd: [220, 600], life: [.25, .5], size: [2, 4], colors: [col, '#ffffff'], shape: 'spark', drag: 3 }); },
     ring(x, y, o) { o = o || {}; const col = o.color || '#ffffff'; return add({ add: o.add !== false, life: o.life || .45, draw(c, k) { const r = (o.r0 || 10) + ((o.r1 || 150) - (o.r0 || 10)) * ease.out(k), w = (o.w || 14) * (1 - k) + 1; c.globalAlpha = 1 - k; c.translate(x, y); c.scale(1, o.flat || 1); c.strokeStyle = col; c.shadowColor = col; c.shadowBlur = 24; c.lineWidth = w; c.beginPath(); c.arc(0, 0, r, 0, TAU); c.stroke(); c.shadowBlur = 0; c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = w * .3; c.stroke(); } }); },
-    speedLines(x, y, o) { o = o || {}; const n = o.n || 46, lines = []; for (let i = 0; i < n; i++) lines.push({ a: i / n * TAU + R(-.05, .05), w: R(.006, .022), inner: R(.32, .6) }); return add({ life: o.life || .3, draw(c, k) { const R0 = Math.hypot(W, H); c.globalAlpha = (o.a || .8) * (1 - k); c.fillStyle = o.color || '#ffffff'; lines.forEach(l => { const ri = R0 * l.inner * (.85 + k * .3); c.beginPath(); c.moveTo(x + Math.cos(l.a - l.w) * R0, y + Math.sin(l.a - l.w) * R0); c.lineTo(x + Math.cos(l.a) * ri, y + Math.sin(l.a) * ri); c.lineTo(x + Math.cos(l.a + l.w) * R0, y + Math.sin(l.a + l.w) * R0); c.fill(); }); } }); },
+    speedLines(x, y, o) { o = o || {}; const n = o.n || 46, lines = []; for (let i = 0; i < n; i++) lines.push({ a: i / n * TAU + R(-.05, .05), w: R(.006, .022), inner: R(.32, .6) }); return add({ life: o.life || .3, draw(c, k) { const R0 = Math.hypot(SW, SH) / (S || 1); c.globalAlpha = (o.a || .8) * (1 - k); c.fillStyle = o.color || '#ffffff'; lines.forEach(l => { const ri = R0 * l.inner * (.85 + k * .3); c.beginPath(); c.moveTo(x + Math.cos(l.a - l.w) * R0, y + Math.sin(l.a - l.w) * R0); c.lineTo(x + Math.cos(l.a) * ri, y + Math.sin(l.a) * ri); c.lineTo(x + Math.cos(l.a + l.w) * R0, y + Math.sin(l.a + l.w) * R0); c.fill(); }); } }); },
     bolt(x1, y1, x2, y2, o) { o = o || {}; const col = o.color || '#8fd8ff'; let pts, forks, acc = 0; const mk = () => { pts = jag(x1, y1, x2, y2, 14, o.amp || 30); forks = [4, 8].map(i => { const b = pts[i]; return jag(b[0], b[1], b[0] + R(-80, 80), b[1] + R(10, 90), 6, 12); }); }; mk();
       P.glow(x2, y2, { color: col, r: 90, life: o.life || .35 });
       return add({ add: true, life: o.life || .35, draw(c, k, dt) { acc += dt; if (acc > .05) { acc = 0; mk(); } const a = k < .15 ? 1 : 1 - (k - .15) / .85; c.lineJoin = 'round'; c.lineCap = 'round';

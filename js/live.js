@@ -45,7 +45,12 @@ const LIVE = (function () {
   const usable = f => f.skills.map((s, i) => ({ s, i })).filter(x => x.s.pp > 0 && !x.s.locked);
   const autoIdx = f => { const u = usable(f); return u.length ? u[Math.floor(Math.random() * u.length)].i : -1; };
   /* 一位角色的行動（照 battle.js 的 executeAction，但不播放動畫） */
+  /* v129 洛克斯：出招前後的「無視」處理（rocksPre／rocksPost，見 ext_v129.js） */
   function act(actor, target, idx) {
+    const sk = idx === -1 ? null : actor.skills[idx], tok = sk && window.rocksPre ? rocksPre(actor, target, sk) : null;
+    try { return act0(actor, target, idx); } finally { if (tok) rocksPost(tok); }
+  }
+  function act0(actor, target, idx) {
     if (actor.hp <= 0) return; let skill = idx === -1 ? STRUGGLE : actor.skills[idx]; if (!skill || skill.pp <= 0 || skill.locked) { const a = autoIdx(actor); skill = a === -1 ? STRUGGLE : actor.skills[a]; }
     const unstoppable = !!(skill.effect && skill.effect.unstoppable), cc = !unstoppable && CC_KEYS.find(k => actor.status[k] > 0);
     if (cc) { actor.status[cc]--; log(`${actor.name} 陷入${ABN[cc].name}，這回合無法使用技能`); return; }
