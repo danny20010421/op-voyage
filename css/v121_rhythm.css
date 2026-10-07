@@ -42,3 +42,5 @@
 .rg-list .rg-uta{display:none}
 @media (max-height:500px) and (orientation:landscape){.rg-list .rg-uta{display:grid}.rg-meta .rg-uta{display:none}}
 @media (max-height:500px) and (orientation:landscape){.rg-meta .rg-go{position:sticky;bottom:0;z-index:2}.rg-meta .rg-go .btn-gold{box-shadow:0 -8px 16px rgba(8,10,22,.9)}}
+/* v122：手機直式歌曲清單橫向捲動，下一首露出一截，知道還有其他歌 */
+@media (max-width:860px) and (orientation:portrait),(max-width:600px){.rg-list{scroll-snap-type:x mandatory;gap:8px}.rg-list .rg-song{flex:0 0 min(320px,calc(100% - 56px));scroll-snap-align:start}}
