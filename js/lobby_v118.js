@@ -67,7 +67,11 @@
   function fitPick() { const lob = $('lobby'); if (!lob || MQ.matches) return; const rail = lob.querySelector('.l2-rail'), side = lob.querySelector('.l2-side'); if (!rail || !side) return;
     const r0 = lob.getBoundingClientRect(), a = rail.getBoundingClientRect(), b = side.getBoundingClientRect(); if (!a.width || !b.width) return;
     lob.style.setProperty('--pk-l', Math.round(a.right - r0.left + 8) + 'px'); lob.style.setProperty('--pk-r', Math.round(r0.right - b.left + 8) + 'px'); }
-  window.lobbyLayout118 = () => { layout(); fitPick(); };
+  /* v119 手機直式：左下角「主線」圓形按鈕（對應主線航路） */
+  function qbtn() { const lob = $('lobby'), mis = $('l2Mission'); if (!lob || !mis) return; let q = $('l2Qbtn');
+    if (!q) { q = document.createElement('button'); q.id = 'l2Qbtn'; q.className = 'l2-qbtn'; q.setAttribute('aria-label', '主線航路'); q.innerHTML = '<i aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M15.5 8.5l-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg></i><b>主線航路</b><small></small>'; q.onclick = () => mis.click(); lob.appendChild(q); }
+    const t = $('l2MissionT'); q.querySelector('small').textContent = t ? t.textContent : ''; }
+  window.lobbyLayout118 = () => { layout(); fitPick(); qbtn(); };
 
   window.addEventListener('DOMContentLoaded', () => {
     fixArrows(document.body);
@@ -76,8 +80,8 @@
     const say = $('l2Say'); if (say) say.addEventListener('click', () => say.classList.remove('show'));
     MQ.addEventListener ? MQ.addEventListener('change', () => { layout(); if (window.lobbySyncLayout) lobbySyncLayout(); }) : MQ.addListener(layout);
     addEventListener('resize', () => requestAnimationFrame(fitPick));
-    const rl = window.renderLobby; if (rl) window.renderLobby = function () { const r = rl.apply(this, arguments); try { layout(); evCtrl(); requestAnimationFrame(fitPick); } catch (e) { } return r; };
-    const om = window.openModes; if (om) window.openModes = function () { const r = om.apply(this, arguments); [0, 400, 900].forEach(t => setTimeout(() => { try { layout(); evCtrl(); fitPick(); } catch (e) { } }, t)); return r; };
+    const rl = window.renderLobby; if (rl) window.renderLobby = function () { const r = rl.apply(this, arguments); try { layout(); evCtrl(); qbtn(); requestAnimationFrame(fitPick); } catch (e) { } return r; };
+    const om = window.openModes; if (om) window.openModes = function () { const r = om.apply(this, arguments); [0, 400, 900].forEach(t => setTimeout(() => { try { layout(); evCtrl(); fitPick(); qbtn(); } catch (e) { } }, t)); return r; };
     const side = document.querySelector('#lobby .l2-side'); if (side) new MutationObserver(() => { if (MQ.matches) layout(); }).observe(side, { childList: true });
     const ev = $('lbEvent'); if (ev) new MutationObserver(evCtrl).observe(ev, { attributes: true, attributeFilter: ['data-pool'] });
   });

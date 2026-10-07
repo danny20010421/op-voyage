@@ -102,3 +102,7 @@
 #profileChip.pf2 .lbpf-txt small>em{flex:0 0 auto;max-width:100%}
 #profileChip.pf2 .lbpf-id{flex:0 1 auto!important;min-width:0;overflow:hidden}
 #profileChip .lbpf-txt .lbpf-vip{display:inline-flex!important;flex-direction:row!important;align-items:center!important;place-items:unset!important;gap:4px}
+/* v119：VIP 小牌整個用 SVG 繪製（王冠與文字在同一個座標系統，垂直水平置中） */
+#profileChip .lbpf-txt .lbpf-vip{display:inline-grid!important;place-items:center!important;width:64px!important;height:24px!important;padding:0!important;gap:0}
+#profileChip .lbpf-vip .vipsvg{display:block;width:64px;height:24px;fill:none;stroke:none}
+@media (max-width:760px) and (orientation:portrait){#profileChip .lbpf-txt .lbpf-vip{width:56px!important;height:21px!important}#profileChip .lbpf-vip .vipsvg{width:56px;height:21px}}
