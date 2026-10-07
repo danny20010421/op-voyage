@@ -22,7 +22,7 @@
 .rg-warn i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#ff3a6a;color:#fff;font:900 15px/1 var(--sans);font-style:normal}
 .rg-warn.on{opacity:1;transform:translate(-50%,0);animation:rgWarn .35s ease-in-out infinite alternate}
 @keyframes rgWarn{to{box-shadow:0 0 40px rgba(255,90,210,.95)}}
-.rg-flash.wave{background:radial-gradient(90% 90% at 20% 20%,rgba(255,120,220,.35),transparent 60%),radial-gradient(80% 80% at 50% 50%,transparent 55%,rgba(255,60,160,.5));animation:rgFlash .5s ease-out}
+.rg-flash.wave{background:radial-gradient(90% 90% at 20% 20%,rgba(255,120,220,.2),transparent 60%),radial-gradient(80% 80% at 50% 50%,transparent 60%,rgba(255,60,160,.28));animation:rgFlash .5s ease-out}
 .rg-flash.demon{background:radial-gradient(70% 70% at 25% 30%,rgba(255,80,200,.7),rgba(80,0,60,.6) 60%,rgba(20,0,20,.7));animation:rgFlash 1s ease-out}
 .rg-banner.boss{background:linear-gradient(90deg,#b0207a,#6a22c8);box-shadow:0 0 24px rgba(255,90,210,.6)}
 .rg-banner.boss.big{font-size:24px;padding:12px 32px}

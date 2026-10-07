@@ -485,3 +485,5 @@
 .b-typebar{transition:top .2s}
 @media (min-width:861px) and (max-width:1240px) and (min-height:521px){#dialog.has-bust{padding-left:286px!important}}
 @media (max-height:520px){#bTicker{display:none!important}}
+/* v126：遊戲特色 9 張卡片在兩欄時，最後一張橫跨整列，不留單獨的空格 */
+@media (max-width:860px) and (min-width:421px){.feat-grid .feat:last-child:nth-child(odd){grid-column:1/-1}}

@@ -256,7 +256,7 @@
     for (const n of G.notes) { if (n.done) continue; if (n.t - G.t > 1000) break;
       if (!n.hit && G.t - n.t > WIN.o) { n.done = true; miss(n); continue; }
       if (n.k === 1 && n.hit && n.holding && G.t >= n.t + n.d - 60) { n.done = true; n.holding = false; tailOk(n); }
-      if (n.k === 1 && n.hit && n.holding && Math.random() < .35) spark(laneX(n.l), G.jy, noteCol(n), 1, 2);
+      if (n.k === 1 && n.hit && n.holding && Math.random() < .15) spark(laneX(n.l), G.jy, noteCol(n), 1, 2);
       if (n.k === 1 && n.hit && !n.holding && !n.done) { n.done = true; }
       if (n.k !== 1 && n.hit) n.done = true; }
     if (G && !G.over) draw();
@@ -292,7 +292,7 @@
   function bossAttack(kind) {
     const now = performance.now();
     if (kind === 'wave') { const dmg = G.B.wave + (G.demon ? 2 : 0), guard = G.combo >= 30, d = guard ? Math.ceil(dmg / 2) : dmg; G.hp = Math.max(0, G.hp - d);
-      G.waves.push({ t0: now }); flash('wave'); G.shake = Math.max(G.shake, 12); hitSnd('m');
+      G.waves.push({ t0: now }); flash('wave'); G.shake = Math.max(G.shake, 5); hitSnd('m');
       G.judge = { txt: guard ? 'GUARD' : `-${d} LIFE`, c: guard ? '#8affb0' : '#ff6a9a', a: 1, sub: guard ? `COMBO ${G.combo} 護盾：傷害減半（-${d}）` : '歌聲衝擊！' }; hud(); if (G.hp <= 0) finish(true); }
     else if (kind === 'fog') { G.fogUntil = G.t + 4200; G.fogAt = performance.now(); banner('催眠歌聲：遠方被音符之霧遮住了！', 'boss'); }
     else if (kind === 'staff') { G.staffUntil = G.t + 4500; G.staffAt = performance.now(); banner('五線譜束縛：音符加速！', 'boss'); }
@@ -300,7 +300,7 @@
   /* HARD：美音體力剩一半「魔王降臨」——畫面轉為血紅、魔王覺醒、攻擊更頻繁 */
   function demonCheck() { if (!G.B.demon || G.demon || G.defeated || G.ehp > G.emax * .5) return; G.demon = true; G.root.classList.add('demon');
     if (G.bossEl) G.bossEl.classList.add('demon'); if (G.utaImg) G.utaImg.src = STAGE + 'uta_stage_demon.webp?v=123'; const av = $('rgFoeAv'); if (av) av.src = DEMON_FACE;
-    flash('demon'); G.shake = 18; banner('魔王降臨！美音召喚了魔王', 'boss big'); G.nextAtk = Math.min(G.nextAtk, G.t + G.beat * 6); }
+    flash('demon'); G.shake = 8; banner('魔王降臨！美音召喚了魔王', 'boss big'); G.nextAtk = Math.min(G.nextAtk, G.t + G.beat * 6); }
 
   /* 音符顏色：外側兩軌青色、內側兩軌桃紅（參考圖）；長按紫、滑動金 */
   const NOTE_COL = ['#5ae8ff', '#ff5ad8', '#ff5ad8', '#5ae8ff'];
@@ -329,8 +329,9 @@
     /* 按下的音軌：光柱 */
     for (let l = 0; l < 4; l++) if (G.press[l] > 0) { const a = Math.min(1, G.press[l]), c = NOTE_COL[l]; const lg = cx.createLinearGradient(0, jy, 0, far + (jy - far) * .2); lg.addColorStop(0, hexA(c, .4 * a)); lg.addColorStop(1, hexA(c, 0)); cx.fillStyle = lg; quad(l, l + 1, SF, 1, far, jy); cx.fill(); G.press[l] = Math.max(0, G.press[l] - .07); }
     cx.globalCompositeOperation = 'lighter';
-    for (let l = 0; l < 4; l++) if (G.beams[l] > 0) { const a = G.beams[l], c = G.beamC[l]; const lg = cx.createLinearGradient(0, jy, 0, far); lg.addColorStop(0, hexA(c, .6 * a)); lg.addColorStop(.5, hexA(c, .14 * a)); lg.addColorStop(1, hexA(c, 0)); cx.fillStyle = lg;
-      const sh = (1 - a) * .25; quad(l + sh, l + 1 - sh, SF, 1, far, jy); cx.fill(); cx.fillStyle = hexA('#ffffff', .4 * a); const zt = 1 - a; quad(l + .44, l + .56, sAt(zt), 1, yAt(zt), jy); cx.fill(); G.beams[l] = Math.max(0, a - .07); }
+    /* v126：打中時的光柱只亮在音軌下段（約 30%），不再往上衝過整條音軌、也沒有白色閃線——避免遮住後面的音符 */
+    for (let l = 0; l < 4; l++) if (G.beams[l] > 0) { const a = G.beams[l], c = G.beamC[l], zT = .3, yT = yAt(zT); const lg = cx.createLinearGradient(0, jy, 0, yT); lg.addColorStop(0, hexA(c, .32 * a)); lg.addColorStop(1, hexA(c, 0)); cx.fillStyle = lg;
+      const sh = (1 - a) * .2; quad(l + sh, l + 1 - sh, sAt(zT), 1, yT, jy); cx.fill(); G.beams[l] = Math.max(0, a - .09); }
     cx.globalCompositeOperation = 'source-over';
     /* 判定線：橫跨整個畫面的霓虹線 */
     { const lg = cx.createLinearGradient(0, 0, W, 0); lg.addColorStop(0, hexA(NEON, 0)); lg.addColorStop(.12, hexA(NEON, .9)); lg.addColorStop(.5, '#ffffff'); lg.addColorStop(.88, hexA(NEON, .9)); lg.addColorStop(1, hexA(NEON, 0));
@@ -360,18 +361,17 @@
       cx.font = `900 ${Math.round(lw * .05)}px system-ui,sans-serif`; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillStyle = `rgba(255,190,240,${.7 * a})`;
       for (let i = 0; i < 7; i++) { const k = ((G.t / 1600 + i / 7) % 1), zz = 1 - G.B.fog * k, s = sAt(zz); cx.fillText(i % 2 ? '♪' : '♫', xAt((i * 1.37) % 4 + .2, s), yAt(zz) - 8 * Math.sin(G.t / 300 + i)); } } }
     /* 五線譜束縛：五條發光的譜線橫跨音軌 */
-    if (G.t < G.staffUntil + 400 && G.staffAt != null) { const a = Math.min(1, (performance.now() - G.staffAt) / 250, (G.staffUntil + 400 - G.t) / 400); if (a > 0) { cx.save(); cx.globalCompositeOperation = 'lighter'; cx.strokeStyle = `rgba(255,120,220,${.55 * a})`; cx.shadowColor = '#ff6ad5'; cx.shadowBlur = 10; cx.lineWidth = 2;
-      for (let i = 0; i < 5; i++) { const z = .35 + i * .08, s = sAt(z), yy = yAt(z); cx.beginPath(); for (let k = 0; k <= 24; k++) { const b = -.2 + 4.4 * k / 24, xx = xAt(b, s), wv = Math.sin(k * .7 + G.t / 180 + i) * 4 * s; k ? cx.lineTo(xx, yy + wv) : cx.moveTo(xx, yy + wv); } cx.stroke(); } cx.restore(); } }
+    if (G.t < G.staffUntil + 400 && G.staffAt != null) { const a = Math.min(1, (performance.now() - G.staffAt) / 250, (G.staffUntil + 400 - G.t) / 400); if (a > 0) { cx.save(); cx.strokeStyle = `rgba(255,150,230,${.32 * a})`; cx.lineWidth = 1.5; /* v126：譜線變淡、不發光，不干擾看音符 */
+      for (let i = 0; i < 5; i++) { const z = .62 + i * .07, s = sAt(z), yy = yAt(z); cx.beginPath(); for (let k = 0; k <= 24; k++) { const b = -.2 + 4.4 * k / 24, xx = xAt(b, s), wv = Math.sin(k * .7 + G.t / 400 + i) * 2.5 * s; k ? cx.lineTo(xx, yy + wv) : cx.moveTo(xx, yy + wv); } cx.stroke(); } cx.restore(); } }
     /* 擴散光環與光芒 */
-    G.fx = G.fx.filter(f => (f.a -= .045) > 0);
+    G.fx = G.fx.filter(f => (f.a -= .07) > 0);
     cx.globalCompositeOperation = 'lighter';
-    for (const f of G.fx) { const k = 1 - f.a; cx.globalAlpha = f.a; cx.strokeStyle = f.c; cx.lineWidth = 2 + 4 * f.a; cx.beginPath(); cx.ellipse(f.x, jy, k * (f.big ? 70 : 44) + 12, (k * (f.big ? 70 : 44) + 12) * .36, 0, 0, Math.PI * 2); cx.stroke();
-      if (f.big) { cx.lineWidth = 2; cx.beginPath(); for (let i = 0; i < 10; i++) { const an = i / 10 * Math.PI * 2 + f.r, r1 = 10 + k * 24, r2 = 30 + k * 100; cx.moveTo(f.x + Math.cos(an) * r1, jy + Math.sin(an) * r1 * .5); cx.lineTo(f.x + Math.cos(an) * r2, jy + Math.sin(an) * r2 * .5); } cx.stroke();
-        const rg = cx.createRadialGradient(f.x, jy, 0, f.x, jy, 60); rg.addColorStop(0, hexA('#ffffff', .9 * f.a)); rg.addColorStop(.3, hexA(f.c, .5 * f.a)); rg.addColorStop(1, hexA(f.c, 0)); cx.fillStyle = rg; cx.fillRect(f.x - 60, jy - 60, 120, 120); } }
+    for (const f of G.fx) { const k = 1 - f.a; cx.globalAlpha = f.a; cx.strokeStyle = f.c; cx.lineWidth = 1.5 + 2.5 * f.a; cx.beginPath(); cx.ellipse(f.x, jy, k * (f.big ? 44 : 30) + 12, (k * (f.big ? 44 : 30) + 12) * .36, 0, 0, Math.PI * 2); cx.stroke();
+      if (f.big) { const rg = cx.createRadialGradient(f.x, jy, 0, f.x, jy, 36); rg.addColorStop(0, hexA('#ffffff', .55 * f.a)); rg.addColorStop(.4, hexA(f.c, .3 * f.a)); rg.addColorStop(1, hexA(f.c, 0)); cx.fillStyle = rg; cx.fillRect(f.x - 36, jy - 36, 72, 72); } } /* v126：拿掉放射狀的閃電線 */
     /* 歌聲衝擊：從美音身上擴散的衝擊波 */
     const now = performance.now(); G.waves = G.waves.filter(w => now - w.t0 < 700);
     for (const w of G.waves) { const k = (now - w.t0) / 700, bx = G.W / 2, by = G.H * .3, R = Math.hypot(G.W, G.H) * k;
-      cx.globalAlpha = 1 - k; cx.strokeStyle = demon ? '#ff4a6a' : '#ff8ae0'; cx.lineWidth = 14 * (1 - k) + 2; cx.beginPath(); cx.arc(bx, by, R, 0, Math.PI * 2); cx.stroke(); cx.lineWidth = 3; cx.beginPath(); cx.arc(bx, by, R * .8, 0, Math.PI * 2); cx.stroke(); }
+      cx.globalAlpha = (1 - k) * .55; cx.strokeStyle = demon ? '#ff4a6a' : '#ff8ae0'; cx.lineWidth = 6 * (1 - k) + 1.5; cx.beginPath(); cx.arc(bx, by, R, 0, Math.PI * 2); cx.stroke(); }
     /* 粒子 */
     G.parts = G.parts.filter(p => (p.life -= p.dl) > 0);
     for (const p of G.parts) { p.x += p.vx; p.y += p.vy; p.vy += .35; p.vx *= .97; cx.globalAlpha = Math.min(1, p.life * 1.4); cx.fillStyle = p.c; const s = p.s * (.5 + p.life * .5); cx.fillRect(p.x - s / 2, p.y - s / 2, s, s); }
@@ -401,13 +401,12 @@
     const dmg = JW[j] * (1 + Math.min(G.combo, 100) / 100) * (feverOn() ? 2 : 1); G.ehp = Math.max(0, G.ehp - dmg); feverGain(j === 'p' ? 1.5 : j === 'g' ? 1 : .5);
     const x = laneX(n.l), c = JTXT[j][1];
     G.judge = { txt: JTXT[j][0], c, a: 1 }; G.fx.push({ x, c, a: 1, r: Math.random() * 6, big: j === 'p' });
-    G.beams[n.l] = 1; G.beamC[n.l] = j === 'p' ? '#ffe866' : noteCol(n);
-    spark(x, G.jy, c, j === 'p' ? 18 : j === 'g' ? 11 : 6, j === 'p' ? 7 : 5);
-    if (j === 'p') G.shake = Math.max(G.shake, 4 + Math.min(6, G.combo / 40));
+    G.beams[n.l] = .7; G.beamC[n.l] = j === 'p' ? '#ffe866' : noteCol(n);
+    spark(x, G.jy, c, j === 'p' ? 7 : j === 'g' ? 4 : 2, j === 'p' ? 4.5 : 3.5); /* v126：粒子減量、PERFECT 不再震動畫面 */
     hitSnd(n.k === 2 ? 'f' : j);
     bossHit(dmg, j); demonCheck();
-    if (!G.defeated && G.ehp <= 0) { G.defeated = true; G.bossEl && G.bossEl.classList.add('down'); flash('gold'); G.shake = 16; banner(`擊敗了 ${CHARACTERS[G.foe].name}！`, 'win'); setWarn(null); }
-    if (G.combo % 50 === 0) { flash('gold'); G.shake = Math.max(G.shake, 10); banner(`${G.combo} COMBO!`); try { typeof SFX !== 'undefined' && SFX.play('coin'); } catch (e) { } }
+    if (!G.defeated && G.ehp <= 0) { G.defeated = true; G.bossEl && G.bossEl.classList.add('down'); flash('gold'); G.shake = 6; banner(`擊敗了 ${CHARACTERS[G.foe].name}！`, 'win'); setWarn(null); }
+    if (G.combo % 50 === 0) { banner(`${G.combo} COMBO!`); try { typeof SFX !== 'undefined' && SFX.play('coin'); } catch (e) { } }
     hud(true);
   }
   /* BOSS 受擊：美音閃白抖動＋傷害數字 */
@@ -420,11 +419,11 @@
   }
   function flash(kind) { const f = $('rgFlash'); if (!f) return; f.className = 'rg-flash'; void f.offsetWidth; f.className = 'rg-flash ' + kind; }
   function miss(n, quiet) { const had = G.combo; G.cnt.m++; G.combo = 0; G.hp = Math.max(0, G.hp - G.missPen); if (!feverOn()) G.fever = Math.max(0, G.fever - 15);
-    if (!quiet) { G.judge = { txt: 'MISS', c: JTXT.m[1], a: 1, sub: had >= 10 ? `COMBO ${had} 中斷` : '' }; flash('miss'); hitSnd('m'); G.shake = Math.max(G.shake, 6); }
+    if (!quiet) { G.judge = { txt: 'MISS', c: JTXT.m[1], a: 1, sub: had >= 10 ? `COMBO ${had} 中斷` : '' }; flash('miss'); hitSnd('m'); G.shake = Math.max(G.shake, 3); }
     hud(); if (G.hp <= 0) finish(true); }
   /* 長按完成（按滿 70% 以上）：整個長按音符算 PERFECT——按下時若是 GREAT／GOOD，改記為 PERFECT 並補分數 */
   function tailOk(n) { if (n.j && n.j !== 'p') { G.cnt[n.j]--; G.cnt.p++; G.score += 900000 / G.N * (1 - JW[n.j]); n.j = 'p'; }
-    G.judge = { txt: 'PERFECT', c: JTXT.p[1], a: 1, sub: '長按完成' }; spark(laneX(n.l), G.jy, '#e0c0ff', 12, 6); G.beams[n.l] = .9; G.beamC[n.l] = '#ffe866'; hitSnd('p'); hud(); }
+    G.judge = { txt: 'PERFECT', c: JTXT.p[1], a: 1, sub: '長按完成' }; spark(laneX(n.l), G.jy, '#e0c0ff', 5, 4); G.beams[n.l] = .6; G.beamC[n.l] = '#ffe866'; hitSnd('p'); hud(); }
   /* 星星：分數達 50 萬、75 萬、90 萬各亮一顆 */
   const STAR_AT = [500000, 750000, 900000];
   function hud(pop) { const h = $('rgHp'), e = $('rgEhp'), s = $('rgScore'), c = G.comboEl, f = $('rgFever'); if (h) { h.style.height = G.hp + '%'; h.classList.toggle('low', G.hp < 30); } if (e) e.style.width = (G.ehp / G.emax * 100) + '%';

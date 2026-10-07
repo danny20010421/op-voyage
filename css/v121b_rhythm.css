@@ -75,7 +75,7 @@
 .rgx-fever .rgx-vbar{height:144px}
 .rgx-fever .rgx-vbar i{background:linear-gradient(0deg,#ff4ad2,#ffd86a)}
 .rgx.fever .rgx-fever .rgx-vbar{border-color:#ffd86a;box-shadow:0 0 16px #ffd86a}
-.rgx.fever::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(120% 90% at 50% 100%,transparent 55%,rgba(255,210,90,.28));animation:rgxFever .5s ease-in-out infinite alternate}
+.rgx.fever::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(120% 90% at 50% 100%,transparent 55%,rgba(255,210,90,.16));animation:rgxFever 1.6s ease-in-out infinite alternate}
 @keyframes rgxFever{to{opacity:.4}}
 .rg-banner.fever{background:linear-gradient(90deg,#ff8a2a,#ffd86a);color:#3a1a00;box-shadow:0 0 24px rgba(255,200,80,.8)}
 /* 魔王降臨：整體轉為血紅 */

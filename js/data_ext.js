@@ -341,6 +341,7 @@
   DEFAULT_NEWS.unshift({ id: 'd1045', date: '2026-10-07', tag: '更新', title: '歌姬挑戰新歌〈私は最強〉', body: '・新增 Ado〈私は最強〉：EASY 4／NORMAL 8／HARD 12\n・又多一首歌可以拿美音碎片（每首歌第一次 S 以上 +20 片）' });
   DEFAULT_NEWS.unshift({ id: 'd1046', date: '2026-10-07', tag: '修正', title: '歌姬挑戰：修正點擊閃爍、音軌加長', body: '・修正手機點擊音軌時畫面會閃一下黑色\n・音軌加長、音符移動變慢，有更多時間看清楚音符\n・背景的美音會跟著節拍上下晃動' });
   DEFAULT_NEWS.unshift({ id: 'd1047', date: '2026-10-07', tag: '更新', title: '登島 3D 場景更精細・歌姬挑戰音軌調整', body: '・登島場景：地形更細緻平滑、樹木與柱子更圓、地面與牆面有深淺紋理、柔邊陰影、草叢更茂密、地面多了小石子（設定頁可切換低畫質）\n・歌姬挑戰：音軌遠端下移到美音胸部，不再遮住臉' });
+  DEFAULT_NEWS.unshift({ id: 'd1048', date: '2026-10-07', tag: '修正', title: '歌姬挑戰：特效減量，音符更清楚', body: '・打中音符的光柱只亮在音軌下方，不再遮住後面的音符\n・拿掉閃電狀的放射線，粒子與光暈縮小\n・PERFECT 與 50 COMBO 不再震動畫面、閃金光\n・美音的攻擊特效變淡\n・登入頁的遊戲介紹與遊戲特色已更新' });
   /* 東海篇：斧手摩根改用專屬造型（金色短髮、鐵下巴、斧頭手、海軍大衣） */
   { const E = CHAPTERS.find(c => c.id === 'east'); const m = E && E.npcs.find(n => n.id === 'morgan_n'); if (m) m.look = 'morgan'; }
   /* 白鬍子新立繪 */ CHARACTERS.whitebeard.image = 'assets/chars/whitebeard.webp?v=78'; CHARACTERS.whitebeard.ultimateBg = CHARACTERS.whitebeard.image;

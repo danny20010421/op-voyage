@@ -4,14 +4,16 @@
   function tick() { const el = $('newsClock'); if (!el) return; const d = new Date(); el.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; el.dateTime = d.toISOString(); }
   function homePanel(title, html, after) { $('homeTitle').textContent = title; $('homeBody').innerHTML = html; openModal('homeModal'); if (after) after($('homeBody')); }
 
-  const FEATURES = [
-    ['🏝️', `${CHAPTERS.length} 座傳說之島`, `從東海的風車村到艾爾巴夫，依原作時間線展開 ${CHAPTERS.length} 個篇章：頂上戰爭、蛋糕島、和之國……每座島的地形、路線、支線與小 BOSS 都不同。`],
-    ['⚔️', '回合制對戰', '12 種屬性相剋、異常狀態、能力階級、羈絆加成與奧義。最多 3 人陣容，倒下時換人接力；洛基、馬爾科、莫莉亞等角色還會在戰鬥中變身。'],
-    ['⚓', '船員收藏與培養', `${Object.keys(CHARACTERS).length} 位角色、R／SR／SSR／UR 稀有度與圖鑑羈絆；用經驗書、訓練營與掃蕩培養陣容，還能替角色換上不同的皮膚立繪。`],
-    ['🎰', '懸賞處', '一般召喚（150 抽保底）與限定活動池、每日與高級懸賞、道具商店；重複的船員可以交給海軍本部換貝里。'],
-    ['🗺️', '拉夫德魯之路', '在寶藏日誌裡解讀各島的歷史本文石碑，集齊之後挑戰最終之島的三連戰。'],
-    ['📜', '原作劇情', '依原作改寫的劇情任務：潛入、護送、限時路線、奪鑰、推理、小 BOSS 對決與支線，還有序章與尾聲。'],
-    ['🎁', '每日冒險', '七日登入獎勵、每日懸賞、掃蕩卷補給，還有奪寶大冒險、勇者之塔與虛空王座等挑戰模式。']
+  const FEATURES = [ /* v126 更新：加入 3D 登島、皇帝領海、歌姬挑戰、船團與好友；稀有度改為十階 */
+    ['🏝️', `${CHAPTERS.length} 座 3D 傳說之島`, `從東海的風車村到艾爾巴夫，依原作時間線展開 ${CHAPTERS.length} 個篇章。島上可以自由探索、跳躍、爬樓梯、走進建築，每座島的地形、路線、支線與小 BOSS 都不同。`],
+    ['📜', '原作劇情', '依原作改寫的劇情任務：潛入、護送、限時路線、奪鑰、推理、小 BOSS 對決與支線，每章都有序章與尾聲，說話的角色會以立繪登場。'],
+    ['⚔️', '回合制對戰', '12 種屬性相剋、異常狀態、能力階級、羈絆加成與奧義。最多 3 人陣容，倒下時換人接力；部分角色還會在戰鬥中變身。'],
+    ['⚓', '船員收藏與培養', `${Object.keys(CHARACTERS).length} 位角色，稀有度從 C 到 UR++ 共十階；用經驗書、訓練營與掃蕩培養陣容，還能替角色換上不同的皮膚立繪。`],
+    ['👑', '皇帝領海', '連戰四皇的隊長、擊破皇帝的分身，最後挑戰四皇真身；勝利就能讓四皇加入你的船隊。'],
+    ['🎤', '歌姬挑戰', '跟著 Ado〈新時代〉〈私は最強〉的節奏點擊、長按、滑動四條音軌，擊敗 BOSS 美音；每首歌拿到 S 評分就能獲得美音碎片。'],
+    ['🎰', '懸賞處與限定召喚', '一般召喚（150 抽保底）與依檔期開放的限定召喚、每日與高級懸賞、道具商店；限定召喚可以集碎片換角色。'],
+    ['🤝', '船團與好友', '登入帳號使用雲端存檔；加好友送禮、留言、即時對戰，和船團夥伴一起挑戰船團 BOSS。'],
+    ['🎁', '每日冒險', '七日登入、每日懸賞、掃蕩補給，還有拉夫德魯之路、奪寶大冒險、勇者之塔與虛空王座等挑戰模式。']
   ];
   function features() { homePanel('遊戲特色', `<div class="feat-grid">${FEATURES.map(f => `<article class="feat"><i aria-hidden="true">${f[0]}</i><h3>${f[1]}</h3><p>${f[2]}</p></article>`).join('')}</div><div class="home-cta"><button class="btn-primary big" data-go="start">揚帆出航</button></div>`, b => { b.querySelector('[data-go=start]').onclick = () => { closeModal('homeModal'); $('startBtn').click(); }; }); }
   function community() {

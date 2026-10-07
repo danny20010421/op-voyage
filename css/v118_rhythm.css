@@ -107,7 +107,7 @@ body.rg-open{overflow:hidden}
 .rg-cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none}
 .rg-flash{position:absolute;inset:0;pointer-events:none;opacity:0}
 .rg-flash.gold{background:radial-gradient(60% 60% at 50% 60%,rgba(255,230,120,.45),rgba(255,200,60,.15) 60%,transparent);animation:rgFlash .45s ease-out}
-.rg-flash.miss{background:radial-gradient(80% 80% at 50% 50%,transparent 55%,rgba(255,40,70,.55));animation:rgFlash .35s ease-out}
+.rg-flash.miss{background:radial-gradient(80% 80% at 50% 50%,transparent 55%,rgba(255,40,70,.3));animation:rgFlash .35s ease-out}
 @keyframes rgFlash{0%{opacity:1}100%{opacity:0}}
 /* HUD：中央歌名永遠置中；左右寬度相同 */
 .rg-hud{position:absolute;left:0;right:0;top:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,auto) minmax(0,1fr);align-items:center;gap:16px;padding:calc(12px + var(--safeT,0px)) 72px 0 16px;pointer-events:none}
