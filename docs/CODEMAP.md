@@ -17,7 +17,9 @@
 - `js/story_ext.js`: F:為 13 篇章補對話、序章、尾聲與支線 | R:data.js | A:- | S:只能「加對話」不能增減任務步驟，否則舊存檔的任務進度會錯位
 
 - `js/lobby_v118.js`: F:箭頭換 SVG（fixArrows）、點船長說話、限定召喚輪播控制、電腦版兩欄（搬移 DOM，.l2-colL/.l2-colR） | S:lobby.js 的 __lbEvNext 提供切換
-- `js/rhythm_v118.js`＋`js/rhythm_charts.js`: F:歌姬劇場（openRhythm），譜面 [ms, lane, 種類, 長按ms]；SAVE.data.rhythm | S:新歌用 tools/rhythm_beatmap.py 產生、tools/rhythm_lanes.py 分配軌道後加入 RHYTHM_SONGS；開啟時呼叫 MUSIC.hold(true) 停止背景音樂（js/music.js），關閉時 hold(false)；RHYTHM._auto(ms) 為測試用自動演奏
+- `js/rhythm_v118.js`＋`js/rhythm_charts.js`＋`css/v121_rhythm.css`: F:歌姬挑戰（openRhythm；v121 由歌姬劇場改名），譜面 [ms, lane, 種類, 長按ms]；SAVE.data.rhythm（best、uta＝美音碎片 {shards, cycle, total}）；固定 BOSS 美音 BOSS_CFG（依難度的體力、攻擊間隔、歌聲衝擊／催眠霧／五線譜束縛、HARD 魔王降臨）；半立體音軌（SF 遠端縮放、sAt/yAt/xAt 透視、laneOf(x,y) 依觸控高度換算軌道）；RHYTHM_UTA、renderShardPane 加上美音 | S:新歌用 tools/rhythm_chart_v121.py 產生（舊的 rhythm_beatmap.py／rhythm_lanes.py 不再使用）；開啟時呼叫 MUSIC.hold(true) 停止背景音樂（js/music.js），關閉時 hold(false)；RHYTHM._auto(ms) 自動演奏、_atk(種類)、_warn、_demon 為測試用；霧與束縛的淡入用 performance.now（歌曲時鐘在部分裝置會跳格）
+- `js/roster_v121.js`／`ext_v121.js`／`fx_v121.js`: F:美音（uta，紅髮海賊團第 1 位）與效果 noteBurst、utaStunBonus、utaDemon（召喚魔王：倒下復活一次、反彈、詛咒）；utaRise(f) 給 battle.js（包住 checkBattleEnd）與 live.js（rise）共用；applyDamage 包裝處理詛咒 | S:roster_v121 必須在 roster_v91 之前載入；第 5 招有 formImage，屬於變身招式（fx_v104 transformFx）
+- `js/lobby_v121.js`＋`css/v121.css`: F:手機直式大廳的船長對話框放到左下空白處（量測左側圖示欄、右側欄、限定召喚橫條；放不下依序改縮小版、兩欄之間、限定召喚正上方） | A:lobbyPlaceSay
 - `js/roster_v118.js`／`ext_v118.js`／`fx_v118.js`: F:尼卡魯夫（luffy_nika）與效果 dmgToShield、nikaThunder（battle.js 的 onEvaded 掛鉤）、nikaTeamHeal、nikaTriple、nikaLegacy
 - `js/bag_v116.js`: F:背包 openBag（取代 app.js 版；分類 CAT_OF、獲取方式 SRC/GO、使用 USE）、頭像快取參數 FACES、橫式立繪偵測（.cer-char/.cx-art img 加 .wide） | S:vip_v115 之後載入；新道具要補 CAT_OF 與 SRC
 - `css/v116.css`: F:背包 .bg2-*、船團 .gl-*（舊 .gd-card/.gd-wrap 是新手導覽的類別，船團不要再用）

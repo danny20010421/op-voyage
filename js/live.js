@@ -67,7 +67,7 @@ const LIVE = (function () {
     }
   }
   /* 倒下時的復活效果（不死鳥、最初的20人） */
-  function rise(f) { if (f.hp > 0) return; if (f.status.undyingTurns > 0) { f.status.undyingTurns = 0; f.hp = f.maxHp; f.status.dots = []; log(`🐦 ${f.name} 從青色的火焰中重生，體力全滿！`); return; } if (f.status.lives > 0) { f.status.lives--; f.hp = f.maxHp; f.status.dots = []; log(`👑 ${f.name} 再次站了起來！`); } }
+  function rise(f) { if (f.hp > 0) return; if (window.utaRise && utaRise(f)) return; /* v121 美音：召喚魔王的復活 */ if (f.status.undyingTurns > 0) { f.status.undyingTurns = 0; f.hp = f.maxHp; f.status.dots = []; log(`🐦 ${f.name} 從青色的火焰中重生，體力全滿！`); return; } if (f.status.lives > 0) { f.status.lives--; f.hp = f.maxHp; f.status.dots = []; log(`👑 ${f.name} 再次站了起來！`); } }
   const alive = T => T.some(f => f.hp > 0);
   function setCtx(side) { const me = side === 'h' ? H() : G(), op = side === 'h' ? G() : H(); sim.b.player = me; sim.b.enemy = op; sim.b.team = side === 'h' ? sim.H : sim.G; sim.b.pi = side === 'h' ? sim.hi : sim.gi; }
   function swap(side, k) { const T = side === 'h' ? sim.H : sim.G, cur = side === 'h' ? sim.hi : sim.gi; if (k === cur || !T[k] || T[k].hp <= 0) return false; if (side === 'h') sim.hi = k; else sim.gi = k; const f = T[k]; if (f.__dadPending && window.grantDad) { f.__dadPending = false; grantDad(f); } log(`🔁 ${T[cur].name} 退下，${f.name} 上場！`); return true; }

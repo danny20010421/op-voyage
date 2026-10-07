@@ -47,7 +47,7 @@ with sync_playwright() as p:
     A.wait_for_timeout(2500)
     print('A battle:', A.evaluate("()=>document.querySelector('.lv-body').innerText.slice(0,120).replace(/\\n/g,' | ')"))
     print('B battle:', B.evaluate("()=>document.querySelector('.lv-body').innerText.slice(0,120).replace(/\\n/g,' | ')"))
-    A.screenshot(path=os.path.join(HERE,'shots','liveA.png'); B.screenshot(path=os.path.join(HERE,'shots','liveB.png')
+    A.screenshot(path=os.path.join(HERE,'shots','liveA.png')); B.screenshot(path=os.path.join(HERE,'shots','liveB.png'))
     B.evaluate("()=>document.querySelector('[data-emo=\"1\"]').click()"); A.wait_for_timeout(1200)
     print('A bubble:', A.evaluate("()=>{const b=document.querySelector('.lv-f.op .lv-bubble'); return b?b.textContent:'none'}"))
     # 觀戰者 C
@@ -72,7 +72,7 @@ with sync_playwright() as p:
         print('turn',r[:160])
     print('A end:', A.evaluate("()=>document.querySelector('.lv-body').innerText.slice(-80).replace(/\\n/g,' | ')"))
     print('B end:', B.evaluate("()=>document.querySelector('.lv-body').innerText.slice(-80).replace(/\\n/g,' | ')"))
-    A.screenshot(path=os.path.join(HERE,'shots','liveA2.png'); B.screenshot(path=os.path.join(HERE,'shots','liveB2.png'); C.screenshot(path=os.path.join(HERE,'shots','liveC.png')
+    A.screenshot(path=os.path.join(HERE,'shots','liveA2.png')); B.screenshot(path=os.path.join(HERE,'shots','liveB2.png')); C.screenshot(path=os.path.join(HERE,'shots','liveC.png'))
     print('C end:', C.evaluate("()=>document.querySelector('.lv-body').innerText.slice(-60).replace(/\\n/g,' | ')"))
     A.evaluate("()=>document.querySelector('[data-a=rematch]').click()"); A.wait_for_timeout(1500)
     print('rematch A:', A.evaluate("()=>document.querySelector('.lv-body').innerText.slice(0,30)"), ' B pop:', B.evaluate("()=>{const p=document.querySelector('.lv-pop'); return p?p.innerText.slice(0,20):'none'}"))

@@ -1,0 +1,16 @@
+/* v121：手機直式大廳的船長對話框改到左下空白處（位置由 js/lobby_v121.js 量測後寫入 --sayL／--sayT／--sayW） */
+@media (max-width:900px) and (orientation:portrait){
+  #lobby.say-dock .l2-say.show{transition:opacity .3s,transform .3s!important;left:var(--sayL)!important;top:var(--sayT)!important;right:auto!important;bottom:auto!important;width:var(--sayW)!important;max-width:none!important;
+    transform:translateY(8px)!important;box-sizing:border-box;min-height:64px;padding:8px 16px!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}
+  #lobby.say-dock .l2-say.show.in{transform:none!important}
+  #lobby.say-dock .l2-say.show::before{display:none}
+  #lobby.say-dock .l2-say.show b{margin:0;font-size:12px;line-height:16px}
+  #lobby.say-dock .l2-say.show span{font-size:14px;line-height:24px}
+}
+@media (max-width:900px) and (orientation:portrait){
+  #lobby.say-dock.say-compact .l2-say.show{min-height:48px;padding:8px 12px!important;gap:0}
+  #lobby.say-dock.say-compact .l2-say.show b{font-size:11px;line-height:16px}
+  #lobby.say-dock.say-compact .l2-say.show span{font-size:13px;line-height:20px}
+}
+#lobby.say-over .l2-say.show{z-index:30!important;box-shadow:0 12px 32px rgba(0,0,0,.7)}
+#lobby.say-over .l2-say.show{background:linear-gradient(180deg,rgba(16,28,58,.98),rgba(8,14,32,.98))!important}
