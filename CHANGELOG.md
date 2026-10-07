@@ -4,7 +4,7 @@
 
 ## 未統整（v98 起，下次在 v118 左右統整）
 ### v122
-- 歌姬挑戰新增第 2 首歌：Ado〈私は最強〉（4:30，assets/music/rhythm/saikyo.mp3；原檔比〈新時代〉小聲約 10 dB，已調整到相同音量）。譜面由 tools/rhythm_chart_v121.py 產生：EASY 4＝301、NORMAL 8＝707、HARD 12＝1627 個音符（HARD 最長空白 0.3 秒）。歌曲封面用美音立繪製作（jacket_saikyo.webp）。
+- 歌姬挑戰新增第 2 首歌：Ado〈私は最強〉（4:30，assets/music/rhythm/saikyo.mp3；原檔比〈新時代〉小聲約 10 dB，已調整到相同音量）。譜面由 tools/rhythm_chart_v121.py 產生：EASY 4＝301、NORMAL 8＝707、HARD 12＝1627 個音符（HARD 最長空白 0.3 秒）。歌曲封面換成使用者提供的圖（jacket_saikyo.webp 640×364、jacket_saikyo_sq.webp 256×256 以臉為中心裁切）。
 - 手機直式選曲清單：歌曲卡片改為橫向捲動並讓下一首露出一截。
 ### v121b
 - 歌姬挑戰遊玩畫面還原參考圖（js/rhythm_v118.js、css/v121b_rhythm.css）：不再出現我方角色，只有美音（召喚魔王型態立繪）；霓虹桃紫背景＋潑墨（canvas 產生，黑色墨點只放兩側不蓋臉）＋漫畫格（笑臉桃紅、尖叫青色）＋音軌裡的淡色臉＋漂浮音符；左上 BOSS 卡（頭像、名字、聲波、體力、分數）、上方中央歌名＋聲波＋難度膠囊、右上暫停＋COMBO、左側星星＋LIFE 直條、右側 FEVER 直條；音軌遠端在畫面中段、音符改為霓虹膠囊（外側青、內側桃紅）、判定線橫跨整個畫面。HARD 魔王降臨時畫面轉為血紅。
