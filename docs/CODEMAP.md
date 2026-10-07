@@ -16,6 +16,9 @@
 - `js/story_stage.js`: F:劇情立繪舞台（說話者亮起、聽者變暗、進場與呼吸動畫、旁白黑邊、每句特效 fx／emo）與 NPC→立繪對照表 | R:app.js(say/nextLine) | A:speakerArt,vnStageClear | S:NPC 對照只列確定同一人的（村裡的孩子 kid 不是尤斯塔斯·基德）；擊敗／連戰／蒐集任務完成時也會播該任務的台詞
 - `js/story_ext.js`: F:為 13 篇章補對話、序章、尾聲與支線 | R:data.js | A:- | S:只能「加對話」不能增減任務步驟，否則舊存檔的任務進度會錯位
 
+- `js/lobby_v118.js`: F:箭頭換 SVG（fixArrows）、點船長說話、限定召喚輪播控制、電腦版兩欄（搬移 DOM，.l2-colL/.l2-colR） | S:lobby.js 的 __lbEvNext 提供切換
+- `js/rhythm_v118.js`＋`js/rhythm_charts.js`: F:歌姬劇場（openRhythm），譜面 [ms, lane, 種類, 長按ms]；SAVE.data.rhythm | S:新歌用 tools/rhythm_beatmap.py 產生後加入 RHYTHM_SONGS
+- `js/roster_v118.js`／`ext_v118.js`／`fx_v118.js`: F:尼卡魯夫（luffy_nika）與效果 dmgToShield、nikaThunder（battle.js 的 onEvaded 掛鉤）、nikaTeamHeal、nikaTriple、nikaLegacy
 - `js/bag_v116.js`: F:背包 openBag（取代 app.js 版；分類 CAT_OF、獲取方式 SRC/GO、使用 USE）、頭像快取參數 FACES、橫式立繪偵測（.cer-char/.cx-art img 加 .wide） | S:vip_v115 之後載入；新道具要補 CAT_OF 與 SRC
 - `css/v116.css`: F:背包 .bg2-*、船團 .gl-*（舊 .gd-card/.gd-wrap 是新手導覽的類別，船團不要再用）
 - `js/vip_v115.js`: F:VIP 會員中心 openVIP（會員／月費／儲值）、VIP 等級 vipLevel（SAVE.data.vip.paid）、福利 PERK（貝里／經驗加成包住 addBerry、gainExp）、月費 MC（SAVE.data.mcard、每日寶藏幣 mcClaim）、登入宣傳 mc-ad（SAVE.data.mcAdHide）、新道具 event_ticket／char_select、openCharSelect、大廳徽章 refreshLobby、VIP.recharge（儲值入帳，目前只給後台測試） | R:modes.js openModes、lobby.js renderLobby、event.js（限定抽獎券）、social.js／guild.js（vipTag） | S:月費檔期改 MC；新月費要新的 id 與皮膚 monthCard 欄位

@@ -1,0 +1,104 @@
+/* v118：箭頭置中、玩家名片改版、貝里新圖示、待命小標籤、船長點擊對話、限定召喚輪播（手機縮小）、電腦版大廳兩欄 */
+
+/* ---------- 箭頭（SVG，按鈕正中央） ---------- */
+.arw{display:block;width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.arw-only{display:inline-grid!important;place-items:center!important;line-height:0!important;padding:0!important;text-indent:0!important;letter-spacing:0!important}
+.arw-only .arw{width:50%;height:50%;min-width:14px;min-height:14px;max-width:24px;max-height:24px}
+.arw-in .arw{display:inline-block;vertical-align:-.14em;width:.9em;height:.9em}
+.arw-in{white-space:nowrap}
+.gw-nav{font-size:0!important}.gw-nav .arw{width:22px;height:22px}
+.l2-mission em .arw{width:18px;height:18px}
+
+/* ---------- 貝里新圖示 ---------- */
+.berry-ico{background:url('../assets/ui/coin_berry.webp?v=118') center/contain no-repeat!important;color:transparent!important;font-size:0!important;box-shadow:none!important;border:0!important;border-radius:50%!important;text-shadow:none!important}
+.coin-fly.berry,.price .berry-ico{background:url('../assets/ui/coin_berry.webp?v=118') center/contain no-repeat!important}
+
+/* ---------- 角色背包：位置改為小標籤 ---------- */
+.sb-top{flex-wrap:nowrap!important;align-items:center!important}
+.sb-top>span{flex:none}
+.sb-tag{flex:none;display:inline-grid;place-items:center;height:24px;padding:0 10px;margin-left:auto;border-radius:999px;font-style:normal;font-size:12px;font-weight:800;line-height:1;letter-spacing:.06em;white-space:nowrap;border:1px solid rgba(255,255,255,.25);background:rgba(8,14,30,.7);color:#c8d0e0}
+.sb-tag.lead{background:#d6452f;border-color:#ff8a6a;color:#fff}.sb-tag.team{background:rgba(232,182,74,.22);border-color:#e8b64a;color:#ffe7a8}.sb-tag.train{background:rgba(80,180,255,.2);border-color:#5ab0ff;color:#cfe8ff}
+@media (max-width:760px){.sb-top>span{padding:4px 10px!important}.sb-top em{font-size:19px!important}}
+
+/* ---------- 玩家名片（參考圖：頭像金框＋等級、名稱與 VIP 之間留空間、稱號｜ID、經驗條） ---------- */
+#modeScreen #profileChip.pf2{display:grid!important;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:16px;height:auto!important;min-height:0;padding:6px 24px 6px 6px!important;border-radius:999px!important;
+  background:linear-gradient(180deg,#16244e,#0b1534)!important;border:1.5px solid #c9a24a!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 6px 18px rgba(0,0,0,.45)!important;text-align:left;max-width:440px}
+#profileChip.pf2 .lbpf-av{position:relative;width:64px!important;height:64px!important;padding:3px!important;border-radius:50%;background:conic-gradient(from 200deg,#ffe9a8,#b8862c,#ffe9a8,#8a5a12,#ffe9a8)!important;box-shadow:0 0 0 2px #0b1534,0 0 12px rgba(232,182,74,.45)}
+#profileChip.pf2 .lbpf-av img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+#profileChip.pf2 .lbpf-av em{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);display:grid;place-items:center;height:18px;padding:0 8px;border-radius:999px;background:linear-gradient(180deg,#1a2244,#0b1230);border:1px solid #e8b64a;font:400 11px/1 var(--num,system-ui);font-style:normal;color:#ffe7a8;white-space:nowrap;letter-spacing:.04em}
+#profileChip.pf2 .lbpf-txt{display:flex!important;flex-direction:column;justify-content:center;gap:6px;min-width:0}
+#profileChip.pf2 .lbpf-txt>b{display:flex!important;align-items:center;gap:12px!important;min-width:0;margin:0;line-height:1}
+#profileChip.pf2 .lbpf-nm{min-width:0;font:900 20px/1.15 var(--serif);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#profileChip.pf2 .lbpf-txt small{display:flex!important;align-items:center;gap:0;min-width:0;font-size:12px;line-height:1}
+#profileChip.pf2 .lbpf-txt small>em{display:flex;align-items:center;gap:6px;font-style:normal;font-weight:800;color:#f3c45a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.lbpf-ti{flex:none;width:14px;height:14px;fill:none;stroke:#f3c45a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#profileChip.pf2 .lbpf-id{display:flex!important;align-items:center;gap:8px;flex:none;margin-left:12px;padding-left:12px;border-left:1px solid rgba(255,255,255,.22);color:#dfe6f2;font-family:var(--num,system-ui);font-size:12px;letter-spacing:.04em;white-space:nowrap}
+#profileChip.pf2 .lbpf-cp{display:grid;place-items:center;width:20px;height:20px;cursor:pointer;color:#dfe6f2}
+#profileChip.pf2 .lbpf-cp svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8}
+#modeScreen #profileChip.pf2 .lbpf-xp{display:block;width:100%!important;max-width:none!important;height:6px;margin:2px 0 0;border-radius:999px;background:rgba(0,0,0,.45);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+#profileChip.pf2 .lbpf-xp i{border-radius:999px;background:linear-gradient(90deg,#3fb6e8,#7ae4ff)}
+/* VIP 小牌（王冠＋等級），和名字之間保留 12px */
+.lbpf-txt .lbpf-vip{position:relative;flex:none;display:inline-flex!important;align-items:center;gap:4px;width:auto!important;height:22px!important;padding:0 8px 0 6px;border-radius:6px;cursor:pointer;
+  background:linear-gradient(180deg,#3a4458,#1e2433);border:1px solid #8a93a6;box-shadow:inset 0 1px 0 rgba(255,255,255,.18);font:italic 900 12px/1 var(--num,system-ui);color:#eef2fa;letter-spacing:.04em}
+.lbpf-vip svg{width:14px;height:14px;fill:#f3c45a;stroke:#8a5a12;stroke-width:1}
+.lbpf-vip span{display:block;line-height:1}
+.lbpf-vip.vc1{border-color:#d88a4a}.lbpf-vip.vc2{border-color:#5aa0ff}.lbpf-vip.vc3{border-color:#f3c45a;background:linear-gradient(180deg,#5a4620,#2a2010)}.lbpf-vip.vc4{border-color:#3fd07a}.lbpf-vip.vc5{border-color:#ff4a5a;background:linear-gradient(180deg,#5a1a24,#2a0a12)}.lbpf-vip.vc6{border-color:#e8dcff;background:linear-gradient(180deg,#4a3a7a,#1e1438)}
+.lbpf-vip.dot::after{content:'';position:absolute;right:-4px;top:-4px;width:8px;height:8px;border-radius:50%;background:#ff4a4a;box-shadow:0 0 0 2px #0b1534}
+/* 手機：名片高度 48px 內（頭像 44、名稱＋VIP、稱號；ID 與經驗條收起） */
+@media (max-width:760px) and (orientation:portrait){
+  #modeScreen #profileChip.pf2{column-gap:10px;padding:2px 12px 2px 2px!important;max-width:none}
+  #profileChip.pf2 .lbpf-av{width:44px!important;height:44px!important;padding:2px!important}
+  #profileChip.pf2 .lbpf-av em{height:15px;font-size:9.5px;padding:0 5px;bottom:-4px}
+  #profileChip.pf2 .lbpf-txt{gap:5px}#profileChip.pf2 .lbpf-txt>b{gap:8px!important}
+  #profileChip.pf2 .lbpf-nm{font-size:16px}#profileChip.pf2 .lbpf-txt small{font-size:11px}
+  #profileChip.pf2 .lbpf-id{display:none!important}#modeScreen #profileChip.pf2 .lbpf-xp{height:4px;margin:0}
+  .lbpf-txt .lbpf-vip{height:20px!important;font-size:11px;padding:0 6px 0 5px}
+}
+@media (max-height:500px) and (orientation:landscape){
+  #modeScreen #profileChip.pf2{padding:3px 16px 3px 3px!important;column-gap:10px}
+  #profileChip.pf2 .lbpf-av{width:44px!important;height:44px!important}#profileChip.pf2 .lbpf-nm{font-size:16px}#profileChip.pf2 .lbpf-txt{gap:4px}
+}
+
+/* ---------- 船長：點擊才出現對話框 ---------- */
+#lobby .l2-say{display:none!important}
+#lobby .l2-say.show{display:block!important;cursor:pointer}
+#lobbyHeroPoke,.lb-hero img.poke{animation:heroPoke .45s ease-out}
+@keyframes heroPoke{0%{transform:scale(1)}35%{transform:scale(1.04) translateY(-6px)}100%{transform:scale(1)}}
+@media (max-width:900px) and (orientation:portrait){#lobby .l2-say.show{left:50%!important;right:auto!important;top:calc(var(--l2tb,150px) + 16px)!important;transform:translateX(-50%)!important;width:min(62vw,260px);max-width:none!important}#lobby .l2-say.show::before{display:none}}
+@media (max-height:500px) and (orientation:landscape){#lobby .l2-say.show{left:50%!important;right:auto!important;top:calc(var(--l2tb,52px) + 8px)!important;transform:translateX(-50%)!important;width:min(40vw,280px)}#lobby .l2-say.show::before{display:none}}
+
+/* ---------- 限定召喚：輪播箭頭與點 ---------- */
+.l2-pick{overflow:hidden}
+.l2-pc{position:absolute;right:6px;top:6px;z-index:3;display:flex;align-items:center;gap:6px;height:28px;padding:0 2px;border-radius:999px;background:rgba(8,14,32,.55);pointer-events:none}
+.l2-pc[hidden]{display:none}
+.l2-pn{pointer-events:auto;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:rgba(8,14,32,.7);border:1px solid rgba(235,199,126,.7);color:#ffe7a8;cursor:pointer}
+.l2-pn .arw{width:16px;height:16px}
+.l2-dots{display:flex;align-items:center;gap:5px;pointer-events:none}.l2-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.45)}.l2-dots i.on{width:16px;border-radius:3px;background:#ffd34a}
+.l2-pick .l2-pick-name{z-index:2}
+/* 手機直式：限定召喚縮小成橫幅，放在下方左右兩欄之間（完整 16:9 不裁切），船長立繪與左右欄往上移 */
+@media (max-width:900px) and (orientation:portrait){
+  #lobby.l2 .l2-pick{top:auto!important;bottom:calc(90px + var(--safeB,0px))!important;left:var(--pk-l,124px)!important;right:var(--pk-r,84px)!important;width:auto!important;aspect-ratio:16/9!important;max-width:300px;margin:0 auto;transform:none!important;border-radius:12px!important}
+  #lobby.l2 .l2-pick img{object-fit:cover;object-position:center}
+  #lobby.l2 .l2-pick .l2-pick-tag{font-size:10px;padding:3px 8px}
+  #lobby.l2 .l2-pick .l2-pick-name{font-size:11px}
+  #lobby.l2 .l2-rail,#lobby.l2 .l2-side{top:calc(var(--l2tb,150px) + 10px)!important;max-height:calc(100% - var(--l2tb,150px) - 100px - var(--safeB,0px))}
+  #lobby.l2 .l2-backup{top:calc(var(--l2tb,150px) + 10px)!important}
+  #lobby.l2 .lb-hero{top:calc(var(--l2tb,150px) + 4px)!important}
+  .l2-pn{width:24px;height:24px}.l2-pn .arw{width:14px;height:14px}
+}
+
+/* ---------- 電腦版兩欄 ---------- */
+#lobby.l2-desk .l2-colL,#lobby.l2-desk .l2-colR{position:absolute;z-index:4;top:calc(var(--l2tb,88px) + 12px);bottom:calc(96px + var(--safeB,0px));display:flex;flex-direction:column;gap:12px;min-height:0}
+#lobby.l2-desk .l2-colL{left:var(--edge-x,16px);width:clamp(260px,21vw,320px)}
+#lobby.l2-desk .l2-colR{right:var(--edge-x,16px);width:clamp(300px,24vw,380px);overflow-y:auto;scrollbar-width:none}
+#lobby.l2-desk .l2-colR::-webkit-scrollbar{display:none}
+#lobby.l2-desk .l2-colL>*,#lobby.l2-desk .l2-colR>*{position:relative!important;inset:auto!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;transform:none!important;width:100%!important;margin:0!important;flex:none}
+#lobby.l2-desk .l2-rail{grid-template-columns:repeat(3,minmax(0,1fr))!important;padding:12px 8px!important;gap:4px 0!important}
+#lobby.l2-desk .l2-pick{aspect-ratio:16/9!important;max-width:none}
+#lobby.l2-desk .l2-month{min-height:64px}
+#lobby.l2-desk .l2-side{display:none}
+#lobby.l2-desk .l2-say.show{left:50%!important;right:auto!important;top:calc(var(--l2tb,88px) + 16px)!important;transform:translateX(-50%)!important;width:clamp(220px,22vw,320px)}#lobby.l2-desk .l2-say.show::before{display:none}
+#lobby.l2-desk .lb-plate{z-index:3}
+#profileChip.pf2 .lbpf-txt small>em{flex:0 0 auto;max-width:100%}
+#profileChip.pf2 .lbpf-id{flex:0 1 auto!important;min-width:0;overflow:hidden}
+#profileChip .lbpf-txt .lbpf-vip{display:inline-flex!important;flex-direction:row!important;align-items:center!important;place-items:unset!important;gap:4px}

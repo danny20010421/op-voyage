@@ -270,8 +270,8 @@ async function executeAction(side, idx) {
   wrap.classList.remove('cast'); }
   if (Math.random() * 100 > skill.accuracy) { log(`${actor.name} 的招式落空`); floatText(T, 'MISS', 'miss'); await wait(420); return; }
   const blocked = actor.status.skillNullify > 0; if (blocked) log(`${actor.name} 的附加效果被封印，只保留傷害`);
-  if (target.status.invuln > 0 && skill.type === 'attack') { log(`🛡️ ${actor.name} 的攻擊對 ${target.name} 無效！`); floatText(T, '無效', 'miss'); renderHUD(); await wait(600); return; }
-  if (target.status.dodge > 0 && skill.type === 'attack') { target.status.dodge--; log(`${target.name} 閃避了攻擊`); floatText(T, '閃避', 'miss'); renderHUD(); await wait(600); return; }
+  if (target.status.invuln > 0 && skill.type === 'attack') { if (window.onEvaded) onEvaded(actor, target, skill); log(`🛡️ ${actor.name} 的攻擊對 ${target.name} 無效！`); floatText(T, '無效', 'miss'); renderHUD(); await wait(600); return; }
+  if (target.status.dodge > 0 && skill.type === 'attack') { target.status.dodge--; if (window.onEvaded) onEvaded(actor, target, skill); log(`${target.name} 閃避了攻擊`); floatText(T, '閃避', 'miss'); renderHUD(); await wait(600); return; }
   const reflected = target.status.reflect > 0 && skill.type === 'attack';
   const result = computeSkillOutcome(actor, target, skill, blocked);
   if (reflected) {

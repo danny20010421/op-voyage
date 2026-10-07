@@ -222,7 +222,7 @@
     const chip = $('profileChip'); if (!chip || !chip.classList.contains('lb-prof')) return; const L = level();
     const b = chip.querySelector('.lbpf-txt b'); if (b) { const crown = b.querySelector('i[aria-hidden]'); if (crown) crown.remove(); let v = b.querySelector('.lbpf-vip');
       if (!v) { v = document.createElement('span'); v.className = 'lbpf-vip'; v.setAttribute('role', 'button'); v.tabIndex = 0; v.onclick = e => { e.stopPropagation(); openVIP('member'); }; v.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openVIP('member'); } }; b.appendChild(v); }
-      v.setAttribute('aria-label', `VIP${L}：開啟 VIP 會員中心`); v.innerHTML = L ? `<img src="${badgeS(L)}" alt="">` : VIP0; v.classList.toggle('dot', dailyReady() || (onSale() && !mcSt()));
+      v.setAttribute('aria-label', `VIP${L}：開啟 VIP 會員中心`); v.className = 'lbpf-vip vc' + L; v.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg><span>VIP${L}</span>`; v.classList.toggle('dot', dailyReady() || (onSale() && !mcSt()));
       b.classList.toggle('vip-glow', !!perk(L).glow); }
     const av = chip.querySelector('.lbpf-av'); if (av) { av.className = av.className.replace(/\s*vipf v\d/g, ''); if (L) av.className += ` vipf v${L}`; }
     document.querySelectorAll('#modeScreen .topbar .coin:not(.berry) .lb-plus').forEach(p => { if (!p.__vip) { p.__vip = true; p.setAttribute('aria-label', '儲值寶藏幣'); p.onclick = e => { e.stopPropagation(); openVIP('top'); }; } });

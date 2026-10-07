@@ -42,7 +42,7 @@
       mihawk_w: ['sword', { c1: '#c8322b', c2: '#ff7a9a', t1: '#ffffff', t2: '#6a0a1a' }], burgess: ['giant', { c1: '#e0a050', c2: '#8a5a2a', t1: '#fff0d8', t2: '#8a4a0a', hit: true }], vasco: ['fire', { c1: '#ffb030', c2: '#ffe08a', bg: '#2a1400' }],
       dorry: ['giant', { c1: '#5a8aff', c2: '#c9973a', hit: true }], brogy: ['giant', { c1: '#ffcf5a', c2: '#c84a2a', hit: true }], brook: ['ice', { c1: '#c8e8ff', c2: '#5a8ad0' }], jinbe: ['fist', { c1: '#5ab0e0', c2: '#1a4a8a' }],
       coby0: ['fist', { c1: '#ffe070', c2: '#3a6ab0' }], koby_mf: ['fist', { c1: '#ffffff', c2: '#3a6ab0' }], koby_hc: ['fist', { c1: '#9ad0ff', c2: '#2a4a8a' }], makino: ['heal', { c1: '#ffd26c', c2: '#c9973a' }],
-      koza: ['fist', { c1: '#e0a060', c2: '#8a5a2a' }], wiper: ['quake', { c1: '#ffe0a0', c2: '#c86a0a' }], kinemon: ['sword', { c1: '#ff7a2a', c2: '#ffd26c', t2: '#8a2a0a' }], tama: ['toy', {}], king: ['fire', { c1: '#ff5a1a', c2: '#ffe08a', bg: '#2a0800' }] };
+      koza: ['fist', { c1: '#e0a060', c2: '#8a5a2a' }], wiper: ['quake', { c1: '#ffe0a0', c2: '#c86a0a' }], kinemon: ['sword', { c1: '#ff7a2a', c2: '#ffd26c', t2: '#8a2a0a' }], tama: ['toy', {}], king: ['fire', { c1: '#ff5a1a', c2: '#ffe08a', bg: '#2a0800' }], luffy_nika: ['quake', { c1: '#ffffff', c2: '#ffe98a' }] };
     [U.ULT, MORE].forEach(MAP => Object.entries(MAP).forEach(([id, [k, o]]) => { const ch = CHARACTERS[id]; if (!ch || !U.T[k] || !ch.skills.length) return; const i = ch.skills.length >= 5 ? 4 : ch.skills.length - 1; CHOREO[id] = CHOREO[id] || [];
       if (CHOREO[id][i]) return; const name = ch.skills[i].name; CHOREO[id][i] = async A => { try { await U.T[k](A, o, name); } catch (e) { console.warn(e); } }; }));
   } });

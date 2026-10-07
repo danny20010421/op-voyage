@@ -12,7 +12,7 @@
     ...block('王下七武海', ['mihawk', 'crocodile', 'doflamingo', 'kuma', 'moria', 'law', 'hancock', 'kuma_eh', 'law_w', 'weevil', 'blackbeard_w', 'mihawk_w'], 13), /* v103：No.037 黑鬍子（七武海）、No.038 鷹眼（七武海） */ /* v102：No.037 預留給黑鬍子（七武海），立繪之後補 */ /* v101：七武海版羅 No.035、衛伯 No.036 */
     ...block('白鬍子海賊團', ['ace', 'marco'], 16), ...block('紅髮海賊團', [], 11), ...block('百獸海賊團', ['king'], 12) /* v115：No.067 燼 */,
     ...block('BIG MOM 海賊團', ['katakuri'], 8), ...block('黑鬍子海賊團', ['catarina', 'burgess', 'vasco'], 10), ...block('十字公會', [], 6),
-    'shanks', 'blackbeard', 'buggy', '?四皇', 'whitebeard', 'bigmom', 'kaido', /* 第 4 位是魯夫（尼卡型態），立繪完成前保留為神秘編號 */
+    'shanks', 'blackbeard', 'buggy', 'luffy_nika', 'whitebeard', 'bigmom', 'kaido', /* 第 4 位是魯夫（尼卡型態），立繪完成前保留為神秘編號 */
     ...block('東海篇', ['makino', 'mayor', 'lordcoast'], 10), ...block('阿拉巴斯坦篇', ['vivi', 'koza'], 8), ...block('空島篇', ['enel', 'wiper'], 6),
     ...block('司法島篇', [], 7), ...block('恐怖三桅帆船篇', ['perona'], 6), ...block('魚人島篇', ['hody', 'shirahoshi'], 7),
     ...block('德雷斯羅薩篇', ['monet', 'sugar'], 12), ...block('蛋糕島篇', [], 8), ...block('和之國篇', ['kid', 'kinemon', 'tama', 'yamato'], 12),

@@ -58,6 +58,7 @@
     if (pl && pl.offsetParent) L.style.setProperty('--l2pb', Math.round(r0.bottom - pl.getBoundingClientRect().top + 6) + 'px');
     /* 備份提醒改成左側的小圖示，不再蓋住其他按鈕 */ const bk = $('lbBackup'), bi = $('l2BackupIc'); if (bk && bi) { bi.hidden = bk.hidden; if (!bi.onclick) bi.onclick = () => { const b = $('lbBackupBtn'); if (b) b.click(); }; } }
   window.lobbySyncLayout = syncLayout;
+  window.__lbEvNext = () => { const L = lobbyPools(); if (L.length) { evIdx = (evIdx + 1) % L.length; renderEvent(true); } }; /* v118 輪播左右鍵 */
   function sayLine(pid) {
     const el = $('l2Say'); if (!el) return; const d = SAVE.data, c = CHARACTERS[pid], L = [];
     if (typeof loginClaimable === 'function' && loginClaimable()) L.push('今天的登入獎勵還沒領喔！');
@@ -76,7 +77,7 @@
   function renderProfile() {
     const chip = $('profileChip'); if (!chip || currentScreen !== 'modeScreen') return; const d = SAVE.data, p = d.profile || {}, pid = [(d.lineup || [])[0], d.player].find(x => x && CHARACTERS[x] && owned(x)) || CHARACTER_ORDER[0], A = acctLevel();
     const title = (TITLES.find(t => t.id === p.title) || TITLES[0]).name, id = p.id || '';
-    chip.classList.add('lb-prof'); chip.innerHTML = `<span class="lbpf-av"><img src="${charArt(pid, 'avatar')}" alt=""><em>Lv.${A.lv}</em></span><span class="lbpf-txt"><b>${esc(p.name || '草帽新人')}<i aria-hidden="true">👑</i></b><small><em>${title}</em><span class="lbpf-id">ID ${id}<span class="lbpf-cp" role="button" tabindex="0" aria-label="複製 ID">⧉</span></span></small><span class="lbpf-xp"><i style="width:${(A.pct * 100).toFixed(1)}%"></i></span></span>`;
+    chip.classList.add('lb-prof', 'pf2'); chip.innerHTML = `<span class="lbpf-av"><img src="${charArt(pid, 'avatar')}" alt=""><em>LV.${A.lv}</em></span><span class="lbpf-txt"><b><span class="lbpf-nm">${esc(p.name || '草帽新人')}</span></b><small><em><svg class="lbpf-ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M5 6c0 5 3 7 7 7s7-2 7-7M9 22h6M12 2l-2 3h4z"/></svg>${title}</em><span class="lbpf-id">ID ${id}<span class="lbpf-cp" role="button" tabindex="0" aria-label="複製 ID"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></span></span></small><span class="lbpf-xp"><i style="width:${(A.pct * 100).toFixed(1)}%"></i></span></span>`;
     const cp = chip.querySelector('.lbpf-cp'); cp.onclick = e => { e.stopPropagation(); try { navigator.clipboard.writeText(String(id)); toast('已複製玩家 ID'); } catch (er) { toast('ID：' + id); } };
     /* 貨幣旁的「＋」：貝里與寶藏幣都可以在道具商店補充 */
     document.querySelectorAll('#modeScreen .topbar .coin').forEach(c => { if (!c.querySelector('.lb-plus')) { const b = document.createElement('button'); b.className = 'lb-plus'; b.setAttribute('aria-label', '前往商店'); b.textContent = '+'; b.onclick = e => { e.stopPropagation(); hub('shop'); }; c.appendChild(b); } });
