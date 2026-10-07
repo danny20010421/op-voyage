@@ -1,37 +1,53 @@
-/* v121 大廳：手機直式的船長對話框移到「左下空白處」——左側圖示欄下方、限定召喚橫條上方，寬度到右側欄（出戰陣容）左緣為止（最寬 480px）。
-   位置用實際量測（左側圖示欄底部、右側欄左緣、限定召喚橫條上緣），不寫死座標；小手機改用縮小版或放在兩欄之間的下方，都放不下才退回上方置中。 */
+/* v121 大廳：手機直式的船長對話框放在限定召喚橫條上方的空白處（位置用實際量測：左側圖示欄、右側欄、限定召喚橫條，不寫死座標）。
+   依序嘗試：
+   ① 置中：左右兩欄下方到限定召喚之間空間夠 → 水平置中（最寬 480px）
+   ② 偏左：圖示欄左緣～右側欄左緣（一般字級，放不下再用縮小字級）
+   ③ 收縮展開（v121b，使用者指定）：都放不下（例如 320px 寬的小手機）→ 先顯示一顆小膠囊（船長名字＋▲），
+      點一下展開完整對話（蓋在限定召喚上方），再點一下收起；展開時會延長顯示時間。 */
 (function () {
   const $ = id => document.getElementById(id);
   const PHONE = matchMedia('(max-width:900px) and (orientation:portrait)');
-  const GAP = 16;
+  const GAP = 16, OPEN_MS = 6000;
+  let openT = 0, userClose = false;
+  const CLS = ['say-dock', 'say-compact', 'say-over', 'say-fold', 'say-open', 'say-center'];
   function place() {
     const say = $('l2Say'), lb = $('lobby'); if (!say || !lb) return;
-    const off = () => { lb.classList.remove('say-dock', 'say-compact', 'say-over'); };
+    const off = () => lb.classList.remove(...CLS);
     if (!PHONE.matches || !say.classList.contains('show')) return off();
     const r0 = lb.getBoundingClientRect(), rail = lb.querySelector('.l2-rail'), side = lb.querySelector('.l2-side'), ev = $('lbEvent');
     const vis = x => x && x.getClientRects().length > 0;
     if (!vis(rail) || !vis(ev)) return off();
     const R = rail.getBoundingClientRect(), E = ev.getBoundingClientRect(), S = vis(side) ? side.getBoundingClientRect() : null;
-    const sideL = S && S.left > R.right ? S.left : E.right + GAP;
-    /* 依序嘗試：① 左下（圖示欄左緣～右側欄）、② 同位置縮小字級與間距、③ 左右兩欄之間的下方、④ 限定召喚正上方（暫時蓋住圖示欄底部）；都放不下才退回上方置中 */
-    const tries = [
-      { l: R.left, r: sideL - GAP, gap: GAP, top: R.bottom, compact: false },
-      { l: R.left, r: sideL - 8, gap: 8, top: R.bottom, compact: true },
-      { l: R.right + 8, r: sideL - 8, gap: 8, top: Math.max(R.top, S ? S.top : R.top), compact: true },
-      { l: E.left, r: E.right, gap: 8, top: r0.top, compact: true, over: true } /* 極小螢幕：直接放在限定召喚上方（約 4 秒後自動收起） */
-    ];
-    for (const T of tries) {
-      const w = Math.min(480, Math.round(T.r - T.l)); if (w < 120) continue;
-      lb.style.setProperty('--sayL', Math.round(T.l - r0.left) + 'px'); lb.style.setProperty('--sayW', w + 'px');
-      lb.classList.add('say-dock'); lb.classList.toggle('say-compact', T.compact); lb.classList.toggle('say-over', !!T.over);
-      const h = say.offsetHeight, bottom = Math.round(E.top - r0.top - T.gap), topMin = Math.round(T.top - r0.top + T.gap);
-      if (bottom - h >= topMin) { lb.style.setProperty('--sayT', (bottom - h) + 'px'); return; }
+    const sideL = S && S.left > R.right ? S.left : E.right + GAP, colsBottom = Math.max(R.bottom, S ? S.bottom : 0);
+    const set = (l, w, cls) => { lb.classList.remove(...CLS); lb.classList.add('say-dock', ...cls); lb.style.setProperty('--sayL', Math.round(l - r0.left) + 'px'); lb.style.setProperty('--sayW', Math.round(w) + 'px'); };
+    const fits = (gap, top) => { const h = say.offsetHeight, bottom = Math.round(E.top - r0.top - gap); if (bottom - h >= Math.round(top - r0.top + gap)) { lb.style.setProperty('--sayT', (bottom - h) + 'px'); return true; } return false; };
+    const open = lb.classList.contains('say-open');
+    if (!open) {
+      /* ① 置中：兩欄下方空間夠 */
+      { const w = Math.min(480, E.width); set(E.left + (E.width - w) / 2, w, ['say-center']); if (fits(GAP, colsBottom)) return; }
+      /* ② 偏左（一般 → 縮小字級） */
+      for (const [gap, cls] of [[GAP, []], [8, ['say-compact']]]) { const w = Math.min(480, sideL - gap - R.left); if (w < 160) continue; set(R.left, w, cls); if (fits(gap, R.bottom)) return; }
     }
-    off();
+    /* ③ 收縮展開 */
+    if (open) { const w = Math.min(480, E.width); set(E.left + (E.width - w) / 2, w, ['say-compact', 'say-over', 'say-fold', 'say-open']); fits(8, r0.top); return; }
+    const between = sideL - 4 - (R.right + 4);
+    if (between >= 96) { set(R.right + 4, between, ['say-fold']); if (fits(8, Math.max(R.top, S ? S.top : R.top))) return; }
+    { const w = Math.min(240, E.width); set(E.left + (E.width - w) / 2, w, ['say-fold', 'say-over']); fits(8, r0.top); }
   }
   window.addEventListener('DOMContentLoaded', () => {
-    const say = $('l2Say'); if (!say) return;
-    new MutationObserver(() => { requestAnimationFrame(place); clearTimeout(say._pt); say._pt = setTimeout(place, 160); }).observe(say, { attributes: true, attributeFilter: ['class'], childList: true }); /* 版面可能還在調整（syncLayout），稍後再量一次 */
+    const say = $('l2Say'), lb = $('lobby'); if (!say || !lb) return;
+    /* 收縮狀態：點膠囊展開（不要被原本「點一下就關閉」吃掉）；展開狀態再點才收起 */
+    say.addEventListener('click', e => {
+      if (!lb.classList.contains('say-fold')) return;
+      if (!lb.classList.contains('say-open')) { e.stopImmediatePropagation(); lb.classList.add('say-open'); place(); clearTimeout(openT); openT = setTimeout(() => { userClose = true; say.classList.remove('show'); }, OPEN_MS); }
+      else { userClose = true; clearTimeout(openT); }
+    }, true);
+    new MutationObserver(() => {
+      /* 展開中被原本 4 秒自動收起的計時器關掉 → 保持顯示，等展開的計時結束 */
+      if (lb.classList.contains('say-open') && !say.classList.contains('show') && !userClose) { say.classList.add('show'); return; }
+      if (!say.classList.contains('show')) { userClose = false; clearTimeout(openT); lb.classList.remove('say-open'); }
+      requestAnimationFrame(place); clearTimeout(say._pt); say._pt = setTimeout(place, 160); /* 版面可能還在調整（syncLayout），稍後再量一次 */
+    }).observe(say, { attributes: true, attributeFilter: ['class'], childList: true });
     addEventListener('resize', () => requestAnimationFrame(place));
     PHONE.addEventListener ? PHONE.addEventListener('change', place) : PHONE.addListener(place);
   });

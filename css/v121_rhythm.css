@@ -1,5 +1,5 @@
 /* v121 歌姬挑戰：半立體音軌、左 BOSS（美音）右隊長、BOSS 攻擊預告與效果、選曲的 BOSS 說明與美音碎片、結算的碎片進度。
-   覆蓋 css/v118_rhythm.css 的遊玩畫面（.rg-play.rg3d）。8px 網格；框內資訊水平垂直置中。 */
+   遊玩畫面的主體在 css/v121b_rhythm.css（.rg-play.rgx）。8px 網格；框內資訊水平垂直置中。 */
 
 /* ---------- 選曲：BOSS 說明、美音碎片 ---------- */
 .rg-boss-info,.rg-uta{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:64px;padding:8px 16px 8px 8px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
@@ -14,37 +14,7 @@
 .rg-uta .btn-gold{display:grid;place-items:center;height:40px;padding:0 16px;border-radius:12px;font-size:14px;font-weight:900;line-height:1}
 @media (max-height:500px) and (orientation:landscape){.rg-boss-info,.rg-uta{min-height:48px;grid-template-columns:40px minmax(0,1fr) auto;gap:8px;padding:4px 8px 4px 4px}.rg-boss-info img,.rg-uta img{width:40px;height:40px}.rg-boss-info small,.rg-uta small{font-size:11px;line-height:14px}}
 
-/* ---------- 遊玩：HUD 左 BOSS、右隊長 ---------- */
-.rg3d .rg-hud{grid-template-columns:minmax(0,1fr) minmax(200px,auto) minmax(0,1fr)}
-.rg3d .rg-foe{justify-self:start;justify-content:flex-start;text-align:left;width:100%}
-.rg3d .rg-me{justify-self:end;justify-content:flex-end;text-align:right;width:100%}
-.rg3d .rg-bar.foe{transform:none}.rg3d .rg-bar.me{transform:scaleX(-1)}
-.rg3d .rg-foe img{border-color:#ff6ad5}
-.rg-dpill{display:inline-flex!important;align-items:center;justify-content:center;height:24px;padding:0 16px;border-radius:999px;border:1.5px solid var(--c);background:rgba(0,0,0,.35);color:#fff!important;font:700 12px/1 var(--sans)!important;letter-spacing:.12em;box-shadow:0 0 12px color-mix(in srgb,var(--c) 60%,transparent)}
-.rg3d .rg-mid{gap:4px}
-.rg3d .rg-hud{padding-right:72px}
-@media (max-width:860px) and (orientation:portrait),(max-width:600px){
-  .rg3d .rg-hud{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:'mid mid' 'foe me'}
-  .rg3d .rg-foe{grid-area:foe}.rg3d .rg-me{grid-area:me}.rg3d .rg-hud{padding:calc(8px + var(--safeT,0px)) 16px 0}
-}
-
-/* ---------- 遊玩：立繪（左 BOSS、右隊長），在音軌後方 ---------- */
-.rg3d .rg-stage figure{height:88%}
-.rg3d .rg-boss{left:calc(var(--lx) - var(--aw) + 4%);right:auto}
-.rg3d .rg-cap{left:auto;right:calc(var(--lx) - var(--aw) + 4%)}
-.rg3d .rg-boss img{transform:none}
-.rg3d .rg-boss img{animation:rgFloat 4s ease-in-out infinite}
-@keyframes rgFloat{0%,100%{translate:0 0}50%{translate:0 -8px}}
-.rg3d .rg-boss.cast img{filter:drop-shadow(0 0 18px #ff6ad5) drop-shadow(0 0 40px rgba(255,90,210,.7)) brightness(1.15)}
-.rg3d .rg-boss.demon img{animation:rgFloat 3s ease-in-out infinite,rgDemonIn .8s ease-out}
-@keyframes rgDemonIn{0%{opacity:0;scale:1.25;filter:brightness(3)}100%{opacity:1;scale:1;filter:none}}
-.rg3d.portrait .rg-stage figure{opacity:1;bottom:auto;top:calc(var(--top) - 8px);height:calc((var(--jy) - var(--top)) * .7);width:var(--aw)}
-.rg3d.portrait .rg-boss{left:-6%;right:auto}
-.rg3d.portrait .rg-cap{left:auto;right:-6%;top:calc(var(--top) + 24px);height:calc((var(--jy) - var(--top)) * .56);opacity:.85}
-.rg3d.portrait .rg-stage img{object-position:top center}
-/* 傷害數字：在 BOSS 旁 */
-.rg3d .rg-dmgs{left:calc(var(--lx) * .5);right:auto;top:40%}
-.rg3d.portrait .rg-dmgs{left:24%;right:auto;top:calc(var(--top) + 20%)}
+/* 遊玩畫面（v121b 還原參考圖）見 css/v121b_rhythm.css */
 
 /* ---------- BOSS 攻擊 ---------- */
 .rg-warn{position:absolute;left:50%;top:calc(var(--top,96px) + 8px);transform:translate(-50%,-8px);display:flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px 0 8px;border-radius:999px;
@@ -56,8 +26,6 @@
 .rg-flash.demon{background:radial-gradient(70% 70% at 25% 30%,rgba(255,80,200,.7),rgba(80,0,60,.6) 60%,rgba(20,0,20,.7));animation:rgFlash 1s ease-out}
 .rg-banner.boss{background:linear-gradient(90deg,#b0207a,#6a22c8);box-shadow:0 0 24px rgba(255,90,210,.6)}
 .rg-banner.boss.big{font-size:24px;padding:12px 32px}
-.rg3d.demon .rg-bg{filter:blur(18px) brightness(.3) saturate(1.6) hue-rotate(-40deg)}
-.rg3d.demon::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 70% at 30% 10%,rgba(255,40,160,.28),transparent 60%),linear-gradient(180deg,rgba(60,0,40,.35),transparent 40%);animation:rgDemonBg 2s ease-in-out infinite alternate}
 @keyframes rgDemonBg{to{opacity:.6}}
 
 /* ---------- 結算：美音碎片 ---------- */
@@ -65,7 +33,7 @@
 .rg-uta-res img{width:40px;height:40px;border-radius:50%;object-fit:cover}
 .rg-uta-res>div{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0}
 .rg-uta-res b{font-size:14px;line-height:20px}.rg-uta-res b.got{color:#ffe866;font-size:16px}.rg-uta-res small{font-size:12px;line-height:16px;color:#c8d0e0}
-@media (prefers-reduced-motion:reduce){.rg3d .rg-boss img,.rg-warn.on,.rg3d.demon::before{animation:none}}
+@media (prefers-reduced-motion:reduce){.rg-warn.on{animation:none}}
 .rg-uta-res{grid-area:uta}
 .rg-rcard{grid-template-areas:'head head' 'rank rows' 'sc rows' 'uta rows' 'rew act'}
 @media (max-width:760px){.rg-rcard{grid-template-areas:'head' 'rank' 'sc' 'rows' 'uta' 'rew' 'act'}}

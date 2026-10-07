@@ -14,3 +14,12 @@
 }
 #lobby.say-over .l2-say.show{z-index:30!important;box-shadow:0 12px 32px rgba(0,0,0,.7)}
 #lobby.say-over .l2-say.show{background:linear-gradient(180deg,rgba(16,28,58,.98),rgba(8,14,32,.98))!important}
+/* v121b 收縮展開（小手機）：收縮時只顯示「船長名字＋▲」的膠囊，點一下展開完整對話 */
+@media (max-width:900px) and (orientation:portrait){
+  #lobby.say-fold:not(.say-open) .l2-say.show{flex-direction:row!important;gap:4px;min-height:40px;height:40px;padding:0 8px!important;border-radius:999px}
+  #lobby.say-fold:not(.say-open) .l2-say.show span{display:none}
+  #lobby.say-fold:not(.say-open) .l2-say.show b{font-size:12px;line-height:16px;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  #lobby.say-fold .l2-say.show::after{content:'';flex:none;width:8px;height:8px;border-left:2px solid #ebc77e;border-top:2px solid #ebc77e;transform:translateY(2px) rotate(45deg)}
+  #lobby.say-fold.say-open .l2-say.show::after{position:absolute;right:16px;top:16px;transform:rotate(225deg)}
+  #lobby.say-fold.say-open .l2-say.show{padding:8px 32px!important}
+}

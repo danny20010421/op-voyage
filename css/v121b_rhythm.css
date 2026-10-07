@@ -1,0 +1,123 @@
+/* v121b 歌姬挑戰・遊玩畫面（還原參考圖）：只有美音；霓虹桃紫背景＋潑墨（canvas .rgx-ink）＋漫畫格；
+   左上 BOSS 卡（頭像、名字、聲波、體力條、分數）、上方中央歌名＋聲波＋難度膠囊、右上暫停＋COMBO、左側星星＋LIFE 直條、右側 FEVER 直條。
+   位置用 JS 量到的 --top（HUD 底部）、--far（音軌遠端）、--jy（判定線）排版。8px 網格；框內資訊置中。 */
+.rgx{background:radial-gradient(70% 42% at 50% 26%,rgba(255,40,190,.5),transparent 70%),radial-gradient(60% 40% at 10% 85%,rgba(140,30,230,.35),transparent 70%),radial-gradient(50% 40% at 92% 60%,rgba(255,40,170,.3),transparent 70%),linear-gradient(180deg,#1c0030 0,#2c0046 45%,#120020 100%)}
+.rgx-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.rgx-ink{position:absolute;inset:0;width:100%;height:100%}
+
+/* 美音（含魔王）立繪：直式以寬度為準、橫式以高度為準，下半身在音軌後方 */
+.rgx-uta{position:absolute;left:50%;top:calc(var(--safeT,0px) + 32px);margin:0;width:min(150vw,calc(var(--far,460px) * 1.3));transform:translateX(-50%);-webkit-mask-image:linear-gradient(180deg,#000 62%,transparent 90%);mask-image:linear-gradient(180deg,#000 62%,transparent 90%)}
+.rgx-uta img{display:block;width:100%;height:auto;animation:rgxFloat 4.5s ease-in-out infinite} /* 立繪本身有不透明的魔王黑霧背景；外框有遮罩，不加 drop-shadow（會被遮罩切成方形光暈） */
+.rgx:not(.portrait) .rgx-uta{top:0;height:100%;width:auto;aspect-ratio:880/1100}
+.rgx:not(.portrait) .rgx-uta img{height:100%;width:auto}
+@keyframes rgxFloat{0%,100%{translate:0 0}50%{translate:0 -8px}}
+.rgx .rgx-uta.cast img{filter:brightness(1.18) saturate(1.25)}
+.rgx .rgx-uta.hit img{animation:rgxHit .16s ease-out}
+@keyframes rgxHit{0%{transform:translateX(-6px);filter:brightness(1.3)}100%{transform:none}}
+.rgx .rgx-uta.down img{animation:rgxDown 1.2s ease-in forwards}
+@keyframes rgxDown{0%{filter:brightness(3)}100%{transform:translateY(8%) scale(.96);filter:grayscale(1) brightness(.35);opacity:.55}}
+.rgx .rgx-uta.demon img{filter:saturate(1.35) hue-rotate(-14deg) brightness(1.05);animation:rgxFloat 3s ease-in-out infinite,rgxDemon .9s ease-out}
+@keyframes rgxDemon{0%{scale:1.2;filter:brightness(3)}100%{scale:1}}
+
+/* 漫畫格：左上笑臉（桃紅）、右側尖叫（青色） */
+.rgx-panel{position:absolute;margin:0;width:min(32vw,240px);aspect-ratio:1.35;overflow:hidden;border:3px solid #fff;box-shadow:0 0 0 2px rgba(255,90,210,.6),0 0 24px rgba(255,60,200,.6);background:#2a0838}
+.rgx-panel img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+.rgx-panel::after{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.35) 1px,transparent 1.6px);background-size:5px 5px;mix-blend-mode:overlay}
+.rgx-panel.p1{left:8px;top:calc(var(--top,160px) + 8px);transform:rotate(-8deg)}
+.rgx-panel.p1 img{filter:saturate(1.3) contrast(1.05) sepia(.2) hue-rotate(-25deg) brightness(1.05)}
+.rgx-panel.p1::before{content:'';position:absolute;inset:0;z-index:1;background:rgba(255,120,190,.28);mix-blend-mode:color}
+.rgx-panel.p2{right:4px;top:calc(var(--far,460px) - 30%);width:min(28vw,210px);transform:rotate(-12deg);box-shadow:0 0 0 2px rgba(90,220,255,.6),0 0 24px rgba(90,220,255,.55)}
+.rgx-panel.p2 img{filter:grayscale(1) contrast(1.2) brightness(1.1)}
+.rgx-panel.p2::before{content:'';position:absolute;inset:0;z-index:1;background:rgba(80,220,255,.55);mix-blend-mode:color}
+/* 音軌裡的淡色臉（參考圖下方的單色臉） */
+.rgx-ghost{position:absolute;margin:0;bottom:4%;width:min(50vw,360px);aspect-ratio:1;opacity:.2;mix-blend-mode:screen;border-radius:50%;overflow:hidden;-webkit-mask-image:radial-gradient(closest-side,#000 55%,transparent);mask-image:radial-gradient(closest-side,#000 55%,transparent)}
+.rgx-ghost img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.3) brightness(1.2) sepia(.4) hue-rotate(260deg) saturate(2)}
+.rgx-ghost.g1{left:-6%}.rgx-ghost.g2{right:-6%}
+/* 漂浮的霓虹音符 */
+.rgx-notes i{position:absolute;font:900 32px/1 system-ui,sans-serif;font-style:normal;color:#ffd0f6;text-shadow:0 0 8px #ff4ad2,0 0 20px #ff4ad2;animation:rgxNote 3.6s ease-in-out infinite;animation-delay:calc(var(--i) * -.6s)}
+.rgx-notes i:nth-child(1){left:6%;top:calc(var(--far,460px) * .62)}
+.rgx-notes i:nth-child(2){left:22%;top:calc(var(--far,460px) * .3);font-size:24px}
+.rgx-notes i:nth-child(3){right:10%;top:calc(var(--far,460px) * .2)}
+.rgx-notes i:nth-child(4){right:4%;top:calc(var(--far,460px) * .86);font-size:44px}
+.rgx-notes i:nth-child(5){left:42%;top:calc(var(--far,460px) * .9);font-size:22px;color:#c8f4ff;text-shadow:0 0 8px #5ae8ff,0 0 20px #5ae8ff}
+.rgx-notes i:nth-child(6){right:30%;top:calc(var(--far,460px) * .48);font-size:26px}
+@keyframes rgxNote{0%,100%{transform:translateY(0) rotate(-6deg);opacity:.9}50%{transform:translateY(-12px) rotate(6deg);opacity:.55}}
+
+/* ---------- HUD ---------- */
+.rgx-hud{position:absolute;inset:0 0 auto;height:0;pointer-events:none;z-index:2}
+.rgx-hud button{pointer-events:auto}
+.rgx-boss{position:absolute;left:12px;top:calc(12px + var(--safeT,0px));display:flex;align-items:center;gap:8px;max-width:calc(50% - 8px)}
+.rgx-av{flex:none;display:grid;place-items:center;width:56px;height:56px;border-radius:50%;padding:3px;background:conic-gradient(from 200deg,#ff4ad2,#5ae8ff,#ff4ad2);box-shadow:0 0 16px rgba(255,60,210,.7)}
+.rgx-av img{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#2a0838;border:2px solid #1a0028}
+.rgx-bi{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0}
+.rgx-bi small{font:700 10px/12px var(--sans);letter-spacing:.24em;color:#ffd0f2}
+.rgx-bi b{display:flex;align-items:center;gap:8px;font:900 20px/24px var(--sans);letter-spacing:.06em;color:#fff;text-shadow:0 0 10px rgba(255,90,210,.8);white-space:nowrap}
+.rgx-ehp{display:block;width:min(144px,100%);height:6px;border-radius:3px;transform:skewX(-24deg);background:rgba(255,255,255,.14);overflow:hidden;box-shadow:0 0 8px rgba(255,90,210,.5)}
+.rgx-ehp i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#5ae8ff,#b06bff 50%,#ff4ad2);transition:width .15s}
+.rgx-score{font:600 16px/20px var(--num,system-ui);font-style:normal;letter-spacing:.04em;color:#fff;text-shadow:0 0 8px rgba(255,90,210,.6)}
+.rgx-wave{display:inline-flex;align-items:center;gap:2px;height:16px;font-style:normal}
+.rgx-wave b{display:block;width:2px;height:var(--h);border-radius:1px;background:#ff4ad2;box-shadow:0 0 4px #ff4ad2;animation:rgxEq .7s ease-in-out infinite alternate;animation-delay:var(--d)}
+@keyframes rgxEq{0%{transform:scaleY(.35)}100%{transform:scaleY(1)}}
+.rgx-title{position:absolute;left:50%;top:calc(88px + var(--safeT,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;max-width:56%}
+.rgx-title>b{display:flex;align-items:center;justify-content:center;gap:8px}
+.rgx-title>b span{font:900 26px/32px var(--serif);letter-spacing:.08em;color:#fff;text-shadow:0 0 12px rgba(255,90,210,.9),0 2px 0 rgba(0,0,0,.4);white-space:nowrap}
+.rgx-title>small{font:500 12px/16px var(--sans);color:#f0d8ff;letter-spacing:.04em}
+.rgx-pill{display:inline-flex;align-items:center;justify-content:center;height:24px;padding:0 16px;border-radius:999px;border:1.5px solid var(--c,#5ae8ff);background:rgba(10,6,30,.8);box-shadow:0 0 12px color-mix(in srgb,var(--c,#5ae8ff) 60%,transparent);font:700 11px/1 var(--sans);font-style:normal;letter-spacing:.16em;color:#fff}
+.rgx-right{position:absolute;right:12px;top:calc(12px + var(--safeT,0px));display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.rgx .rgx-pause{position:static;width:48px;height:48px;border:2.5px solid #fff;background:rgba(20,0,30,.45);box-shadow:0 0 12px rgba(255,255,255,.35)}
+.rgx-combo{display:flex;flex-direction:column;align-items:flex-end;gap:0;opacity:.35;transition:opacity .2s}
+.rgx-combo.on{opacity:1}
+.rgx-combo small{font:700 12px/16px var(--sans);letter-spacing:.24em;color:#fff}
+.rgx-combo b{font:400 48px/48px var(--num,Anton,Impact,system-ui);color:#fff;text-shadow:0 0 14px rgba(255,90,210,.9),0 3px 0 rgba(0,0,0,.35)}
+.rgx-combo.t50 b{color:#ffe866}.rgx-combo.t100 b{background:linear-gradient(180deg,#fff6b0,#ffb03a 60%,#ff6a3a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rgx-combo.t200 b{background:linear-gradient(90deg,#ff6ad5,#ffe866,#5ad8ff,#8affb0,#ff6ad5);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rgRainbow 1.2s linear infinite}
+.rgx-combo.pop b{animation:rgPop .16s ease-out}
+
+/* 左：星星＋LIFE；右：FEVER */
+.rgx-life,.rgx-fever{position:absolute;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.rgx-life{left:8px;top:calc(var(--top,160px) + min(32vw,240px) / 1.35 + 32px);bottom:calc(100% - var(--far,460px) + 8px)} /* 漫畫格下方到音軌遠端之間，LIFE 直條自動伸縮 */
+.rgx-life .rgx-vbar{flex:1 1 auto;height:auto;min-height:40px;max-height:160px}
+.rgx-fever{right:8px;top:calc(var(--far,460px) + 16px)}
+.rgx-stars{display:flex;flex-direction:column;gap:4px}
+.rgx-stars i{display:block;width:20px;height:20px;background:#6a6a86;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);transition:background .3s}
+.rgx-stars i.on{background:linear-gradient(180deg,#fff6b0,#ffc83a);filter:drop-shadow(0 0 6px #ffc83a)}
+.rgx-vbar{position:relative;display:block;width:12px;height:128px;padding:2px;border-radius:999px;border:1.5px solid rgba(255,255,255,.75);background:rgba(20,0,30,.55);box-shadow:0 0 10px rgba(255,90,210,.5)}
+.rgx-vbar i{position:absolute;left:2px;right:2px;bottom:2px;height:0;max-height:calc(100% - 4px);border-radius:999px;background:linear-gradient(0deg,#ff4ad2,#5ae8ff);transition:height .15s}
+.rgx-life .rgx-vbar i{height:100%}
+.rgx-life .rgx-vbar i.low{background:linear-gradient(0deg,#ff3a3a,#ffa04a)}
+.rgx-life small,.rgx-fever small{font:900 10px/12px var(--sans);letter-spacing:.2em;color:#fff;text-shadow:0 0 6px #ff4ad2}
+.rgx-fever small{writing-mode:vertical-rl;letter-spacing:.3em;font-size:11px}
+.rgx-fever .rgx-vbar{height:144px}
+.rgx-fever .rgx-vbar i{background:linear-gradient(0deg,#ff4ad2,#ffd86a)}
+.rgx.fever .rgx-fever .rgx-vbar{border-color:#ffd86a;box-shadow:0 0 16px #ffd86a}
+.rgx.fever::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(120% 90% at 50% 100%,transparent 55%,rgba(255,210,90,.28));animation:rgxFever .5s ease-in-out infinite alternate}
+@keyframes rgxFever{to{opacity:.4}}
+.rg-banner.fever{background:linear-gradient(90deg,#ff8a2a,#ffd86a);color:#3a1a00;box-shadow:0 0 24px rgba(255,200,80,.8)}
+/* 魔王降臨：整體轉為血紅 */
+.rgx.demon{background:radial-gradient(70% 42% at 50% 26%,rgba(255,30,80,.55),transparent 70%),radial-gradient(60% 40% at 10% 85%,rgba(160,0,60,.4),transparent 70%),linear-gradient(180deg,#2a0010 0,#3a0020 45%,#160008 100%)}
+.rgx.demon::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 60% at 50% 20%,rgba(255,40,90,.25),transparent 60%);animation:rgxFever 1.2s ease-in-out infinite alternate}
+
+/* 其他浮動元素的位置 */
+.rgx .rg-dmgs{left:50%;right:auto;top:calc(var(--far,460px) * .5)}
+.rgx .rg-warn{top:calc(var(--top,160px) + 8px)}
+.rgx .rg-banner{top:calc(var(--far,460px) - 56px)}
+.rgx .rg-count{top:calc((var(--far,460px) + var(--jy,720px)) / 2);color:#fff;text-shadow:0 0 30px rgba(255,90,210,.9)}
+.rgx .rg-count.big{color:#ffe0f8}
+
+/* 橫向：HUD 都在第一列，漫畫格移到兩側中段 */
+.rgx:not(.portrait) .rgx-title{top:calc(8px + var(--safeT,0px))}
+.rgx:not(.portrait) .rgx-right{flex-direction:row-reverse;align-items:flex-start;gap:16px}
+.rgx:not(.portrait) .rgx-panel.p1{left:48px;top:calc(var(--top,120px) + 16px);width:min(18vw,220px)}
+.rgx:not(.portrait) .rgx-panel.p2{right:48px;top:calc(var(--top,120px) + 48px);width:min(16vw,200px)}
+.rgx:not(.portrait) .rgx-life{bottom:auto;top:calc(var(--top,120px) + 8px)}.rgx:not(.portrait) .rgx-life .rgx-vbar{flex:none;height:128px}
+.rgx:not(.portrait) .rgx-ghost{width:min(26vw,320px)}
+.rgx.short .rgx-av{width:44px;height:44px}.rgx.short .rgx-bi b{font-size:16px;line-height:20px}.rgx.short .rgx-combo b{font-size:36px;line-height:36px}
+.rgx.short .rgx-title>b span{font-size:20px;line-height:24px}.rgx.short .rgx-pause{width:40px;height:40px}
+.rgx.short .rgx-vbar{height:88px}.rgx.short .rgx-fever .rgx-vbar{height:96px}.rgx.short .rgx-fever{top:calc(var(--far,180px) + 8px)}
+.rgx.short .rgx-panel{display:none}
+/* 小手機 */
+@media (max-width:370px){.rgx-bi b .rgx-wave{display:none}.rgx-title>b .rgx-wave{display:none}.rgx-av{width:48px;height:48px}.rgx-combo b{font-size:40px;line-height:40px}}
+@media (prefers-reduced-motion:reduce){.rgx-uta img,.rgx-notes i,.rgx-wave b,.rgx.fever::after,.rgx.demon::before{animation:none}}
+/* 頂端暗角（讓 HUD 文字清楚）、潑墨第二層在立繪上面 */
+.rgx-vig{position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,0,22,.72) 0,rgba(12,0,22,.25) calc(var(--top,160px) * .9),transparent calc(var(--top,160px) + 40px)),linear-gradient(0deg,rgba(10,0,20,.6) 0,transparent 30%)}
+.rgx-ink2{opacity:.9}

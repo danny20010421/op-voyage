@@ -1,8 +1,8 @@
 """v121：歌姬挑戰譜面產生器（取代 rhythm_beatmap.py＋rhythm_lanes.py 的兩段流程）。
-三個難度的差距拉大：
-  EASY   Lv.3 ：只在強拍上放音符，相鄰至少 2 拍，約 0.8 個／秒；允許較長空檔（超過 8 拍才每 4 拍補一個）。
-  NORMAL Lv.7 ：八分音符格，相鄰至少半拍，約 2 個／秒；空檔超過 4 拍就每 2 拍補一個；少量雙押、長按、滑動。
-  HARD   Lv.12：十六分音符格，約 4.5～5 個／秒；空檔超過 1 拍就補上八分音符（高難度不留大段空白）；
+三個難度的差距拉大（v121b：使用者指定最少音符數 EASY ≥300、NORMAL ≥700、HARD ≥1600，起音門檻自動下調直到達標）：
+  EASY   Lv.4 ：四分音符格，相鄰至少 1 拍；空檔超過 4 拍就每 2 拍補一個。
+  NORMAL Lv.8 ：八分音符格，相鄰至少半拍；空檔超過 2 拍就每拍補一個；少量雙押、長按、滑動。
+  HARD   Lv.12：十六分音符格；空檔超過 1 拍就補上八分音符（高難度不留大段空白）；
                雙押、樓梯、交錯、長按、滑動都更多。
 軌道：間隔短走樓梯（相鄰軌、碰邊反彈），中等間隔換軌，長按期間不在同一軌放音符。固定亂數種子，結果可重現。
 用法：python3 tools/rhythm_chart_v121.py assets/music/rhythm/shinjidai.mp3 shinjidai js/rhythm_charts.js
@@ -48,17 +48,17 @@ grid4 = np.arange(PH, DUR, BEAT / 4)
 alive = [t for t in grid4 if energy(t) > .06]
 T0, T1 = alive[0], min(alive[-1], DUR - 1.2)
 
-CFG = {  # div：每拍格數；pct：起音門檻百分位；gapFill：超過幾拍就補；fillStep：補的間隔（拍）；minGap：最小間隔（拍）
-    'easy':   dict(lv=3,  div=1, pct=94, minGap=2,   gapFill=8, fillStep=4,  hold=.08, flick=.03, dbl=0,   holdBeats=(2, 2)),
-    'normal': dict(lv=7,  div=2, pct=80, minGap=.5,  gapFill=4, fillStep=2,  hold=.12, flick=.06, dbl=.12, holdBeats=(1, 2)),
-    'hard':   dict(lv=12, div=4, pct=63, minGap=.25, gapFill=1, fillStep=.5, hold=.10, flick=.08, dbl=.35, holdBeats=(1, 1.5)),
+CFG = {  # min：最少音符數（使用者指定）；div：每拍格數；gapFill：超過幾拍就補；fillStep：補的間隔（拍）；minGap：最小間隔（拍）。起音門檻 pct 會自動往下調，直到音符數 ≥ min
+    'easy':   dict(lv=4,  min=300,  div=1, minGap=1,   gapFill=4, fillStep=2,  hold=.08, flick=.03, dbl=0,   holdBeats=(2, 2)),
+    'normal': dict(lv=8,  min=700,  div=2, minGap=.5,  gapFill=2, fillStep=1,  hold=.10, flick=.06, dbl=.12, holdBeats=(1, 2)),
+    'hard':   dict(lv=12, min=1600, div=4, minGap=.25, gapFill=1, fillStep=.5, hold=.08, flick=.08, dbl=.35, holdBeats=(1, 1.5)),
 }
 
-def make(dk, C):
+def make(dk, C, pct):
     rnd = random.Random(f'{song_id}:{dk}:v121')
     step = BEAT / C['div']; grid = np.arange(PH, T1, step); grid = grid[grid >= T0 - .01]
     st = np.array([strength(g) for g in grid]); en = np.array([energy(g) for g in grid])
-    thr = np.percentile(st[en > .06], C['pct'])
+    thr = np.percentile(st[en > .06], pct)
     times = []; last = -9
     for i, (g, s) in enumerate(zip(grid, st)):
         sub = round((g - PH) / step) % C['div']; onbeat = sub == 0
@@ -91,10 +91,12 @@ def make(dk, C):
         if l in bad: l = next(q for q in range(4) if q not in bad and q != p)
         nxt = filled[i + 1][0] if i + 1 < len(filled) else g + 9
         kind, dur = 0, 0
-        if onbeat and nxt - g >= BEAT * C['holdBeats'][0] * .95 and energy(g, BEAT * 2) > .2 and rnd.random() < C['hold']:
-            hb = rnd.choice(C['holdBeats']); hb = min(hb, (nxt - g) / BEAT - .25)
+        free = C['div'] == 1 and nxt - g < BEAT * C['holdBeats'][0] * .95  # EASY：長按期間不放其他音符；NORMAL／HARD：其他軌繼續出音符
+        if onbeat and not free and hl < 0 or onbeat and not free and g >= hend:
+          if energy(g, BEAT * 2) > .2 and rnd.random() < C['hold']:
+            hb = rnd.choice(C['holdBeats']); hb = min(hb, (nxt - g) / BEAT - .25) if C['div'] == 1 else hb
             if hb >= .75: kind, dur = 1, int(round(hb * BEAT * 1000))
-        elif onbeat and s > .3 and rnd.random() < C['flick']: kind = 2
+        if kind == 0 and onbeat and s > .3 and rnd.random() < C['flick']: kind = 2
         t = int(round(g * 1000)); out.append([t, l, kind, dur])
         if kind == 1: hl, hend = l, g + dur / 1000 + .08
         if kind == 0 and C['dbl'] and onbeat and s > .45 and rnd.random() < C['dbl']:
@@ -109,9 +111,12 @@ head, body = src.split('window.RHYTHM_SONGS = ', 1); data = json.loads(body.rstr
 song = next(s for s in data if s['id'] == song_id)
 song['bpm'] = round(BPM, 1); song['dur'] = round(DUR, 1); song['offset'] = int(round(PH * 1000))
 for dk, C in CFG.items():
-    notes = make(dk, C); song['diffs'][dk] = {'lv': C['lv'], 'notes': notes}
+    for pct in range(99, -1, -1):
+        notes = make(dk, C, pct)
+        if len(notes) >= C['min']: break
+    song['diffs'][dk] = {'lv': C['lv'], 'notes': notes}
     ts = [n[0] for n in notes]; gaps = sorted(np.diff(sorted(set(ts))), reverse=True)[:3]
-    print(dk, 'Lv', C['lv'], len(notes), 'notes', f'{len(notes) / (ts[-1] - ts[0]) * 1000:.2f}/s', 'max gaps', [int(g) for g in gaps],
+    print(dk, 'Lv', C['lv'], 'pct', pct, len(notes), 'notes', f'{len(notes) / (ts[-1] - ts[0]) * 1000:.2f}/s', 'max gaps', [int(g) for g in gaps],
           'hold', sum(n[2] == 1 for n in notes), 'flick', sum(n[2] == 2 for n in notes), file=sys.stderr)
 head = '/* 歌姬挑戰譜面（v121 起由 tools/rhythm_chart_v121.py 以音訊節拍／起音偵測產生；格式 [毫秒, 軌道 0-3, 種類 0 點擊 1 長按 2 滑動, 長按毫秒]） */\n'
 open(path, 'w', encoding='utf-8').write(head + 'window.RHYTHM_SONGS = ' + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + ';\n')

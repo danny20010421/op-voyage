@@ -1,4 +1,4 @@
-/* v121：美音（歌姬・SSR・控制攻擊型）——只能從「歌姬挑戰」取得碎片（5 首不重複歌曲拿到 S 以上 → 20 片，集滿 100 片合成），無法抽獎。
+/* v121：美音（歌姬・SSR・控制攻擊型）——只能從「歌姬挑戰」取得碎片（每首不同的歌第一次拿到 S 以上 → 20 片，集滿 100 片合成），無法抽獎。
    序號：紅髮海賊團第 1 位（必須在 roster_v91 之前載入）。戰鬥效果 noteBurst、utaStunBonus、utaDemon 在 ext_v121.js；第 1～4 招動畫在 fx_v121.js。
    戰鬥立繪縮放 0.6；第 5 招「召喚魔王」後換成魔王型態立繪（縮放 0.75＝0.6 × 1.25）。 */
 (function () {
@@ -21,5 +21,5 @@
     ] };
   if (!CHARACTER_ORDER.includes('uta')) CHARACTER_ORDER.push('uta');
   CHAR_RARITY.uta = 'SSR';
-  CHAR_OBTAIN.uta = { boss: 0, eventOnly: true, npc: '歌姬挑戰：5 首不重複歌曲拿到 S 以上評分得 20 片碎片，集滿 100 片合成（無法抽獎）' };
+  CHAR_OBTAIN.uta = { boss: 0, eventOnly: true, npc: '歌姬挑戰：每首不同的歌第一次拿到 S 以上評分得 20 片碎片，集滿 100 片合成（無法抽獎）' };
 })();
