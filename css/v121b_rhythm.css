@@ -5,33 +5,21 @@
 .rgx-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .rgx-ink{position:absolute;inset:0;width:100%;height:100%}
 
-/* 美音（含魔王）立繪：直式以寬度為準、橫式以高度為準，下半身在音軌後方 */
-.rgx-uta{position:absolute;left:50%;top:calc(var(--safeT,0px) + 32px);margin:0;width:min(150vw,calc(var(--far,460px) * 1.3));transform:translateX(-50%);-webkit-mask-image:linear-gradient(180deg,#000 62%,transparent 90%);mask-image:linear-gradient(180deg,#000 62%,transparent 90%)}
-.rgx-uta img{display:block;width:100%;height:auto;animation:rgxFloat 4.5s ease-in-out infinite} /* 立繪本身有不透明的魔王黑霧背景；外框有遮罩，不加 drop-shadow（會被遮罩切成方形光暈） */
+/* 美音（含魔王）立繪：直式以判定線高度決定大小、橫式以高度為準；下半身淡出（v123 淡出已預先做在圖檔裡）。
+   上下晃動與受擊晃動由 JS（bob）直接改 transform；這裡不使用 mask／filter／混合模式，避免手機點擊時閃黑。 */
+.rgx-uta{position:absolute;left:50%;top:calc(var(--safeT,0px) + 24px);margin:0;width:min(150vw,calc(var(--jy,720px) * .92));transform:translateX(-50%);will-change:transform;backface-visibility:hidden}
+.rgx-uta img{display:block;width:100%;height:auto}
 .rgx:not(.portrait) .rgx-uta{top:0;height:100%;width:auto;aspect-ratio:880/1100}
 .rgx:not(.portrait) .rgx-uta img{height:100%;width:auto}
-@keyframes rgxFloat{0%,100%{translate:0 0}50%{translate:0 -8px}}
-.rgx .rgx-uta.cast img{filter:brightness(1.18) saturate(1.25)}
-.rgx .rgx-uta.hit img{animation:rgxHit .16s ease-out}
-@keyframes rgxHit{0%{transform:translateX(-6px);filter:brightness(1.3)}100%{transform:none}}
-.rgx .rgx-uta.down img{animation:rgxDown 1.2s ease-in forwards}
-@keyframes rgxDown{0%{filter:brightness(3)}100%{transform:translateY(8%) scale(.96);filter:grayscale(1) brightness(.35);opacity:.55}}
-.rgx .rgx-uta.demon img{filter:saturate(1.35) hue-rotate(-14deg) brightness(1.05);animation:rgxFloat 3s ease-in-out infinite,rgxDemon .9s ease-out}
-@keyframes rgxDemon{0%{scale:1.2;filter:brightness(3)}100%{scale:1}}
-
-/* 漫畫格：左上笑臉（桃紅）、右側尖叫（青色） */
-.rgx-panel{position:absolute;margin:0;width:min(32vw,240px);aspect-ratio:1.35;overflow:hidden;border:3px solid #fff;box-shadow:0 0 0 2px rgba(255,90,210,.6),0 0 24px rgba(255,60,200,.6);background:#2a0838}
-.rgx-panel img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}
-.rgx-panel::after{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.35) 1px,transparent 1.6px);background-size:5px 5px;mix-blend-mode:overlay}
+.rgx-cast{position:absolute;inset:10% 15% 30%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,110,220,.55),transparent);opacity:0;transition:opacity .25s}
+.rgx .rgx-uta.cast .rgx-cast{opacity:1}
+.rgx .rgx-uta.down{opacity:.5;transition:opacity 1.2s}
+/* 漫畫格（白框、網點、色調都已做在圖檔裡）：左上笑臉、右側尖叫 */
+.rgx-panel{position:absolute;margin:0;width:min(32vw,240px);height:auto;box-shadow:0 0 0 2px rgba(255,90,210,.6),0 0 24px rgba(255,60,200,.6)}
 .rgx-panel.p1{left:8px;top:calc(var(--top,160px) + 8px);transform:rotate(-8deg)}
-.rgx-panel.p1 img{filter:saturate(1.3) contrast(1.05) sepia(.2) hue-rotate(-25deg) brightness(1.05)}
-.rgx-panel.p1::before{content:'';position:absolute;inset:0;z-index:1;background:rgba(255,120,190,.28);mix-blend-mode:color}
-.rgx-panel.p2{right:4px;top:calc(var(--far,460px) - 30%);width:min(28vw,210px);transform:rotate(-12deg);box-shadow:0 0 0 2px rgba(90,220,255,.6),0 0 24px rgba(90,220,255,.55)}
-.rgx-panel.p2 img{filter:grayscale(1) contrast(1.2) brightness(1.1)}
-.rgx-panel.p2::before{content:'';position:absolute;inset:0;z-index:1;background:rgba(80,220,255,.55);mix-blend-mode:color}
-/* 音軌裡的淡色臉（參考圖下方的單色臉） */
-.rgx-ghost{position:absolute;margin:0;bottom:4%;width:min(50vw,360px);aspect-ratio:1;opacity:.2;mix-blend-mode:screen;border-radius:50%;overflow:hidden;-webkit-mask-image:radial-gradient(closest-side,#000 55%,transparent);mask-image:radial-gradient(closest-side,#000 55%,transparent)}
-.rgx-ghost img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.3) brightness(1.2) sepia(.4) hue-rotate(260deg) saturate(2)}
+.rgx-panel.p2{right:4px;top:calc(var(--top,160px) + 40px);width:min(28vw,210px);transform:rotate(-12deg);box-shadow:0 0 0 2px rgba(90,220,255,.6),0 0 24px rgba(90,220,255,.55)}
+/* 音軌裡的淡色臉（已預先做成圓形淡出） */
+.rgx-ghost{position:absolute;bottom:4%;width:min(50vw,360px);height:auto}
 .rgx-ghost.g1{left:-6%}.rgx-ghost.g2{right:-6%}
 /* 漂浮的霓虹音符 */
 .rgx-notes i{position:absolute;font:900 32px/1 system-ui,sans-serif;font-style:normal;color:#ffd0f6;text-shadow:0 0 8px #ff4ad2,0 0 20px #ff4ad2;animation:rgxNote 3.6s ease-in-out infinite;animation-delay:calc(var(--i) * -.6s)}
@@ -75,8 +63,7 @@
 
 /* 左：星星＋LIFE；右：FEVER */
 .rgx-life,.rgx-fever{position:absolute;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
-.rgx-life{left:8px;top:calc(var(--top,160px) + min(32vw,240px) / 1.35 + 32px);bottom:calc(100% - var(--far,460px) + 8px)} /* 漫畫格下方到音軌遠端之間，LIFE 直條自動伸縮 */
-.rgx-life .rgx-vbar{flex:1 1 auto;height:auto;min-height:40px;max-height:160px}
+.rgx-life{left:8px;top:calc(var(--far,460px) + 16px)} /* v123：與右側 FEVER 對稱，放在音軌遠端下方的左側 */
 .rgx-fever{right:8px;top:calc(var(--far,460px) + 16px)}
 .rgx-stars{display:flex;flex-direction:column;gap:4px}
 .rgx-stars i{display:block;width:20px;height:20px;background:#6a6a86;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);transition:background .3s}
@@ -109,7 +96,7 @@
 .rgx:not(.portrait) .rgx-right{flex-direction:row-reverse;align-items:flex-start;gap:16px}
 .rgx:not(.portrait) .rgx-panel.p1{left:48px;top:calc(var(--top,120px) + 16px);width:min(18vw,220px)}
 .rgx:not(.portrait) .rgx-panel.p2{right:48px;top:calc(var(--top,120px) + 48px);width:min(16vw,200px)}
-.rgx:not(.portrait) .rgx-life{bottom:auto;top:calc(var(--top,120px) + 8px)}.rgx:not(.portrait) .rgx-life .rgx-vbar{flex:none;height:128px}
+.rgx:not(.portrait) .rgx-life{top:calc(var(--top,120px) + 8px)}
 .rgx:not(.portrait) .rgx-ghost{width:min(26vw,320px)}
 .rgx.short .rgx-av{width:44px;height:44px}.rgx.short .rgx-bi b{font-size:16px;line-height:20px}.rgx.short .rgx-combo b{font-size:36px;line-height:36px}
 .rgx.short .rgx-title>b span{font-size:20px;line-height:24px}.rgx.short .rgx-pause{width:40px;height:40px}
@@ -117,7 +104,12 @@
 .rgx.short .rgx-panel{display:none}
 /* 小手機 */
 @media (max-width:370px){.rgx-bi b .rgx-wave{display:none}.rgx-title>b .rgx-wave{display:none}.rgx-av{width:48px;height:48px}.rgx-combo b{font-size:40px;line-height:40px}}
-@media (prefers-reduced-motion:reduce){.rgx-uta img,.rgx-notes i,.rgx-wave b,.rgx.fever::after,.rgx.demon::before{animation:none}}
+@media (prefers-reduced-motion:reduce){.rgx-notes i,.rgx-wave b,.rgx.fever::after,.rgx.demon::before{animation:none}}
 /* 頂端暗角（讓 HUD 文字清楚）、潑墨第二層在立繪上面 */
 .rgx-vig{position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,0,22,.72) 0,rgba(12,0,22,.25) calc(var(--top,160px) * .9),transparent calc(var(--top,160px) + 40px)),linear-gradient(0deg,rgba(10,0,20,.6) 0,transparent 30%)}
 .rgx-ink2{opacity:.9}
+
+/* v123：點擊時不出現瀏覽器的點擊高亮（手機上是一閃的深色方塊）、不選字、不跳出長按選單 */
+.rg,.rg *{-webkit-tap-highlight-color:transparent}
+.rg-play,.rg-play *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.rg-cv{outline:none}

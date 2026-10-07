@@ -3,6 +3,12 @@
 每累積約 20 個版本統整一次。逐版的完整紀錄（v1～v97）保存在 [docs/archive/README_v1-v97_完整更新紀錄.md](docs/archive/README_v1-v97_完整更新紀錄.md)。
 
 ## 未統整（v98 起，下次在 v118 左右統整）
+### v123
+- 修正歌姬挑戰點擊時的小黑色閃爍：
+  - 手機瀏覽器的點擊高亮（-webkit-tap-highlight-color）與長按選單關閉。
+  - 舞台上原本用 CSS mask／filter／mix-blend-mode 即時處理的美音立繪、漫畫格、淡色臉，改為預先處理好的圖檔（assets/ui/rhythm/），受擊時也不再切換 class 播放 filter 動畫——這類圖層在手機 GPU 重繪時容易短暫變黑。
+- 背景的美音會跟著拍子小幅上下晃動（每 2 拍一個來回、約 ±8px，魔王型態 ±12px），受擊時往旁邊晃一下；由 JS 直接改 transform（關閉「減少動態效果」的手機也會動）。
+- 音軌加長：遠端拉高到畫面約 40%（直式）／34%（橫式），音符移動時間加長約 1.3 倍（譜面速度 6：1.34 秒 → 1.78 秒）。LIFE 直條改到音軌遠端下方左側，與右側 FEVER 對稱。
 ### v122
 - 歌姬挑戰新增第 2 首歌：Ado〈私は最強〉（4:30，assets/music/rhythm/saikyo.mp3；原檔比〈新時代〉小聲約 10 dB，已調整到相同音量）。譜面由 tools/rhythm_chart_v121.py 產生：EASY 4＝301、NORMAL 8＝707、HARD 12＝1627 個音符（HARD 最長空白 0.3 秒）。歌曲封面換成使用者提供的圖（jacket_saikyo.webp 640×364、jacket_saikyo_sq.webp 256×256 以臉為中心裁切）。
 - 手機直式選曲清單：歌曲卡片改為橫向捲動並讓下一首露出一截。

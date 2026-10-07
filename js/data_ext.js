@@ -339,6 +339,7 @@
   DEFAULT_NEWS.unshift({ id: 'd1043', date: '2026-10-07', tag: '更新', title: '「歌姬挑戰」登場・新角色美音', body: '・「歌姬劇場」改名為「歌姬挑戰」，BOSS 固定為美音：難度越高，美音體力越多、攻擊越頻繁（歌聲衝擊、催眠歌聲、五線譜束縛），HARD 時體力剩一半會魔王降臨\n・音軌改為半立體（遠窄近寬），左邊 BOSS、右邊隊長；開始倒數改為 5 秒\n・三個難度差距拉大：EASY 3／NORMAL 7／HARD 12，HARD 不再有長段空白\n・新角色美音（SSR・控制攻擊型）：5 首不重複歌曲拿到 S 以上評分得 20 片碎片，集滿 100 片合成\n・手機大廳：點船長的對話框移到左下空白處' });
   DEFAULT_NEWS.unshift({ id: 'd1044', date: '2026-10-07', tag: '更新', title: '歌姬挑戰畫面全新改版', body: '・遊玩畫面改為美音的霓虹舞台：潑墨背景、漫畫格、半立體音軌、霓虹膠囊音符，左側 LIFE、右側 FEVER\n・FEVER 滿了 8 秒內對美音傷害 ×2\n・長按音符按滿 70% 就算 PERFECT\n・譜面加量：EASY 317／NORMAL 700／HARD 1608 個音符\n・美音碎片：每首不同的歌第一次拿到 S 以上就得 20 片（已拿過 S 的歌自動補發）\n・手機大廳對話框空間夠就置中，小手機改為點一下展開' });
   DEFAULT_NEWS.unshift({ id: 'd1045', date: '2026-10-07', tag: '更新', title: '歌姬挑戰新歌〈私は最強〉', body: '・新增 Ado〈私は最強〉：EASY 4／NORMAL 8／HARD 12\n・又多一首歌可以拿美音碎片（每首歌第一次 S 以上 +20 片）' });
+  DEFAULT_NEWS.unshift({ id: 'd1046', date: '2026-10-07', tag: '修正', title: '歌姬挑戰：修正點擊閃爍、音軌加長', body: '・修正手機點擊音軌時畫面會閃一下黑色\n・音軌加長、音符移動變慢，有更多時間看清楚音符\n・背景的美音會跟著節拍上下晃動' });
   /* 東海篇：斧手摩根改用專屬造型（金色短髮、鐵下巴、斧頭手、海軍大衣） */
   { const E = CHAPTERS.find(c => c.id === 'east'); const m = E && E.npcs.find(n => n.id === 'morgan_n'); if (m) m.look = 'morgan'; }
   /* 白鬍子新立繪 */ CHARACTERS.whitebeard.image = 'assets/chars/whitebeard.webp?v=78'; CHARACTERS.whitebeard.ultimateBg = CHARACTERS.whitebeard.image;

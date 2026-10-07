@@ -147,7 +147,7 @@
   }
 
   /* ---------- 遊戲（v121b：版面還原參考圖——只有美音，霓虹潑墨背景、漫畫格、半立體音軌、膠囊音符） ---------- */
-  const UTA_FACE = 'assets/chars/uta_face.webp?v=121';
+  const STAGE = 'assets/ui/rhythm/'; /* v123：舞台素材預先處理好（淡出、色調、網點），畫面上不再用 CSS mask／filter／混合模式——手機 GPU 在點擊重繪時會閃黑 */
   async function startGame(S, dk) {
     endGame(true); pvStop(); view = 'play'; ensureCtx();
     const C = CHARACTERS, foe = bossId(), B = BOSS_CFG[dk], Dd = DIFFS.find(x => x[0] === dk);
@@ -163,12 +163,12 @@
     W.innerHTML = `<div class="rg-play rgx dk-${dk}">
       <div class="rgx-bg" aria-hidden="true">
         <canvas class="rgx-ink"></canvas>
-        <figure class="rgx-ghost g1"><img src="${UTA_FACE}" alt=""></figure>
-        <figure class="rgx-ghost g2"><img src="${DEMON_FACE}" alt=""></figure>
-        <figure class="rgx-uta"><img src="${DEMON_IMG}" alt=""></figure>
+        <img class="rgx-ghost g1" src="${STAGE}ghost_smile.webp?v=123" alt="">
+        <img class="rgx-ghost g2" src="${STAGE}ghost_demon.webp?v=123" alt="">
+        <figure class="rgx-uta"><img src="${STAGE}uta_stage.webp?v=123" alt=""><i class="rgx-cast"></i></figure>
         <canvas class="rgx-ink rgx-ink2"></canvas><i class="rgx-vig"></i>
-        <figure class="rgx-panel p1"><img src="${UTA_FACE}" alt=""></figure>
-        <figure class="rgx-panel p2"><img src="${DEMON_FACE}" alt=""></figure>
+        <img class="rgx-panel p1" src="${STAGE}panel_smile.webp?v=123" alt="">
+        <img class="rgx-panel p2" src="${STAGE}panel_scream.webp?v=123" alt="">
         <div class="rgx-notes">${['♪', '♫', '♪', '♬', '♩', '♫'].map((c, i) => `<i style="--i:${i}">${c}</i>`).join('')}</div>
       </div>
       <canvas class="rg-cv"></canvas>
@@ -187,7 +187,7 @@
       <div class="rg-count" id="rgCount" aria-live="assertive"></div>
       <div class="rg-load" id="rgLoad">載入音樂中…</div>
     </div>`;
-    const cv = W.querySelector('.rg-cv'); G.cv = cv; G.cx = cv.getContext('2d'); G.root = W.querySelector('.rg-play'); G.bossEl = W.querySelector('.rgx-uta'); G.comboEl = $('rgCombo'); G.ink = W.querySelector('.rgx-ink'); G.ink2 = W.querySelector('.rgx-ink2'); fit();
+    const cv = W.querySelector('.rg-cv'); G.cv = cv; G.cx = cv.getContext('2d'); G.root = W.querySelector('.rg-play'); G.bossEl = W.querySelector('.rgx-uta'); G.utaImg = G.bossEl.querySelector('img'); G.comboEl = $('rgCombo'); G.ink = W.querySelector('.rgx-ink'); G.ink2 = W.querySelector('.rgx-ink2'); fit();
     W.querySelector('.rg-pause').onclick = () => pause(true);
     bindInput(cv); hud();
     try { G.buf = await loadBuf(S.src); } catch (e) { const l = $('rgLoad'); if (l) l.textContent = '音樂載入失敗，請檢查網路後再試一次'; return; }
@@ -202,7 +202,7 @@
     const hb = Math.max(64, ...['.rgx-boss', '.rgx-title', '.rgx-right'].map(q => { const e = G.root.querySelector(q); return e ? e.getBoundingClientRect().bottom - r.top : 0; })); /* HUD 底部（各區塊實際量測） */
     G.lw = land ? Math.min(760, r.width * .58, r.height * 1.5) : Math.min(640, r.width - 8); G.cxm = r.width / 2; G.lx = Math.round(G.cxm - G.lw / 2);
     G.jy = Math.round(r.height * (land ? .87 : .86)); G.top = Math.round(hb + 8);
-    G.farY = Math.round(Math.max(G.top + 24, r.height * (short ? .4 : land ? .46 : .54))); G.hz = (G.farY - G.jy * SF) / (1 - SF); G.sH = (r.height - G.hz) / (G.jy - G.hz);
+    G.farY = Math.round(Math.max(G.top + 16, r.height * (short ? .3 : land ? .34 : .4))); /* v123：音軌加長（遠端拉高），看得到音符的時間更長 */ G.hz = (G.farY - G.jy * SF) / (1 - SF); G.sH = (r.height - G.hz) / (G.jy - G.hz);
     const R = G.root.style; R.setProperty('--lx', G.lx + 'px'); R.setProperty('--lw', G.lw + 'px'); R.setProperty('--jy', G.jy + 'px'); R.setProperty('--top', G.top + 'px'); R.setProperty('--far', G.farY + 'px');
     G.judgeY = Math.round(G.farY + (G.jy - G.farY) * .55);
     inkBg(r.width, r.height, dpr, land);
@@ -229,7 +229,7 @@
   const sAt = z => 1 / (1 + z * PK), yAt = z => G.hz + (G.jy - G.hz) * sAt(z), xAt = (b, s) => G.cxm + (b / 4 - .5) * G.lw * s;
   const laneX = l => xAt(l + .5, 1);
   function laneOf(x, y) { const s = Math.max(SF, Math.min(G.sH || 1.4, (y - G.hz) / (G.jy - G.hz))), u = (x - G.cxm) / (G.lw * s) + .5, k = Math.floor(u * 4); return k >= 0 && k < 4 ? k : -1; }
-  const travel = () => (2600 - G.speed * 210) / G.spd; /* 音符從遠端滑到判定線的時間（毫秒）；五線譜束縛時加速 */
+  const travel = () => (3400 - G.speed * 270) / G.spd; /* 音符從遠端滑到判定線的時間（毫秒；v123 加長約 1.3 倍，譜面速度 6 約 1.8 秒）；五線譜束縛時加速 */
   /* 聲音實際播出的時間要扣掉裝置輸出延遲（藍牙耳機、手機） */
   function latency() { const l = ((actx && (actx.outputLatency || 0)) + (actx && (actx.baseLatency || 0))) * 1000; return l > 0 ? Math.min(250, l) : 30; }
   function songTime() { if (!G.started) return G.t; return (actx.currentTime - G.t0) * 1000 - G.lat; }
@@ -245,6 +245,7 @@
     else G.t = songTime();
     G.spd += ((G.started && G.t < G.staffUntil ? G.B.spd : 1) - G.spd) * .08;
     if (G.started) { bossTick(); feverTick(); }
+    bob();
     if (G.auto && G.started) for (const n of G.notes) { if (n.t - G.t > 40) break; if (n.hit || n.done || n.pending) continue; if (G.t >= n.t - G.auto) { n.hit = 1; G.press[n.l] = 1; if (n.k === 1) n.holding = true; award(n, judgeOf(n.t - G.t) || 'o'); } } /* 測試用自動演奏 */
     /* 判定：沒打到的音符過線視為失誤；長按按到結尾自動完成 */
     for (const n of G.notes) { if (n.done) continue; if (n.t - G.t > 1000) break;
@@ -255,6 +256,11 @@
       if (n.k !== 1 && n.hit) n.done = true; }
     if (G && !G.over) draw();
   }
+  /* 美音上下晃動：跟著拍子小幅浮動（每 2 拍一個來回，約 ±8px，魔王型態更大）＋受擊時往旁邊晃一下；只改 transform，不觸發重繪 */
+  function bob() { const el = G.bossEl; if (!el || G.defeated) return; const now = performance.now(), t = G.started ? G.t : now - (G.cdStart || now);
+    const amp = G.demon ? 12 : 8, y = Math.sin(t / (G.beat * 2) * Math.PI * 2) * amp, sc = 1 + Math.sin(t / (G.beat * 4) * Math.PI * 2) * .008;
+    const k = Math.max(0, 1 - (now - (G.hitAt || 0)) / 160), x = -6 * k;
+    el.style.transform = `translate3d(calc(-50% + ${x.toFixed(1)}px), ${y.toFixed(1)}px, 0) scale(${sc.toFixed(4)})`; }
   /* 長按放開：按住的時間 ≥ 70% 長度算完成（PERFECT），不到就是失誤 */
   function holdRelease(n) { if (!n || n.k !== 1 || !n.holding || n.done) return; n.holding = false; n.done = true;
     if ((G.t - n.t) / Math.max(1, n.d) >= HOLD_OK) tailOk(n); else miss(n); }
@@ -288,7 +294,7 @@
   }
   /* HARD：美音體力剩一半「魔王降臨」——畫面轉為血紅、魔王覺醒、攻擊更頻繁 */
   function demonCheck() { if (!G.B.demon || G.demon || G.defeated || G.ehp > G.emax * .5) return; G.demon = true; G.root.classList.add('demon');
-    if (G.bossEl) G.bossEl.classList.add('demon'); const av = $('rgFoeAv'); if (av) av.src = DEMON_FACE;
+    if (G.bossEl) G.bossEl.classList.add('demon'); if (G.utaImg) G.utaImg.src = STAGE + 'uta_stage_demon.webp?v=123'; const av = $('rgFoeAv'); if (av) av.src = DEMON_FACE;
     flash('demon'); G.shake = 18; banner('魔王降臨！美音召喚了魔王', 'boss big'); G.nextAtk = Math.min(G.nextAtk, G.t + G.beat * 6); }
 
   /* 音符顏色：外側兩軌青色、內側兩軌桃紅（參考圖）；長按紫、滑動金 */
@@ -402,7 +408,7 @@
   /* BOSS 受擊：美音閃白抖動＋傷害數字 */
   function bossHit(dmg, j) {
     const now = performance.now(), B = G.bossEl;
-    if (B && !G.defeated && now - G.lastBossHit > 180) { G.lastBossHit = now; B.classList.remove('hit'); void B.offsetWidth; B.classList.add('hit'); }
+    if (B && !G.defeated && now - G.lastBossHit > 180) { G.lastBossHit = now; G.hitAt = now; } /* 受擊晃動由 bob() 處理（不切換 class、不強制重排） */
     const box = $('rgDmgs'); if (!box || G.defeated) return; if (box.childElementCount > 7) box.firstElementChild.remove();
     const d = document.createElement('b'); d.className = 'rg-dmg ' + j; d.textContent = Math.round(dmg * 137 * (j === 'p' ? 1 + Math.random() * .2 : 1)).toLocaleString();
     d.style.setProperty('--dx', Math.round((Math.random() - .5) * 80) + 'px'); d.style.setProperty('--dy', Math.round((Math.random() - .5) * 60) + 'px'); box.appendChild(d); setTimeout(() => d.remove(), 800);
