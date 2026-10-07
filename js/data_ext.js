@@ -335,6 +335,7 @@
   DEFAULT_NEWS.unshift({ id: 'd1039', date: '2026-10-07', tag: '活動', title: 'VIP 會員中心開放・10 月限時月費「萬聖火龍燼」', body: '・新增 VIP 會員中心：會員等級與各級福利、月費、儲值（目前僅開放免費遊玩，暫無儲值服務）\n・2026 年 10 月限時月費（1200 寶藏幣，10/31 23:59 截止）：SSR 燼、限定皮膚「萬聖之燼」、30 天每天 10 枚寶藏幣、限定抽獎券 ×10、SSR 角色選擇卡\n・新角色「炎災」燼登場，也會在和之國篇擋在屋頂前\n・寶藏幣換上新圖示' });
   DEFAULT_NEWS.unshift({ id: 'd1040', date: '2026-10-07', tag: '更新', title: '背包與船團介面改版', body: '・背包改為分類＋道具方格＋詳細資訊，可直接前往獲取地點\n・船團頁面重新設計：船團資訊、公告、BOSS／排行／獎勵一目了然\n・洛基、大和等角色頭像重新以臉部為中心裁切\n・獲得燼時的角色卡片完整顯示角色' });
   DEFAULT_NEWS.unshift({ id: 'd1041', date: '2026-10-07', tag: '更新', title: '尼卡魯夫登場・新模式「歌姬劇場」', body: '・皇帝領海第 6 位皇帝：尼卡魯夫（UR+），擊敗真身即可加入\n・新模式「歌姬劇場」：跟著〈新時代〉的節奏點擊、長按、滑動，用歌聲擊敗對手\n・電腦版大廳重新排版、手機限定召喚改為小橫幅、點擊船長可以聊天\n・魯夫（巨人篇）調整為 SSR' });
+  DEFAULT_NEWS.unshift({ id: 'd1042', date: '2026-10-07', tag: '更新', title: '歌姬劇場改版：BOSS 立繪、前奏試聽、打擊感', body: '・遊玩畫面：音軌置中，左側出戰陣容隊長、右側 BOSS 立繪；打中音符時 BOSS 受擊閃白並跳出傷害數字\n・打擊感：音軌光柱、粒子爆發、PERFECT 震動、每 50 COMBO 金色閃光、打擊音效（可在選曲畫面關閉）\n・COMBO 改為音軌中央大字，50／100／200 COMBO 變色\n・選曲畫面改用 MV 封面當背景，選曲時自動試聽開頭 20 秒前奏\n・進入歌姬劇場時大廳音樂完全停止，不再兩首音樂重疊\n・譜面重新分配四條音軌，HARD／NORMAL 加入少量雙押' });
   /* 東海篇：斧手摩根改用專屬造型（金色短髮、鐵下巴、斧頭手、海軍大衣） */
   { const E = CHAPTERS.find(c => c.id === 'east'); const m = E && E.npcs.find(n => n.id === 'morgan_n'); if (m) m.look = 'morgan'; }
   /* 白鬍子新立繪 */ CHARACTERS.whitebeard.image = 'assets/chars/whitebeard.webp?v=78'; CHARACTERS.whitebeard.ultimateBg = CHARACTERS.whitebeard.image;

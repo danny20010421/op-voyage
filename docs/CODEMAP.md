@@ -17,7 +17,7 @@
 - `js/story_ext.js`: F:為 13 篇章補對話、序章、尾聲與支線 | R:data.js | A:- | S:只能「加對話」不能增減任務步驟，否則舊存檔的任務進度會錯位
 
 - `js/lobby_v118.js`: F:箭頭換 SVG（fixArrows）、點船長說話、限定召喚輪播控制、電腦版兩欄（搬移 DOM，.l2-colL/.l2-colR） | S:lobby.js 的 __lbEvNext 提供切換
-- `js/rhythm_v118.js`＋`js/rhythm_charts.js`: F:歌姬劇場（openRhythm），譜面 [ms, lane, 種類, 長按ms]；SAVE.data.rhythm | S:新歌用 tools/rhythm_beatmap.py 產生後加入 RHYTHM_SONGS
+- `js/rhythm_v118.js`＋`js/rhythm_charts.js`: F:歌姬劇場（openRhythm），譜面 [ms, lane, 種類, 長按ms]；SAVE.data.rhythm | S:新歌用 tools/rhythm_beatmap.py 產生、tools/rhythm_lanes.py 分配軌道後加入 RHYTHM_SONGS；開啟時呼叫 MUSIC.hold(true) 停止背景音樂（js/music.js），關閉時 hold(false)；RHYTHM._auto(ms) 為測試用自動演奏
 - `js/roster_v118.js`／`ext_v118.js`／`fx_v118.js`: F:尼卡魯夫（luffy_nika）與效果 dmgToShield、nikaThunder（battle.js 的 onEvaded 掛鉤）、nikaTeamHeal、nikaTriple、nikaLegacy
 - `js/bag_v116.js`: F:背包 openBag（取代 app.js 版；分類 CAT_OF、獲取方式 SRC/GO、使用 USE）、頭像快取參數 FACES、橫式立繪偵測（.cer-char/.cx-art img 加 .wide） | S:vip_v115 之後載入；新道具要補 CAT_OF 與 SRC
 - `css/v116.css`: F:背包 .bg2-*、船團 .gl-*（舊 .gd-card/.gd-wrap 是新手導覽的類別，船團不要再用）
