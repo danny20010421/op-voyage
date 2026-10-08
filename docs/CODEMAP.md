@@ -25,6 +25,10 @@
 - `js/fx.js`（v129）: S:特效畫布每幀依 .b-arena 的 getBoundingClientRect 反向放大蓋滿 .screen，setTransform 把戰場座標換到畫面；全畫面效果用 screenSpace() 畫
 - `tests/duel-sim.js`: F:指定角色對戰模擬（window.__DUEL = { id, opps, rar, n, ultFirst }）
 - `js/fx_v130.js`／`css/v130.css`: F:補上缺少的第 5 招奧義動畫（荷帝、羅傑；只在 CHOREO 沒有時才補）；toast 圖層、平板直式登入頁公告位置 | S:新角色的第 5 招一定要有 CHOREO[id][4]（或變身演出），可用瀏覽器檢查 CHARACTER_ORDER 中沒有動畫的奧義
+- `js/progress_v131.js`: F:覺醒（roster[id].star）、技能等級（roster[id].sk）、新道具 awaken_gem／skill_book、每日活躍（SAVE.data.act）與本週活躍（SAVE.data.actW）；window.PROG／window.ACT | D:startBattle、computeSkillOutcome（DOMContentLoaded 時最外層包裝）、track（包裝後同步活躍度） | S:加成只在 opts.pvp 為否時套用；連戰帶入的 hp／pp 不能重複加成
+- `js/pass_v131.js`: F:航海通行證（SAVE.data.pass，每月一季）＋每日活躍畫面（openPass('daily'|'pass')）；passAddXp | S:換季未領的獎勵會清掉
+- `js/ladder_v131.js`: F:海賊天梯（SAVE.data.ladder；players/{uid}.lp_YYYYMM、lpS、lpTier、team）、賽季獎勵、本季排行 | S:積分在客戶端計算（可被修改，正式營運需伺服器計分）；排行依單一欄位排序，不需複合索引
+- `css/v131.css`: 覺醒／技能等級、通行證、天梯畫面
 - `js/grow_v112.js`（v130）: S:重畫培養視窗時沿用舊的立繪 <img>（src 相同才沿用），避免大圖重新解碼閃爍
 - `js/lobby_v121.js`＋`css/v121.css`: F:手機直式大廳的船長對話框放在限定召喚上方（量測左側圖示欄、右側欄、限定召喚橫條；依序：置中 → 偏左 → 縮小字級 → 收縮展開膠囊 say-fold／say-open） | A:lobbyPlaceSay
 - `js/roster_v118.js`／`ext_v118.js`／`fx_v118.js`: F:尼卡魯夫（luffy_nika）與效果 dmgToShield、nikaThunder（battle.js 的 onEvaded 掛鉤）、nikaTeamHeal、nikaTriple、nikaLegacy

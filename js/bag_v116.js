@@ -20,25 +20,28 @@
   /* ---------- 分類與獲取方式 ---------- */
   const CATS = [['all', '全部'], ['battle', '戰鬥'], ['grow', '培養'], ['ticket', '票券']];
   const CAT_OF = { potion_s: 'battle', herb: 'battle', potion_l: 'battle', pp_s: 'battle', haki: 'battle', shield: 'battle', tome: 'battle', meat: 'battle', feather: 'battle',
-    exp_s: 'grow', exp_m: 'grow', exp_l: 'grow', sweep: 'grow', skin_ticket: 'ticket', event_ticket: 'ticket', char_select: 'ticket' };
+    exp_s: 'grow', exp_m: 'grow', exp_l: 'grow', sweep: 'grow', skin_ticket: 'ticket', event_ticket: 'ticket', char_select: 'ticket', awaken_gem: 'grow', skill_book: 'grow' };
   const hub = t => { if (typeof openGacha === 'function') openGacha(typeof currentScreen !== 'undefined' ? currentScreen : 'modeScreen'); if (t && typeof switchHub === 'function') setTimeout(() => switchHub(t), 0); };
   const GO = {
     summon: ['懸賞處・召喚', () => hub('summon')], shop: ['道具商店', () => hub('shop')], bounty: ['每日懸賞', () => hub('bounty')],
     tower: ['勇者之塔', () => window.openTower && openTower()], login: ['七日登入', () => window.openLogin && openLogin()], ach: ['成就', () => window.openAchievements && openAchievements()],
     vip: ['VIP 每日／升級禮包', () => window.openVIP && openVIP('member')], card: ['月費', () => window.openVIP && openVIP('card')],
-    chest: ['劇情地圖的寶箱', null], supply: ['每天自動補給 5 張', null]
+    chest: ['劇情地圖的寶箱', null], supply: ['每天自動補給 5 張', null],
+    activity: ['每日／本週活躍寶箱', () => window.openPass && openPass('daily')], pass: ['航海通行證', () => window.openPass && openPass('pass')], ladder: ['海賊天梯賽季獎勵', () => window.openLadder && openLadder()], dupe: ['分解重複角色（角色培養 → 覺醒）', null]
   };
   const SRC = {
     potion_s: ['shop', 'summon', 'chest', 'login'], herb: ['shop', 'summon', 'login'], potion_l: ['shop', 'summon', 'login'], pp_s: ['shop', 'summon', 'login'], haki: ['shop', 'summon'],
     shield: ['summon', 'login'], tome: ['summon', 'login'], meat: ['summon', 'login'], feather: ['summon', 'login'],
     exp_s: ['shop', 'tower', 'chest', 'vip'], exp_m: ['shop', 'tower', 'vip'], exp_l: ['tower', 'summon', 'vip'], sweep: ['supply', 'vip'],
-    skin_ticket: ['ach', 'vip'], event_ticket: ['card', 'vip', 'login'], char_select: ['card', 'vip']
+    skin_ticket: ['ach', 'vip'], event_ticket: ['card', 'vip', 'login'], char_select: ['card', 'vip'],
+    awaken_gem: ['activity', 'pass', 'ladder', 'dupe'], skill_book: ['activity', 'pass', 'ladder']
   };
   const USE = id => {
     const it = ITEMS[id] || {}, e = it.effect || {};
     if (e.skinTicket) return ['使用', () => { close(); openSkinTicket(); }];
     if (e.charSelect) return ['使用', () => { close(); window.openCharSelect && openCharSelect(); }];
     if (e.eventTicket) return ['前往限定召喚', () => { close(); const b = $('lbEvent'); if (b && typeof currentScreen !== 'undefined' && currentScreen === 'modeScreen') b.click(); else hub(); }];
+    if (e.grow) return ['前往角色培養', () => { close(); const id0 = (SAVE.data.lineup || [])[0]; if (window.openGrow && id0) openGrow(id0); }];
     if (e.exp) return ['前往角色培養', () => { close(); const id0 = (SAVE.data.lineup || [])[0]; if (window.openGrow && id0) openGrow(id0); else if (typeof openCrew === 'function') openCrew('crew'); }];
     if (id === 'sweep') return ['前往海圖掃蕩', () => { close(); if (typeof openChart === 'function') openChart(); }];
     return null; /* 戰鬥道具：在戰鬥中按「道具」使用 */

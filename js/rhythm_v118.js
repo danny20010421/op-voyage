@@ -469,6 +469,7 @@
   function endGame(silent) { if (!G) return; G.over = true; cancelAnimationFrame(G.raf); try { if (G.src) { G.src.onended = null; G.src.stop(); } } catch (e) { } if (actx && actx.state === 'suspended') actx.resume(); if (silent) G = null; }
   /* ---------- 結算 ---------- */
   function finish(failed) {
+    if (!failed && typeof track === 'function') track('rhythm'); /* v131：每日活躍「完成 1 首歌姬挑戰」 */
     if (!G || G.over) return; const g = G; endGame(false);
     const { cnt, N } = g; for (const n of g.notes) if (!n.hit && !n.done) cnt.m++; /* 失敗時未出現的音符算失誤 */
     const acc = Math.min(1, (cnt.p + cnt.g * JW.g + cnt.o * JW.o) / N), rank = failed ? 'E' : rankOf(acc), score = Math.round(g.score), fc = !failed && cnt.m === 0;

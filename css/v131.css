@@ -1,0 +1,159 @@
+/* v131 第一、二階段：角色覺醒與技能等級（培養視窗）、航海通行證（每日活躍＋通行證）、海賊天梯。
+   8px 網格；框內資訊水平垂直置中；同一列控制項等高。手機直式單欄，平板以上置中最寬 880px。 */
+:root{--v131-gold:#ffcf5a;--v131-gold2:#e8a02a;--v131-ink:#0b1022;--v131-card:rgba(14,22,44,.86);--v131-line:rgba(255,215,140,.22);--v131-mute:#a9b4c8}
+
+/* ---------- 培養視窗：星級、覺醒分頁、技能等級 ---------- */
+.gw-stars{display:flex;align-items:center;justify-content:center;gap:4px;min-height:24px}
+.gw-stars i{font-style:normal;font-size:16px;line-height:1;color:rgba(255,255,255,.18)}
+.gw-stars i.on{color:var(--v131-gold);text-shadow:0 0 8px rgba(255,200,80,.7)}
+.gw-star{display:flex;flex-direction:column;gap:12px}
+.gw-starbig{display:flex;justify-content:center;gap:8px;min-height:48px;align-items:center}
+.gw-starbig i{font-style:normal;font-size:36px;line-height:1;color:rgba(255,255,255,.14);transition:transform .3s,color .3s}
+.gw-starbig i.on{color:var(--v131-gold);text-shadow:0 0 14px rgba(255,200,80,.75)}
+.gw-starbig.pop i.on:last-of-type{animation:gwStar .6s ease-out}
+@keyframes gwStar{0%{transform:scale(1.8)}100%{transform:scale(1)}}
+.gw-starnow{margin:0;text-align:center;font-size:14px;line-height:20px;color:#e8dcc0}.gw-starnow b{color:var(--v131-gold)}
+.gw-cost{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
+.gw-cost div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:64px;padding:8px;border-radius:12px;background:rgba(0,0,0,.25);text-align:center}
+.gw-cost dt{font-size:12px;color:var(--v131-mute)}.gw-cost dd{margin:0;font:800 15px/1.2 var(--num,system-ui);color:#fff}
+.gw-cost div.no dd{color:#ff9a8a}.gw-cost div.ok dd{color:#9fe8b0}
+.gw-starup{min-height:48px;display:grid;place-items:center;font-size:15px}
+.gw-starmax{margin:0;text-align:center;color:var(--v131-gold);font-weight:900;min-height:48px;display:grid;place-items:center}
+.gw-dupe{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;min-height:56px;padding:8px 8px 8px 16px;border-radius:12px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.18);font-size:13px;color:#d8dce8}
+.gw-dupe b{color:#fff}.gw-dupe .btn-ghost{height:40px;display:grid;place-items:center;padding:0 16px}
+.gw-own2{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.gw-chip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px 0 4px;border-radius:999px;background:rgba(0,0,0,.3);border:1px solid var(--v131-line);font-size:12.5px;color:#e8dcc0}
+.gw-chip .ico,.gw-chip img{width:24px;height:24px}.gw-chip em{font-style:normal;font:800 14px/1 var(--num,system-ui);color:#fff}
+.gw-sklv{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 8px 8px 8px;border-top:1px solid rgba(255,255,255,.08);cursor:default}
+.gw-lvb{display:grid;place-items:center;height:40px;border-radius:10px;background:rgba(255,207,90,.14);color:var(--v131-gold);font:900 14px/1 var(--num,system-ui)}
+.gw-lvb small{font-size:10px;opacity:.7}
+.gw-lve{display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0}
+.gw-lve b{font-size:13px;line-height:18px;color:#fff}.gw-lve small{font-size:11.5px;line-height:16px;color:var(--v131-mute)}
+.gw-skup{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:96px;height:48px;padding:0 12px;line-height:1.1}
+.gw-skup span,.gw-skup small{color:#2a1600!important}.gw-skup span{font-size:14px;font-weight:900}.gw-skup small{font-size:10.5px;font-weight:700;white-space:nowrap}
+.gw-skup:disabled span,.gw-skup:disabled small{color:#5a4a30!important}
+@media (max-width:380px){.gw-sklv{grid-template-columns:40px minmax(0,1fr) auto}.gw-skup{min-width:84px}.gw-cost dd{font-size:13px}}
+
+/* ---------- 共用：全畫面視窗（通行證、天梯） ---------- */
+.ps-wrap,.ld-wrap{position:fixed;inset:0;z-index:7000;display:flex;flex-direction:column;color:#fff;background:#070b18;overflow:hidden}
+.ps-bg,.ld-bg{position:absolute;inset:0;pointer-events:none}
+.ps-bg{background:radial-gradient(120% 70% at 50% 0%,rgba(255,190,80,.22),transparent 60%),linear-gradient(180deg,#14203f,#070b18 70%)}
+.ld-bg{background:radial-gradient(120% 70% at 50% 0%,rgba(110,160,255,.25),transparent 60%),url('../assets/chapters/marineford.webp?v=44') center/cover;filter:saturate(.8)}
+.ld-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,11,24,.72),rgba(7,11,24,.94) 55%)}
+.ps-top,.ld-top{position:relative;z-index:2;display:flex;align-items:center;gap:12px;min-height:56px;padding:calc(8px + var(--safeT,0px)) 16px 8px;max-width:880px;width:100%;margin:0 auto;box-sizing:border-box}
+.ps-top h2,.ld-top h2{margin:0;font:900 22px/1.2 var(--serif);letter-spacing:.12em;background:linear-gradient(180deg,#fff6d8,#e8b64a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ps-top small,.ld-top small{display:block;font-size:12px;line-height:16px;color:#c8b890}
+.ps-coins{margin-left:auto;display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px 0 4px;border-radius:999px;background:rgba(0,0,0,.35);border:1px solid var(--v131-line)}
+.ps-coins img{width:24px;height:24px}.ps-coins b{font:800 14px/1 var(--num,system-ui)}
+.ps-tabs{position:relative;z-index:2;display:flex;gap:8px;padding:0 16px 8px;max-width:880px;width:100%;margin:0 auto;box-sizing:border-box}
+.ps-tabs button{position:relative;flex:1;min-height:40px;display:grid;place-items:center;border-radius:999px;border:1px solid rgba(235,199,126,.45);background:rgba(255,255,255,.06);color:#e8dcc0;font-weight:900;font-size:15px;cursor:pointer}
+.ps-tabs button.on{background:linear-gradient(180deg,#5a3a1a,#2a1a0a);color:#ffe7a8;box-shadow:inset 0 0 0 1px #ffd34a}
+.ps-dot{position:absolute;top:6px;right:12px;width:8px;height:8px;border-radius:50%;background:#ff5a5a;box-shadow:0 0 6px #ff5a5a}
+.ps-body,.ld-body{position:relative;z-index:2;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:12px;padding:0 16px calc(16px + var(--safeB,0px));max-width:880px;width:100%;margin:0 auto;box-sizing:border-box}
+.ps-card,.ld-card{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;background:var(--v131-card);border:1px solid var(--v131-line);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.ps-card h3,.ld-card h3{margin:0;font-size:16px;line-height:24px}
+.ps-card>header{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:16px}
+.ps-card>header p{margin:0;font-size:12.5px;line-height:18px;color:var(--v131-mute)}
+.ps-card>header small{display:block;font-size:12px;color:#e8dcc0}
+.ps-big{display:block;font:900 32px/1.1 var(--num,system-ui);color:var(--v131-gold)}.ps-big span{font-size:15px;color:var(--v131-mute);margin-left:2px}
+.ps-bar,.ps-tb,.ld-tb{display:block;height:8px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}
+.ps-bar i,.ps-tb i,.ld-tb i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ffcf5a,#ff8a3a)}
+/* 活躍度軌道與寶箱節點 */
+.ps-track{position:relative;height:64px;margin:0 24px 0 8px}
+.ps-track .ps-bar{position:absolute;left:0;right:0;top:20px}
+.ps-node{position:absolute;left:var(--x);top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;width:48px;padding:0;border:0;background:none;color:var(--v131-mute);cursor:pointer}
+.ps-chest{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#5a4a3a,#2a2018);border:1.5px solid rgba(255,215,140,.35);font-size:16px;font-weight:900;color:#9fe8b0}
+.ps-chest::before{content:'';width:20px;height:14px;border-radius:3px 3px 2px 2px;background:linear-gradient(180deg,#c9973a 0 40%,#8a5a1a 40%);box-shadow:inset 0 0 0 1.5px #3a2410}
+.ps-node.done .ps-chest::before{display:none}
+.ps-node.can .ps-chest{background:linear-gradient(180deg,#ffd36a,#e89a2a);border-color:#fff3c4;box-shadow:0 0 16px rgba(255,200,80,.85);animation:psBob 1s ease-in-out infinite alternate}
+.ps-node b{font:800 12px/1 var(--num,system-ui)}.ps-node.can b{color:var(--v131-gold)}.ps-node.done{opacity:.6}
+@keyframes psBob{to{transform:translateY(-4px)}}
+.ps-node[aria-disabled="true"]{cursor:default}
+/* 今日必做 */
+.ps-tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ps-tasks li{display:grid;grid-template-columns:minmax(0,1fr) 48px 72px;align-items:center;gap:8px;min-height:56px;padding:8px 8px 8px 16px;border-radius:12px;background:rgba(255,255,255,.05)}
+.ps-tasks li.done{background:rgba(120,220,150,.08)}
+.ps-tt{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:8px;row-gap:4px;min-width:0}
+.ps-tt b{font-size:14px;line-height:20px;font-weight:700;min-width:0}.ps-tt small{font:700 12px/1 var(--num,system-ui);color:var(--v131-mute)}
+.ps-tt .ps-tb{grid-column:1/-1;height:6px}
+.ps-pts{display:grid;place-items:center;height:32px;border-radius:999px;background:rgba(255,207,90,.14);color:var(--v131-gold);font:900 13px/1 var(--num,system-ui);font-style:normal}
+.ps-tasks .btn-ghost{height:40px;display:grid;place-items:center;padding:0 8px}
+.ps-ok{display:grid;place-items:center;height:40px;border-radius:10px;background:rgba(120,220,150,.18);color:#9fe8b0;font-weight:900}.ps-ok.off{background:none;color:var(--v131-mute)}
+.ps-legend{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ps-legend li{display:flex;align-items:center;gap:8px;min-height:40px;padding:4px 12px;border-radius:10px;background:rgba(0,0,0,.25);font-size:12px;line-height:16px;color:#d8dce8}
+.ps-legend b{font:900 14px/1 var(--num,system-ui);color:var(--v131-gold)}
+/* 通行證 */
+.ps-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px}
+.ps-hl{display:flex;flex-direction:column;gap:8px;min-width:0}.ps-hl small{font-size:12.5px;color:#e8dcc0}.ps-hl p{margin:0;font-size:12px;line-height:18px;color:var(--v131-mute)}
+.ps-hr{display:flex;flex-direction:column;gap:8px;min-width:200px}
+.ps-buy{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;padding:4px 16px}
+.ps-buy span{font-size:15px;font-weight:900}.ps-buy small{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700}.ps-buy img{width:16px;height:16px}
+.ps-all{height:40px;display:grid;place-items:center}
+.ps-prem{display:grid;place-items:center;min-height:56px;padding:0 16px;border-radius:12px;font-weight:900;color:#2a1600;background:linear-gradient(180deg,#ffe9a0,#e8a02a)}
+.ps-th{display:grid;grid-template-columns:48px minmax(0,1fr) minmax(0,1fr);gap:8px;font-size:12px;color:var(--v131-mute);text-align:center}
+.ps-th span:last-child{color:var(--v131-gold);font-weight:900}
+.ps-lvls{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ps-lvls li{display:grid;grid-template-columns:48px minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:stretch}
+.ps-lv{display:grid;place-items:center;border-radius:12px;background:rgba(255,255,255,.06);font:900 16px/1 var(--num,system-ui);color:var(--v131-mute)}
+.ps-lvls li.reach .ps-lv{background:rgba(255,207,90,.18);color:var(--v131-gold)}
+.ps-lvls li.next .ps-lv{box-shadow:inset 0 0 0 1.5px var(--v131-gold)}
+.ps-lvls li.big .ps-lv{font-size:18px}
+.ps-cell{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 8px;min-height:64px;padding:8px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;cursor:pointer}
+.ps-cell.paid{background:linear-gradient(180deg,rgba(255,207,90,.1),rgba(255,207,90,.03));border-color:rgba(255,207,90,.3)}
+.ps-cell.can{border-color:var(--v131-gold);box-shadow:0 0 12px rgba(255,200,80,.45),inset 0 0 0 1px var(--v131-gold)}
+.ps-cell.got{opacity:.5}.ps-cell.lock{filter:grayscale(.6);opacity:.75}.ps-cell[aria-disabled="true"]{cursor:default}
+.ps-rw{display:inline-flex;align-items:center;gap:4px}.ps-ric{display:grid;place-items:center;width:28px;height:28px}.ps-ric .ico,.ps-ric img{width:28px;height:28px}
+.ps-rw em{font:800 13px/1 var(--num,system-ui);font-style:normal}
+.ps-st{flex-basis:100%;text-align:center;font-size:11.5px;line-height:14px;color:var(--v131-mute)}.ps-cell.can .ps-st{color:var(--v131-gold);font-weight:900}
+.ps-note,.ld-note{margin:0;font-size:12px;line-height:18px;color:var(--v131-mute)}
+@media (max-width:600px){.ps-head{grid-template-columns:1fr}.ps-hr{min-width:0;flex-direction:row}.ps-hr>*{flex:1}.ps-card>header{grid-template-columns:auto minmax(0,1fr);gap:12px}.ps-big{font-size:28px}.ps-legend{grid-template-columns:1fr}}
+@media (max-width:380px){.ps-tasks li{grid-template-columns:minmax(0,1fr) 40px 64px;padding-left:12px}.ps-tt b{font-size:13px}.ps-lvls li,.ps-th{grid-template-columns:40px minmax(0,1fr) minmax(0,1fr)}.ps-rw em{font-size:12px}.ps-ric,.ps-ric .ico,.ps-ric img{width:24px;height:24px}}
+
+/* ---------- 海賊天梯 ---------- */
+.ld-me{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:16px}
+.ld-badge{display:grid;place-items:center;width:72px;height:72px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 90%,#fff),color-mix(in srgb,var(--tc) 60%,#000))}
+.ld-badge span{font:900 15px/1 var(--serif);color:#1a1020;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+.ld-mi{display:flex;flex-direction:column;gap:8px;min-width:0}.ld-mi small{font-size:12px;line-height:16px;color:var(--v131-mute)}
+.ld-pts{font:900 30px/1 var(--num,system-ui);color:var(--tc)}.ld-pts small{font-size:14px;color:var(--v131-mute)}
+.ld-tries{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:72px}
+.ld-tries>b{font:900 28px/1 var(--num,system-ui);color:#fff}.ld-tries>small{font-size:11.5px;color:var(--v131-mute)}
+.ld-tries .btn-ghost{display:flex;flex-direction:column;align-items:center;justify-content:center;height:48px;padding:0 8px;font-size:12px;line-height:1.2}
+.ld-prev{flex-direction:row;align-items:center;justify-content:space-between;border-color:var(--v131-gold);box-shadow:0 0 16px rgba(255,200,80,.3)}
+.ld-prev div{display:flex;flex-direction:column;gap:4px;min-width:0}.ld-prev small{font-size:12px;color:#e8dcc0}.ld-prev .btn-gold{height:48px;min-width:96px;display:grid;place-items:center}
+.ld-login{flex-direction:row;align-items:center;gap:12px}.ld-login p{margin:0;flex:1;font-size:13px;line-height:20px;color:#d8dce8}.ld-login .btn-gold{height:40px;display:grid;place-items:center;white-space:nowrap}
+.ld-h{display:flex;align-items:center;justify-content:space-between;gap:8px}.ld-h .btn-ghost{height:40px;display:grid;place-items:center;padding:0 16px}
+.ld-opps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ld-opps li{display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:72px;padding:8px;border-radius:12px;background:rgba(255,255,255,.05)}
+.ld-opps li.ld-empty{display:flex;justify-content:center;color:var(--v131-mute)}
+.ld-oa img{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#0b1830;border:2px solid rgba(255,255,255,.3)}
+.ld-oi{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0}
+.ld-oi b{display:flex;align-items:center;gap:8px;font-size:14px;line-height:20px;min-width:0}
+.ld-on{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ld-oi b em{flex:0 0 auto;font-style:normal;font-size:10.5px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:var(--v131-mute)}
+.ld-oi small{display:flex;align-items:center;gap:8px;font:700 12px/1 var(--num,system-ui);color:#fff}
+.ld-oi small i{font-style:normal;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--tc) 35%,transparent);color:var(--tc);font-family:var(--sans)}
+.ld-ot{display:flex;gap:4px}.ld-ot img{width:28px;height:28px;border-radius:50%;object-fit:cover;background:#0b1830}
+.ld-opps .btn-gold{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:96px;height:56px;padding:0 12px}
+.ld-opps .btn-gold span{font-size:15px;font-weight:900}.ld-opps .btn-gold small{font-size:10.5px;white-space:nowrap}
+.ld-tiers{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ld-tiers li{display:grid;grid-template-columns:72px 64px minmax(0,1fr);align-items:center;gap:8px;min-height:48px;padding:4px 12px;border-radius:10px;background:rgba(255,255,255,.04)}
+.ld-tiers li.on{box-shadow:inset 0 0 0 1.5px var(--tc);background:color-mix(in srgb,var(--tc) 12%,transparent)}
+.ld-tn{font:900 15px/1 var(--serif);color:var(--tc)}.ld-tiers small{font:700 12px/1 var(--num,system-ui);color:var(--v131-mute)}.ld-tiers em{font-style:normal;font-size:12px;line-height:16px;color:#d8dce8}
+.ld-rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ld-rank li{display:grid;grid-template-columns:32px 32px minmax(0,1fr) auto auto;align-items:center;gap:8px;min-height:44px;padding:4px 12px 4px 4px;border-radius:10px;background:rgba(255,255,255,.04)}
+.ld-rank li.me{background:rgba(255,207,90,.14);box-shadow:inset 0 0 0 1px var(--v131-gold)}
+.ld-rn{display:grid;place-items:center;font:900 14px/1 var(--num,system-ui);color:var(--v131-gold)}.ld-rank img{width:32px;height:32px;border-radius:50%;object-fit:cover}
+.ld-rank b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ld-rank small{font-size:11.5px;color:var(--tc)}.ld-rank em{font:800 13px/1 var(--num,system-ui);font-style:normal}
+@media (max-width:600px){.ld-me{grid-template-columns:56px minmax(0,1fr);}.ld-badge{width:56px;height:56px}.ld-badge span{font-size:13px}.ld-tries{grid-column:1/-1;flex-direction:row;justify-content:flex-start;gap:8px}.ld-tries>b{font-size:20px}
+  .ld-tiers li{grid-template-columns:56px 56px minmax(0,1fr)}.ld-login{flex-direction:column;align-items:stretch}}
+@media (max-width:380px){.ld-opps li{grid-template-columns:48px minmax(0,1fr) auto;gap:8px}.ld-oa img{width:48px;height:48px}.ld-opps .btn-gold{min-width:84px}.ld-ot img{width:24px;height:24px}}
+/* 冒險選單的天梯卡片 */
+.m-ladder .mc-art{background:radial-gradient(circle at 50% 40%,rgba(140,190,255,.45),transparent 60%),url('../assets/chapters/marineford.webp?v=44') center 30%/cover,#13233d!important}
+.m-ladder .mc-art::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(8,18,32,.6))}
+/* 小手機（≤400px）：通行證按鈕改上下排；天梯對手改兩列（資訊在上、挑戰按鈕在下） */
+@media (max-width:400px){
+  .ps-hr{flex-direction:column}.ps-buy{flex-direction:row;gap:8px;min-height:48px}.ps-buy small{font-size:12px}
+  .ld-opps li{grid-template-columns:48px minmax(0,1fr);grid-template-areas:'a i' 'b b';row-gap:8px}
+  .ld-oa{grid-area:a}.ld-oi{grid-area:i}.ld-opps .btn-gold{grid-area:b;flex-direction:row;gap:8px;width:100%;height:44px}
+  .ld-oi small{flex-wrap:wrap;row-gap:4px}.ld-oi small i{white-space:nowrap}
+}

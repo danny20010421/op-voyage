@@ -102,14 +102,14 @@ const PVP = {
       return { message: `擊敗第 ${R.i} 位！體力與技能次數會延續。<br>下一位：<b>${CHARACTERS[nx.id].name}</b>（LV ${nx.lv}）`, next: { label: '迎戰下一位', fn: () => fight() } }; }
     RUN = null; const S = st(), win = !!r.win;
     const msgs = [win ? `🏆 擊敗了 ${esc3(R.card.username)} 的防守陣容！（${R.rounds} 回合）` : `敗給了 ${esc3(R.card.username)} 的防守陣容……`, '<small>好友對戰沒有獎勵，結果會記在雙方的對戰紀錄</small>'];
-    if (win) S.wins++; else S.losses++; SAVE.save();
+    if (win) S.wins++; else S.losses++; SAVE.save(); if (typeof track === 'function') track('pvp'); /* v131：每日活躍 */
     if (U()) F().db.collection('duels').add({ attacker: U().uid, defender: R.card.uid, attackerName: me || '', defenderName: R.card.username, win, rounds: R.rounds, at: Date.now(), team: SAVE.data.lineup.slice(0, 3) }).then(syncCard).catch(() => { });
     return { message: msgs.join('<br>'), next: { label: '返回好友', fn: () => { openModes(); open('friends'); } } };
   }
 
   /* ---------- 介面 ---------- */
   const TABS = [['friends', '好友'], ['add', '加好友'], ['req', '邀請・禮物'], ['guild', '⚓ 船團'], ['rank', '排行榜'], ['hist', '對戰紀錄'], ['me', '我的帳號']];
-  const BOARDS = [['tower', '勇者之塔', v => `第 ${v} 層`], ['throne', '虛空王座', v => `${(+v || 0).toLocaleString()} 傷害`], ['crewPower', '船隊總等級', v => `總等級 ${v}`], ['codex', '圖鑑收集', v => `${v} 位`]];
+  const BOARDS = [['tower', '勇者之塔', v => `第 ${v} 層`], ['throne', '虛空王座', v => `${(+v || 0).toLocaleString()} 傷害`], ['crewPower', '船隊總等級', v => `總等級 ${v}`], ['codex', '圖鑑收集', v => `${v} 位`], [(() => { const d = new Date(Date.now() + 8 * 3600e3); return `lp_${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, '0')}`; })(), '天梯積分', v => `${v} 分`]]; /* v131：海賊天梯本季積分 */
   let board = 'tower', ranks = null, rankMsg = '';
   async function loadRank() { ranks = null; rankMsg = ''; render(); try { const q = await F().db.collection('players').orderBy(board, 'desc').limit(50).get(); ranks = q.docs.map(d => d.data()).filter(x => (x[board] || 0) > 0); } catch (e) { ranks = []; rankMsg = C().errText(e); } render(); }
   const reqCount = () => reqIn.length + gifts.length + unreadNotes() + (typeof LIVE !== 'undefined' ? LIVE.invites().length : 0);

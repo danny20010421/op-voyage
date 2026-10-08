@@ -28,12 +28,13 @@
     const skinK = ((SAVE.data.skins || {}).equip || {})[id], img = skinK && typeof SKINS !== 'undefined' && SKINS[skinK] ? SKINS[skinK].image : c.image;
     const list = ownedList(), ix = list.indexOf(id);
     const pctNow = lv >= MAX_LV ? 100 : Math.min(100, r.exp / need * 100);
-    const L0 = lvStats(c, lv), skinOn = !!skinK;
+    const L0 = lvStats(c, lv), skinOn = !!skinK, P = window.PROG; /* v131：覺醒與技能等級（progress_v131.js） */
     const skills = c.skills.map((s, i) => { const u = (typeof SKILL_UNLOCK !== 'undefined' && SKILL_UNLOCK[i]) || 1, skinLock = !!(c.skinSkills && c.skinSkills.includes(i) && !skinOn), ok = pv >= u && !skinLock, was = lv >= u && !skinLock;
       const typ = s.ultimate ? '奧義' : s.type === 'support' ? '輔助' : '攻擊', st = skinLock ? '需要皮膚' : ok ? (was ? '已學會' : '升級後學會！') : `LV ${u} 解鎖`;
       const pp = typeof skillPP === 'function' ? skillPP(s, lv, L0.ppAdj) : s.maxPP;
       return `<li class="gw-sk ${ok ? '' : 'lock'} ${ok && !was ? 'new' : ''} ${s.ultimate ? 'ult' : ''} ${openSk === i ? 'open' : ''}" data-sk="${i}" tabindex="0" role="button" aria-expanded="${openSk === i}">
         <div class="gw-skh"><span class="gw-skn">${i + 1}</span><b>${s.name}</b><i class="gw-skt ${s.ultimate ? 'ult' : s.type === 'support' ? 'sup' : 'atk'}">${typ}</i><span class="gw-sks">${st}</span><span class="gw-chev" aria-hidden="true"></span></div>
+        ${was && P ? skLine(id, s, i) : ''}
         <div class="gw-skd">${skDetail(s, i, { u, ok, was, pp, skinLock })}</div></li>`; }).join('');
     const books = BOOKS.map(b => { const n = inv()[b] || 0, q = qty[b] || 0, it = ITEMS[b];
       return `<div class="gw-book ${n ? '' : 'off'}" data-b="${b}"><div class="gw-bi">${typeof itemIcon === 'function' ? itemIcon(it) : ''}<span class="gw-own">${n}</span></div><b>${it.name}</b><small>+${it.effect.exp.toLocaleString()}</small>
@@ -41,9 +42,9 @@
     const m = el(), oldImg = m.querySelector('.gw-art img'); /* v130：重畫時沿用同一張立繪（不重新解碼大圖，避免每按一下就閃一下） */
     m.innerHTML = `<div class="gw" style="--rc:${col}">
       <header class="gw-head"><h3>角色培養</h3><button class="gw-x" aria-label="關閉">×</button></header>
-      <nav class="gw-tabs"><button data-tab="lv" class="${tab === 'lv' ? 'on' : ''}">升級</button><button data-tab="sk" class="${tab === 'sk' ? 'on' : ''}">技能</button></nav>
+      <nav class="gw-tabs"><button data-tab="lv" class="${tab === 'lv' ? 'on' : ''}">升級</button>${P ? `<button data-tab="star" class="${tab === 'star' ? 'on' : ''}">覺醒</button>` : ''}<button data-tab="sk" class="${tab === 'sk' ? 'on' : ''}">技能</button></nav>
       <div class="gw-body">
-        <section class="gw-art"><div class="gw-name"><span class="rar c-rar r-${rar}">${rar}</span><b>${c.name}</b><small>${c.title || ''}</small></div>
+        <section class="gw-art"><div class="gw-name"><span class="rar c-rar r-${rar}">${rar}</span><b>${c.name}</b><small>${c.title || ''}</small></div>${P ? `<div class="gw-stars" aria-label="覺醒 ${P.starOf(id)} 星">${[1, 2, 3, 4, 5].map(k => `<i class="${k <= P.starOf(id) ? 'on' : ''}">★</i>`).join('')}</div>` : ''}
           <button class="gw-nav prev" aria-label="上一位" ${list.length > 1 ? '' : 'disabled'}>‹</button><img src="${img}" alt="${c.name}"><button class="gw-nav next" aria-label="下一位" ${list.length > 1 ? '' : 'disabled'}>›</button>
           <div class="gw-lv"><div class="gw-bar"><i style="width:${pctNow}%"></i>${pv > lv ? '<s style="width:100%"></s>' : ''}</div><div class="gw-lvl"><span class="k">LV</span><b>${lv}</b>${pv > lv ? `<span class="ar">→</span><b class="up">${pv}</b>` : ''}<span class="mx">/ ${MAX_LV}</span></div><small>${lv >= MAX_LV ? '已達最高等級' : `${r.exp.toLocaleString()} / ${need.toLocaleString()}${add ? `　＋${add.toLocaleString()} 經驗` : ''}`}</small></div></section>
         <section class="gw-panel">
@@ -52,20 +53,44 @@
           <h4>經驗書</h4><div class="gw-books">${books}</div>
           <div class="gw-acts"><button class="btn-ghost gw-auto" ${lv < MAX_LV && BOOKS.some(b => inv()[b] > 0) ? '' : 'disabled'}>自動選擇</button><button class="btn-gold gw-go" ${add && lv < MAX_LV ? '' : 'disabled'}>${lv >= MAX_LV ? '已達最高等級' : '升級'}</button></div>
           <p class="gw-tip">經驗書可在懸賞處的道具商店、勇者之塔、寶箱取得。</p>`
-          : `<ol class="gw-skills">${skills}</ol><p class="gw-tip">${coarse() ? '長按技能可查看詳細說明。' : '點擊技能可展開詳細說明。'}技能會在指定等級自動學會；先選擇經驗書，就能預覽升級後會學會哪些技能。</p>`}
+          : tab === 'star' && P ? starPanel(id)
+          : `${P ? `<div class="gw-own2">${ownChip('skill_book')}${ownChip(null)}</div>` : ''}<ol class="gw-skills">${skills}</ol><p class="gw-tip">${coarse() ? '長按技能可查看詳細說明。' : '點擊技能可展開詳細說明。'}技能會在指定等級自動學會；學會後可以用秘傳書升級（上限隨角色等級提高：LV20→Lv2、40→3、60→4、80→5）。</p>`}
         </section></div></div>`;
     { const ni = m.querySelector('.gw-art img'); if (oldImg && ni && oldImg.getAttribute('src') === ni.getAttribute('src')) { oldImg.className = ni.className; ni.replaceWith(oldImg); } }
     m.querySelector('.gw-x').onclick = close;
     m.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; openSk = -1; render(); });
-    bindSkills(m, c);
+    bindSkills(m, c); bindGrowth(m, id);
     const go = dir => { if (list.length < 2) return; cur = list[(ix + dir + list.length) % list.length]; qty = {}; openSk = -1; render(); };
     m.querySelector('.gw-nav.prev').onclick = () => go(-1); m.querySelector('.gw-nav.next').onclick = () => go(1);
     m.querySelectorAll('.gw-book').forEach(x => { const b = x.dataset.b, n = inv()[b] || 0; x.querySelectorAll('[data-q]').forEach(btn => btn.onclick = () => { qty[b] = Math.max(0, Math.min(n, (qty[b] || 0) + +btn.dataset.q)); render(); }); });
     const au = m.querySelector('.gw-auto'); if (au) au.onclick = () => { autoFill(id); render(); };
     const gb = m.querySelector('.gw-go'); if (gb) gb.onclick = () => { const e = totalExp(); if (!e) return; BOOKS.forEach(b => { if (qty[b]) SAVE.data.inventory[b] -= qty[b]; }); const before = crewLv(id); qty = {}; SAVE.save();
-      gainExp(id, e, false, true); const after = crewLv(id); if (typeof SFX !== 'undefined') SFX.play('quest'); if (typeof toast === 'function') toast(after > before ? `${c.name} 升到 LV ${after}！` : `${c.name} 獲得 ${e.toLocaleString()} 經驗`, 'gold');
+      gainExp(id, e, false, true); if (typeof track === 'function') track('grows'); const after = crewLv(id); if (typeof SFX !== 'undefined') SFX.play('quest'); if (typeof toast === 'function') toast(after > before ? `${c.name} 升到 LV ${after}！` : `${c.name} 獲得 ${e.toLocaleString()} 經驗`, 'gold');
       render(); const im = m.querySelector('.gw-art img'); if (im) { im.classList.remove('lvup'); void im.offsetWidth; im.classList.add('lvup'); } };
     if (window.fixIcons) fixIcons(m);
+  }
+  /* ---------- v131：覺醒（星級）分頁、技能等級列 ---------- */
+  const fmtN = n => (+n || 0).toLocaleString();
+  function ownChip(item) { const it = item ? ITEMS[item] : null, n = item ? (inv()[item] || 0) : (SAVE.data.berry || 0);
+    return `<span class="gw-chip">${it ? (typeof itemIcon === 'function' ? itemIcon(it) : '') : '<img src="assets/ui/coin_berry.webp?v=100" alt="">'}<b>${it ? it.name : '貝里'}</b><em>${fmtN(n)}</em></span>`; }
+  function skLine(id, s, i) { const P = window.PROG, lv = P.skLv(id, i), mx = P.skMax(id), cost = lv < 5 ? P.skCost(lv + 1) : null, can = cost && lv < mx;
+    const why = lv >= 5 ? '已達最高等級' : lv >= mx ? `角色 LV ${lv * 20} 解鎖 Lv${lv + 1}` : `秘傳書 ${cost.book}・貝里 ${fmtN(cost.berry)}`;
+    return `<div class="gw-sklv"><span class="gw-lvb">Lv ${lv}<small>/5</small></span><span class="gw-lve"><b>${P.skEffect(s, lv)}</b>${lv < 5 ? `<small>下一級：${P.skNext(s, lv)}</small>` : ''}</span><button class="btn-gold sm gw-skup" data-up="${i}" ${can ? '' : 'disabled'} aria-label="升級技能 ${s.name}"><span>升級</span><small>${why}</small></button></div>`; }
+  function starPanel(id) { const P = window.PROG, st = P.starOf(id), lv = crewLv(id), k = st + 1, cost = k <= 5 ? P.starCost(id, k) : null, b = P.cfg.starBonus * 100;
+    const have = inv().awaken_gem || 0, dup = P.dupes(id), dupG = dup * (P.cfg.dupeGem[P.rarOf(id)] || 5);
+    const ok = cost && lv >= cost.lv && have >= cost.gem && (SAVE.data.berry || 0) >= cost.berry;
+    return `<div class="gw-star">
+      <div class="gw-starbig" aria-hidden="true">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= st ? 'on' : ''}">★</i>`).join('')}</div>
+      <p class="gw-starnow">覺醒 <b>★${st}</b> / 5　目前加成：體力 <b>+${st * b}%</b>、傷害 <b>+${st * b}%</b></p>
+      ${cost ? `<dl class="gw-cost"><div class="${lv >= cost.lv ? 'ok' : 'no'}"><dt>角色等級</dt><dd>LV ${lv} / ${cost.lv}</dd></div><div class="${have >= cost.gem ? 'ok' : 'no'}"><dt>覺醒結晶</dt><dd>${fmtN(have)} / ${fmtN(cost.gem)}</dd></div><div class="${(SAVE.data.berry || 0) >= cost.berry ? 'ok' : 'no'}"><dt>貝里</dt><dd>${fmtN(SAVE.data.berry)} / ${fmtN(cost.berry)}</dd></div></dl>
+        <button class="btn-gold gw-starup" ${ok ? '' : 'disabled'}>覺醒到 ★${k}（體力、傷害 +${k * b}%）</button>` : '<p class="gw-starmax">已經覺醒到最高的 ★5！</p>'}
+      <div class="gw-dupe"><span>重複的「${CHARACTERS[id].name}」<b>×${dup}</b>${dup ? `　可分解為覺醒結晶 ×${dupG}` : ''}</span><button class="btn-ghost sm gw-dupego" ${dup ? '' : 'disabled'}>分解</button></div>
+      <p class="gw-tip">覺醒加成只在劇情、勇者之塔、皇帝領海等挑戰中生效；PvP（天梯、好友對戰）雙方條件相同，不計算覺醒與技能等級。覺醒結晶可從每日活躍寶箱、本週活躍、航海通行證、天梯賽季獎勵與分解重複角色取得。</p></div>`; }
+  function bindGrowth(m, id) { const P = window.PROG; if (!P) return;
+    m.querySelectorAll('.gw-skup').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const r = P.skUp(id, +b.dataset.up); if (!r.ok) return toast(r.msg, 'warn'); if (typeof SFX !== 'undefined') SFX.play('rare'); toast(`${CHARACTERS[id].skills[+b.dataset.up].name} 升到 Lv${r.lv}！`, 'gold'); render(); }));
+    m.querySelectorAll('.gw-sklv').forEach(x => ['pointerdown', 'click'].forEach(ev => x.addEventListener(ev, e => e.stopPropagation())));
+    const su = m.querySelector('.gw-starup'); if (su) su.onclick = () => { const r = P.starUp(id); if (!r.ok) return toast(r.msg, 'warn'); if (typeof SFX !== 'undefined') SFX.play('ult'); toast(`${CHARACTERS[id].name} 覺醒到 ★${r.star}！`, 'gold'); render(); const s = m.querySelector('.gw-starbig'); if (s) s.classList.add('pop'); };
+    const dg = m.querySelector('.gw-dupego'); if (dg) dg.onclick = () => { const g = P.dupeToGem(id); if (g) { toast(`分解完成：覺醒結晶 +${g}`, 'gold'); render(); } };
   }
   /* 技能列：滑鼠點擊＝展開／收合；觸控長按（0.45 秒）＝彈出詳細說明 */
   function bindSkills(m, c) {
