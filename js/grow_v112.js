@@ -42,9 +42,9 @@
     const m = el(), oldImg = m.querySelector('.gw-art img'); /* v130：重畫時沿用同一張立繪（不重新解碼大圖，避免每按一下就閃一下） */
     m.innerHTML = `<div class="gw" style="--rc:${col}">
       <header class="gw-head"><h3>角色培養</h3><button class="gw-x" aria-label="關閉">×</button></header>
-      <nav class="gw-tabs"><button data-tab="lv" class="${tab === 'lv' ? 'on' : ''}">升級</button>${P ? `<button data-tab="star" class="${tab === 'star' ? 'on' : ''}">覺醒</button>` : ''}<button data-tab="sk" class="${tab === 'sk' ? 'on' : ''}">技能</button></nav>
+      <nav class="gw-tabs"><button data-tab="lv" class="${tab === 'lv' ? 'on' : ''}">升級</button>${P ? `<button data-tab="star" class="${tab === 'star' ? 'on' : ''}">覺醒</button>` : ''}<button data-tab="sk" class="${tab === 'sk' ? 'on' : ''}">技能</button>${window.GEAR ? `<button data-tab="gear" class="${tab === 'gear' ? 'on' : ''}">寶物</button>` : ''}</nav>
       <div class="gw-body">
-        <section class="gw-art"><div class="gw-name"><span class="rar c-rar r-${rar}">${rar}</span><b>${c.name}</b><small>${c.title || ''}</small></div>${P ? `<div class="gw-stars" aria-label="覺醒 ${P.starOf(id)} 星">${[1, 2, 3, 4, 5].map(k => `<i class="${k <= P.starOf(id) ? 'on' : ''}">★</i>`).join('')}</div>` : ''}
+        <section class="gw-art ${P && P.starOf(id) >= 3 ? 'aw3f' : ''} ${P && P.starOf(id) >= 5 ? 'aw5f' : ''}"><div class="gw-name"><span class="rar c-rar r-${rar}">${rar}</span><b>${c.name}</b><small>${c.title || ''}</small></div>${P ? `<div class="gw-stars" aria-label="覺醒 ${P.starOf(id)} 星">${[1, 2, 3, 4, 5].map(k => `<i class="${k <= P.starOf(id) ? 'on' : ''}">★</i>`).join('')}</div>` : ''}
           <button class="gw-nav prev" aria-label="上一位" ${list.length > 1 ? '' : 'disabled'}>‹</button><img src="${img}" alt="${c.name}"><button class="gw-nav next" aria-label="下一位" ${list.length > 1 ? '' : 'disabled'}>›</button>
           <div class="gw-lv"><div class="gw-bar"><i style="width:${pctNow}%"></i>${pv > lv ? '<s style="width:100%"></s>' : ''}</div><div class="gw-lvl"><span class="k">LV</span><b>${lv}</b>${pv > lv ? `<span class="ar">→</span><b class="up">${pv}</b>` : ''}<span class="mx">/ ${MAX_LV}</span></div><small>${lv >= MAX_LV ? '已達最高等級' : `${r.exp.toLocaleString()} / ${need.toLocaleString()}${add ? `　＋${add.toLocaleString()} 經驗` : ''}`}</small></div></section>
         <section class="gw-panel">
@@ -54,13 +54,14 @@
           <div class="gw-acts"><button class="btn-ghost gw-auto" ${lv < MAX_LV && BOOKS.some(b => inv()[b] > 0) ? '' : 'disabled'}>自動選擇</button><button class="btn-gold gw-go" ${add && lv < MAX_LV ? '' : 'disabled'}>${lv >= MAX_LV ? '已達最高等級' : '升級'}</button></div>
           <p class="gw-tip">經驗書可在懸賞處的道具商店、勇者之塔、寶箱取得。</p>`
           : tab === 'star' && P ? starPanel(id)
+          : tab === 'gear' && window.GEAR ? gearPanel(id)
           : `${P ? `<div class="gw-own2">${ownChip('skill_book')}${ownChip(null)}</div>` : ''}<ol class="gw-skills">${skills}</ol><p class="gw-tip">${coarse() ? '長按技能可查看詳細說明。' : '點擊技能可展開詳細說明。'}技能會在指定等級自動學會；學會後可以用秘傳書升級（上限隨角色等級提高：LV20→Lv2、40→3、60→4、80→5）。</p>`}
         </section></div></div>`;
     { const ni = m.querySelector('.gw-art img'); if (oldImg && ni && oldImg.getAttribute('src') === ni.getAttribute('src')) { oldImg.className = ni.className; ni.replaceWith(oldImg); } }
     m.querySelector('.gw-x').onclick = close;
-    m.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; openSk = -1; render(); });
+    m.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; openSk = -1; gearPick = null; render(); });
     bindSkills(m, c); bindGrowth(m, id);
-    const go = dir => { if (list.length < 2) return; cur = list[(ix + dir + list.length) % list.length]; qty = {}; openSk = -1; render(); };
+    const go = dir => { if (list.length < 2) return; cur = list[(ix + dir + list.length) % list.length]; qty = {}; openSk = -1; gearPick = null; render(); };
     m.querySelector('.gw-nav.prev').onclick = () => go(-1); m.querySelector('.gw-nav.next').onclick = () => go(1);
     m.querySelectorAll('.gw-book').forEach(x => { const b = x.dataset.b, n = inv()[b] || 0; x.querySelectorAll('[data-q]').forEach(btn => btn.onclick = () => { qty[b] = Math.max(0, Math.min(n, (qty[b] || 0) + +btn.dataset.q)); render(); }); });
     const au = m.querySelector('.gw-auto'); if (au) au.onclick = () => { autoFill(id); render(); };
@@ -75,7 +76,8 @@
     return `<span class="gw-chip">${it ? (typeof itemIcon === 'function' ? itemIcon(it) : '') : '<img src="assets/ui/coin_berry.webp?v=100" alt="">'}<b>${it ? it.name : '貝里'}</b><em>${fmtN(n)}</em></span>`; }
   function skLine(id, s, i) { const P = window.PROG, lv = P.skLv(id, i), mx = P.skMax(id), cost = lv < 5 ? P.skCost(lv + 1) : null, can = cost && lv < mx;
     const why = lv >= 5 ? '已達最高等級' : lv >= mx ? `角色 LV ${lv * 20} 解鎖 Lv${lv + 1}` : `秘傳書 ${cost.book}・貝里 ${fmtN(cost.berry)}`;
-    return `<div class="gw-sklv"><span class="gw-lvb">Lv ${lv}<small>/5</small></span><span class="gw-lve"><b>${P.skEffect(s, lv)}</b>${lv < 5 ? `<small>下一級：${P.skNext(s, lv)}</small>` : ''}</span><button class="btn-gold sm gw-skup" data-up="${i}" ${can ? '' : 'disabled'} aria-label="升級技能 ${s.name}"><span>升級</span><small>${why}</small></button></div>`; }
+    const S2 = window.PROG2, spec = lv >= 5 && S2 ? `<div class="gw-spec"><span>專精</span>${S2.specOpts(s).map(k => `<button class="gw-spb ${S2.specOf(id, i) === k ? 'on' : ''}" data-spec="${i}:${k}"><b>${S2.SPEC_TXT[k][0]}</b><small>${S2.SPEC_TXT[k][1]}</small></button>`).join('')}</div>` : '';
+    return spec + `<div class="gw-sklv"><span class="gw-lvb">Lv ${lv}<small>/5</small></span><span class="gw-lve"><b>${P.skEffect(s, lv)}</b>${lv < 5 ? `<small>下一級：${P.skNext(s, lv)}</small>` : ''}</span><button class="btn-gold sm gw-skup" data-up="${i}" ${can ? '' : 'disabled'} aria-label="升級技能 ${s.name}"><span>升級</span><small>${why}</small></button></div>`; }
   function starPanel(id) { const P = window.PROG, st = P.starOf(id), lv = crewLv(id), k = st + 1, cost = k <= 5 ? P.starCost(id, k) : null, b = P.cfg.starBonus * 100;
     const have = inv().awaken_gem || 0, dup = P.dupes(id), dupG = dup * (P.cfg.dupeGem[P.rarOf(id)] || 5);
     const ok = cost && lv >= cost.lv && have >= cost.gem && (SAVE.data.berry || 0) >= cost.berry;
@@ -86,7 +88,32 @@
         <button class="btn-gold gw-starup" ${ok ? '' : 'disabled'}>覺醒到 ★${k}（體力、傷害 +${k * b}%）</button>` : '<p class="gw-starmax">已經覺醒到最高的 ★5！</p>'}
       <div class="gw-dupe"><span>重複的「${CHARACTERS[id].name}」<b>×${dup}</b>${dup ? `　可分解為覺醒結晶 ×${dupG}` : ''}</span><button class="btn-ghost sm gw-dupego" ${dup ? '' : 'disabled'}>分解</button></div>
       <p class="gw-tip">覺醒加成只在劇情、勇者之塔、皇帝領海等挑戰中生效；PvP（天梯、好友對戰）雙方條件相同，不計算覺醒與技能等級。覺醒結晶可從每日活躍寶箱、本週活躍、航海通行證、天梯賽季獎勵與分解重複角色取得。</p></div>`; }
-  function bindGrowth(m, id) { const P = window.PROG; if (!P) return;
+  /* v132：航海寶物分頁 */
+  let gearPick = null;
+  function gearPanel(id) { const G = window.GEAR, C = G.cfg, S = G.gearSum(id), eq = G.equipped(id);
+    const sum = Object.entries(S).filter(([, v]) => v).map(([k, v]) => `<span class="gr-sum">${C.label[k]} <b>+${v}%</b></span>`).join('') || '<span class="gr-sum off">還沒有裝備寶物</span>';
+    if (gearPick) { const list = G.gear().items.filter(g => g.slot === gearPick).sort((a, b) => C.rar.indexOf(b.rar) - C.rar.indexOf(a.rar) || b.lv - a.lv);
+      const R0 = list.filter(g => g.rar === 'R' && !g.eq).length;
+      return `<div class="gr-pickh"><button class="btn-ghost sm" data-gback>‹ 返回</button><b>選擇${C.slots[gearPick].name}（${list.length}）</b><button class="btn-ghost sm" data-gsalr ${R0 ? '' : 'disabled'}>分解未裝備的 R（${R0}）</button></div>
+        <ol class="gr-list">${list.map(g => { const d = G.describe(g), who = g.eq && CHARACTERS[g.eq]; return `<li class="r-${g.rar}">${G.gearIcon(g, 44)}<div class="gr-i"><b><em class="rar c-rar r-${g.rar}">${g.rar}</em>${g.name}${g.lv ? ` +${g.lv}` : ''}</b><small>${d.main}${d.subs.length ? '・' + d.subs.join('・') : ''}</small>${who ? `<small class="gr-who">${g.eq === id ? '裝備中' : `${who.name} 裝備中`}</small>` : ''}</div>
+          <div class="gr-b">${g.eq === id ? '<span class="gr-on">使用中</span>' : `<button class="btn-gold sm" data-gequip="${g.id}">裝備</button>`}${g.eq ? '' : `<button class="btn-ghost sm" data-gsal="${g.id}">分解</button>`}</div></li>`; }).join('') || '<li class="gr-empty">還沒有這種寶物。勇者之塔、篇章 BOSS、皇帝領海、天梯與本週活躍寶箱會掉落。</li>'}</ol>`; }
+    const slots = Object.keys(C.slots).map(k => { const g = eq.find(x => x.slot === k);
+      if (!g) return `<li class="gr-slot empty"><span class="gr-ic0">${G.gearIcon({ slot: k, rar: 'R' }, 44)}</span><div class="gr-i"><b>${C.slots[k].name}</b><small>空欄位・主詞條：${C.label[C.slots[k].main]}</small></div><div class="gr-b"><button class="btn-gold sm" data-gslot="${k}">裝備</button></div></li>`;
+      const d = G.describe(g), cost = g.lv < C.maxLv ? G.enhCost(g) : 0;
+      return `<li class="gr-slot r-${g.rar}">${G.gearIcon(g, 44)}<div class="gr-i"><b><em class="rar c-rar r-${g.rar}">${g.rar}</em>${g.name} +${g.lv}</b><small class="gr-main">${d.main}</small><small>${d.subs.join('・') || '沒有副詞條'}</small></div>
+        <div class="gr-b"><button class="btn-gold sm gr-enh" data-genh="${g.id}" ${cost && (SAVE.data.berry || 0) >= cost ? '' : 'disabled'}><span>${g.lv >= C.maxLv ? '已滿' : `強化 +${g.lv + 1}`}</span>${cost ? `<small>貝里 ${fmtN(cost)}</small>` : ''}</button><button class="btn-ghost sm" data-gslot="${k}">更換</button></div></li>`; }).join('');
+    return `<div class="gr-sums">${sum}</div><ol class="gr-slots">${slots}</ol><p class="gw-tip">航海寶物只在劇情與挑戰中生效（PvP 不計算）。強化每級主詞條 +10%，+3／+6／+9 時隨機一條副詞條成長。不需要的寶物可以分解成貝里（SR 以上另給覺醒結晶）。</p>`; }
+  function bindGear(m, id) { const G = window.GEAR; if (!G) return;
+    m.querySelectorAll('[data-gslot]').forEach(b => b.onclick = () => { gearPick = b.dataset.gslot; render(); });
+    const bk = m.querySelector('[data-gback]'); if (bk) bk.onclick = () => { gearPick = null; render(); };
+    m.querySelectorAll('[data-gequip]').forEach(b => b.onclick = () => { if (G.equip(b.dataset.gequip, id)) { if (typeof SFX !== 'undefined') SFX.play('buff'); gearPick = null; render(); } });
+    m.querySelectorAll('[data-gsal]').forEach(b => b.onclick = () => { const r = G.salvage([b.dataset.gsal]); toast(`分解完成：貝里 +${fmtN(r.berry)}${r.gem ? `、覺醒結晶 +${r.gem}` : ''}`, 'gold'); render(); });
+    const sr = m.querySelector('[data-gsalr]'); if (sr) sr.onclick = () => { const ids = G.gear().items.filter(g => g.slot === gearPick && g.rar === 'R' && !g.eq).map(g => g.id); const r = G.salvage(ids); toast(`分解 ${r.n} 件：貝里 +${fmtN(r.berry)}`, 'gold'); render(); };
+    m.querySelectorAll('[data-genh]').forEach(b => b.onclick = () => { const r = G.enhance(b.dataset.genh); if (!r.ok) return toast(r.msg, 'warn'); if (typeof SFX !== 'undefined') SFX.play('rare'); toast(`強化成功 +${r.lv}${r.up ? `（${r.up}）` : ''}`, 'gold'); render(); });
+  }
+  function bindGrowth(m, id) { const P = window.PROG; if (!P) return; bindGear(m, id);
+    m.querySelectorAll('[data-spec]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const [i, k] = b.dataset.spec.split(':'); const r = window.PROG2.setSpec(id, +i, k); if (!r.ok) return toast(r.msg, 'warn'); if (!r.same) { toast(`專精改為「${window.PROG2.SPEC_TXT[k][0]}」`, 'gold'); render(); } }));
+    m.querySelectorAll('.gw-spec').forEach(x => ['pointerdown', 'click'].forEach(ev => x.addEventListener(ev, e => e.stopPropagation())));
     m.querySelectorAll('.gw-skup').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const r = P.skUp(id, +b.dataset.up); if (!r.ok) return toast(r.msg, 'warn'); if (typeof SFX !== 'undefined') SFX.play('rare'); toast(`${CHARACTERS[id].skills[+b.dataset.up].name} 升到 Lv${r.lv}！`, 'gold'); render(); }));
     m.querySelectorAll('.gw-sklv').forEach(x => ['pointerdown', 'click'].forEach(ev => x.addEventListener(ev, e => e.stopPropagation())));
     const su = m.querySelector('.gw-starup'); if (su) su.onclick = () => { const r = P.starUp(id); if (!r.ok) return toast(r.msg, 'warn'); if (typeof SFX !== 'undefined') SFX.play('ult'); toast(`${CHARACTERS[id].name} 覺醒到 ★${r.star}！`, 'gold'); render(); const s = m.querySelector('.gw-starbig'); if (s) s.classList.add('pop'); };

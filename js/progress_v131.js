@@ -109,7 +109,7 @@ const PROG_CFG = {
   /* ---------- 戰鬥中生效（劇情、挑戰；PvP 不套用） ---------- */
   function applyGrowth(f, t) {
     if (!f || !R(f.id)) return; const st = starOf(f.id), r = R(f.id);
-    if (st) { const m = 1 + C.starBonus * st; f.maxHp = Math.round(f.maxHp * m); f.dmgMul = (f.dmgMul || 1) * m; f.hp = t && t.hp != null ? Math.max(0, Math.min(f.maxHp, Math.round(t.hp))) : f.maxHp; f.__star = st; }
+    if (st) { const m = 1 + C.starBonus * st; f.maxHp = Math.round(f.maxHp * m); f.__dmgB = (f.__dmgB || 1) * m; /* 傷害加成另外計算（dmgMul 同時是受傷除數，不能直接乘） */ f.hp = t && t.hp != null ? Math.max(0, Math.min(f.maxHp, Math.round(t.hp))) : f.maxHp; f.__star = st; }
     f.skills.forEach((s, i) => { const lv = skLv(f.id, i); if (lv <= 1 || s.locked) return; s.__lv = lv;
       const atk = s.type === 'attack' && (s.power || 0) > 0, add = s.ultimate || s.maxPP <= 0 ? 0 : (lv >= 3 ? 1 : 0) + (lv >= 5 && !atk ? 1 : 0);
       if (add) { s.maxPP += add; if (!(t && Array.isArray(t.pp) && t.pp[i] != null)) s.pp = s.maxPP; } });
@@ -127,7 +127,10 @@ const PROG_CFG = {
       const _cso = computeSkillOutcome;
       computeSkillOutcome = function (actor, target, skill) {
         const r = _cso.apply(this, arguments);
-        if (r && skill && skill.__lv > 1 && skill.type === 'attack' && r.damage > 0 && !(r.meta && (r.meta.execute || r.meta.executeBuff))) r.damage = Math.floor(r.damage * (1 + C.skDmg * (skill.__lv - 1)));
+        const ex = r && r.meta && (r.meta.execute || r.meta.executeBuff);
+        if (r && skill && skill.type === 'attack' && r.damage > 0 && !ex) {
+          let m = 1; if (skill.__lv > 1) m *= 1 + C.skDmg * (skill.__lv - 1); if (actor && actor.__dmgB) m *= actor.__dmgB; if (skill.__spec === 'power') m *= 1.1; if (skill.ultimate && actor && actor.__ultB) m *= actor.__ultB;
+          if (m !== 1) r.damage = Math.floor(r.damage * m); }
         return r;
       };
     }

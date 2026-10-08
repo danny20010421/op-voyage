@@ -1,0 +1,39 @@
+/* v132：覺醒外觀（培養視窗金框、戰鬥光環）、技能專精、航海寶物分頁。8px 網格；同一列控制項等高、垂直置中。 */
+/* 覺醒外觀 */
+.gw-art.aw3f{box-shadow:inset 0 0 0 2px rgba(255,207,90,.55),0 0 18px rgba(255,190,80,.18)}
+.gw-art.aw5f{box-shadow:inset 0 0 0 2px #ffe9a0,0 0 28px rgba(255,200,80,.45)}
+.gw-art.aw5f img{filter:drop-shadow(0 0 14px rgba(255,210,110,.75))}
+#battleScreen .fighter.aw3 img{filter:drop-shadow(0 0 8px rgba(255,207,90,.45))}
+#battleScreen .fighter.aw5::before{content:'';position:absolute;left:50%;bottom:2%;width:70%;height:30%;transform:translateX(-50%);border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(255,220,120,.55),rgba(255,180,60,.18) 60%,transparent);animation:aw5 2.4s ease-in-out infinite}
+#battleScreen .fighter.aw5 img{filter:drop-shadow(0 0 10px rgba(255,210,110,.75)) drop-shadow(0 0 22px rgba(255,170,60,.35))}
+@keyframes aw5{50%{opacity:.55;transform:translateX(-50%) scale(1.08)}}
+@media (prefers-reduced-motion:reduce){#battleScreen .fighter.aw5::before{animation:none}}
+/* 技能專精 */
+.gw-spec{display:grid;grid-template-columns:48px repeat(2,minmax(0,1fr));align-items:stretch;gap:8px;padding:8px;border-top:1px solid rgba(255,255,255,.08);cursor:default}
+.gw-spec>span{display:grid;place-items:center;min-height:48px;border-radius:10px;background:rgba(143,216,255,.12);color:#8fd8ff;font-size:12px;font-weight:900}
+.gw-spb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:48px;padding:4px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.04);color:#e8dcc0;cursor:pointer}
+.gw-spb b{font-size:14px;line-height:18px}.gw-spb small{font-size:11px;line-height:14px;color:#a9b4c8}
+.gw-spb.on{border-color:#8fd8ff;background:rgba(143,216,255,.16);box-shadow:inset 0 0 0 1px #8fd8ff}.gw-spb.on b{color:#fff}
+.gw-spec:has(.gw-spb:only-of-type){grid-template-columns:48px minmax(0,1fr)}
+/* 航海寶物 */
+.gr-sums{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.gr-sum{display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 12px;border-radius:999px;background:rgba(0,0,0,.3);border:1px solid rgba(255,215,140,.22);font-size:12.5px;color:#e8dcc0}
+.gr-sum b{color:#9fe8b0}.gr-sum.off{color:#a9b4c8}
+.gr-slots,.gr-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.gr-slots li,.gr-list li{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:72px;padding:8px 8px 8px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+.gr-slots li.r-SSR,.gr-list li.r-SSR{border-color:rgba(255,207,90,.4)}.gr-slots li.r-UR,.gr-list li.r-UR{border-color:rgba(255,122,217,.5)}
+.gr-slots li.empty{border-style:dashed}.gr-ic0{opacity:.35}
+.gr-ico{display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+.gr-i{display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0}
+.gr-i b{display:flex;align-items:center;gap:8px;font-size:14px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gr-i b .rar{flex:0 0 auto}.gr-i small{font-size:12px;line-height:16px;color:#c8d0e0}.gr-i .gr-main{color:#ffcf5a;font-weight:700}.gr-who{color:#8fd8ff!important}
+.gr-b{display:flex;flex-direction:column;gap:8px;align-items:stretch;min-width:96px}
+.gr-b .btn-gold,.gr-b .btn-ghost{min-height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 12px;line-height:1.1}
+.gr-enh span,.gr-enh small{color:#2a1600!important}.gr-enh span{font-size:13px;font-weight:900}.gr-enh small{font-size:10.5px}
+.gr-on{display:grid;place-items:center;min-height:40px;border-radius:10px;background:rgba(143,216,255,.15);color:#8fd8ff;font-size:12.5px;font-weight:900}
+.gr-pickh{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px}
+.gr-pickh b{text-align:center;font-size:14px}.gr-pickh .btn-ghost{height:40px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 12px;font-size:12.5px;white-space:nowrap;min-width:72px}
+.gr-empty{display:block!important;text-align:center;color:#a9b4c8;font-size:13px;line-height:20px}
+@media (max-width:400px){.gr-slots li,.gr-list li{grid-template-columns:44px minmax(0,1fr);grid-template-areas:'ic i' 'b b';row-gap:8px}.gr-slots li>.gr-ico,.gr-list li>.gr-ico,.gr-ic0{grid-area:ic}.gr-i{grid-area:i}.gr-b{grid-area:b;flex-direction:row}.gr-b>*{flex:1}
+  .gr-pickh{grid-template-columns:auto minmax(0,1fr)}.gr-pickh [data-gsalr]{grid-column:1/-1}.gw-spec{grid-template-columns:40px repeat(2,minmax(0,1fr))}}
