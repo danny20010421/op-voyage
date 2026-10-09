@@ -1,0 +1,10 @@
+/* v138 特效質感：泛光圖層、出招焦點（背景壓暗、暗角）、奧義電影黑邊 */
+#battleScreen .b-bloom{z-index:4;filter:blur(6px) brightness(1.3) saturate(1.3);mix-blend-mode:screen;opacity:.75;image-rendering:auto}
+#battleScreen .b-bg{transition:filter .35s ease}
+#battleScreen.fxp-focus .b-bg{filter:brightness(.5) saturate(.75) blur(1.5px)}
+#battleScreen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;opacity:0;transition:opacity .35s ease;background:radial-gradient(ellipse at 50% 55%,rgba(0,0,0,0) 45%,rgba(0,0,0,.65) 100%)}
+#battleScreen.fxp-focus::after{opacity:1}
+.fxp-bars{position:absolute;left:0;right:0;height:0;background:#000;z-index:5;pointer-events:none;transition:height .3s cubic-bezier(.2,.8,.2,1)}
+.fxp-bars.top{top:0}.fxp-bars.bot{bottom:0}
+#battleScreen.fxp-ult .fxp-bars{height:9vh}
+@media (prefers-reduced-motion:reduce){#battleScreen.fxp-focus .b-bg{filter:brightness(.6)}#battleScreen .b-bloom{filter:blur(5px) brightness(1.4)}}
