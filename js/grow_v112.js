@@ -77,17 +77,23 @@
   function skLine(id, s, i) { const P = window.PROG, lv = P.skLv(id, i), mx = P.skMax(id), cost = lv < 5 ? P.skCost(lv + 1) : null, can = cost && lv < mx;
     const why = lv >= 5 ? '已達最高等級' : lv >= mx ? `角色 LV ${lv * 20} 解鎖 Lv${lv + 1}` : `秘傳書 ${cost.book}・貝里 ${fmtN(cost.berry)}`;
     const S2 = window.PROG2, spec = lv >= 5 && S2 ? `<div class="gw-spec"><span>專精</span>${S2.specOpts(s).map(k => `<button class="gw-spb ${S2.specOf(id, i) === k ? 'on' : ''}" data-spec="${i}:${k}"><b>${S2.SPEC_TXT[k][0]}</b><small>${S2.SPEC_TXT[k][1]}</small></button>`).join('')}</div>` : '';
-    return spec + `<div class="gw-sklv"><span class="gw-lvb">Lv ${lv}<small>/5</small></span><span class="gw-lve"><b>${P.skEffect(s, lv)}</b>${lv < 5 ? `<small>下一級：${P.skNext(s, lv)}</small>` : ''}</span><button class="btn-gold sm gw-skup" data-up="${i}" ${can ? '' : 'disabled'} aria-label="升級技能 ${s.name}"><span>升級</span><small>${why}</small></button></div>`; }
+    const BD = s.ultimate && window.BOND ? BOND.info(id) : [], bond = BD.length ? `<div class="gw-bond"><span>羈絆</span><ul>${BD.map(x => { const got = x.S.members.filter(m => owned(m)).length; return `<li class="${x.done ? 'on' : ''}"><b>${x.B.n}<em>${x.S.name}</em></b><small>${BOND.text(x.B)}</small><small class="gw-bst">${x.done ? `已開通・出戰陣容有 ${x.need} 位以上成員時生效` : `收集成員 ${got}/${x.S.members.length} 後開通`}</small></li>`; }).join('')}</ul></div>` : '';
+    return spec + bond + `<div class="gw-sklv"><span class="gw-lvb">Lv ${lv}<small>/5</small></span><span class="gw-lve"><b>${P.skEffect(s, lv)}</b>${lv < 5 ? `<small>下一級：${P.skNext(s, lv)}</small>` : ''}</span><button class="btn-gold sm gw-skup" data-up="${i}" ${can ? '' : 'disabled'} aria-label="升級技能 ${s.name}"><span>升級</span><small>${why}</small></button></div>`; }
   function starPanel(id) { const P = window.PROG, st = P.starOf(id), lv = crewLv(id), k = st + 1, cost = k <= 5 ? P.starCost(id, k) : null, b = P.cfg.starBonus * 100;
     const have = inv().awaken_gem || 0, dup = P.dupes(id), dupG = dup * (P.cfg.dupeGem[P.rarOf(id)] || 5);
-    const ok = cost && lv >= cost.lv && have >= cost.gem && (SAVE.data.berry || 0) >= cost.berry;
+    const tlock = st === 4 && window.TRIAL && !TRIAL.done(id), ok = cost && !tlock && lv >= cost.lv && have >= cost.gem && (SAVE.data.berry || 0) >= cost.berry;
     return `<div class="gw-star">
       <div class="gw-starbig" aria-hidden="true">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= st ? 'on' : ''}">★</i>`).join('')}</div>
       <p class="gw-starnow">覺醒 <b>★${st}</b> / 5　目前加成：體力 <b>+${st * b}%</b>、傷害 <b>+${st * b}%</b></p>
+      ${trialBox(id, st)}
       ${cost ? `<dl class="gw-cost"><div class="${lv >= cost.lv ? 'ok' : 'no'}"><dt>角色等級</dt><dd>LV ${lv} / ${cost.lv}</dd></div><div class="${have >= cost.gem ? 'ok' : 'no'}"><dt>覺醒結晶</dt><dd>${fmtN(have)} / ${fmtN(cost.gem)}</dd></div><div class="${(SAVE.data.berry || 0) >= cost.berry ? 'ok' : 'no'}"><dt>貝里</dt><dd>${fmtN(SAVE.data.berry)} / ${fmtN(cost.berry)}</dd></div></dl>
-        <button class="btn-gold gw-starup" ${ok ? '' : 'disabled'}>覺醒到 ★${k}（體力、傷害 +${k * b}%）</button>` : '<p class="gw-starmax">已經覺醒到最高的 ★5！</p>'}
+        <button class="btn-gold gw-starup" ${ok ? '' : 'disabled'}>${tlock ? '通過試煉後才能覺醒到 ★5' : `覺醒到 ★${k}（體力、傷害 +${k * b}%）`}</button>` : '<p class="gw-starmax">已經覺醒到最高的 ★5！</p>'}
       <div class="gw-dupe"><span>重複的「${CHARACTERS[id].name}」<b>×${dup}</b>${dup ? `　可分解為覺醒結晶 ×${dupG}` : ''}</span><button class="btn-ghost sm gw-dupego" ${dup ? '' : 'disabled'}>分解</button></div>
       <p class="gw-tip">覺醒加成只在劇情、勇者之塔、皇帝領海等挑戰中生效；PvP（天梯、好友對戰）雙方條件相同，不計算覺醒與技能等級。覺醒結晶可從每日活躍寶箱、本週活躍、航海通行證、天梯賽季獎勵與分解重複角色取得。</p></div>`; }
+  /* v133：角色試煉（★4 起顯示；通過才能覺醒到 ★5） */
+  function trialBox(id, st) { const T = window.TRIAL; if (!T || st < 4) return ''; const done = T.done(id), r = T.rival(id), rn = r === id ? `另一個${CHARACTERS[id].name}` : CHARACTERS[r].name;
+    const av = typeof charArt === 'function' ? charArt(r, 'avatar') : CHARACTERS[r].avatar;
+    return `<div class="gw-trial ${done ? 'ok' : ''}"><img src="${av}" alt=""><span><b>${CHARACTERS[id].name} 的試煉</b><small>${done ? `已通過・對手：${rn}` : `對手：${rn}・通過後才能覺醒到 ★5`}</small></span><button class="${done ? 'btn-ghost' : 'btn-gold'} sm gw-trgo">${done ? '再挑戰' : '挑戰試煉'}</button></div>`; }
   /* v132：航海寶物分頁 */
   let gearPick = null;
   function gearPanel(id) { const G = window.GEAR, C = G.cfg, S = G.gearSum(id), eq = G.equipped(id);
@@ -113,10 +119,11 @@
   }
   function bindGrowth(m, id) { const P = window.PROG; if (!P) return; bindGear(m, id);
     m.querySelectorAll('[data-spec]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const [i, k] = b.dataset.spec.split(':'); const r = window.PROG2.setSpec(id, +i, k); if (!r.ok) return toast(r.msg, 'warn'); if (!r.same) { toast(`專精改為「${window.PROG2.SPEC_TXT[k][0]}」`, 'gold'); render(); } }));
-    m.querySelectorAll('.gw-spec').forEach(x => ['pointerdown', 'click'].forEach(ev => x.addEventListener(ev, e => e.stopPropagation())));
+    m.querySelectorAll('.gw-spec, .gw-bond').forEach(x => ['pointerdown', 'click'].forEach(ev => x.addEventListener(ev, e => e.stopPropagation())));
     m.querySelectorAll('.gw-skup').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const r = P.skUp(id, +b.dataset.up); if (!r.ok) return toast(r.msg, 'warn'); if (typeof SFX !== 'undefined') SFX.play('rare'); toast(`${CHARACTERS[id].skills[+b.dataset.up].name} 升到 Lv${r.lv}！`, 'gold'); render(); }));
     m.querySelectorAll('.gw-sklv').forEach(x => ['pointerdown', 'click'].forEach(ev => x.addEventListener(ev, e => e.stopPropagation())));
     const su = m.querySelector('.gw-starup'); if (su) su.onclick = () => { const r = P.starUp(id); if (!r.ok) return toast(r.msg, 'warn'); if (typeof SFX !== 'undefined') SFX.play('ult'); toast(`${CHARACTERS[id].name} 覺醒到 ★${r.star}！`, 'gold'); render(); const s = m.querySelector('.gw-starbig'); if (s) s.classList.add('pop'); };
+    const tg = m.querySelector('.gw-trgo'); if (tg) tg.onclick = () => window.TRIAL && TRIAL.open(id);
     const dg = m.querySelector('.gw-dupego'); if (dg) dg.onclick = () => { const g = P.dupeToGem(id); if (g) { toast(`分解完成：覺醒結晶 +${g}`, 'gold'); render(); } };
   }
   /* 技能列：滑鼠點擊＝展開／收合；觸控長按（0.45 秒）＝彈出詳細說明 */
@@ -140,7 +147,7 @@
     p.addEventListener('click', e => { if (!ready) return; if (e.target === p || e.target.closest('.gw-popx')) closePop(); });
     document.getElementById('growModal').appendChild(p); requestAnimationFrame(() => p.classList.add('show')); }
   function closePop() { document.querySelectorAll('.gw-pop').forEach(x => x.remove()); }
-  window.openGrow = function (id) { if (!id || !SAVE.data.roster[id]) return; cur = id; qty = {}; tab = 'lv'; openSk = -1; render(); el().classList.add('show'); };
+  window.openGrow = function (id, t) { if (!id || !SAVE.data.roster[id]) return; cur = id; qty = {}; tab = t || 'lv'; gearPick = null; openSk = -1; render(); el().classList.add('show'); };
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (document.querySelector('.gw-pop')) return closePop(); const m = document.getElementById('growModal'); if (m && m.classList.contains('show')) close(); } });
   /* 在「我的船員」立繪下方加上「培養」按鈕；右側的「培養」分頁也改為打開培養視窗 */
   function inject() { const P = document.getElementById('cxPane_crew'); if (!P) return; const acts = P.querySelector('.sb-acts'), sel = P.querySelector('.sb-tile.on[data-id]'); if (!acts || !sel) return;

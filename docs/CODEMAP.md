@@ -30,6 +30,8 @@
 - `js/ladder_v131.js`: F:海賊天梯（SAVE.data.ladder；players/{uid}.lp_YYYYMM、lpS、lpTier、team）、賽季獎勵、本季排行 | S:積分在客戶端計算（可被修改，正式營運需伺服器計分）；排行依單一欄位排序，不需複合索引
 - `css/v131.css`: 覺醒／技能等級、通行證、天梯畫面
 - `js/progress_v132.js`: F:航海寶物（SAVE.data.gear {items, seq}；每件 {id, slot, rar, name, lv, subs, eq}）、技能專精（roster[id].spec）、覺醒被動（★3 護盾、★5 +1 與 __guts）；window.GEAR／window.PROG2 | D:startBattle（DOMContentLoaded 最外層，applyExtra 只在非 PvP）、applyDamage（撐住致命傷）、applyVisual（#bFL .aw3/.aw5）、track（塔／BOSS 掉落）、ACT.claimWeek、passAddXp | S:傷害加成只能乘 f.__dmgB／__ultB（由 progress_v131 的 computeSkillOutcome 包裝計算），不要改 dmgMul
+- `js/trial_v133.js`: F:羈絆技能（BOND_SKILL、BOND_FX_TXT；戰鬥中 f.__bonds）、角色試煉（TRIALS 宿敵與劇情、TRIAL_ADJ 校準倍率、TRIAL_CFG；roster[id].trial）；window.TRIAL／window.BOND | D:startBattle（標記 __bonds，非 PvP）、applySkillEffects（奧義後觸發；depth 計數避免變體遞迴重複觸發）、PROG.starUp（★4→★5 需要試煉） | S:新增角色時在 TRIALS 加宿敵與劇情，並用 tests/trial-sim.js 的 calibrate 求出 TRIAL_ADJ；沒有資料時用「另一個自己」
+- `css/v133.css`: 試煉視窗 .tr-*、培養視窗 .gw-trial、羈絆列 .gw-bond
 - `css/v132.css`: 寶物分頁、專精按鈕、覺醒外框（.gw-art.aw3f/.aw5f）、戰鬥 ★5 光效
 - `js/grow_v112.js`（v130）: S:重畫培養視窗時沿用舊的立繪 <img>（src 相同才沿用），避免大圖重新解碼閃爍
 - `js/lobby_v121.js`＋`css/v121.css`: F:手機直式大廳的船長對話框放在限定召喚上方（量測左側圖示欄、右側欄、限定召喚橫條；依序：置中 → 偏左 → 縮小字級 → 收縮展開膠囊 say-fold／say-open） | A:lobbyPlaceSay
@@ -41,7 +43,7 @@
 - `js/ext_v115.js`: F:效果 ppUpRandom、kingFlame（減傷＋反彈，熄滅時加速） | S:ext_v110 之後載入
 - `js/fx_v115.js`: F:燼第 1～4 招專屬動畫
 - `css/v115.css`: F:寶藏幣新圖示（覆蓋 .coin-ico）、VIP 會員中心、月費宣傳、VIP 徽章／頭像框／聊天氣泡
-- `js/grow_v112.js`: F:角色培養視窗 openGrow（分頁：升級／覺醒／技能／寶物；v132 技能 Lv5 顯示專精按鈕 .gw-spec、寶物頁 gearPanel 與選擇清單 gearPick；升級頁、技能頁；v114 起技能列電腦點擊展開 skDetail、觸控長按 0.45 秒彈出 .gw-pop 說明卡） | R:crew.js(#cxPane_crew .sb-acts) | S:樣式在 css/v112.css＋v113.css＋v114.css；z-index 2000（說明卡 2100）
+- `js/grow_v112.js`: F:角色培養視窗 openGrow（openGrow(id, tab)；分頁：升級／覺醒／技能／寶物；v133 覺醒頁 ★4 起顯示試煉 .gw-trial、奧義下方顯示羈絆 .gw-bond；v132 技能 Lv5 顯示專精按鈕 .gw-spec、寶物頁 gearPanel 與選擇清單 gearPick；升級頁、技能頁；v114 起技能列電腦點擊展開 skDetail、觸控長按 0.45 秒彈出 .gw-pop 說明卡） | R:crew.js(#cxPane_crew .sb-acts) | S:樣式在 css/v112.css＋v113.css＋v114.css；z-index 2000（說明卡 2100）
 - `css/v114.css`: F:培養視窗置中對齊（.gw-lvl 等級列、.gw-pow）、技能詳細說明樣式、冒險選單 #lbModes 卡片等高與標題對齊（container query 縮放標題字級）
 - `js/fx_v111.js`: F:奧義標題字過場（PRESET 風格表、SUB 角色→[風格, 副標]、cutIn 覆寫、ultTitle） | S:新角色要在 SUB 加一行，否則依屬性挑風格
 - `js/fx_v106.js`: F:主題式專屬特效（TH 主題表、WHO 角色對應、kindOf 招式種類） | S:要讓角色換主題改 WHO；不覆蓋既有 CHOREO
