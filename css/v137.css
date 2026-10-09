@@ -1,0 +1,15 @@
+/* v137：回歸七日禮（.rt-*，視窗沿用 v135 的 .qo-wrap/.qo-card）、大廳入口 #lbRet（使用者已同意示意圖） */
+.rt-days{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.rt-days li{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:112px;padding:8px 4px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);text-align:center}
+.rt-days li b{font-size:12px;line-height:16px;color:#a9b4c8}
+.rt-days li .rt-rw{display:flex;flex-wrap:wrap;justify-content:center;gap:4px}
+.rt-days li .rt-rw span{display:flex;flex-direction:column;align-items:center;font-size:11px;line-height:14px;color:#eef0f6;font-weight:700}
+.rt-days li .rt-rw img,.rt-days li .rt-rw svg{width:32px;height:32px}
+.rt-days li.now{border-color:#ffcf5a;box-shadow:0 0 0 1px #ffcf5a,0 0 16px rgba(255,207,90,.35);background:rgba(255,207,90,.1)}.rt-days li.now b{color:#ffcf5a}
+.rt-days li.got{opacity:.5}.rt-days li.got b{color:#a8f0c8}
+.rt-days li.d7{grid-column:span 2;background:linear-gradient(135deg,rgba(255,122,90,.18),rgba(255,207,90,.12));border-color:rgba(255,160,90,.5)}
+.rt-days li.d7 b{color:#ffb27a}
+.rt-sub{margin:0;font-size:13px;line-height:20px;color:#c8d0e0}.rt-sub em{font-style:normal;color:#ffcf5a;font-weight:800}
+@media (min-width:720px){.rt-card{width:min(760px,100%)!important}.rt-days{grid-template-columns:repeat(8,minmax(0,1fr))}.rt-days li.d7{grid-column:span 2}}
+.l2-ic.rt-ic>.l2-svg{box-shadow:0 0 0 2px #ffcf5a,0 0 14px rgba(255,207,90,.6)}
+.rt-days li .rt-rw span{gap:2px}

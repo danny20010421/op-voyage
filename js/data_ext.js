@@ -352,6 +352,7 @@
   DEFAULT_NEWS.unshift({ id: 'd1056', date: '2026-10-09', tag: '優化', title: '載入更快・培養紅點・寶物一鍵裝備', body: '・第一次進入遊戲的下載量大幅減少（不再一次下載全部角色立繪），手機網路也能更快進入\n・角色可以覺醒、挑戰試煉、升級技能或裝備寶物時，船員列表與培養視窗會亮紅點\n・寶物分頁新增「一鍵裝備最佳」與「分解 R／SR」\n・戰鬥結算會顯示這場掉落的航海寶物' });
   DEFAULT_NEWS.unshift({ id: 'd1057', date: '2026-10-09', tag: '更新', title: '掛機寶藏・召喚紀錄・編隊預設・劇情跳過', body: '・掛機寶藏：大廳左側，離線也會累積貝里、經驗書、覺醒結晶（最多 12 小時），每天一次快速領取\n・召喚紀錄：召喚頁機率表下方，可以查看最近 300 抽的結果\n・編隊預設：船員畫面可以存 3 組出戰陣容，一鍵切換\n・劇情對話可以「跳過」\n・活躍寶箱可以「全部領取」\n・3D 島嶼改成第一次登島時才下載，進入遊戲更快' });
   DEFAULT_NEWS.unshift({ id: 'd1058', date: '2026-10-09', tag: '調整', title: '掛機寶藏調整・新增一般召喚券', body: '・掛機寶藏改為給貝里、一般召喚券、經驗書（每 6 小時 1 張召喚券）\n・一般召喚券：懸賞處召喚會優先使用，1 張＝抽 1 次，十連用 10 張' });
+  DEFAULT_NEWS.unshift({ id: 'd1059', date: '2026-10-09', tag: '新功能', title: '回歸七日禮', body: '・超過 30 天沒有上線的船長回來時，可以領「回歸七日禮」：14 天內每天領一次，共 7 天（寶藏幣、一般召喚券、覺醒結晶、秘傳書、經驗書、活動抽獎券）\n・大廳左側的「回歸禮」可以隨時查看' });
   /* 東海篇：斧手摩根改用專屬造型（金色短髮、鐵下巴、斧頭手、海軍大衣） */
   { const E = CHAPTERS.find(c => c.id === 'east'); const m = E && E.npcs.find(n => n.id === 'morgan_n'); if (m) m.look = 'morgan'; }
   /* 白鬍子新立繪 */ CHARACTERS.whitebeard.image = 'assets/chars/whitebeard.webp?v=78'; CHARACTERS.whitebeard.ultimateBg = CHARACTERS.whitebeard.image;
