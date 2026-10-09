@@ -1,7 +1,7 @@
 /* ================= 載入畫面 ================= */
 .loader{position:fixed;inset:0;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 clamp(18px,6vw,80px) calc(clamp(28px,8vh,80px) + env(safe-area-inset-bottom,0px));background:#050b18;color:#fff;font-family:"Noto Sans TC",system-ui,sans-serif;overflow:hidden;transition:opacity .6s}
 .loader.out{opacity:0;pointer-events:none}
-.ld-bg{position:absolute;inset:0;background:url('../assets/ui/loading_bg.webp?v=25') center 35%/cover no-repeat;animation:ldZoom 18s ease-in-out infinite alternate}
+.ld-bg{position:absolute;inset:0;background:url('../assets/ui/loading_bg.webp?v=100') center 35%/cover no-repeat;animation:ldZoom 18s ease-in-out infinite alternate}
 .ld-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,10,24,.25) 0%,rgba(4,10,24,.05) 40%,rgba(4,10,24,.75) 78%,rgba(4,10,24,.95) 100%)}
 @keyframes ldZoom{to{transform:scale(1.06)}}
 .ld-flash{position:absolute;inset:0;background:radial-gradient(circle at 62% 45%,rgba(190,225,255,.55),rgba(120,180,255,.15) 40%,transparent 70%);opacity:0;pointer-events:none}

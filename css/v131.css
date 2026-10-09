@@ -36,10 +36,10 @@
 
 /* ---------- 共用：全畫面視窗（通行證、天梯） ---------- */
 .ps-wrap,.ld-wrap{position:fixed;inset:0;z-index:7000;display:flex;flex-direction:column;color:#fff;background:#070b18;overflow:hidden}
-.ps-bg,.ld-bg{position:absolute;inset:0;pointer-events:none}
+.ps-bg,.ld-wrap .ld-bg{position:absolute;inset:0;pointer-events:none}
 .ps-bg{background:radial-gradient(120% 70% at 50% 0%,rgba(255,190,80,.22),transparent 60%),linear-gradient(180deg,#14203f,#070b18 70%)}
-.ld-bg{background:radial-gradient(120% 70% at 50% 0%,rgba(110,160,255,.25),transparent 60%),url('../assets/chapters/marineford.webp?v=44') center/cover;filter:saturate(.8)}
-.ld-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,11,24,.72),rgba(7,11,24,.94) 55%)}
+.ld-wrap .ld-bg{background:radial-gradient(120% 70% at 50% 0%,rgba(110,160,255,.25),transparent 60%),url('../assets/chapters/marineford.webp?v=44') center/cover;filter:saturate(.8)}
+.ld-wrap .ld-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,11,24,.72),rgba(7,11,24,.94) 55%)}
 .ps-top,.ld-top{position:relative;z-index:2;display:flex;align-items:center;gap:12px;min-height:56px;padding:calc(8px + var(--safeT,0px)) 16px 8px;max-width:880px;width:100%;margin:0 auto;box-sizing:border-box}
 .ps-top h2,.ld-top h2{margin:0;font:900 22px/1.2 var(--serif);letter-spacing:.12em;background:linear-gradient(180deg,#fff6d8,#e8b64a);-webkit-background-clip:text;background-clip:text;color:transparent}
 .ps-top small,.ld-top small{display:block;font-size:12px;line-height:16px;color:#c8b890}
