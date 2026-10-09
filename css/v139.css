@@ -1,0 +1,14 @@
+/* v139 畫面穩定：全畫面視窗打開時隱藏後面的畫面；觸控裝置拿掉毛玻璃與大圖陰影濾鏡 */
+body.ov-cover .screen:not(.hidden),body.ov-cover .modal.show{visibility:hidden!important}
+body.ov-cover .screen:not(.hidden) *,body.ov-cover .modal.show *{animation-play-state:paused!important}
+body.ov-cover #growModal,body.ov-cover #growModal *{visibility:visible}
+@media (pointer:coarse){
+  .gw-wrap,.tr-wrap,.qo-wrap,.rk-wrap,.ps-wrap,.ld-wrap,.eh-wrap{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .gw-wrap{background:rgba(2,6,16,.9)}
+  .gw-art img,.gw-art.aw5f img,.rk-hero img,.tr-vs img{filter:none!important}
+  .gw-art{position:relative}
+  .gw-art::after{content:"";position:absolute;left:20%;right:20%;bottom:2%;height:18px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.55),rgba(0,0,0,0));pointer-events:none;z-index:0}
+  .gw-art img{position:relative;z-index:1}
+  .gw-art.aw5f{box-shadow:inset 0 0 0 2px rgba(255,210,110,.75),inset 0 0 24px rgba(255,210,110,.35)}
+}
+.rk-bg{filter:none!important;background:linear-gradient(rgba(10,4,8,.72),rgba(10,4,8,.72)),url('../assets/ui/emperor_bg.webp?v=63') center/cover,#07050a!important}

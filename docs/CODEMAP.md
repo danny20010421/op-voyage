@@ -37,6 +37,7 @@
 - **3D 分段下載（v135）**: index.html 不再直接載入 e3three.js；js/engine3d.js 的 window.ensure3D() 用 import() 載入（importmap 仍在 index.html），app.js enterChapter 先 await ensure3D() 再建立 World；進入遊戲 15 秒後背景預先下載
 - `js/ret_v136.js`: F:一般召喚券 ITEMS.summon_ticket（pull 外層包裝：券夠時先補回寶藏幣再呼叫原本的 pull）、回歸玩家 RETURN_CFG／window.RETURN（check／claim；SAVE.data.lastSeen、SAVE.data.ret）| D:pull、updateGachaBtns、openModes（第一次進大廳時 check） ；v137 領取視窗 RETURN.open（.rt-wrap，每天第一次進大廳自動跳出）、大廳入口 #lbRet（RETURN.rail） | S:樣式在 css/v137.css；視窗沿用 .qo-wrap
 - `js/fx_v138.js`／`css/v138.css`: F:技能特效三層升級（FXPRO 泛光／命中／焦點；屬性氣場、魔法陣、屬性命中；CHAR_FX[id]=[主題, 奧義轉場, 配色]、__FXTR 轉場表、__FXPAL 主題配色）| D:FXE.add（啟動泛光）、FXE.P.flash／tint（期間降低泛光）、FXE.P.ring、hitFX、playChoreo（三層包裝） | S:開關 op_fxpro（'0'＝低）；新角色要在 CHAR_FX 加一行，否則依屬性挑主題、沒有奧義轉場；泛光圖層 #bBloom 跟著 #bCanvas 的位置
+- `js/stab_v139.js`／`css/v139.css`: F:全畫面視窗打開時 body.ov-cover（隱藏後面的 .screen 與 .modal.show、暫停動畫）、body.ov-open；觸控裝置拿掉視窗毛玻璃與大圖陰影濾鏡 | S:新增全畫面不透明視窗時把 class 加進 OPAQUE；不要在大張立繪上用 filter:drop-shadow（手機 GPU 會繪製不完整）
 - `js/loader.js`: F:載入畫面，下載並檢查圖片後才顯示「點擊進入」；只預載已擁有角色的立繪與已擁有皮膚（v134），篇章封面與 *_bg 大背景（LATER）在進入後背景下載 | S:不要在其他檔案預先下載全部角色立繪（v134 前 app.js 會多下載約 33 MB）
 - `js/hint_v134.js`: F:培養紅點 growHints(id)（star／trial／sk／gear）、寶物工具列（一鍵裝備最佳 bestEquip、分解 R／SR）、結算掉落 .gr-drop；window.GROWHINT | D:GEAR.addGear（戰鬥結束後的掉落寫進結算）、openGrow、openModes、SAVE.save（存檔後重畫紅點）；觀察 #growModal、#charModal 的變動 | S:#growModal.dataset.id 由 grow_v112 render 設定
 - `css/v134.css`: .gh-dot 紅點、.gr-tools、.gr-drop
