@@ -331,3 +331,8 @@ void main(){
 
   global.E3 = { M, Builder, Renderer, hex, shade, mix };
 })(window);
+
+/* v135：Three.js 版渲染器（js/e3three.js＋vendor/three，約 2 MB）延後下載：第一次登島時才載入（市面手遊的分段下載做法）；
+   進入遊戲 15 秒後，若不是省流量模式，會在背景先下載，讓第一次登島不用等。載入失敗時沿用舊版輕量渲染器。 */
+window.ensure3D = (function () { let p = null; return function () { if (!p) p = import('./e3three.js?v=135').catch(e => { console.warn('3D 模組載入失敗，改用舊版畫面', e); }); return p; }; })();
+window.addEventListener('load', () => { try { const c = navigator.connection; if (c && (c.saveData || /2g/.test(c.effectiveType || ''))) return; } catch (e) { } setTimeout(() => { const go = () => window.ensure3D(); if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 5000 }); else go(); }, 15000); });

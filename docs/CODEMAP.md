@@ -32,6 +32,9 @@
 - `js/progress_v132.js`: F:航海寶物（SAVE.data.gear {items, seq}；每件 {id, slot, rar, name, lv, subs, eq}）、技能專精（roster[id].spec）、覺醒被動（★3 護盾、★5 +1 與 __guts）；window.GEAR／window.PROG2 | D:startBattle（DOMContentLoaded 最外層，applyExtra 只在非 PvP）、applyDamage（撐住致命傷）、applyVisual（#bFL .aw3/.aw5）、track（塔／BOSS 掉落）、ACT.claimWeek、passAddXp | S:傷害加成只能乘 f.__dmgB／__ultB（由 progress_v131 的 computeSkillOutcome 包裝計算），不要改 dmgMul
 - `js/trial_v133.js`: F:羈絆技能（BOND_SKILL、BOND_FX_TXT；戰鬥中 f.__bonds）、角色試煉（TRIALS 宿敵與劇情、TRIAL_ADJ 校準倍率、TRIAL_CFG；roster[id].trial）；window.TRIAL／window.BOND | D:startBattle（標記 __bonds，非 PvP）、applySkillEffects（奧義後觸發；depth 計數避免變體遞迴重複觸發）、PROG.starUp（★4→★5 需要試煉） | S:新增角色時在 TRIALS 加宿敵與劇情，並用 tests/trial-sim.js 的 calibrate 求出 TRIAL_ADJ；沒有資料時用「另一個自己」
 - `css/v133.css`: 試煉視窗 .tr-*、培養視窗 .gw-trial、羈絆列 .gw-bond
+- `js/qol_v135.js`: F:掛機寶藏（AFK_CFG；SAVE.data.afk {t, fast}；大廳 #lbAfk）、召喚紀錄（SAVE.data.gachaLog 最多 300 筆；window.gachaLog，event.js 限定召喚也會呼叫）、編隊預設（SAVE.data.presets 3 組；#cxPane_crew .tp-row）、劇情跳過 #dlgSkip（直接操作 app.js 的 dlgQueue／typing／dlgChoices）、活躍寶箱全部領取（.ps-claimall）；window.QOL | D:pull（暫時替換 grant 取得結果）、openModes；document.body 的 MutationObserver（每幀最多一次）
+- `css/v135.css`: .qo-*（掛機寶藏、召喚紀錄視窗）、.tp-*、#dlgSkip、.ps-claimall
+- **3D 分段下載（v135）**: index.html 不再直接載入 e3three.js；js/engine3d.js 的 window.ensure3D() 用 import() 載入（importmap 仍在 index.html），app.js enterChapter 先 await ensure3D() 再建立 World；進入遊戲 15 秒後背景預先下載
 - `js/loader.js`: F:載入畫面，下載並檢查圖片後才顯示「點擊進入」；只預載已擁有角色的立繪與已擁有皮膚（v134），篇章封面與 *_bg 大背景（LATER）在進入後背景下載 | S:不要在其他檔案預先下載全部角色立繪（v134 前 app.js 會多下載約 33 MB）
 - `js/hint_v134.js`: F:培養紅點 growHints(id)（star／trial／sk／gear）、寶物工具列（一鍵裝備最佳 bestEquip、分解 R／SR）、結算掉落 .gr-drop；window.GROWHINT | D:GEAR.addGear（戰鬥結束後的掉落寫進結算）、openGrow、openModes、SAVE.save（存檔後重畫紅點）；觀察 #growModal、#charModal 的變動 | S:#growModal.dataset.id 由 grow_v112 render 設定
 - `css/v134.css`: .gh-dot 紅點、.gr-tools、.gr-drop

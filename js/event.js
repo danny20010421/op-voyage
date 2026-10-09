@@ -96,7 +96,7 @@
     if (!isActive()) { const W = typeof eventWindow === 'function' ? eventWindow(P().id) : null; toast(W ? `這個活動 ${md(W.s)} ${hm(W.s)} 開放，還有 ${left(W.s - Date.now())}` : '這個活動目前休息中，復刻時間另行公告'); return; }
     const inv = SAVE.data.inventory = SAVE.data.inventory || {}, ut = inv.event_ticket || 0;
     if (E.tickets >= n) E.tickets -= n; else if (E.tickets + ut >= n) { inv.event_ticket = ut - (n - E.tickets); E.tickets = 0; } else if (SAVE.data.tokens >= n * P().tokenCost) SAVE.data.tokens -= n * P().tokenCost; else { toast(`抽獎券不足，也沒有足夠的寶藏幣（需要 ${n * P().tokenCost} 枚）`, 'warn'); return; }
-    busy = true; const res = []; for (let i = 0; i < n; i++) res.push(rollOne(E)); grant(E, res); SAVE.save(); if (typeof coins === 'function') coins();
+    busy = true; const res = []; for (let i = 0; i < n; i++) res.push(rollOne(E)); grant(E, res); if (window.gachaLog) gachaLog(`限定・${P().tab || P().name || '活動'}`, res); SAVE.save(); if (typeof coins === 'function') coins();
     try { await animate(res); } finally { busy = false; render(); }
   }
 

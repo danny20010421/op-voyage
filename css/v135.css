@@ -1,0 +1,48 @@
+/* v135：掛機寶藏、召喚紀錄（.qo-*）、編隊預設（.tp-*）、劇情跳過（.dlg-skip）、活躍寶箱全部領取（.ps-claimall） */
+.qo-wrap{position:fixed;inset:0;z-index:2100;display:grid;place-items:center;padding:16px;background:rgba(4,10,20,.78);backdrop-filter:blur(4px);animation:qoIn .2s ease-out}
+@keyframes qoIn{from{opacity:0}to{opacity:1}}
+.qo-card{width:min(520px,100%);max-height:calc(100dvh - 32px);overflow:auto;display:flex;flex-direction:column;gap:16px;padding:16px;border-radius:16px;background:linear-gradient(180deg,#1a2740,#0f1828);border:1px solid rgba(255,207,90,.45);box-shadow:0 16px 48px rgba(0,0,0,.6)}
+.qo-head{display:grid;grid-template-columns:minmax(0,1fr) 40px;align-items:center;gap:8px}
+.qo-head small{display:block;font-size:12px;line-height:16px;color:#ffb27a;font-weight:800}
+.qo-head h2{margin:0;font-size:20px;line-height:28px;color:#ffe6a8}
+.qo-x{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;font-size:22px;line-height:1}
+.qo-h3{margin:0;font-size:14px;line-height:20px;color:#ffcf5a}
+.qo-afk-top{display:grid;grid-template-columns:136px minmax(0,1fr);align-items:center;gap:16px}
+.qo-afk-top p{margin:0;font-size:13px;line-height:20px;color:#c8d0e0}
+.qo-ring{width:136px;height:136px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;background:radial-gradient(closest-side,#132036 79%,transparent 80% 100%),conic-gradient(#ffcf5a var(--p),rgba(255,255,255,.1) 0)}
+.qo-ring b{font-size:16px;line-height:22px;color:#fff;padding:0 12px}.qo-ring small{font-size:12px;line-height:16px;color:#a9b4c8}
+.qo-rew{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.qo-rew li{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:96px;padding:8px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);text-align:center}
+.qo-ric{width:40px;height:40px;display:grid;place-items:center}.qo-ric img,.qo-ric svg{max-width:40px;max-height:40px}
+.qo-rew b{font-size:15px;line-height:20px;color:#fff}.qo-rew small{font-size:11px;line-height:16px;color:#a9b4c8}
+.qo-rew .qo-none{grid-column:1/-1;min-height:56px;color:#8fa0b8;font-size:13px}
+.qo-btns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.qo-btns button{width:100%;min-height:48px;display:inline-flex;align-items:center;justify-content:center;padding:0 12px;text-align:center;line-height:1.3}
+@media (max-width:400px){.qo-afk-top{grid-template-columns:1fr;justify-items:center;text-align:center}.qo-btns{grid-template-columns:1fr}.qo-card{padding:12px;gap:12px}}
+
+.qo-logbtn{display:flex;align-items:center;justify-content:center;margin:8px auto 0;min-height:40px;padding:0 16px}
+.qo-sum{margin:0;font-size:13px;line-height:20px;color:#c8d0e0}
+.qo-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.qo-list li{display:grid;grid-template-columns:72px minmax(0,96px) 48px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:40px;padding:4px 12px;border-radius:8px;background:rgba(255,255,255,.04);font-size:13px}
+.qo-list li.hi{background:rgba(255,207,90,.08)}
+.qo-list time{color:#8fa0b8;font-variant-numeric:tabular-nums}.qo-src{color:#a9b4c8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qo-list em{font-style:normal;justify-self:center}.qo-list b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#eef0f6}
+.qo-pity{font-style:normal;font-size:11px;padding:0 8px;line-height:20px;border-radius:999px;background:#7a1e28;color:#ffd0d6}
+.qo-list .qo-none{display:flex;justify-content:center;color:#8fa0b8}
+@media (max-width:480px){.qo-list li{grid-template-columns:56px 48px minmax(0,1fr) auto;grid-template-areas:'t r n p' 't s s s'}.qo-list time{grid-area:t;font-size:12px}.qo-list em{grid-area:r}.qo-list b{grid-area:n}.qo-list .qo-pity{grid-area:p}.qo-src{grid-area:s;font-size:11px}}
+
+.tp-row{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));align-items:stretch;gap:8px;margin:8px 0}
+.tp-row .tp-l{display:flex;align-items:center;font-size:13px;font-weight:800;color:#ffd26c;letter-spacing:.1em}
+.tp-slot{position:relative;display:flex;align-items:center;justify-content:center;gap:4px;min-height:48px;padding:4px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.04);color:#e8dcc0;cursor:pointer}
+.tp-slot i{position:absolute;top:2px;left:6px;font-style:normal;font-size:11px;line-height:14px;color:#a9b4c8}
+.tp-slot.on{border-color:#8fd8ff;box-shadow:inset 0 0 0 1px #8fd8ff;background:rgba(143,216,255,.12)}
+.tp-slot.save{border-style:dashed;border-color:#ffcf5a;animation:tpPulse 1s ease-in-out infinite}
+@keyframes tpPulse{50%{background:rgba(255,207,90,.14)}}
+.tp-av{display:flex;align-items:center;justify-content:center}.tp-av img{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #0f1828;margin-left:-8px;background:#0b1626}.tp-av img:first-child{margin-left:0}
+.tp-av small{font-size:12px;color:#8fa0b8}
+.tp-save{grid-column:1/-1;min-height:40px;display:flex;align-items:center;justify-content:center}
+.tp-save.on{border-color:#ffcf5a;color:#ffcf5a}
+
+#dlgSkip{z-index:3;min-height:34px;display:inline-flex;align-items:center;justify-content:center}#dlgSkip[hidden]{display:none}
+
+.ps-claimall{display:flex;align-items:center;justify-content:center;width:100%;min-height:40px;margin-top:12px}

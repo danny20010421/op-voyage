@@ -352,7 +352,7 @@ function worldState() {
 }
 function enterChapter(id) {
   CH = CHAPTERS.find(c => c.id === id); TIMED = null; CHAIN = null; RACE = null; ESC = false; $('loading').classList.add('show');
-  setTimeout(() => {
+  (window.ensure3D ? ensure3D() : Promise.resolve()).then(() => setTimeout(() => {
     try {
       if (!WORLD) WORLD = new World({ canvas: $('worldCanvas'), labels: $('worldLabels'), minimap: $('minimap'), callbacks: { onInteract, onPickup, onNear, onReach, onSpotted, onEscortDone, onDig } });
       WORLD.load(CH, SAVE.data.player, worldState());
@@ -365,7 +365,7 @@ function enterChapter(id) {
     else if (huntActive()) { const tp = treasurePiece(); setTimeout(() => say([[null, `主線「${TREASURE.title}」`], [null, `這座島上藏著「${tp.name}」。${tp.hint}`], [null, '跟著探測器的溫度走，在最熱的地方按「挖掘」。']]), 500); }
     else autoStep();
     $('wHelp').classList.remove('fade'); setTimeout(() => $('wHelp').classList.add('fade'), 6000);
-  }, 40);
+  }, 40));
 }
 function refreshWorld() { WORLD.setState(worldState()); renderQuest(); onNear(WORLD._near || null); }
 /* 某些任務一開始就要啟動：計時、無 NPC 的選擇題 */
