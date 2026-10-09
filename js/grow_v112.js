@@ -21,7 +21,7 @@
       m.addEventListener('click', e => { if (e.target === m) close(); }); } return m; }
   function close() { closePop(); const m = document.getElementById('growModal'); if (m) m.classList.remove('show'); if (typeof window.__refreshCrew === 'function') window.__refreshCrew(); }
   function render() {
-    const id = cur, c = CHARACTERS[id], r = SAVE.data.roster[id]; if (!c || !r) return close();
+    const id = cur, c = CHARACTERS[id], r = SAVE.data.roster[id]; if (!c || !r) return close(); el().dataset.id = id;
     const lv = r.lv, add = totalExp(), pv = typeof previewLv === 'function' ? previewLv(id, add) : lv, need = lv >= MAX_LV ? 1 : expNeed(lv);
     const A = stats(id, lv), B = stats(id, pv), d = k => B[k] > A[k] ? `<em>(+${(B[k] - A[k]).toLocaleString()})</em>` : '';
     const rar = (typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[id]) || 'R', col = (window.RAR_COLOR || {})[rar] || '#ffcf5a';

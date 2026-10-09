@@ -92,7 +92,7 @@ const GEAR_CFG = {
     const gg = gear(); return { id: 'g' + (gg.seq++), slot: sl, rar: r, lv: 0, subs, eq: null, name: G.names[sl][G.rar.indexOf(r)] };
   }
   function addGear(g, quiet) { const gg = gear(); if (gg.items.length >= G.cap) { if (!quiet) toast('航海寶物已滿（150 件），請先分解不需要的寶物', 'warn'); return null; } gg.items.push(g); SAVE.save(); if (!quiet && typeof toast === 'function') toast(`獲得航海寶物：${g.rar} ${g.name}`, 'gold'); return g; }
-  function drop(chance, minRar) { if (Math.random() >= chance) return null; let g = roll(); if (minRar && G.rar.indexOf(g.rar) < G.rar.indexOf(minRar)) g = roll(null, minRar); return addGear(g); }
+  function drop(chance, minRar) { if (Math.random() >= chance) return null; let g = roll(); if (minRar && G.rar.indexOf(g.rar) < G.rar.indexOf(minRar)) g = roll(null, minRar); return (window.GEAR && GEAR.addGear || addGear)(g); } /* v134：經由 GEAR.addGear，讓結算畫面能顯示掉落 */
   function equip(gid, id) { const g = gear().items.find(x => x.id === gid); if (!g || !R(id)) return false; equipped(id).filter(x => x.slot === g.slot).forEach(x => { x.eq = null; }); g.eq = id; SAVE.save(); return true; }
   function unequip(gid) { const g = gear().items.find(x => x.id === gid); if (g) { g.eq = null; SAVE.save(); } }
   const enhCost = g => Math.round(G.enhCost(g.lv) * G.rarMul[g.rar]);

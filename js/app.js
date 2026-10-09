@@ -748,8 +748,7 @@ function boot() {
   window.addEventListener('keydown', e => { if (dialogOpen && (e.key === ' ' || e.key === 'Enter' || e.key.toLowerCase() === 'e')) { e.preventDefault(); e.stopImmediatePropagation(); nextLine(); } if (e.key === 'Escape') document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show')); }, true);
   $('clearStay').onclick = () => $('clearOverlay').classList.remove('show');
   $('clearGo').onclick = () => { $('clearOverlay').classList.remove('show'); openChart(); };
-  // 預載角色圖
-  CHARACTER_ORDER.forEach(id => { const i = new Image(); i.src = CHARACTERS[id].image; });
+  /* v134：不再預先下載全部角色立繪（約 33 MB）；載入畫面只下載已擁有角色的立繪，其他角色用到時才載入 */
   showScreen('loginScreen');
 }
 /* ---------- 新手拉霸（免費 LV100 召喚） ---------- */

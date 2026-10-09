@@ -1,0 +1,21 @@
+/* v134：培養紅點（.gh-dot）、寶物工具列（.gr-tools）、結算掉落（.gr-drop） */
+#charModal .char.gh-dot,#charModal .sb-tile.gh-dot,.gw-open.gh-dot,#growModal .gw-tabs button.gh-dot{position:relative}
+#charModal .char.gh-dot::after,#charModal .sb-tile.gh-dot::after,.gw-open.gh-dot::after,#growModal .gw-tabs button.gh-dot::after{content:"";position:absolute;top:6px;right:6px;width:10px;height:10px;border-radius:50%;background:#ff4a5a;box-shadow:0 0 0 2px rgba(10,20,44,.9),0 0 8px rgba(255,74,90,.8);pointer-events:none;z-index:3}
+#growModal .gw-tabs button.gh-dot::after{top:2px;right:8px}
+#charModal .char.gh-dot::after,#charModal .sb-tile.gh-dot::after{top:-4px;right:-4px;width:12px;height:12px}
+
+.gr-tools{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:8px;margin-bottom:8px}
+.gr-tools>*{height:40px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:0 12px;font-size:13px}
+.gr-bag{padding:0 12px;border-radius:999px;background:rgba(255,255,255,.06);color:#c8d0e0}.gr-bag b{color:#fff;margin:0 2px}
+.gr-tools [data-gbest]{justify-self:stretch}
+.gr-tools .arm{background:#7a1e28!important;border-color:#ff6a7a!important;color:#fff!important}
+@media (max-width:520px){.gr-tools{grid-template-columns:repeat(2,minmax(0,1fr))}.gr-tools .gr-bag{grid-column:1}.gr-tools [data-gbest]{grid-column:2}}
+
+.gr-drop{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:8px;padding:8px 12px;border-radius:10px;background:rgba(255,207,90,.1);border:1px solid rgba(255,207,90,.35)}
+.gr-drop small{font-size:12px;line-height:16px;color:#ffcf5a;font-weight:800}
+.gr-drop span{display:inline-flex;align-items:center;gap:8px;min-height:28px;font-weight:700}
+.gr-drop .gr-ico{flex:0 0 auto}
+.gr-drop em{font-style:normal}
+.gw-open.gh-dot{overflow:visible}
+.gw-open.gh-dot::after{top:-4px!important;right:-4px!important;left:auto!important;bottom:auto!important;width:12px!important;height:12px!important;opacity:1!important;transform:none!important;animation:none!important;background:#ff4a5a!important}
+#charModal .sb-tile.gh-dot,#charModal .char.gh-dot{overflow:visible}

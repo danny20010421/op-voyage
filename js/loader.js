@@ -11,7 +11,9 @@
     let own = []; try { const d = JSON.parse(localStorage.getItem(SAVE.key) || 'null'); own = Object.keys((d && d.roster) || {}); } catch (e) { }
     try { Object.values(CHARACTERS).forEach(c => { push(c.avatar, '角色頭像'); if (own.includes(c.id)) { push(c.image, '角色立繪'); if (c.ultimateBg) push(c.ultimateBg, '角色立繪'); } }); } catch (e) { }
     try { CHAPTERS.forEach(c => push(c.art, '篇章封面')); } catch (e) { }
-    try { Object.values(SKINS).forEach(s => { push(s.image, '角色皮膚'); push(s.avatar, '角色皮膚'); }); } catch (e) { }
+    /* v134：皮膚只預先下載已擁有的立繪，其他只下載頭像 */
+    let ownSk = []; try { const d = JSON.parse(localStorage.getItem(SAVE.key) || 'null'); ownSk = ((d && d.skins && d.skins.owned) || []); } catch (e) { }
+    try { Object.entries(SKINS).forEach(([k, s]) => { if (ownSk.includes(k)) push(s.image, '角色皮膚'); push(s.avatar, '角色皮膚'); }); } catch (e) { }
     for (const sh of document.styleSheets) { let rules; try { rules = sh.cssRules; } catch (e) { continue; } const base = sh.href || location.href;
       const walk = rs => { for (const r of rs) { if (r.cssRules) walk(r.cssRules); const t = r.cssText || ''; for (const m of t.matchAll(/url\(["']?([^"')]+)["']?\)/g)) { if (/\.(webp|png|jpe?g|gif|svg)(\?|$)/i.test(m[1]) && !m[1].startsWith('data:')) { const abs = new URL(m[1], base).href; if (!seen.has(abs)) { seen.add(abs); L.push({ url: abs, group: '介面背景' }); } } } } };
       walk(rules); }
@@ -31,6 +33,9 @@
     });
   }
 
+  /* v134：篇章封面、各模式的大背景（*_bg）不擋進入遊戲，進入後在背景慢慢下載（瀏覽器快取起來，用到時就不用等） */
+  const LATER = u => /assets\/chapters\//.test(u) || (/_bg[^/]*\.(webp|png|jpe?g)/.test(u) && !/(loading|login|lobby)_bg/.test(u));
+  let later = [];
   let items = [], doneCount = 0, failed = [], started = 0, total = 0;
   function setProgress(label) {
     if (!el('ldPct')) return; /* 載入畫面已經關閉時不再更新 */
@@ -48,12 +53,13 @@
     await Promise.all(Array.from({ length: CONCURRENCY }, worker));
   }
   async function start() {
-    started = performance.now(); items = collect(); total = items.length + 1; doneCount = 0; failed = [];
+    started = performance.now(); const all = collect(); items = all.filter(x => !LATER(x.url)); later = all.filter(x => LATER(x.url)); total = items.length + 1; doneCount = 0; failed = [];
     el('ldCount').textContent = `共 ${items.length} 個資源`;
     setProgress('正在確認遊戲資源…');
     const fonts = (document.fonts && document.fonts.ready ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 6000))]) : Promise.resolve()).then(() => { doneCount++; setProgress(); });
     await Promise.all([runQueue(items), fonts]);
     finish();
+    setTimeout(background, 1500);
   }
   function finish() {
     doneCount = total; setProgress(failed.length ? `有 ${failed.length} 個資源下載失敗` : '全部資源已就緒');
@@ -68,6 +74,9 @@
       el('ldSkip').onclick = enter;
     }
   }
+  /* 背景下載：一次 2 個、失敗不重試、不更新進度條 */
+  function background() { const list = later.slice(); later = []; let i = 0; const one = () => { if (i >= list.length) return; const it = list[i++]; const img = new Image(); img.decoding = 'async'; img.onload = img.onerror = () => setTimeout(one, 50); img.src = it.url; };
+    one(); one(); }
   function enter() {
     try { if (window.AUDIO && AUDIO.unlock) AUDIO.unlock(); } catch (e) { }
     const L = el('loader'); L.classList.add('out'); setTimeout(() => { L.remove(); }, 700);
