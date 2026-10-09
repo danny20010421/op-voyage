@@ -1,13 +1,14 @@
 /* v135 參考市面手遊的標準功能（QoL）：
-   ① 掛機寶藏（AFK 寶箱）：離線也會累積貝里、經驗書、覺醒結晶，最多 12 小時；每天一次「快速領取」立即拿 2 小時份。大廳左側入口。
+   ① 掛機寶藏（AFK 寶箱）：離線也會累積貝里、一般召喚券、經驗書（v136 起只給這三類），最多 12 小時；每天一次「快速領取」立即拿 2 小時份。大廳左側入口。
    ② 召喚紀錄：懸賞處召喚、新手召喚、限定活動召喚都記錄（最近 300 筆），召喚頁的機率表下方「召喚紀錄」。
    ③ 編隊預設：船員畫面「出戰陣容」下方 3 組編隊，一鍵切換、可儲存目前陣容。
    ④ 劇情「跳過」：對話框右上角，直接跳到選項或結束。
    ⑤ 每日／本週活躍寶箱「全部領取」。
    存檔：SAVE.data.afk = { t, fast }、SAVE.data.gachaLog = [...]、SAVE.data.presets = [[ids], [ids], [ids]] */
 const AFK_CFG = { capH: 12, fastH: 2, minClaimMin: 10,
+  /* v136：只給貝里、一般召喚券、一般道具（使用者決定）；不給覺醒結晶與航海寶物 */
   berryPerH: cl => 2000 + 500 * cl,           /* cl：已完成的篇章數 */
-  expSPerH: 1, expMEveryH: 3, gemEveryH: 6, gemN: 3, gearAtH: 8, gearChance: .4 };
+  expSPerH: 1, expMEveryH: 3, ticketEveryH: 6, ticketN: 1 };
 (function () {
   const $q = (s, r) => (r || document).querySelector(s);
   const fmtN = n => (+n || 0).toLocaleString();
@@ -22,10 +23,10 @@ const AFK_CFG = { capH: 12, fastH: 2, minClaimMin: 10,
   const cleared = () => (typeof CHAPTERS !== 'undefined' ? CHAPTERS.filter(c => D().chapters && D().chapters[c.id] && D().chapters[c.id].cleared).length : 0);
   const hoursNow = () => Math.max(0, Math.min(AFK_CFG.capH, (Date.now() - afk().t) / 3600e3));
   function afkReward(h) { const C = AFK_CFG, cl = cleared(), items = {};
-    const exS = Math.floor(h * C.expSPerH), exM = Math.floor(h / C.expMEveryH), gem = Math.floor(h / C.gemEveryH) * C.gemN;
-    if (exS) items.exp_s = exS; if (exM) items.exp_m = exM; if (gem) items.awaken_gem = gem;
+    const exS = Math.floor(h * C.expSPerH), exM = Math.floor(h / C.expMEveryH), tk = Math.floor(h / C.ticketEveryH) * C.ticketN;
+    if (exS) items.exp_s = exS; if (exM) items.exp_m = exM; if (tk && ITEMS.summon_ticket) items.summon_ticket = tk;
     return { berry: Math.floor(C.berryPerH(cl) * h / 10) * 10, items }; }
-  function afkGive(h, why) { const R = afkReward(h); const L = window.PROG ? PROG.give(R, why) : []; if (h >= AFK_CFG.gearAtH && window.GEAR && Math.random() < AFK_CFG.gearChance) { const g = GEAR.addGear(GEAR.roll(), true); if (g) L.push({ name: `${g.rar} ${g.name}`, count: 1, img: 'assets/ui/coin_token.webp?v=115', rar: g.rar === 'UR' || g.rar === 'SSR' ? 'SSR' : g.rar }); } return L; }
+  function afkGive(h, why) { return window.PROG ? PROG.give(afkReward(h), why) : []; }
   function claimAfk() { const h = hoursNow(); if (h * 60 < AFK_CFG.minClaimMin) { toast(`再累積 ${Math.ceil(AFK_CFG.minClaimMin - h * 60)} 分鐘就能領取`); return; } const L = afkGive(h, '掛機寶藏'); afk().t = Date.now(); SAVE.save(); if (window.PROG) PROG.celebrate('掛機寶藏', L, `累積 ${fmtH(h)}`); openAfk(); lobby(); }
   function fastAfk() { const A = afk(); if (A.fast === todayKey()) { toast('今天的快速領取已經用過了'); return; } A.fast = todayKey(); const L = afkGive(AFK_CFG.fastH, '快速領取'); SAVE.save(); if (window.PROG) PROG.celebrate('快速領取', L, `立即獲得 ${AFK_CFG.fastH} 小時的掛機收益`); openAfk(); lobby(); }
   const fmtH = h => { const m = Math.floor(h * 60); return m >= 60 ? `${Math.floor(m / 60)} 小時 ${m % 60} 分` : `${m} 分鐘`; };
@@ -33,7 +34,7 @@ const AFK_CFG = { capH: 12, fastH: 2, minClaimMin: 10,
   function openAfk() { const h = hoursNow(), C = AFK_CFG, R = afkReward(h), full = h >= C.capH, can = h * 60 >= C.minClaimMin, fastOk = afk().fast !== todayKey(), per = afkReward(1);
     const o = overlay('qo-afk', '掛機寶藏', `${head('離線也會累積', '掛機寶藏')}
       <div class="qo-afk-top"><div class="qo-ring" style="--p:${h / C.capH * 100}%"><b>${fmtH(h)}</b><small>/ ${C.capH} 小時${full ? '・已滿' : ''}</small></div>
-        <p>船員在海上替你蒐集物資，最多累積 ${C.capH} 小時。完成的篇章越多，每小時的貝里越多（目前 ${cleared()} 篇：每小時 ${fmtN(per.berry)} 貝里）。累積 ${C.gearAtH} 小時以上，有機會撈到航海寶物。</p></div>
+        <p>船員在海上替你蒐集物資，最多累積 ${C.capH} 小時。完成的篇章越多，每小時的貝里越多（目前 ${cleared()} 篇：每小時 ${fmtN(per.berry)} 貝里）。每 ${C.ticketEveryH} 小時還有一張一般召喚券。</p></div>
       <h3 class="qo-h3">目前可領取</h3><ul class="qo-rew">${rewRow(R) || '<li class="qo-none">還沒有累積到物資</li>'}</ul>
       <div class="qo-btns"><button class="btn-ghost" data-fast ${fastOk ? '' : 'disabled'}>${fastOk ? `快速領取（${C.fastH} 小時份・今日免費）` : '今日快速領取已用'}</button><button class="btn-gold" data-claim ${can ? '' : 'disabled'}>領取</button></div>`);
     o.querySelector('[data-claim]').onclick = claimAfk; o.querySelector('[data-fast]').onclick = fastAfk; }
