@@ -20,7 +20,7 @@
   };
   /* 角色 → [風格, 副標] */
   const SUB = {
-    luffy0: ['blaze', '橡膠的身體，燃燒起來吧！'], zoro: ['void', '鬼氣纏身，九刀齊出'], sanji: ['goldflame', '燃燒的右腳，踢碎一切'],
+    luffy0: ['blaze', '橡膠的身體，燃燒起來吧！'], nami: ['thunder', '天氣，由我來決定！'], zoro: ['void', '鬼氣纏身，九刀齊出'], sanji: ['goldflame', '燃燒的右腳，踢碎一切'],
     robin: ['prism', '千萬朵花，綻放成巨人'], franky: ['thunder', 'SUPER！鋼鐵將軍出擊'], brook: ['frost', '來自黃泉的冰冷靈魂'],
     jinbe: ['ocean', '順著海流，摔向深淵'], luffy: ['prism', '解放的鼓聲，響徹世界'], koby_mf: ['taboo', '一個新兵拚命的吶喊'],
     garp_mf: ['blaze', '海軍英雄的拳頭'], akainu: ['magma', '徹底的正義，燒盡一切'], aokiji: ['frost', '連大海都要凍結'],

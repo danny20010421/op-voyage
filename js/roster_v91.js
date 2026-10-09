@@ -7,7 +7,7 @@
   const R = (label, n) => Array(Math.max(0, n)).fill('?' + label);
   const block = (label, ids, total) => [...ids, ...R(label, total - ids.length)];
   const ORDER = [
-    ...block('草帽一夥', [], 0), 'luffy0', 'zoro', '?草帽一夥', '?草帽一夥', 'sanji', '?草帽一夥', 'robin', 'franky', 'brook', 'jinbe', 'luffy', /* 第 11 號：巨人篇魯夫 */
+    ...block('草帽一夥', [], 0), 'luffy0', 'zoro', 'nami', '?草帽一夥', 'sanji', '?草帽一夥', 'robin', 'franky', 'brook', 'jinbe', 'luffy', /* 第 11 號：巨人篇魯夫 */
     ...block('海軍與世界政府', ['coby0', 'morgan', 'marine', 'koby_mf', 'garp_mf', 'akainu', 'aokiji', 'kizaru', 'magellan', 'lucci', 'vergo', 'garp_hc', 'koby_hc'], 15),
     ...block('王下七武海', ['mihawk', 'crocodile', 'doflamingo', 'kuma', 'moria', 'law', 'hancock', 'kuma_eh', 'law_w', 'weevil', 'blackbeard_w', 'mihawk_w'], 13), /* v103：No.037 黑鬍子（七武海）、No.038 鷹眼（七武海） */ /* v102：No.037 預留給黑鬍子（七武海），立繪之後補 */ /* v101：七武海版羅 No.035、衛伯 No.036 */
     ...block('白鬍子海賊團', ['ace', 'marco'], 16), ...block('紅髮海賊團', ['uta'], 11) /* v121：No.056 美音 */, ...block('百獸海賊團', ['king'], 12) /* v115：No.067 燼 */,
@@ -24,7 +24,7 @@
   CHARACTER_ORDER.length = 0; if (typeof RESERVED_NOS !== 'undefined') RESERVED_NOS.length = 0;
   finalList.forEach((x, i) => { if (x[0] === '?' || x[0] === '!') { if (typeof RESERVED_NOS !== 'undefined') { const [g, nm] = x.slice(1).split('|'); RESERVED_NOS.push({ no: i + 1, group: x[0] === '!' ? '？？？' : g, name: nm || '', hideNo: x[0] === '!' }); } } else { CHARACTER_ORDER.push(x); CHARACTERS[x].no = i + 1; delete CHARACTERS[x].noText; } });
   if (CHARACTERS.imu) { CHARACTERS.imu.mystery = true; CHARACTERS.imu.noText = '???'; } /* 伊姆：編號與身分都保持神秘 */
-  window.CHAR_ARC = { luffy0: '東海篇', vivi: '阿拉巴斯坦篇', enel: '空島篇', franky: '司法島篇', moria: '恐怖三桅帆船篇', hancock: '頂上戰爭篇', hody: '魚人島篇', law: '德雷斯羅薩篇', katakuri: '蛋糕島篇', kid: '和之國篇', garp_hc: '蜂巢島篇', vegapunk: '蛋頭島篇', luffy: '巨人篇', imu: '其他' };
+  window.CHAR_ARC = { luffy0: '東海篇', nami: '東海篇', vivi: '阿拉巴斯坦篇', enel: '空島篇', franky: '司法島篇', moria: '恐怖三桅帆船篇', hancock: '頂上戰爭篇', hody: '魚人島篇', law: '德雷斯羅薩篇', katakuri: '蛋糕島篇', kid: '和之國篇', garp_hc: '蜂巢島篇', vegapunk: '蛋頭島篇', luffy: '巨人篇', imu: '其他' };
 
   /* ---------- 數值調整 ---------- */
   if (CHARACTERS.koza) CHARACTERS.koza.battleScale = .6;

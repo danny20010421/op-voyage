@@ -151,7 +151,7 @@
 const CHAR_FX = {
   luffy0: ['fist', 'quake'], zoro: ['sword', 'sword', ['#ffffff', '#c8ffd8', '#3adf8a', '#0a3a1a']], sanji: ['fire', 'inferno', ['#ffffff', '#bfe8ff', '#3a7fff', '#0a1a5a']],
   robin: ['psy', 'blossom', ['#ffffff', '#ffd0f0', '#c86fd8', '#3a1a4a']], franky: ['bolt', 'radiance', ['#ffffff', '#bfefff', '#3fd0ff', '#0a3a6a']], brook: ['ice', 'blizzard', ['#ffffff', '#d8e8ff', '#8fa8ff', '#1a1a4a']],
-  jinbe: ['water', 'tsunami'], luffy: ['psy', 'radiance', ['#ffffff', '#fff6d8', '#ffd86f', '#6a4a1a']], coby0: ['fist', 'radiance'], morgan: ['sword', 'quake'], marine: ['fist', 'quake'],
+  nami: ['bolt', 'storm', ['#ffffff', '#fff3b0', '#8fd8ff', '#1a2a5a']], jinbe: ['water', 'tsunami'], luffy: ['psy', 'radiance', ['#ffffff', '#fff6d8', '#ffd86f', '#6a4a1a']], coby0: ['fist', 'radiance'], morgan: ['sword', 'quake'], marine: ['fist', 'quake'],
   koby_mf: ['fist', 'radiance'], garp_mf: ['haki', 'quake'], akainu: ['fire', 'inferno', ['#fff0c0', '#ff8a2e', '#d01a00', '#3a0500']], aokiji: ['ice', 'blizzard'], kizaru: ['light', 'radiance', ['#ffffff', '#fff6b0', '#ffd23b', '#8a6a00']],
   magellan: ['poison', 'poison'], lucci: ['fist', 'haki'], vergo: ['haki', 'haki'], garp_hc: ['haki', 'quake'], koby_hc: ['fist', 'radiance'],
   mihawk: ['sword', 'sword', ['#ffffff', '#c8fff0', '#5affc8', '#003a2a']], crocodile: ['sand', 'sandstorm'], doflamingo: ['thread', 'thread', ['#ffffff', '#ffc8f0', '#ff5ad0', '#4a0a3a']],

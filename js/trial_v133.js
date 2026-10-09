@@ -68,6 +68,7 @@ const TRIALS = {
   enel: { r: 'luffy0', l: [['n', '空島，神的審判降落在方舟上。'], ['r', '我是橡膠人，雷打不到我！'], ['c', '神是不會輸的——呀哈哈哈！']] },
   wiper: { r: 'enel', l: [['n', '香迪亞的戰士帶著排斥貝，衝向神的神殿。'], ['r', '無禮之徒，你也想挑戰神？'], ['c', '為了故鄉，我要把你打下來！']] },
   perona: { r: 'mihawk', l: [['n', '克拉伊加納島，佩羅娜的幽靈飛向古堡。'], ['r', '吵鬧的小姑娘。'], ['c', '消極幽靈！讓你也變得消極吧！']] },
+  nami: { r: 'hody', l: [['n', '魚人島，新魚人海賊團擋住了草帽一夥的去路。'], ['r', '人類的小女孩，也敢站在魚人面前？'], ['c', '我早就不怕魚人了——天氣，由我來決定！']] },
   hody: { r: 'jinbe', l: [['n', '魚人島，仇恨的藥丸讓荷帝變得瘋狂。'], ['r', '荷帝，你的仇恨不是你自己的。'], ['c', '人類全部都要沉進海底！']] },
   shirahoshi: { r: 'hody', l: [['n', '魚人島，海王的力量被仇恨所覬覦。'], ['r', '人魚公主，你應該屬於我。'], ['c', '我……我不會再哭了！']] },
   monet: { r: 'law_w', l: [['n', '龐克哈薩特的研究所，雪女守著重要的心臟。'], ['r', '把心臟交出來，雪女。'], ['c', '少主的計畫，誰都不准打亂。']] },
@@ -83,8 +84,8 @@ const TRIALS = {
   brogy: { r: 'dorry', l: [['n', '小花園，又一場決鬥開始了。'], ['r', '咯嘰嘰嘰！布洛基，今天也是好天氣！'], ['c', '嘎巴巴巴！為了艾爾巴夫的榮耀！']] },
   rocks: { r: 'roger', l: [['n', '神之谷，世界最強的兩人正面相撞。'], ['r', '洛克斯，你的時代到此為止。'], ['c', '這個世界的王——只能是我！']] }
 };
-/* 試煉對手的額外倍率（體力、傷害同乘）：tests/trial-sim.js 以 ★4、技能 Lv4、沒有寶物時勝率約 60% 校準；白鬍子、洛基、紅髮、尼卡魯夫、洛克斯的特殊機制模擬不準，改用實戰自動戰鬥調整 */
-const TRIAL_ADJ = { luffy0: 0.59, zoro: 0.74, sanji: 1.16, robin: 0.89, franky: 1.51, brook: 1.25, jinbe: 1.59, luffy: 0.77, coby0: 1.54, morgan: 1.05, koby_mf: 1.09, garp_mf: 1.32, akainu: 0.83, aokiji: 1.09, kizaru: 1.05, magellan: 1.98, lucci: 1.96, vergo: 0.78, garp_hc: 2.2, koby_hc: 0.94, mihawk: 0.83, crocodile: 2.54, doflamingo: 1.31, kuma: 2.45, moria: 0.81, law: 0.71, hancock: 1.92, kuma_eh: 1.27, law_w: 1.01, weevil: 0.7, blackbeard_w: 0.87, mihawk_w: 2.04, ace: 1.41, marco: 0.93, uta: 0.56, king: 1.99, katakuri: 0.97, catarina: 0.89, burgess: 0.89, vasco: 1.11, shanks: 1, blackbeard: 0.97, buggy: 0.69, luffy_nika: 1.3, whitebeard: 2.5, bigmom: 1.23, kaido: 1.3, makino: 0.33, mayor: 1.73, lordcoast: 0.31, vivi: 0.96, koza: 0.71, enel: 2.69, wiper: 0.86, perona: 1.01, hody: 1.19, shirahoshi: 2.21, monet: 1.24, sugar: 0.98, kid: 1.08, kinemon: 0.7, tama: 0.54, yamato: 0.74, vegapunk: 0.73, york: 1.15, loki: 2.2, dorry: 1.19, brogy: 1.12, rocks: 1.3 };
+/* 試煉對手的額外倍率（體力、傷害同乘）：v142 平衡調整後全部重新校準；tests/trial-sim.js 以 ★4、技能 Lv4、沒有寶物時勝率約 60% 校準；白鬍子、洛基、紅髮、尼卡魯夫、洛克斯的特殊機制模擬不準，改用實戰自動戰鬥調整 */
+const TRIAL_ADJ = { nami: 2.01, luffy0: 0.99, zoro: 0.8, sanji: 1.1, robin: 0.99, franky: 0.93, brook: 0.97, jinbe: 1.01, luffy: 0.85, coby0: 1.02, morgan: 0.6, koby_mf: 0.97, garp_mf: 0.77, akainu: 0.85, aokiji: 0.99, kizaru: 1, magellan: 0.64, lucci: 0.71, vergo: 1, garp_hc: 0.96, koby_hc: 1.25, mihawk: 0.61, crocodile: 0.59, doflamingo: 0.98, kuma: 0.99, moria: 0.84, law: 0.84, hancock: 1.04, kuma_eh: 0.93, law_w: 1.42, weevil: 1, blackbeard_w: 1.06, mihawk_w: 1.01, ace: 0.89, marco: 1.01, uta: 0.58, king: 1.02, katakuri: 0.92, catarina: 1, burgess: 1.09, vasco: 0.99, shanks: 1, blackbeard: 0.75, buggy: 0.57, luffy_nika: 1.3, whitebeard: 2.5, bigmom: 1.07, kaido: 0.71, makino: 0.93, mayor: 1.73, lordcoast: 0.68, vivi: 1.09, koza: 1.12, enel: 0.71, wiper: 0.94, perona: 0.88, hody: 0.91, shirahoshi: 1.01, monet: 1.08, sugar: 0.49, kid: 0.78, kinemon: 0.93, tama: 0.97, yamato: 0.84, vegapunk: 1.02, york: 1.4, loki: 2.2, dorry: 0.93, brogy: 1, rocks: 1.3 };
 const TRIAL_CFG = { reward: { awaken_gem: 30, skill_book: 2 }, berry: 20000, lv: 100, boss: true };
 (function () {
   const R = id => (SAVE.data.roster || {})[id];
