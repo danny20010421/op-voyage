@@ -1,8 +1,8 @@
 /* 安裝 App：瀏覽器允許安裝時先記下來，設定頁按「安裝」才跳出系統安裝視窗 */
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__installPrompt = e; });
 /* 設定頁（大廳「設定」與首頁「設定」共用）＋ 新手教學（大廳聚光燈導覽）。
-   設定存在 localStorage：op_gfx（畫質）、op_motion（減少動態）、op_bspeed（預設戰鬥速度）、op_vibe（震動回饋）、op_live_pop（即時對戰邀請通知）、op_text（文字大小）。 */
-const GAME_VERSION = 'v137';
+   設定存在 localStorage：op_gfx（畫質）、op_motion（減少動態）、op_bspeed（預設戰鬥速度）、op_vibe（震動回饋）、op_live_pop（即時對戰邀請通知）、op_text（文字大小）、op_fxpro（技能特效高／低，v138）。 */
+const GAME_VERSION = 'v138';
 (function () {
   const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, put = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { } };
   /* ---------- 套用設定 ---------- */
@@ -35,6 +35,7 @@ const GAME_VERSION = 'v137';
         ${row('減少動態效果', '關閉大部分動畫與震動畫面，容易頭暈時使用', sw('op_motion', get('op_motion') === '1'))}
         ${row('文字大小', '放大說明、戰報與面板文字', seg('op_text', [['n', '標準'], ['l', '加大']], get('op_text') === 'l' ? 'l' : 'n'))}
       <h4>戰鬥</h4>${row('預設戰鬥速度', '戰鬥中也可以隨時切換', seg('op_bspeed', [[1, '×1'], [2, '×2'], [3, '×3']], +(get('op_bspeed') || 1)))}
+        ${row('技能特效', '低：較省電，手機發燙或卡頓時使用', seg('op_fxpro', [['1', '高'], ['0', '低']], get('op_fxpro') === '0' ? '0' : '1'))}
         ${row('震動回饋', '受到傷害時震動（Android 支援；iPhone 瀏覽器不支援）', sw('op_vibe', get('op_vibe') === '1'))}
       <h4>好友與通知</h4>${row('即時對戰邀請通知', '好友邀請你對戰時，在任何畫面跳出提示', sw('op_live_pop', get('op_live_pop') !== '0'))}
         ${row('好友與對戰', U ? `已登入：${U.email || ''}` : '登入後可以加好友、留言、對戰', `<button class="btn-gold sm" data-go="social">開啟</button>`)}

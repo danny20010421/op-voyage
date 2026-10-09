@@ -3,9 +3,9 @@
       取代手機上把 shadowBlur 降到三成的作法（手機原本幾乎沒有光暈，是看起來廉價的主因）。
    ② 命中：頓幀（hit-stop 約 70ms）、目標色差殘影（紅／青錯位）、拖尾火花、雙層衝擊波、餘燼。
    ③ 出招：背景壓暗＋暗角，讓特效成為焦點；施放者描上招式顏色的輪廓光。奧義另加電影黑邊。
-   狀態：示意中，預設關閉；localStorage op_fxpro = '1' 才開啟（等使用者同意後再改成預設開啟）。 */
+   設定：設定頁「戰鬥 → 技能特效」高／低（localStorage op_fxpro，'0'＝低：回到原本的特效）。「減少動態效果」開啟時不震動畫面。 */
 (function () {
-  const on = () => { try { return localStorage.getItem('op_fxpro') === '1'; } catch (e) { return false; } }; /* 等使用者同意前預設關閉（op_fxpro = '1' 才開啟） */
+  const on = () => { try { return localStorage.getItem('op_fxpro') !== '0'; } catch (e) { return true; } }; /* 使用者已同意：預設開啟；設定「技能特效：低」＝ op_fxpro '0' */
   const $ = id => document.getElementById(id);
   const R = (a, b) => a + Math.random() * (b - a), TAU = Math.PI * 2;
   const COL = { blue: '#78d2ff', gold: '#ffd26e', red: '#ff7850', purple: '#b07cff', green: '#78ffaa' };
@@ -16,7 +16,7 @@
   function bloomLoop() { braf = 0; const cv = ensureBloom(); if (!cv || !on()) return; const w = Math.max(1, Math.round(cv.width / 4)), h = Math.max(1, Math.round(cv.height / 4));
     if (bloom.width !== w || bloom.height !== h) { bloom.width = w; bloom.height = h; }
     const s = cv.style, b = bloom.style; if (b.left !== s.left || b.top !== s.top || b.width !== s.width || b.height !== s.height) { b.left = s.left; b.top = s.top; b.width = s.width; b.height = s.height; b.right = b.bottom = 'auto'; }
-    bctx.clearRect(0, 0, w, h); bctx.drawImage(cv, 0, 0, w, h);
+    bctx.clearRect(0, 0, w, h); const full = window.__fxFullUntil && performance.now() < __fxFullUntil(); b.opacity = full ? '.12' : ''; bctx.drawImage(cv, 0, 0, w, h);
     const vis = typeof currentScreen === 'undefined' || currentScreen === 'battleScreen';
     if (vis && performance.now() - idle < 2500) braf = requestAnimationFrame(bloomLoop); else bctx.clearRect(0, 0, w, h); }
   function kick() { idle = performance.now(); if (!braf) braf = requestAnimationFrame(bloomLoop); }
@@ -44,6 +44,9 @@
 
   window.addEventListener('DOMContentLoaded', () => {
     if (window.FXE && FXE.add) { const _a = FXE.add; FXE.add = function () { const r = _a.apply(this, arguments); if (on()) kick(); return r; }; }
+    /* 全畫面閃光／染色時暫時降低泛光，避免整個畫面被洗白 */
+    let fullUntil = 0; ['flash', 'tint'].forEach(k => { const f = FXE.P[k]; if (!f) return; FXE.P[k] = function (col, life) { fullUntil = Math.max(fullUntil, performance.now() + (life || .3) * 1000 / (window.BSPEED || 1)); return f.apply(this, arguments); }; });
+    window.__fxFullUntil = () => fullUntil;
     /* 衝擊環：原本是一條細線，加一層柔和的光帶，看起來比較有厚度 */
     if (window.FXE && FXE.P && FXE.P.ring) { const _r = FXE.P.ring; FXE.P.ring = function (x, y, o) { const r = _r.apply(this, arguments); if (!on()) return r; o = o || {}; const col = o.color || '#ffffff', r0 = o.r0 || 10, r1 = o.r1 || 150, life = (o.life || .45) * 1.15, flat = o.flat || 1, bw = Math.max(18, (o.w || 14) * 2.2);
       FXE.add({ add: true, life, draw(c, k) { const e = 1 - Math.pow(1 - k, 3), rr = r0 + (r1 - r0) * e, g = c.createRadialGradient(0, 0, Math.max(0, rr - bw), 0, 0, rr + bw * .5); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.7, col); g.addColorStop(1, 'rgba(255,255,255,0)');
@@ -66,8 +69,11 @@
   /* 屬性 → 主題 */
   const THEME = { '火': 'fire', '冰': 'ice', '雷電': 'bolt', '水': 'water', '魚人': 'water', '闇': 'dark', '超能': 'psy', '龍': 'psy', '自然': 'nature', '格鬥': 'fist', '獸': 'fist', '巨人': 'fist' };
   const PAL = { fire: ['#fff3c0', '#ffb02e', '#ff4a1a', '#7a1200'], ice: ['#ffffff', '#c8f4ff', '#6fd3ff', '#1a5aa8'], bolt: ['#ffffff', '#fff27a', '#ffd23b', '#6a8aff'], water: ['#ffffff', '#bfeaff', '#3fa8ff', '#0a3a8a'],
-    dark: ['#f0d0ff', '#b05aff', '#5a1a9a', '#120018'], psy: ['#ffffff', '#ffb0f0', '#d86fd0', '#4a1a6a'], nature: ['#ffffff', '#c8ffb0', '#5adf6f', '#1a5a2a'], fist: ['#ffffff', '#ffe0a0', '#ff8a3a', '#5a2a0a'] };
-  const themeOf = f => { const t = (f && f.types) || []; for (const x of t) if (THEME[x]) return THEME[x]; return 'fist'; };
+    dark: ['#f0d0ff', '#b05aff', '#5a1a9a', '#120018'], psy: ['#ffffff', '#ffb0f0', '#d86fd0', '#4a1a6a'], nature: ['#ffffff', '#c8ffb0', '#5adf6f', '#1a5a2a'], fist: ['#ffffff', '#ffe0a0', '#ff8a3a', '#5a2a0a'], sword: ['#ffffff', '#e0f0ff', '#8fc8ff', '#0a1a3a'], sand: ['#fff8e0', '#ffd890', '#d8a040', '#4a2a0a'], light: ['#ffffff', '#fff6b0', '#ffd23b', '#6a5a00'],
+    haki: ['#ffffff', '#ff8a9a', '#e0102a', '#000000'], poison: ['#f0ffe0', '#c88aff', '#7a3ad8', '#1a0a2a'], shadow: ['#f0e0ff', '#a87aff', '#4a1a8a', '#05000a'], thread: ['#ffffff', '#ffc8f0', '#ff5ad0', '#3a0a2a'], quake: ['#ffffff', '#e8f4ff', '#a8d8ff', '#1a2a4a'] };
+  window.__FXPAL = PAL;
+  const themeOf = f => { const C = f && typeof CHAR_FX !== 'undefined' && CHAR_FX[f.id]; if (C) return C[0]; const t = (f && f.types) || []; for (const x of t) if (THEME[x]) return THEME[x]; return 'fist'; };
+  const palOf = (f, th) => { const C = f && typeof CHAR_FX !== 'undefined' && CHAR_FX[f.id]; return (C && C[2]) || PAL[th] || PAL.fist; };
   function geo(side) { const f = $('bF' + side), img = $('bImg' + side); if (!f || !img) return null; const p = fighterPoint(side), sc = parseFloat(getComputedStyle(f).getPropertyValue('--sc')) || 1, h = img.offsetHeight * sc;
     return { x: p.x, y: p.y, g: f.offsetTop + img.offsetTop + img.offsetHeight, h, w: img.offsetWidth * sc }; }
   const add = o => FXE.add(o);
@@ -97,7 +103,7 @@
     add({ life: 1, draw(c, k, dt) { ps.forEach(p => { p.vy += 1500 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.r += p.vr * dt; if (p.y > G.g + 10) { p.y = G.g + 10; p.vy *= -.3; p.vx *= .6; } c.globalAlpha = 1 - k; c.save(); c.translate(p.x, p.y); c.rotate(p.r); c.fillStyle = '#5a4a3a'; c.beginPath(); c.moveTo(-p.s, -p.s * .4); c.lineTo(p.s * .2, -p.s); c.lineTo(p.s, p.s * .3); c.lineTo(-p.s * .3, p.s * .8); c.closePath(); c.fill(); c.fillStyle = P[2]; c.globalAlpha = (1 - k) * .5; c.fill(); c.restore(); }); } });
     const ds = []; for (let i = 0; i < n(10); i++) ds.push({ x: G.x + R(-30, 30), vx: R(-180, 180), r: R(30, 60) });
     add({ life: 1.1, draw(c, k, dt) { ds.forEach(d => { d.x += d.vx * dt; d.vx *= .95; const r = d.r * (1 + k * 1.5), g = c.createRadialGradient(d.x, G.g - r * .3, 0, d.x, G.g - r * .3, r); g.addColorStop(0, 'rgba(200,180,150,.5)'); g.addColorStop(1, 'rgba(200,180,150,0)'); c.globalAlpha = (1 - k) * .8; c.fillStyle = g; c.beginPath(); c.arc(d.x, G.g - r * .3, r, 0, TAU); c.fill(); }); } }); }
-  function shake(px, ms) { const a = $('bArena'); if (!a) return; const k = []; for (let i = 0; i < 6; i++) k.push({ translate: `${R(-px, px)}px ${R(-px, px)}px` }); k.push({ translate: '0 0' }); a.animate(k, { duration: ms, composite: 'add' }); }
+  function shake(px, ms) { const a = $('bArena'); if (!a) return; try { if (localStorage.getItem('op_motion') === '1') return; } catch (e) { } const k = []; for (let i = 0; i < 6; i++) k.push({ translate: `${R(-px, px)}px ${R(-px, px)}px` }); k.push({ translate: '0 0' }); a.animate(k, { duration: ms, composite: 'add' }); }
   /* ---------- 屬性命中 ---------- */
   function element(th, x, y, G, P, big) {
     const m = big ? 1.4 : 1;
@@ -110,24 +116,99 @@
     else if (th === 'dark' || th === 'psy') { add({ life: .7, draw(c, k) { const r = (60 + 160 * (1 - Math.pow(1 - k, 3))) * m; c.globalAlpha = .8 * (1 - k); const g = c.createRadialGradient(x, y, r * .2, x, y, r); g.addColorStop(0, P[3]); g.addColorStop(.7, P[3]); g.addColorStop(.85, P[1]); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.beginPath(); for (let i = 0; i <= 24; i++) { const a = i / 24 * TAU, rr = r * (.85 + .15 * Math.sin(i * 3 + k * 9)); i ? c.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr) : c.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } c.fill(); } }); }
     else if (th === 'nature') { const lv = []; for (let i = 0; i < n(18); i++) { const a = R(0, TAU), v = R(150, 420) * m; lv.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: R(0, TAU), s: R(6, 12) }); }
       add({ add: true, life: 1, draw(c, k, dt) { lv.forEach(p => { p.vx *= .95; p.vy = p.vy * .95 + 120 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.r += 4 * dt; c.globalAlpha = 1 - k; c.save(); c.translate(p.x, p.y); c.rotate(p.r); c.fillStyle = P[2]; c.beginPath(); c.ellipse(0, 0, p.s, p.s * .45, 0, 0, TAU); c.fill(); c.restore(); }); } }); }
+    else if (th === 'sword') { [[-.7, 0], [.7, 60], [0, 120]].forEach(([ang, d]) => setTimeout(() => add({ add: true, life: .35, draw(c, k) { const L = 340 * m * (1 - Math.pow(1 - Math.min(1, k * 2.5), 3)); c.translate(x, y); c.rotate(ang); const g = c.createLinearGradient(-L / 2, 0, L / 2, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, '#fff'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.globalAlpha = 1 - k; c.fillStyle = g; c.fillRect(-L / 2, -4 * (1 - k) - 1, L, 8 * (1 - k) + 2); c.fillStyle = P[2]; c.globalAlpha = (1 - k) * .6; c.fillRect(-L / 2, -12 * (1 - k), L, 24 * (1 - k)); } }), d)); }
+    else if (th === 'sand') { const sd = []; for (let i = 0; i < n(60); i++) { const a = R(-Math.PI, 0), v = R(150, 560) * m; sd.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: R(1.5, 4) }); } add({ life: 1, draw(c, k, dt) { sd.forEach(p => { p.vy += 900 * dt; p.vx *= .97; p.x += p.vx * dt; p.y += p.vy * dt; c.globalAlpha = 1 - k; c.fillStyle = P[2]; c.fillRect(p.x, p.y, p.s, p.s); }); } }); }
+    else if (th === 'light') { FXE.P.flash('#fffbe0', .14, .4); FXE.P.glow(x, y, { color: P[1], r: 200 * m, life: .5 }); }
+    else if (th === 'haki') { for (let i = 0; i < (big ? 5 : 3); i++) setTimeout(() => { const a = R(0, TAU), L = R(80, 200) * m; FXE.P.bolt(x, y, x + Math.cos(a) * L, y + Math.sin(a) * L, { color: Math.random() < .5 ? '#1a0005' : P[2], w: 4, life: .3 }); }, i * 50); }
+    else if (th === 'poison') { for (let i = 0; i < n(10); i++) setTimeout(() => FXE.P.glow(x + R(-70, 70) * m, y + R(-60, 50) * m, { color: P[2], r: R(50, 90) * m, life: .7 }), i * 40); }
+    else if (th === 'shadow') { element('dark', x, y, null, P, big); }
+    else if (th === 'thread') { for (let i = 0; i < 8; i++) { const a = R(0, TAU), L = R(140, 260) * m; add({ add: true, life: .5, draw(c, k) { const e = Math.min(1, k * 3); c.globalAlpha = 1 - k; c.strokeStyle = P[1]; c.lineWidth = 1.5; c.beginPath(); c.moveTo(x - Math.cos(a) * L * e, y - Math.sin(a) * L * e); c.lineTo(x + Math.cos(a) * L * e, y + Math.sin(a) * L * e); c.stroke(); } }); } }
+    else if (th === 'quake') { FXE.P.ring(x, y, { r1: 260 * m, color: P[1], w: 18, life: .5 }); setTimeout(() => FXE.P.ring(x, y, { r1: 360 * m, color: '#ffffff', w: 10, life: .5 }), 100); }
     if (G) debris(G, P, big);
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     let cur = null; /* 目前出招的角色與主題（命中時使用） */
     if (typeof playChoreo === 'function') { const _p = playChoreo; window.playChoreo = playChoreo = async function (side, actor, idx, skill) {
-      if (!on()) return _p.apply(this, arguments); const S = side === 'P' ? 'L' : 'R', G = geo(S), th = themeOf(actor), P = PAL[th], ult = !!(skill && skill.ultimate), sup = skill && skill.type === 'support';
+      if (!on()) return _p.apply(this, arguments); const S = side === 'P' ? 'L' : 'R', G = geo(S), th = themeOf(actor), P = palOf(actor, th), ult = !!(skill && skill.ultimate), sup = skill && skill.type === 'support';
       cur = { th, P, ult };
       try { if (G) {
         circle(G.x, G.g, P, { r: Math.max(90, G.w * .55), life: ult ? 2.4 : 1.3, spin: ult ? 2 : 1.2 }); aura(G, P, th, ult ? 2.4 : 1.2);
-        if (ult) { FXE.P.tint('#000010', 2.2, .4); circle(G.x, G.g - G.h * .02, P, { r: Math.max(150, G.w * .9), life: 2.4, spin: -.8, flat: .28 }); gather(G.x, G.y, P, { n: 70, rad: 420, life: .9 }); FXE.P.speedLines(G.x, G.y, { life: .9, n: 70, a: .55 }); shake(4, 600); }
+        if (ult) { circle(G.x, G.g - G.h * .02, P, { r: Math.max(150, G.w * .9), life: 2.4, spin: -.8, flat: .28 }); gather(G.x, G.y, P, { n: 70, rad: 420, life: .9 }); FXE.P.speedLines(G.x, G.y, { life: .9, n: 70, a: .55 }); shake(4, 600); }
         else if (sup) { add({ add: true, life: 1.2, draw(c, k) { const a = k < .2 ? k / .2 : (1 - k) / .8, w = G.w * .5 * (1 - k * .3), g = c.createLinearGradient(G.x - w, 0, G.x + w, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, P[1]); g.addColorStop(1, 'rgba(0,0,0,0)'); c.globalAlpha = a * .6; c.fillStyle = g; c.fillRect(G.x - w, -50, w * 2, G.g + 50); } }); }
         else gather(G.x + (S === 'L' ? 1 : -1) * G.w * .25, G.y, P, { n: 30, rad: 220, life: .45 });
       } } catch (e) { }
       try { return await _p.apply(this, arguments); } finally {
-        if (ult) try { const T = geo(S === 'L' ? 'R' : 'L'); FXE.P.flash('#ffffff', .35, .55); if (T) { rays(T.x, T.y, P[1], { n: 28, len: 700, life: .9 }); FXPRO.shock(T.x, T.y, P[2], true); } const rain = []; for (let i = 0; i < n(50); i++) rain.push({ x: R(0, FXE.W), y: R(-200, 0), v: R(200, 500), s: R(1.5, 3.5) }); add({ add: true, life: 1.6, draw(c, k, dt) { rain.forEach(p => { p.y += p.v * dt; c.globalAlpha = (1 - k) * .9; c.fillStyle = P[0]; c.beginPath(); c.arc(p.x, p.y, p.s, 0, TAU); c.fill(); c.globalAlpha = (1 - k) * .4; c.fillStyle = P[1]; c.beginPath(); c.arc(p.x, p.y, p.s * 3, 0, TAU); c.fill(); }); } }); shake(9, 500); } catch (e) { }
+        if (ult) try { const T = geo(S === 'L' ? 'R' : 'L'); if (T) { rays(T.x, T.y, P[1], { n: 28, len: 700, life: .9 }); FXPRO.shock(T.x, T.y, P[2], true); } const rain = []; for (let i = 0; i < n(50); i++) rain.push({ x: R(0, FXE.W), y: R(-200, 0), v: R(200, 500), s: R(1.5, 3.5) }); add({ add: true, life: 1.6, draw(c, k, dt) { rain.forEach(p => { p.y += p.v * dt; c.globalAlpha = (1 - k) * .9; c.fillStyle = P[0]; c.beginPath(); c.arc(p.x, p.y, p.s, 0, TAU); c.fill(); c.globalAlpha = (1 - k) * .4; c.fillStyle = P[1]; c.beginPath(); c.arc(p.x, p.y, p.s * 3, 0, TAU); c.fill(); }); } }); shake(9, 500); } catch (e) { }
         setTimeout(() => { cur = null; }, 400); } }; }
     if (typeof hitFX === 'function') { const _h = hitFX; hitFX = function (side, theme, big) { const r = _h.apply(this, arguments); if (!on()) return r; try { const p = fighterPoint(side), G = geo(side), C = cur || { th: 'fist', P: PAL.fist }; const b = big || (cur && cur.ult);
       rays(p.x, p.y, C.P[1], { n: b ? 22 : 14, len: b ? 520 : 340, life: b ? .55 : .4, a: .7 }); element(C.th, p.x, p.y, G, C.P, b); shake(b ? 10 : 5, b ? 320 : 220); } catch (e) { } return r; }; }
   });
+})();
+
+/* v138 第三層「每位角色」：CHAR_FX[id] = [命中主題, 奧義全畫面轉場, 自訂配色?]
+   主題決定氣場與命中爆發；轉場在奧義開始時鋪滿畫面（火海、冰封、雷暴、海嘯、深淵、沙暴、聖光、霸王色、花雨、震裂、劍閃、毒霧、影、絲線）。 */
+const CHAR_FX = {
+  luffy0: ['fist', 'quake'], zoro: ['sword', 'sword', ['#ffffff', '#c8ffd8', '#3adf8a', '#0a3a1a']], sanji: ['fire', 'inferno', ['#ffffff', '#bfe8ff', '#3a7fff', '#0a1a5a']],
+  robin: ['psy', 'blossom', ['#ffffff', '#ffd0f0', '#c86fd8', '#3a1a4a']], franky: ['bolt', 'radiance', ['#ffffff', '#bfefff', '#3fd0ff', '#0a3a6a']], brook: ['ice', 'blizzard', ['#ffffff', '#d8e8ff', '#8fa8ff', '#1a1a4a']],
+  jinbe: ['water', 'tsunami'], luffy: ['psy', 'radiance', ['#ffffff', '#fff6d8', '#ffd86f', '#6a4a1a']], coby0: ['fist', 'radiance'], morgan: ['sword', 'quake'], marine: ['fist', 'quake'],
+  koby_mf: ['fist', 'radiance'], garp_mf: ['haki', 'quake'], akainu: ['fire', 'inferno', ['#fff0c0', '#ff8a2e', '#d01a00', '#3a0500']], aokiji: ['ice', 'blizzard'], kizaru: ['light', 'radiance', ['#ffffff', '#fff6b0', '#ffd23b', '#8a6a00']],
+  magellan: ['poison', 'poison'], lucci: ['fist', 'haki'], vergo: ['haki', 'haki'], garp_hc: ['haki', 'quake'], koby_hc: ['fist', 'radiance'],
+  mihawk: ['sword', 'sword', ['#ffffff', '#c8fff0', '#5affc8', '#003a2a']], crocodile: ['sand', 'sandstorm'], doflamingo: ['thread', 'thread', ['#ffffff', '#ffc8f0', '#ff5ad0', '#4a0a3a']],
+  kuma: ['psy', 'quake', ['#ffffff', '#ffe0c0', '#ffa86f', '#4a2a0a']], moria: ['shadow', 'abyss'], law: ['psy', 'sword', ['#ffffff', '#c8f0ff', '#5ad0ff', '#0a2a4a']], hancock: ['psy', 'blossom', ['#ffffff', '#ffd0e8', '#ff5aa8', '#4a0a2a']],
+  kuma_eh: ['psy', 'quake', ['#ffffff', '#ffe0c0', '#ffa86f', '#4a2a0a']], law_w: ['psy', 'sword', ['#ffffff', '#c8f0ff', '#5ad0ff', '#0a2a4a']], weevil: ['haki', 'quake'], blackbeard_w: ['dark', 'abyss'], mihawk_w: ['sword', 'sword', ['#ffffff', '#c8fff0', '#5affc8', '#003a2a']],
+  ace: ['fire', 'inferno'], marco: ['fire', 'inferno', ['#ffffff', '#bff8ff', '#3ad8ff', '#0a2a5a']], uta: ['psy', 'blossom', ['#ffffff', '#ffd8e8', '#ff6fa8', '#3a0a3a']], king: ['fire', 'inferno', ['#fff0d0', '#ffb05a', '#ff3a1a', '#2a0505']],
+  katakuri: ['psy', 'haki', ['#ffffff', '#ffe8f8', '#d88fd0', '#3a1a3a']], catarina: ['fire', 'blossom', ['#ffffff', '#c8b0ff', '#8a5aff', '#1a0a3a']], burgess: ['fist', 'quake'], vasco: ['fire', 'inferno'],
+  shanks: ['haki', 'haki'], blackbeard: ['dark', 'abyss'], buggy: ['psy', 'radiance', ['#ffffff', '#ffe0b0', '#ff6a3a', '#3a0a0a']], luffy_nika: ['light', 'radiance', ['#ffffff', '#fffbe8', '#ffe8a0', '#8a6a3a']],
+  whitebeard: ['quake', 'quake', ['#ffffff', '#e8f4ff', '#a8d8ff', '#1a2a4a']], bigmom: ['fire', 'storm', ['#ffffff', '#ffe08a', '#ff8a3a', '#3a1a0a']], kaido: ['bolt', 'storm', ['#ffffff', '#d8c8ff', '#8a5aff', '#1a0a3a']],
+  makino: ['fist', 'blossom'], mayor: ['fist', 'quake'], lordcoast: ['water', 'tsunami'], vivi: ['water', 'tsunami'], koza: ['sword', 'sandstorm'], enel: ['bolt', 'storm'], wiper: ['fire', 'quake'],
+  perona: ['shadow', 'abyss', ['#ffffff', '#ffd0f0', '#d88fff', '#2a0a3a']], hody: ['water', 'tsunami'], shirahoshi: ['water', 'tsunami', ['#ffffff', '#d8f4ff', '#8fd8ff', '#1a4a6a']], monet: ['ice', 'blizzard'],
+  sugar: ['psy', 'blossom'], kid: ['bolt', 'storm', ['#ffffff', '#ffd0c0', '#ff5a3a', '#3a0a0a']], kinemon: ['fire', 'sword'], tama: ['nature', 'blossom'], yamato: ['ice', 'blizzard'],
+  vegapunk: ['light', 'radiance', ['#ffffff', '#d8f8ff', '#5ae0ff', '#0a2a3a']], york: ['light', 'radiance'], morgans: ['fist', 'quake'], loki: ['bolt', 'storm'], dorry: ['sword', 'quake'], brogy: ['sword', 'quake'],
+  rocks: ['haki', 'abyss', ['#ffffff', '#ffb0b0', '#ff2a3a', '#1a0005']], imu: ['dark', 'abyss', ['#ffffff', '#ffb0c8', '#c8003a', '#05000a']], roger: ['haki', 'haki']
+};
+(function () {
+  const on = () => window.FXPRO && FXPRO.on();
+  const R = (a, b) => a + Math.random() * (b - a), TAU = Math.PI * 2, LOW = typeof LOWFX !== 'undefined' && LOWFX;
+  const n = k => Math.max(1, Math.round(k * (LOW ? .6 : 1)));
+  const add = o => FXE.add(o);
+  const W = () => FXE.W || 400, H = () => FXE.H || 600;
+  const motionOK = () => { try { return localStorage.getItem('op_motion') !== '1'; } catch (e) { return true; } };
+  /* ---------- 奧義全畫面轉場 ---------- */
+  function wash(col, a, life) { add({ life, draw(c, k) { c.globalAlpha = a * (k < .15 ? k / .15 : k > .7 ? (1 - k) / .3 : 1); c.fillStyle = col; c.fillRect(-W(), -H(), W() * 3, H() * 3); } }); }
+  const TR = {
+    inferno(P) { wash(P[3], .35, 2.2); const fl = []; for (let i = 0; i < n(60); i++) fl.push({ x: R(-.1, 1.1), s: R(30, 90), v: R(.3, .8), ph: R(0, TAU) });
+      add({ add: true, life: 2.2, draw(c, k, dt, t) { const fa = k < .1 ? k / .1 : k > .75 ? (1 - k) / .25 : 1; fl.forEach(f => { const y = H() * (1.1 - ((t * f.v + f.ph / TAU) % 1) * 1.3), x = W() * f.x + Math.sin(t * 3 + f.ph) * 20, r = f.s * (.6 + .4 * Math.sin(t * 6 + f.ph)); const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, P[0]); g.addColorStop(.3, P[1]); g.addColorStop(.7, P[2]); g.addColorStop(1, 'rgba(0,0,0,0)'); c.globalAlpha = fa * .7; c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }); } }); },
+    blizzard(P) { wash(P[3], .3, 2.2); const sn = []; for (let i = 0; i < n(140); i++) sn.push({ x: R(-.2, 1.2), y: R(-.2, 1.2), v: R(.4, 1.2), s: R(1, 3.5) });
+      add({ add: true, life: 2.2, draw(c, k, dt, t) { const fa = k < .1 ? k / .1 : k > .75 ? (1 - k) / .25 : 1; c.strokeStyle = P[0]; c.lineCap = 'round'; sn.forEach(p => { const x = W() * (((p.x - t * p.v * .6) % 1.4 + 1.4) % 1.4 - .2), y = H() * (((p.y + t * p.v) % 1.4) - .2); c.globalAlpha = fa * .9; c.lineWidth = p.s; c.beginPath(); c.moveTo(x, y); c.lineTo(x + 10 * p.v, y - 16 * p.v); c.stroke(); });
+        const g = c.createRadialGradient(W() / 2, H() / 2, Math.min(W(), H()) * .3, W() / 2, H() / 2, Math.max(W(), H()) * .75); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, P[1]); c.globalAlpha = fa * .55; c.fillStyle = g; c.fillRect(0, 0, W(), H()); } }); },
+    storm(P) { wash('#05050f', .45, 2.2); for (let i = 0; i < n(7); i++) setTimeout(() => { const x = R(.05, .95) * W(); FXE.P.bolt(x, -60, x + R(-80, 80), H() * R(.55, .9), { color: P[2], w: R(3, 7), life: .3 }); FXE.P.flash(P[1], .1, .25); if (window.SFX) try { SFX.play('hit'); } catch (e) { } }, 150 + i * R(150, 260)); },
+    tsunami(P) { wash(P[3], .3, 2); add({ add: true, life: 1.8, draw(c, k, dt, t) { const x = W() * (-1.2 + k * 2.6), fa = k > .8 ? (1 - k) / .2 : 1; for (let j = 0; j < 3; j++) { c.globalAlpha = fa * (.55 - j * .15); c.fillStyle = P[2 - j > 0 ? 2 - j : 1]; c.beginPath(); c.moveTo(x - W(), H()); for (let i = 0; i <= 40; i++) { const xx = x - W() + i / 40 * W() * 1.4, yy = H() * (.35 + j * .12) + Math.sin(i * .5 + t * 6 + j) * 24; c.lineTo(xx, yy); } c.lineTo(x + W() * .4, H()); c.closePath(); c.fill(); } } }); },
+    abyss(P) { add({ life: 2.2, draw(c, k, dt, t) { const fa = k < .2 ? k / .2 : k > .75 ? (1 - k) / .25 : 1, cx = W() / 2, cy = H() * .45, r = Math.max(W(), H()) * (.3 + k * .6); const g = c.createRadialGradient(cx, cy, r * .2, cx, cy, r); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.6, P[3]); g.addColorStop(.85, P[2]); g.addColorStop(1, 'rgba(0,0,0,0)'); c.globalAlpha = fa * .75; c.fillStyle = g; c.fillRect(-W(), -H(), W() * 3, H() * 3);
+      c.translate(cx, cy); c.rotate(t * 1.5); c.strokeStyle = P[1]; c.lineWidth = 3; for (let i = 0; i < 6; i++) { c.rotate(TAU / 6); c.globalAlpha = fa * .5; c.beginPath(); for (let j = 0; j < 30; j++) { const rr = j * r / 30, a = j * .22; j ? c.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : c.moveTo(0, 0); } c.stroke(); } } }); },
+    sandstorm(P) { wash('#5a3a10', .35, 2.2); const ps = []; for (let i = 0; i < n(160); i++) ps.push({ x: R(0, 1), y: R(0, 1), v: R(.6, 1.6), s: R(1, 3) });
+      add({ add: true, life: 2.2, draw(c, k, dt, t) { const fa = k < .1 ? k / .1 : k > .75 ? (1 - k) / .25 : 1; c.fillStyle = '#ffd890'; ps.forEach(p => { const x = W() * (((p.x + t * p.v) % 1.2) - .1), y = H() * p.y + Math.sin(t * 4 + p.x * 20) * 10; c.globalAlpha = fa * .8; c.fillRect(x, y, p.s * 8, p.s); }); } }); },
+    radiance(P) { wash('#ffffff', .12, 2); for (let i = 0; i < n(6); i++) setTimeout(() => { const x = R(.1, .9) * W(); add({ add: true, life: .9, draw(c, k) { const w = 60 * (1 - k * .5), g = c.createLinearGradient(x - w, 0, x + w, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, P[1]); g.addColorStop(1, 'rgba(0,0,0,0)'); c.globalAlpha = (1 - k) * .8; c.fillStyle = g; c.fillRect(x - w, -H(), w * 2, H() * 3); } }); }, i * 180);
+      add({ add: true, life: 2, draw(c, k, dt, t) { const fa = k < .2 ? k / .2 : (1 - k) / .8; c.translate(W() / 2, -H() * .1); c.rotate(t * .2); for (let i = 0; i < 16; i++) { c.rotate(TAU / 16); const g = c.createLinearGradient(0, 0, 0, H() * 1.4); g.addColorStop(0, P[0]); g.addColorStop(1, 'rgba(0,0,0,0)'); c.globalAlpha = fa * .25; c.fillStyle = g; c.beginPath(); c.moveTo(0, 0); c.lineTo(-40, H() * 1.4); c.lineTo(40, H() * 1.4); c.closePath(); c.fill(); } } }); },
+    haki(P) { wash('#000000', .55, 2.2); add({ add: true, life: 2.2, draw(c, k, dt, t) { const fa = k < .1 ? k / .1 : k > .75 ? (1 - k) / .25 : 1; if (Math.random() < .5) { for (let i = 0; i < 3; i++) { let x = R(0, W()), y = R(0, H()); c.globalAlpha = fa; c.strokeStyle = Math.random() < .5 ? '#000' : P[2]; c.shadowColor = P[2]; c.shadowBlur = 16; c.lineWidth = R(2, 5); c.beginPath(); c.moveTo(x, y); for (let j = 0; j < 8; j++) { x += R(-60, 60); y += R(-60, 60); c.lineTo(x, y); } c.stroke(); } }
+      const r = (t * 900) % (Math.max(W(), H()) * 1.2); c.shadowBlur = 0; c.globalAlpha = fa * .6 * (1 - r / (Math.max(W(), H()) * 1.2)); c.strokeStyle = P[2]; c.lineWidth = 10; c.beginPath(); c.arc(W() / 2, H() * .5, r, 0, TAU); c.stroke(); } }); },
+    blossom(P) { wash(P[3], .25, 2.2); const pt = []; for (let i = 0; i < n(80); i++) pt.push({ x: R(-.1, 1.1), y: R(-.6, 0), v: R(.25, .6), r: R(0, TAU), vr: R(-3, 3), s: R(5, 11), sw: R(0, TAU) });
+      add({ add: true, life: 2.4, draw(c, k, dt, t) { const fa = k > .8 ? (1 - k) / .2 : 1; pt.forEach(p => { const x = W() * p.x + Math.sin(t * 2 + p.sw) * 30, y = H() * (p.y + t * p.v); c.globalAlpha = fa; c.save(); c.translate(x, y); c.rotate(p.r + t * p.vr); c.fillStyle = P[2]; c.beginPath(); c.moveTo(0, -p.s); c.bezierCurveTo(p.s, -p.s, p.s, p.s * .3, 0, p.s); c.bezierCurveTo(-p.s, p.s * .3, -p.s, -p.s, 0, -p.s); c.fill(); c.fillStyle = P[1]; c.globalAlpha = fa * .6; c.beginPath(); c.arc(0, -p.s * .2, p.s * .35, 0, TAU); c.fill(); c.restore(); }); } }); },
+    quake(P) { wash('#000000', .3, 1.8); const cr = []; for (let i = 0; i < 9; i++) { const pts = []; let x = W() * .5 + R(-40, 40), y = H() * .55; const a = R(0, TAU); for (let j = 0; j < 12; j++) { x += Math.cos(a + R(-.6, .6)) * R(30, 60); y += Math.sin(a + R(-.6, .6)) * R(30, 60); pts.push([x, y]); } cr.push(pts); }
+      add({ add: true, life: 2, draw(c, k) { const grow = Math.min(1, k * 3), fa = k > .7 ? (1 - k) / .3 : 1; c.lineCap = 'round'; cr.forEach(pts => { const m = Math.ceil(pts.length * grow); [[10, P[2], .5], [3, P[0], 1]].forEach(([w, col, a]) => { c.globalAlpha = fa * a; c.strokeStyle = col; c.lineWidth = w; c.beginPath(); c.moveTo(W() * .5, H() * .55); for (let j = 0; j < m; j++) c.lineTo(pts[j][0], pts[j][1]); c.stroke(); }); }); } });
+      [0, 300, 600].forEach(d => setTimeout(() => { FXE.P.ring(W() / 2, H() * .55, { r1: Math.max(W(), H()) * .7, color: P[1], w: 20, life: .6 }); }, d)); },
+    sword(P) { wash('#000000', .4, 1.8); for (let i = 0; i < n(9); i++) setTimeout(() => { const y = R(.15, .85) * H(), a = R(-.5, .5); add({ add: true, life: .45, draw(c, k) { const e = 1 - Math.pow(1 - k, 3), L = W() * 1.6; c.translate(W() / 2, y); c.rotate(a); const g = c.createLinearGradient(-L / 2, 0, L / 2, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(Math.max(0, e - .2), P[2]); g.addColorStop(e, '#ffffff'); g.addColorStop(Math.min(1, e + .02), 'rgba(0,0,0,0)'); c.globalAlpha = 1 - k * .7; c.fillStyle = g; c.fillRect(-L / 2, -3 - (1 - k) * 4, L, 6 + (1 - k) * 8); } }); if (window.SFX) try { SFX.play('whoosh'); } catch (e) { } }, i * 110); },
+    poison(P) { wash('#1a0a2a', .4, 2.2); const bb = []; for (let i = 0; i < n(40); i++) bb.push({ x: R(0, 1), y: R(.5, 1.1), v: R(.1, .35), s: R(14, 46), ph: R(0, TAU) });
+      add({ life: 2.2, draw(c, k, dt, t) { const fa = k < .15 ? k / .15 : k > .75 ? (1 - k) / .25 : 1; bb.forEach(b => { const x = W() * b.x + Math.sin(t * 2 + b.ph) * 16, y = H() * (b.y - t * b.v), g = c.createRadialGradient(x, y, 0, x, y, b.s); g.addColorStop(0, P[1]); g.addColorStop(.6, P[2]); g.addColorStop(1, 'rgba(0,0,0,0)'); c.globalAlpha = fa * .55; c.fillStyle = g; c.beginPath(); c.arc(x, y, b.s, 0, TAU); c.fill(); }); } }); },
+    thread(P) { wash('#000000', .35, 2.2); const th = []; for (let i = 0; i < n(26); i++) { const a = R(0, TAU); th.push({ x1: W() / 2 + Math.cos(a) * W(), y1: H() * .45 + Math.sin(a) * H(), x2: W() / 2 + Math.cos(a + Math.PI + R(-.4, .4)) * W(), y2: H() * .45 + Math.sin(a + Math.PI + R(-.4, .4)) * H(), d: R(0, .4) }); }
+      add({ add: true, life: 2.2, draw(c, k) { const fa = k > .8 ? (1 - k) / .2 : 1; th.forEach(l => { const e = Math.max(0, Math.min(1, (k - l.d) * 3)); if (!e) return; c.globalAlpha = fa; c.strokeStyle = P[1]; c.shadowColor = P[2]; c.shadowBlur = 10; c.lineWidth = 1.6; c.beginPath(); c.moveTo(l.x1, l.y1); c.lineTo(l.x1 + (l.x2 - l.x1) * e, l.y1 + (l.y2 - l.y1) * e); c.stroke(); }); } }); }
+  };
+  window.addEventListener('DOMContentLoaded', () => {
+    if (typeof playChoreo !== 'function') return; const _p = playChoreo;
+    window.playChoreo = playChoreo = async function (side, actor, idx, skill) {
+      if (!on() || !actor) return _p.apply(this, arguments); const C = CHAR_FX[actor.id] || CHAR_FX[(actor.id || '').replace(/_.*/, '')];
+      if (C && skill && skill.ultimate && TR[C[1]]) { try { TR[C[1]](C[2] || (window.__FXPAL && __FXPAL[C[0]]) || ['#ffffff', '#ffe0a0', '#ff8a3a', '#2a0a0a']); } catch (e) { } }
+      return _p.apply(this, arguments); };
+  });
+  window.__FXTR = TR;
 })();
