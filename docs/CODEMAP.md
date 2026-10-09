@@ -49,7 +49,7 @@
 - `js/roster_v118.js`／`ext_v118.js`／`fx_v118.js`: F:尼卡魯夫（luffy_nika）與效果 dmgToShield、nikaThunder（battle.js 的 onEvaded 掛鉤）、nikaTeamHeal、nikaTriple、nikaLegacy
 - `js/bag_v116.js`: F:背包 openBag（取代 app.js 版；分類 CAT_OF、獲取方式 SRC/GO、使用 USE）、頭像快取參數 FACES、橫式立繪偵測（.cer-char/.cx-art img 加 .wide） | S:vip_v115 之後載入；新道具要補 CAT_OF 與 SRC
 - `css/v116.css`: F:背包 .bg2-*、船團 .gl-*（舊 .gd-card/.gd-wrap 是新手導覽的類別，船團不要再用）
-- `js/vip_v115.js`: F:VIP 會員中心 openVIP（會員／月費／儲值）、VIP 等級 vipLevel（SAVE.data.vip.paid）、福利 PERK（貝里／經驗加成包住 addBerry、gainExp）、月費 MC（SAVE.data.mcard、每日寶藏幣 mcClaim）、登入宣傳 mc-ad（SAVE.data.mcAdHide）、新道具 event_ticket／char_select、openCharSelect、大廳徽章 refreshLobby、VIP.recharge（儲值入帳，目前只給後台測試） | R:modes.js openModes、lobby.js renderLobby、event.js（限定抽獎券）、social.js／guild.js（vipTag） | S:月費檔期改 MC；新月費要新的 id 與皮膚 monthCard 欄位
+- `js/vip_v115.js`: F:VIP 會員中心 openVIP（會員／月費／儲值）、VIP 等級 vipLevel（SAVE.data.vip.paid）、福利 PERK（貝里／經驗加成包住 addBerry、gainExp）、月費 MC（SAVE.data.mcard、每日寶藏幣 mcClaim）、登入宣傳 mc-ad（SAVE.data.mcAdHide；v141 起新手導覽 GUIDE 未完成或 .gd-wrap 顯示時不跳，guidePending）、新道具 event_ticket／char_select、openCharSelect、大廳徽章 refreshLobby、VIP.recharge（儲值入帳，目前只給後台測試） | R:modes.js openModes、lobby.js renderLobby、event.js（限定抽獎券）、social.js／guild.js（vipTag） | S:月費檔期改 MC；新月費要新的 id 與皮膚 monthCard 欄位
 - `js/roster_v115.js`: F:燼（king）、皮膚 king_halloween、和之國篇小 BOSS 步驟 | S:必須在 roster_v91 之前載入；步驟插入的舊存檔轉換在 app.js chState（v115）
 - `js/ext_v115.js`: F:效果 ppUpRandom、kingFlame（減傷＋反彈，熄滅時加速） | S:ext_v110 之後載入
 - `js/fx_v115.js`: F:燼第 1～4 招專屬動畫

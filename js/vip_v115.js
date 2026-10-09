@@ -243,7 +243,9 @@
 
   /* ---------- 月費宣傳：每次進入遊戲顯示一次；可設定今日不再顯示；點宣傳圖前往購買 ---------- */
   let adShown = false;
-  function busyUI() { return !!document.querySelector('.modal.show, .dl-wrap, .gw-wrap.show, .vp-wrap.show, .vp-note, .cer-wrap, .guide-mask, .gd-tip, #tutorial.show') || (typeof currentScreen !== 'undefined' && currentScreen !== 'modeScreen'); }
+  /* v141：新手教學（大廳導覽 GUIDE）還沒完成、或正在播放時，月費宣傳一律等教學結束才出現 */
+  const guidePending = () => { try { return (typeof GUIDE !== 'undefined' && !GUIDE.done()) || !!document.querySelector('.gd-wrap'); } catch (e) { return false; } };
+  function busyUI() { return guidePending() || !!document.querySelector('.modal.show, .dl-wrap, .gw-wrap.show, .vp-wrap.show, .vp-note, .cer-wrap, .guide-mask, .gd-tip, .gd-wrap, .rt-wrap, #tutorial.show') || (typeof currentScreen !== 'undefined' && currentScreen !== 'modeScreen'); }
   function showAd() {
     if (adShown || mcSt() || !onSale() || SAVE.data.mcAdHide === dayStr()) return; adShown = true;
     const w = document.createElement('div'); w.className = 'mc-ad'; w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', '限時月費宣傳');
@@ -255,7 +257,11 @@
     w.querySelector('[data-k=hide]').onclick = () => { SAVE.data.mcAdHide = dayStr(); SAVE.save(); toast('今天不會再顯示月費宣傳'); close(); };
     const go = () => { close(); openVIP('card'); }; w.querySelector('.mc-ad-img').onclick = go; w.querySelector('[data-k=go]').onclick = go;
   }
-  function queueAd() { if (adShown) return; let n = 0; const t = setInterval(() => { if (adShown || ++n > 60) return clearInterval(t); if (!busyUI()) { clearInterval(t); setTimeout(() => { if (!busyUI()) showAd(); else queueAd(); }, 400); } }, 700); }
+  let adQ = null;
+  function queueAd() { if (adShown || adQ) return; let n = 0; adQ = setInterval(() => { const stop = () => { clearInterval(adQ); adQ = null; };
+      if (adShown) return stop(); if (guidePending()) { n = 0; return; } /* 教學期間不計次，教學完才開始倒數 */
+      if (++n > 60) return stop();
+      if (!busyUI()) { stop(); setTimeout(() => { if (!busyUI()) showAd(); else queueAd(); }, 1200); } }, 700); }
 
   /* 進入大廳：升級禮包補發、月費每日寶藏幣、名片徽章、宣傳 */
   function onLobby() { try { if (!SAVE.data || !Object.keys(SAVE.data.roster || {}).length) return; grantOnce(false); mcClaim(false); refreshLobby(); setTimeout(refreshLobby, 60); queueAd(); } catch (e) { console.warn('VIP', e); } }
