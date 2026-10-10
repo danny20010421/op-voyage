@@ -580,7 +580,7 @@ function hideDialog() { setDialogMin(false); dialogOpen = false; $('dialog').cla
 let gachaReturn = 'chapterScreen', gachaBusy = false;
 function openGacha(ret) {
   gachaReturn = typeof ret === 'string' ? ret : currentScreen === 'gachaScreen' ? gachaReturn : currentScreen; coins();
-  $('rateTable').innerHTML = '<caption>出現機率</caption>' + `<tr><th><span class="rar c-rar r-CHAR">船員</span></th><td>${+(GAME_SETTINGS.charRate * 100).toFixed(1)}%</td><td>UR ${+(CHAR_RATE_BY_RARITY.UR * 100).toFixed(2)}%・SSR ${+(CHAR_RATE_BY_RARITY.SSR * 100).toFixed(2)}%・SR ${+(CHAR_RATE_BY_RARITY.SR * 100).toFixed(2)}%（LV ${GACHA_CHAR_LV} 加入；重複可到海軍本部換貝里）</td></tr>` + Object.entries(RARITY).map(([k, r]) => `<tr><th><span class="rar r-${k}">${k}</span></th><td>${Math.round(r.rate * (1 - GACHA_CHAR_RATE) * 100)}%</td><td>${Object.values(ITEMS).filter(i => i.rarity === k).map(i => i.name).join('、')}</td></tr>`).join(''); pityCaption();
+  $('rateTable').innerHTML = '<caption>出現機率</caption>' + `<tr><th><span class="rar c-rar r-CHAR">船員</span></th><td>${+(GAME_SETTINGS.charRate * 100).toFixed(1)}%</td><td>UR ${+(CHAR_RATE_BY_RARITY.UR * 100).toFixed(2)}%・SSR ${+(CHAR_RATE_BY_RARITY.SSR * 100).toFixed(2)}%・SR ${+(CHAR_RATE_BY_RARITY.SR * 100).toFixed(2)}%（LV ${GACHA_CHAR_LV} 加入；重複可到海軍本部換貝里）</td></tr>` + Object.entries(RARITY).map(([k, r]) => `<tr><th><span class="rar r-${k}">${k}</span></th><td>${Math.round(r.rate * (1 - GACHA_CHAR_RATE) * 100)}%</td><td>${Object.values(ITEMS).filter(i => i.rarity === k && !i.noPool).map(i => i.name).join('、')}</td></tr>`).join(''); pityCaption();
   const caps = $('mCaps'); if (!caps.children.length) { const cols = ['#e8553b', '#3fb6c9', '#ffd26c', '#b58cff', '#6fd08c', '#f4f7f2']; let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; let placed = 0, guard = 0; while (placed < 30 && guard++ < 4000) { const x = 8 + rnd() * 84, y = 40 + rnd() * 52; if (Math.hypot(x - 50, y - 50) > 40) continue; const s = document.createElement('i'); s.style.cssText = `--c:${cols[placed % cols.length]};left:${x - 7}%;top:${y - 7}%;--r:${Math.round(rnd() * 360)}deg;z-index:${Math.round(y)}`; caps.appendChild(s); placed++; } }
   updateGachaBtns(); showScreen('gachaScreen'); if (typeof switchHub === 'function') switchHub('summon');
 }
@@ -613,7 +613,7 @@ function rollOne(minR) {
   const order = ['N', 'R', 'SR', 'SSR']; let rar = 'N', acc = minR ? 0 : GAME_SETTINGS.charRate; if (minR) r = Math.random() * order.reduce((t, k) => t + RARITY[k].rate, 0);
   for (const k of order) { acc += RARITY[k].rate; if (r < acc) { rar = k; break; } }
   if (minR && order.indexOf(rar) < order.indexOf(minR)) rar = Math.random() < .9 ? 'SR' : 'SSR';
-  const pool = Object.entries(ITEMS).filter(([, i]) => i.rarity === rar); return { item: pool[Math.floor(Math.random() * pool.length)][0] };
+  const pool = Object.entries(ITEMS).filter(([, i]) => i.rarity === rar && !i.noPool); /* v143：noPool＝不從道具池隨機抽出（例：皮膚另有獨立機率） */ return { item: pool[Math.floor(Math.random() * pool.length)][0] };
 }
 const rarOf = (x) => x.char ? 'SSR' : ITEMS[x.item].rarity;
 /* 跳過動畫：動畫期間顯示「跳過」按鈕，按下後剩下的等待全部立即結束 */

@@ -1,11 +1,11 @@
 /* v142：娜美（天候棒・SSR・爆發速度型）——只能從一般懸賞召喚取得。序號 No.003（草帽一夥第 3 位，必須在 roster_v91 之前載入）。
    招式參考原作的魔法天候棒（Sorcery Clima-Tact）與雷雲「宙斯」：先用落雷與蜃氣樓累積速度、偷走對手的強化，再一口氣放出宙斯的雷擊。
-   特殊效果 namiSteal、namiZeus 在 ext_v142.js；五招動畫在 fx_v142.js。戰鬥立繪縮放 0.6（使用者指定）。
+   特殊效果 namiSteal、namiZeus 在 ext_v142.js；五招動畫在 fx_v142.js。戰鬥立繪縮放 0.7（v143 換新立繪，使用者指定）。
    皮膚「波雲雷擊」（nami_cloud）：活動中心的限時活動「天候祭」免費取得（weekly.js）。 */
 (function () {
-  const V = 142, S = (name, type, pp, power, desc, tags, anima, effect, ult) => Object.assign({ name, type, pp, maxPP: pp, power, accuracy: 100, desc, tags, anima, effect: effect || {} }, ult ? { ultimate: true } : {});
-  CHARACTERS.nami = { id: 'nami', name: '娜美', title: '小貓竊賊', types: ['雷電', '水'], scale: .95, worldScale: 1, battleScale: .6, ai: 'aggressive',
-    image: `assets/chars/nami.webp?v=${V}`, avatar: `assets/chars/nami_face.webp?v=${V}`, ultimateBg: `assets/chars/nami.webp?v=${V}`, cardPos: '50% 8%', cardFocus: '50% 10%',
+  const V = 142, V2 = 143, S = (name, type, pp, power, desc, tags, anima, effect, ult) => Object.assign({ name, type, pp, maxPP: pp, power, accuracy: 100, desc, tags, anima, effect: effect || {} }, ult ? { ultimate: true } : {});
+  CHARACTERS.nami = { id: 'nami', name: '娜美', title: '小貓竊賊', types: ['雷電', '水'], scale: .95, worldScale: 1, battleScale: .7, ai: 'aggressive',
+    image: `assets/chars/nami.webp?v=${V2}`, avatar: `assets/chars/nami_face.webp?v=${V2}`, ultimateBg: `assets/chars/nami.webp?v=${V2}`, cardPos: '50% 8%', cardFocus: '50% 10%',
     maxHp: 1300, baseSpeed: 132, statScale: 1, role: '爆發速度型',
     desc: '草帽一夥的航海士，綽號「小貓竊賊」。能讀懂天氣與海流，用魔法天候棒操縱雷雲、熱氣與冷氣；和雷雲「宙斯」聯手時，雷擊足以撼動整片海。最愛的是橘子和錢。',
     skills: [

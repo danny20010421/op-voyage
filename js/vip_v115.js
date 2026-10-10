@@ -71,7 +71,7 @@
   if (typeof gainExp === 'function') { const _ge = gainExp; let inner = 0; gainExp = function (id, n, silent, noShare) { if (!inner && noShare !== true && n > 0) { const b = Math.round(n * (perk(level()).exp || 0) / 100); if (b > 0) n += b; } inner++; try { return _ge.call(this, id, n, silent, noShare); } finally { inner--; } }; } /* 分給其他船員的經驗（gainExp 內部再呼叫）不重複加成 */
 
   /* ---------- 月費 ---------- */
-  const MC = { id: '2026-10', name: '萬聖火龍燼', label: '2026 年 10 月限時月費', start: +new Date(2026, 9, 1), end: +new Date(2026, 10, 1) - 1000, price: 300, /* v127：1200 → 300（使用者指定） */ days: 30, daily: 10, tickets: 10, select: 1, char: 'king', skin: 'king_halloween', banner: 'assets/ui/monthcard_2610.webp?v=115' };
+  const MC = { id: '2026-10', name: '萬聖火龍燼', label: '2026 年 10 月限時月費', start: +new Date(2026, 9, 1), end: +new Date(2026, 10, 1) - 1000, price: 300, /* v127：1200 → 300（使用者指定） */ days: 30, daily: 10, tickets: 10, select: 1, char: 'king', skin: 'king_halloween', extraSkins: ['nami_witch'] /* v143：娜美萬聖節皮膚「月下魔法師」也包含在本期月費 */, banner: 'assets/ui/monthcard_2610.webp?v=115' };
   const mcSt = () => { const d = SAVE.data; d.mcard = d.mcard || {}; return d.mcard[MC.id]; };
   const onSale = () => Date.now() >= MC.start && Date.now() <= MC.end;
   const mcDay = () => { const s = mcSt(); return s ? dayNum(dayStr()) - dayNum(s.buy) + 1 : 0; }; /* 第幾天（購買當天是第 1 天） */
@@ -87,7 +87,7 @@
       SAVE.data.tokens -= MC.price; SAVE.data.mcard[MC.id] = { buy: dayStr(), last: '', got: 0 };
       const list = [];
       if (CHARACTERS[MC.char] && !owned(MC.char)) { addCrew(MC.char, typeof GACHA_CHAR_LV !== 'undefined' ? GACHA_CHAR_LV : 20); list.push({ char: MC.char }); }
-      const S = SAVE.data.skins = SAVE.data.skins || { owned: [], equip: {} }; S.owned = S.owned || []; if (SKINS[MC.skin] && !S.owned.includes(MC.skin)) { S.owned.push(MC.skin); list.push({ name: `皮膚「${SKINS[MC.skin].name}」`, count: 1, img: SKINS[MC.skin].avatar, rar: 'SSR' }); }
+      const S = SAVE.data.skins = SAVE.data.skins || { owned: [], equip: {} }; S.owned = S.owned || []; [MC.skin, ...(MC.extraSkins || [])].forEach(k => { if (SKINS[k] && !S.owned.includes(k)) { S.owned.push(k); list.push({ name: `皮膚「${SKINS[k].name}」`, count: 1, img: SKINS[k].avatar, rar: 'SSR' }); } });
       list.push(...give({ items: { event_ticket: MC.tickets, char_select: MC.select } }));
       mcClaim(true); list.push({ name: '寶藏幣（第 1 天）', count: MC.daily, img: COIN, rar: 'SR' });
       SAVE.save(); if (typeof coins === 'function') coins(); if (typeof SFX !== 'undefined') SFX.play('rare');
@@ -174,6 +174,7 @@
     const items = [
       [CHARACTERS[MC.char] ? CHARACTERS[MC.char].avatar : '', 'SSR 角色「燼」', '炎災・防禦速度型（月費限定取得）', 'img'],
       [SKINS[MC.skin] ? SKINS[MC.skin].avatar : '', '當月 VIP 限定皮膚', '「萬聖之燼」（只能從本期月費取得）', 'img'],
+      ...(MC.extraSkins || []).filter(k => SKINS[k]).map(k => [SKINS[k].avatar, `${CHARACTERS[SKINS[k].char] ? CHARACTERS[SKINS[k].char].name : ''}萬聖限定皮膚`, `「${SKINS[k].name}」（只能從本期月費取得）`, 'img']),
       [COIN, `每日寶藏幣 ×${MC.daily}`, `購買起 ${MC.days} 天，每天登入自動領取（共 ${MC.daily * MC.days} 枚）`, 'coin'],
       ['ticket', `限定抽獎券 ×${MC.tickets}`, '可在任一限定召喚池使用', 'ico'],
       ['card', `SSR 角色選擇卡 ×${MC.select}`, '一般召喚池 SSR 角色任選一位', 'ico']];
@@ -264,7 +265,9 @@
       if (!busyUI()) { stop(); setTimeout(() => { if (!busyUI()) showAd(); else queueAd(); }, 1200); } }, 700); }
 
   /* 進入大廳：升級禮包補發、月費每日寶藏幣、名片徽章、宣傳 */
-  function onLobby() { try { if (!SAVE.data || !Object.keys(SAVE.data.roster || {}).length) return; grantOnce(false); mcClaim(false); refreshLobby(); setTimeout(refreshLobby, 60); queueAd(); } catch (e) { console.warn('VIP', e); } }
+  /* v143：已經買過本期月費的玩家，補發後來加入的月費皮膚 */
+  function mcExtraGrant() { if (!mcSt()) return; const S = SAVE.data.skins = SAVE.data.skins || { owned: [], equip: {} }; S.owned = S.owned || []; const got = (MC.extraSkins || []).filter(k => SKINS[k] && !S.owned.includes(k)); if (!got.length) return; got.forEach(k => S.owned.push(k)); SAVE.save(); setTimeout(() => toast(`月費追加福利：獲得皮膚${got.map(k => `「${SKINS[k].name}」`).join('、')}！`, 'gold'), 1600); }
+  function onLobby() { try { if (!SAVE.data || !Object.keys(SAVE.data.roster || {}).length) return; grantOnce(false); mcExtraGrant(); mcClaim(false); refreshLobby(); setTimeout(refreshLobby, 60); queueAd(); } catch (e) { console.warn('VIP', e); } }
   window.addEventListener('DOMContentLoaded', () => {
     const om = window.openModes; if (om) window.openModes = function () { const r = om.apply(this, arguments); setTimeout(onLobby, 300); return r; };
     const rl = window.renderLobby; if (rl) window.renderLobby = function () { const r = rl.apply(this, arguments); refreshLobby(); return r; };
