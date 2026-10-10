@@ -7,7 +7,7 @@
 (function () {
   const V = 143, img = n => `assets/chars/${n}.webp?v=${V}`;
   const RATE = .005, DUP_GEM = 10, KEY = 'robin_city', ITEM = 'skin_robin_city';
-  SKINS.nami_witch = { char: 'nami', name: '月下魔法師', image: img('nami_skin2'), avatar: img('nami_skin2_face'), battleScale: .75, monthCard: '2026-10', how: '2026 年 10 月月費限定（購買月費即可獲得）' };
+  SKINS.nami_witch = { char: 'nami', name: '月下魔法師', image: img('nami_skin2'), avatar: img('nami_skin2_face'), battleScale: .75, faceLeft: true /* v144：立繪朝左，戰鬥中鏡像（使用者指定） */, monthCard: '2026-10', how: '2026 年 10 月月費限定（購買月費即可獲得）' };
   delete SKINS.robin_s2;
   SKINS[KEY] = { char: 'robin', name: '城市女郎', image: img('robin_skin3'), avatar: img('robin_skin3_face'), battleScale: .8, gacha: true, how: `一般懸賞召喚獲得（機率 ${RATE * 100}%）` };
   ITEMS[ITEM] = { name: '皮膚「城市女郎」', rarity: 'SSR', noPool: true, skin: KEY, img: SKINS[KEY].avatar, icon: 'gem', color: '#ff7ab0', effect: {},

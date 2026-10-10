@@ -116,6 +116,8 @@
           <div class="rg-go"><button class="btn-gold" data-a="start">開始挑戰</button></div></div>
       </section></div>`;
     const W = el(); W.querySelectorAll('[data-song]').forEach(b => b.onclick = () => { songIx = +b.dataset.song; renderSelect(); });
+    { const ls = W.querySelector('.rg-list'), on = ls && ls.querySelector('.rg-song.on'); /* v144：歌曲變多，重新繪製後讓選中的歌留在清單可見範圍（手機橫向、桌機直向都適用） */
+      if (on) { if (ls.scrollWidth > ls.clientWidth + 2) ls.scrollLeft = Math.max(0, on.offsetLeft - ls.offsetLeft - (ls.clientWidth - on.offsetWidth) / 2); if (ls.scrollHeight > ls.clientHeight + 2) ls.scrollTop = Math.max(0, on.offsetTop - ls.offsetTop - (ls.clientHeight - on.offsetHeight) / 2); } }
     W.querySelectorAll('[data-diff]').forEach(b => b.onclick = () => { diff = b.dataset.diff; renderSelect(); });
     W.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { R.speed = Math.max(1, Math.min(10, R.speed + +b.dataset.sp)); SAVE.save(); renderSelect(); });
     W.querySelector('[data-a=hs]').onclick = () => { R.hs = !R.hs; SAVE.save(); renderSelect(); if (R.hs) { ensureCtx(); hitSnd('p'); } };
@@ -156,7 +158,7 @@
     const N = notes.length, base = N * B.hp, beat = 60000 / (S.bpm || 120);
     G = { S, dk, B, notes, N, foe, hp: 100, ehp: base, emax: base, combo: 0, maxCombo: 0, score: 0, cnt: { p: 0, g: 0, o: 0, m: 0 }, t: -COUNT * 1000, started: false, paused: false, over: false,
       speed: st().speed, fx: [], parts: [], beams: [0, 0, 0, 0], beamC: ['', '', '', ''], shake: 0, judge: null, press: [0, 0, 0, 0], pts: new Map(), defeated: false, raf: 0, src: null, t0: 0,
-      beat, bOff: S.offset != null ? S.offset % beat : notes.length ? notes[0].t % beat : 0, lastBossHit: 0, missPen: B.miss,
+      beat, beats: Array.isArray(S.beats) && S.beats.length > 1 ? S.beats : null, bOff: S.offset != null ? S.offset % beat : notes.length ? notes[0].t % beat : 0, lastBossHit: 0, missPen: B.miss,
       fever: 0, feverUntil: -1, stars: 0,
       /* BOSS 攻擊 */ nextAtk: (notes.length ? notes[0].t : 0) + B.every * 1000, atkIx: 0, warn: null, fogUntil: 0, staffUntil: 0, spd: 1, waves: [], demon: false, endT: notes.length ? notes[notes.length - 1].t : 0 };
     const wave = n => `<i class="rgx-wave" aria-hidden="true">${Array.from({ length: n }, (_, i) => `<b style="--h:${(30 + 70 * Math.abs(Math.sin(i * 1.7 + n))).toFixed(0)}%;--d:${(i * .07).toFixed(2)}s"></b>`).join('')}</i>`;
@@ -237,6 +239,12 @@
   function laneOf(x, y) { const s = Math.max(SF, Math.min(G.sH || 1.4, (y - G.hz) / (G.jy - G.hz))), u = (x - G.cxm) / (G.lw * s) + .5, k = Math.floor(u * 4); return k >= 0 && k < 4 ? k : -1; }
   const travel = () => (3400 - G.speed * 270) / G.spd; /* 音符從遠端滑到判定線的時間（毫秒；v123 加長約 1.3 倍，譜面速度 6 約 1.8 秒）；五線譜束縛時加速 */
   /* 聲音實際播出的時間要扣掉裝置輸出延遲（藍牙耳機、手機） */
+  /* v144：逐拍節拍（S.beats＝每一拍的毫秒，由 tools/rhythm_chart_v144.py 產生）；沒有就用固定 BPM */
+  function beatIx(t) { const b = G.beats; let lo = 0, hi = b.length - 1; if (t < b[0]) return -1; while (lo < hi) { const m = (lo + hi + 1) >> 1; if (b[m] <= t) lo = m; else hi = m - 1; } return lo; }
+  function beatPhase(t) { const b = G.beats; if (b && b.length > 1) { const i = beatIx(t); if (i >= 0 && i < b.length - 1) return (t - b[i]) / (b[i + 1] - b[i]); } return (((t - G.bOff) % G.beat) + G.beat) % G.beat / G.beat; }
+  function beatLines(a, z) { const b = G.beats, out = [];
+    if (b && b.length > 1) { for (let i = Math.max(0, beatIx(a) + 1); i < b.length && b[i] < z; i++) out.push([b[i], i % 4 === 0]); return out; }
+    for (let bt = Math.ceil((a - G.bOff) / G.beat) * G.beat + G.bOff; bt < z; bt += G.beat) out.push([bt, Math.round((bt - G.bOff) / G.beat) % 4 === 0]); return out; }
   function latency() { const l = ((actx && (actx.outputLatency || 0)) + (actx && (actx.baseLatency || 0))) * 1000; return l > 0 ? Math.min(250, l) : 30; }
   function songTime() { if (!G.started) return G.t; return (actx.currentTime - G.t0) * 1000 - G.lat; }
   function beginAudio(at) { const s = actx.createBufferSource(), g = actx.createGain(); g.gain.value = musicVol(); s.buffer = G.buf; s.connect(g); g.connect(actx.destination); G.lat = latency();
@@ -310,14 +318,14 @@
     const { cx, dpr, W, H, lw, jy } = G; cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H);
     if (G.shake > .2) { cx.translate((Math.random() - .5) * G.shake, (Math.random() - .5) * G.shake); G.shake *= .86; } else G.shake = 0;
     const far = G.farY, tr = travel(), zOf = t => (t - G.t) / tr, sH = G.sH, fev = feverOn();
-    const ph = G.started ? (((G.t - G.bOff) % G.beat) + G.beat) % G.beat / G.beat : 1, pulse = Math.pow(1 - ph, 3); /* 節拍脈動 */
+    const ph = G.started ? beatPhase(G.t) : 1, pulse = Math.pow(1 - ph, 3); /* 節拍脈動（v144：譜面有 beats 時逐拍對齊） */
     const demon = G.demon, NEON = demon ? '#ff4a6a' : fev ? '#ffd86a' : '#ff8af0';
     const quad = (b0, b1, s0, s1, y0, y1) => { cx.beginPath(); cx.moveTo(xAt(b0, s0), y0); cx.lineTo(xAt(b1, s0), y0); cx.lineTo(xAt(b1, s1), y1); cx.lineTo(xAt(b0, s1), y1); cx.closePath(); };
     /* 音軌：深紫半透明的梯形（看得到後方潑墨） */
     cx.save(); const g = cx.createLinearGradient(0, far, 0, H); g.addColorStop(0, 'rgba(26,0,44,.5)'); g.addColorStop(.3, demon ? 'rgba(40,0,20,.74)' : 'rgba(22,0,44,.72)'); g.addColorStop(1, demon ? 'rgba(20,0,8,.85)' : 'rgba(10,0,24,.84)');
     cx.fillStyle = g; quad(0, 4, SF, sH, far, H); cx.fill();
     /* 節拍線：越近越寬越亮 */
-    if (G.started) { const b0 = Math.ceil((G.t - G.bOff) / G.beat) * G.beat + G.bOff; for (let bt = b0; bt < G.t + tr; bt += G.beat) { const z = zOf(bt); if (z > 1) break; const s = sAt(z), yy = yAt(z), bar = Math.round((bt - G.bOff) / G.beat) % 4 === 0;
+    if (G.started) { const BL = beatLines(G.t, G.t + tr); for (const [bt, bar] of BL) { const z = zOf(bt); if (z > 1) break; const s = sAt(z), yy = yAt(z);
       cx.fillStyle = bar ? `rgba(255,140,240,${.06 + .16 * s})` : `rgba(200,140,255,${.03 + .06 * s})`; const th = (bar ? 2.5 : 1) * s; cx.fillRect(xAt(0, s), yy - th / 2, lw * s, th); } }
     /* 霓虹分隔線（外框最亮） */
     cx.lineCap = 'round';

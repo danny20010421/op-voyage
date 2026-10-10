@@ -6,7 +6,7 @@
         ② 觸控裝置上，視窗不用毛玻璃，大張立繪不用陰影濾鏡（改用 CSS 漸層影子）；
         ③ 洛克斯挑戰／皇帝領海背景改用漸層壓暗，並在打開時先預載背景圖。 */
 (function () {
-  const OPAQUE = '.rk-wrap,.eh-wrap,.ps-wrap,.ld-wrap,.tw-wrap-full';
+  const OPAQUE = '.rk-wrap,.eh-wrap,.ps-wrap,.ld-wrap,.tw-wrap-full,.gfx-host'; /* v144：新抽獎演出（js/gacha_v144.js）也是全畫面不透明 */
   function covered() {
     if (document.querySelector(OPAQUE)) return true;
     const g = document.querySelector('#growModal.show .gw'); if (g) { const r = g.getBoundingClientRect(); if (r.width >= innerWidth - 4 && r.height >= innerHeight - 4) return true; }
