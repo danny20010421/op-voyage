@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>海賊新時代 AGE OF THE NEW OVERLORDS｜偉大航路・四皇降臨</title>
+<meta name="description" content="戴上草帽，從風車村揚帆。在 3D 島嶼上重走 13 篇原作航路，挑戰四皇、登上虛空王座。瀏覽器即玩，手機、電腦都能玩。">
+<meta name="theme-color" content="#050a13">
+<meta property="og:type" content="website">
+<meta property="og:title" content="海賊新時代｜偉大航路・四皇降臨">
+<meta property="og:description" content="13 座 3D 島嶼、四皇奧義、懸賞召喚。瀏覽器即玩，免下載。">
+<meta property="og:image" content="https://danny20010421.github.io/op-voyage/promo/img/og.jpg?v=1">
+<meta property="og:url" content="https://danny20010421.github.io/op-voyage/promo/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/ui/favicon-32.png">
+<link rel="apple-touch-icon" href="../assets/ui/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap">
+<style>
+/* 版面概念：一條從天空、大海一路捲到虛空王座的連續海圖；畫面中心永遠是梅利號，世界從它身邊流過。 */
+:root{
+  --abyss:#050a13; --sea:#0d5a92; --deep:#07294a; --night:#0a1424;
+  --gold:#f3d27a; --gold-deep:#d9a441; --paper:#f1e3bf; --paper-ink:#3a2410;
+  --ink:#eef3f8; --muted:#a9bccf; --line:rgba(243,210,122,.55);
+  --disp:"Noto Serif TC","Noto Serif CJK TC","Songti TC","PMingLiU",serif;
+  --body:"Noto Sans TC","Noto Sans CJK TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--abyss);overflow-x:hidden;overflow-x:clip}
+body{background:var(--abyss);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.7;overflow-x:hidden;overflow-x:clip;-webkit-font-smoothing:antialiased}
+img,video{max-width:100%;display:block}
+.disp{font-family:var(--disp);font-weight:900}
+.kick{font-size:12px;letter-spacing:.32em;color:var(--gold);font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;height:24px;padding-left:.32em}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:760px;margin:0 auto;position:relative}
+h2{margin:0;font-family:var(--disp);font-weight:900;font-size:clamp(34px,9vw,56px);letter-spacing:.14em;line-height:1.2;text-wrap:balance;text-shadow:0 4px 24px rgba(0,0,0,.6);padding-left:.14em}
+.lede{margin:0 auto;max-width:30em;color:var(--muted);font-size:15px;text-wrap:balance}
+.center{text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px}
+
+/* 全頁環境層：連續背景色、粒子、雷光 */
+#backdrop{position:fixed;inset:0;z-index:0;background:var(--sea)}
+#seaFx{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .9s}
+#seaFx.on{opacity:1}
+#seaFx i{position:absolute;left:-460px;top:-440px;right:-460px;bottom:-440px;opacity:.55;will-change:transform;animation:glint 9s linear infinite;background:radial-gradient(ellipse 44px 5px at 20% 30%,rgba(255,255,255,.4),transparent 70%) 0 0/190px 150px,radial-gradient(ellipse 30px 4px at 70% 70%,rgba(255,255,255,.3),transparent 70%) 0 0/230px 130px}
+#seaFx i.b{opacity:.35;animation:glint2 14s linear infinite;background:radial-gradient(ellipse 130px 44px at 50% 50%,rgba(120,210,255,.2),transparent 70%) 0 0/280px 220px,radial-gradient(ellipse 60px 20px at 30% 80%,rgba(0,20,50,.4),transparent 70%) 0 0/210px 180px}
+#trailCv{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+main,section{background:transparent}
+#amb{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40}
+#flash{position:fixed;inset:0;pointer-events:none;z-index:41;background:#dfe9ff;opacity:0}
+#prog{position:fixed;right:calc(4px + env(safe-area-inset-right,0px));top:20%;bottom:20%;width:3px;border-radius:2px;background:rgba(255,255,255,.1);z-index:50}
+#prog i{position:absolute;left:0;right:0;top:0;height:100%;transform:scaleY(0);transform-origin:50% 0;will-change:transform;border-radius:2px;background:linear-gradient(var(--gold),var(--gold-deep));box-shadow:0 0 8px var(--gold)}
+#bgm{position:fixed;z-index:60;top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));height:40px;padding:0 16px;border-radius:20px;border:1px solid var(--line);background:rgba(5,10,19,.78);color:var(--ink);font:500 13px/1 var(--body);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;}
+#bgm:focus-visible,.cta:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+#bgm b{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+#bgm.on b{background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pulse 1s infinite}
+
+/* ① 片頭 */
+#hero{position:relative;height:200svh}
+.hero-pin{position:sticky;top:0;height:100svh;overflow:hidden}
+.hero-v{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%;transform-origin:50% 70%}
+.hero-shade{position:absolute;inset:0;background:linear-gradient(rgba(5,10,19,.15),rgba(5,10,19,0) 35%,rgba(13,90,146,.55) 80%,var(--sea))}
+.hero-logo{position:absolute;left:0;right:0;top:14svh;display:flex;flex-direction:column;align-items:center;gap:8px}
+.hero-logo .lg{position:relative;width:min(84vw,560px)}
+.hero-logo .lg img{width:100%;filter:drop-shadow(0 4px 24px rgba(0,30,70,.8))}
+.hero-logo .lg::after{content:"";position:absolute;inset:0;-webkit-mask:url(img/logo_full.webp?v=1) center/100% no-repeat;mask:url(img/logo_full.webp?v=1) center/100% no-repeat;background:linear-gradient(105deg,transparent 40%,rgba(255,240,190,.95) 50%,transparent 60%) -120% 0/250% 100% no-repeat;animation:shine 4s 1s infinite}
+.hero-tag{position:absolute;left:0;right:0;bottom:22svh;text-align:center;font-family:var(--disp);font-weight:900;font-size:clamp(28px,8vw,48px);letter-spacing:.14em;line-height:1.5;text-shadow:0 2px 20px rgba(0,25,60,.9);padding-left:.14em}
+.hero-tag span{display:inline-block;animation:letter .7s cubic-bezier(.2,1.6,.4,1) both;transition:color .4s,text-shadow .4s}
+.hero-tag span.on{color:#fff3c8;text-shadow:0 0 24px rgba(243,210,122,.9)}
+#flash{transition:none}
+.hero-hint{position:absolute;left:0;right:0;bottom:calc(32px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;letter-spacing:.3em;color:var(--paper)}
+.hero-hint i{width:24px;height:40px;border:2px solid var(--paper);border-radius:12px;position:relative}
+.hero-hint i::after{content:"";position:absolute;left:50%;top:8px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:var(--gold);animation:wheel 1.6s infinite}
+
+/* ② 偉大航路 */
+#voyage{position:relative;padding-block:48px 160px;overflow:hidden}
+.sea-glint{position:absolute;inset:0;pointer-events:none;opacity:.55;-webkit-mask:linear-gradient(transparent,#000 8%,#000 85%,transparent);mask:linear-gradient(transparent,#000 8%,#000 85%,transparent);background:
+ radial-gradient(ellipse 44px 5px at 20% 30%,rgba(255,255,255,.4),transparent 70%) 0 0/190px 150px,
+ radial-gradient(ellipse 30px 4px at 70% 70%,rgba(255,255,255,.3),transparent 70%) 0 0/230px 130px;
+ animation:drift 9s linear infinite}
+.sea-glint.b{opacity:.35;background:
+ radial-gradient(ellipse 130px 44px at 50% 50%,rgba(120,210,255,.2),transparent 70%) 0 0/280px 220px,
+ radial-gradient(ellipse 60px 20px at 30% 80%,rgba(0,20,50,.4),transparent 70%) 0 0/210px 180px;animation:drift2 14s linear infinite}
+.route{position:relative;margin-top:48px}
+.route svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
+#trail{fill:none;stroke:rgba(243,210,122,.45);stroke-width:3;stroke-dasharray:8 10}
+#trailLit{fill:none}
+.isl{position:relative;height:248px;display:flex;align-items:center;gap:16px}
+.isl:nth-child(even){flex-direction:row-reverse;text-align:right}
+.isl .disc{flex:none;overflow:visible!important;isolation:isolate;width:clamp(140px,40vw,200px);aspect-ratio:1;border-radius:50%;overflow:hidden;border:4px solid var(--gold);box-shadow:0 0 0 8px rgba(243,210,122,.12),0 16px 32px rgba(0,0,0,.5);position:relative;transform:scale(.86);transition:transform .7s cubic-bezier(.2,1.4,.4,1)}
+.isl .disc::after{content:"";position:absolute;inset:0;border-radius:50%;background:rgba(4,14,30,.62);transition:opacity .7s}
+.isl.lit .disc::after{opacity:0}
+.isl .disc::before{content:"";position:absolute;inset:-28px;border-radius:50%;background:radial-gradient(closest-side,rgba(120,210,255,.5),transparent);opacity:0;transition:opacity .7s;z-index:-1}
+.isl .disc img{width:100%;height:100%;object-fit:cover;border-radius:50%;transform:scale(1.08);transition:transform 4s ease-out}
+.isl .lab{min-width:0;display:flex;flex-direction:column;gap:4px;opacity:.35;transform:translateY(16px);transition:opacity .6s .15s,transform .6s .15s}
+.isl:nth-child(even) .lab{align-items:flex-end}
+.isl .lab small{font-size:12px;letter-spacing:.24em;color:var(--gold);font-weight:700}
+.isl .lab b{font-family:var(--disp);font-size:clamp(20px,5.6vw,28px);line-height:1.3;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.isl .lab span{font-size:13px;color:#cfe0ef}
+.isl.lit .disc{transform:scale(1)}
+.isl.lit .disc img{transform:scale(1)}
+.isl.lit .lab{opacity:1;transform:none}
+.isl .ring{position:absolute;width:clamp(140px,40vw,200px);aspect-ratio:1;border-radius:50%;border:2px solid var(--gold);opacity:0;pointer-events:none}
+.isl.lit .ring{animation:ring 1.2s ease-out}
+#ship{will-change:transform;position:absolute;left:0;top:0;width:72px;z-index:8;pointer-events:none;will-change:transform}
+#ship img{width:100%;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 10px 8px rgba(0,0,0,.45))}
+#ship::before{content:"";position:absolute;left:50%;bottom:-48px;width:28px;height:80px;margin-left:-14px;border-radius:50%;background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,.55),transparent 70%);filter:blur(4px)}
+.deco{position:absolute;pointer-events:none;opacity:.7;filter:drop-shadow(0 8px 8px rgba(0,0,0,.4))}
+.deco.spin{animation:spin 6s linear infinite}
+.deco.rise{animation:rise 5s ease-in-out infinite}
+.deco.sail{animation:sail 12s ease-in-out infinite alternate}
+.clip{position:relative;z-index:6;margin:16px auto 32px;max-width:560px;border-radius:12px;overflow:hidden;border:2px solid var(--line);background:#000;box-shadow:0 24px 48px rgba(0,0,0,.55);transform:rotate(-1.5deg)}
+.clip:nth-of-type(even){transform:rotate(1.5deg)}
+.clip video{width:100%;aspect-ratio:16/9;object-fit:cover}
+.clip figcaption{display:flex;align-items:center;justify-content:space-between;gap:16px;height:48px;padding:0 16px;background:linear-gradient(90deg,rgba(11,34,54,.96),rgba(11,34,54,.85));font-size:13px}
+.clip figcaption b{color:var(--gold);letter-spacing:.12em;font-size:12px;display:flex;align-items:center;gap:8px}
+.clip figcaption b::before{content:"";width:8px;height:8px;border-radius:50%;background:#ff4a3a;box-shadow:0 0 8px #ff4a3a;animation:pulse 1.2s infinite}
+
+/* ③ 四皇海域 */
+#storm{position:relative;height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#storm .clouds{position:absolute;inset:-10% -20%;background:url(img/emperor_bg.webp?v=1) center/cover;opacity:.25;filter:grayscale(.4) brightness(.6);-webkit-mask:linear-gradient(transparent,#000 40%,#000 70%,transparent);mask:linear-gradient(transparent,#000 40%,#000 70%,transparent)}
+#storm .center{position:relative}
+#storm h2{font-size:clamp(44px,13vw,88px)}
+.emps{position:relative;height:calc(6 * 125svh + 100svh);margin-top:-70svh;pointer-events:none}
+.emps .uclip,.emps a{pointer-events:auto}
+#crew{margin-top:-30svh}
+.stage{position:sticky;top:0;height:100svh;overflow:hidden}
+.stage .aura{position:absolute;left:50%;top:var(--fy,30%);width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;background:url(img/fx_aura.webp?v=1) center/100% 100% no-repeat;animation:spin 30s linear infinite;opacity:0;will-change:transform,opacity}
+.stage .glow{position:absolute;inset:0;background:radial-gradient(55% 40% at 50% var(--fy,30%),var(--g40),transparent 75%);opacity:0;will-change:opacity;transition:background .6s}
+.stage .burst{position:absolute;left:50%;top:var(--fy,30%);width:170vmax;height:170vmax;margin:-85vmax 0 0 -85vmax;pointer-events:none;opacity:0;background:url(img/fx_burst.webp?v=1) center/100% 100% no-repeat;will-change:transform,opacity}
+.stage .burst.go{animation:burst .9s ease-out}
+.eart{position:absolute;left:0;top:0;opacity:0;will-change:transform,opacity}
+.eart .art-b{animation:breathe 4.5s ease-in-out infinite;transform-origin:50% 100%}
+.eart img{display:block;height:100%;width:auto;max-width:none}
+.eart{height:var(--ah)}.eart .art-b{height:100%}
+.shade{position:absolute;left:0;right:0;bottom:0;height:52%;background:linear-gradient(transparent,rgba(5,10,19,.78) 38%,rgba(5,10,19,.95));pointer-events:none}
+.etxt{will-change:transform,opacity;position:absolute;left:0;right:0;bottom:calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;opacity:0;pointer-events:none}
+.etxt .no{font-size:12px;letter-spacing:.3em;color:var(--gold);font-weight:700;height:16px;display:flex;align-items:center}
+.etxt .nm{font-family:var(--disp);font-weight:900;font-size:clamp(40px,11vw,80px);line-height:1.15;text-shadow:0 4px 24px #000,0 0 2px #000}
+.etxt .full{font-size:13px;color:#d6e0ea;text-shadow:0 2px 8px #000;height:20px;display:flex;align-items:center}
+.ult{position:relative;margin-top:12px;font-family:var(--disp);font-weight:900;font-size:clamp(36px,10vw,72px);line-height:1.15;white-space:nowrap;opacity:0;transform:scale(2.6) rotate(-10deg);filter:drop-shadow(0 0 18px var(--g))}
+.ult i,.ult b{display:block;font-style:normal}
+.ult i{position:absolute;inset:0}
+.ult i:nth-child(1){color:var(--s0);-webkit-text-stroke:14px var(--s0)}
+.ult i:nth-child(2){color:var(--s1);-webkit-text-stroke:7px var(--s1)}
+.ult b{position:relative;background:linear-gradient(var(--f0),var(--f1) 55%,var(--f2));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:1.5px var(--s2)}
+.etxt .sub{font-size:13px;letter-spacing:.2em;color:var(--paper);text-shadow:0 2px 8px #000;opacity:0;transform:translateY(8px);height:24px;display:flex;align-items:center;padding-left:.2em}
+.etxt.hit .ult{animation:slam .5s cubic-bezier(.2,1.6,.4,1) forwards}
+.etxt.hit .sub{transition:opacity .4s .45s,transform .4s .45s;opacity:1;transform:none}
+.etxt.hit{animation:shake .45s .32s}
+.uclip{position:absolute;left:50%;top:38svh;width:min(92vw,480px);margin-left:calc(min(92vw,480px) / -2);border:2px solid var(--g);border-radius:8px;overflow:hidden;background:#000;box-shadow:0 0 32px var(--g60),0 16px 32px rgba(0,0,0,.6);opacity:0;pointer-events:none;will-change:transform,opacity}
+.uclip video{width:100%;aspect-ratio:16/9;object-fit:cover}
+.uclip span{position:absolute;left:8px;top:8px;height:24px;padding:0 8px;border-radius:4px;background:rgba(0,0,0,.7);font-size:11px;letter-spacing:.16em;color:var(--gold);display:flex;align-items:center}
+@media (min-aspect-ratio:1/1){
+  .shade{top:0;bottom:0;height:auto;width:56%;background:linear-gradient(90deg,rgba(5,10,19,.92),rgba(5,10,19,.7) 60%,transparent)}
+  .shade.rt{left:auto;right:0;background:linear-gradient(270deg,rgba(5,10,19,.92),rgba(5,10,19,.7) 60%,transparent)}
+  .etxt{left:6vw;right:auto;bottom:auto;top:50%;transform:translateY(-50%);width:42vw;align-items:flex-start;text-align:left}
+  .etxt.rt{left:auto;right:6vw;align-items:flex-end;text-align:right}
+  .uclip{top:auto;bottom:8vh;left:6vw;margin-left:0;width:min(34vw,460px)}
+  .uclip.rt{left:auto;right:6vw}
+}
+/* ④ 船員與召喚 */
+#crew{position:relative;padding-block:120px 96px;overflow:hidden}
+.marq{display:flex;gap:16px;width:max-content;will-change:transform}
+.marq img{width:72px;height:72px;border-radius:50%;border:2px solid var(--gold-deep);background:#20160a;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.marqs{display:flex;flex-direction:column;gap:16px;margin-block:40px}
+.ladder{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:560px}
+.ladder span{height:32px;min-width:48px;padding:0 12px;border-radius:16px;display:flex;align-items:center;justify-content:center;font:900 13px/1 var(--body);letter-spacing:.04em;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.4);transition:all .4s}
+.ladder span.on{color:#1b1205;border-color:transparent;background:var(--c);box-shadow:0 0 16px var(--c)}
+.gacha{position:relative;width:min(100%,560px);margin:48px auto 0;border-radius:16px;overflow:hidden;border:2px solid var(--gold-deep);box-shadow:0 0 64px rgba(243,190,80,.3),0 24px 48px rgba(0,0,0,.6)}
+.gacha video{width:100%;aspect-ratio:16/9;object-fit:cover}
+.gacha figcaption{position:absolute;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:center;background:linear-gradient(transparent,rgba(0,0,0,.85));font-family:var(--disp);font-size:18px;letter-spacing:.2em;color:var(--paper)}
+.duo{display:grid;grid-template-columns:1fr;gap:24px;margin-top:48px;width:100%}
+@media (min-width:720px){.duo{grid-template-columns:1fr 1fr}}
+
+/* ⑤ 玩法懸賞單 */
+#modes{position:relative;padding-block:96px 120px}
+.posters{display:grid;grid-template-columns:1fr 1fr;gap:24px 16px;margin-top:48px;perspective:900px}
+@media (min-width:720px){.posters{grid-template-columns:repeat(4,1fr)}}
+.pst{position:relative;transform-origin:50% 0;will-change:transform}
+.pst .sway{position:relative;background:linear-gradient(#f4e7c5,#e2c992);color:var(--paper-ink);border-radius:4px;padding:24px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;box-shadow:0 12px 24px rgba(0,0,0,.5),inset 0 0 24px rgba(120,80,30,.35);transform-origin:50% 0;animation:sway 5s ease-in-out infinite}
+.pst:nth-child(2n) .sway{animation-delay:-2.5s}
+.pst .sway::before{content:"";position:absolute;top:8px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e05a3a,#7a1a0a);box-shadow:0 2px 3px rgba(0,0,0,.5)}
+.pst .w{font-family:var(--disp);font-size:13px;letter-spacing:.4em;padding-left:.4em;color:#6a3a14}
+.pst .ph{width:100%;aspect-ratio:4/3;border:2px solid #6a4a24;background:#2a1a0a center/cover;overflow:hidden}
+.pst .ph video,.pst .ph img{width:100%;height:100%;object-fit:cover}
+.pst b{font-family:var(--disp);font-size:clamp(17px,4.6vw,20px);line-height:1.3}
+.pst p{margin:0;font-size:12px;line-height:1.6;color:#5a3a1a}
+
+/* ⑥ 虛空王座 */
+#throne{position:relative;height:220svh}
+.th-pin{position:sticky;top:0;height:100svh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.th-bg{position:absolute;inset:0;background:url(img/throne_bg.webp?v=1) center/cover;opacity:.32;-webkit-mask:linear-gradient(transparent,#000 22%,#000 80%,transparent);mask:linear-gradient(transparent,#000 22%,#000 80%,transparent)}
+.th-rays{position:absolute;left:50%;top:40%;width:180vmax;height:180vmax;margin:-90vmax 0 0 -90vmax;background:url(img/fx_rays.webp?v=1) center/100% 100% no-repeat;opacity:0;animation:spin 40s linear infinite;will-change:transform,opacity}
+.th-imu{position:absolute;bottom:2svh;left:50%;height:min(84svh,820px);aspect-ratio:576/980;transform:translateX(-50%);will-change:transform,opacity;-webkit-mask:linear-gradient(#000 80%,transparent);mask:linear-gradient(#000 80%,transparent)}
+.th-imu img{position:absolute;inset:0;width:100%;height:100%;max-width:none}
+.th-imu .col{opacity:0;will-change:opacity}
+.th-txt{position:absolute;top:10svh;left:0;right:0}
+.th-q{position:absolute;bottom:12svh;left:0;right:0;text-align:center;font-family:var(--disp);font-weight:900;font-size:clamp(30px,8.6vw,56px);letter-spacing:.2em;padding-left:.2em;text-shadow:0 0 24px #b03aff,0 2px 12px #000;opacity:0}
+
+/* ⑦ 揚帆出航 */
+#sail{position:relative;min-height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden;padding-block:96px}
+#sail .bg{position:absolute;inset:-4%;background:url(img/loading_bg.webp?v=1) 35% 50%/cover;opacity:.5;-webkit-mask:linear-gradient(transparent,#000 30%);mask:linear-gradient(transparent,#000 30%);animation:kb 18s ease-in-out infinite alternate}
+#sail .center{position:relative;gap:24px}
+#sail .lg{width:min(84vw,600px)}
+.cta{position:relative;height:64px;padding:0 56px 0 calc(56px + .3em);border-radius:32px;display:flex;align-items:center;justify-content:center;background:linear-gradient(#ffe9a8,#e2b04a);color:#1b1205;font:900 22px/1 var(--body);letter-spacing:.3em;text-decoration:none;box-shadow:0 0 0 2px rgba(255,240,200,.7) inset,0 0 40px rgba(226,176,74,.65);animation:breath 2.2s ease-in-out infinite}
+.cta::after{content:"";position:absolute;inset:-8px;border-radius:40px;border:2px solid var(--gold);opacity:0;animation:ripple 2.2s ease-out infinite}
+.fine{font-size:12px;color:var(--muted);letter-spacing:.08em}
+
+@keyframes letter{from{opacity:0;transform:translateY(24px)}}
+@keyframes shine{0%{background-position:-120% 0}35%,100%{background-position:220% 0}}
+@keyframes wheel{0%{transform:translateY(0);opacity:1}80%{transform:translateY(14px);opacity:0}100%{opacity:0}}
+@keyframes pulse{50%{opacity:.35}}
+@keyframes glint{to{transform:translate3d(380px,300px,0)}}
+@keyframes glint2{to{transform:translate3d(-420px,440px,0)}}
+@keyframes drift2{to{background-position:-280px 220px,210px -180px}}
+@keyframes ring{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.6)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-6px) rotate(4deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rise{0%,100%{transform:translateY(24px);opacity:0}30%,70%{transform:translateY(0);opacity:.7}}
+@keyframes sail{to{transform:translateX(40px)}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.025) translateY(-4px)}}
+@keyframes slam{0%{opacity:0;transform:scale(2.6) rotate(-10deg)}60%{opacity:1;transform:scale(.92) rotate(-4deg)}100%{opacity:1;transform:scale(1) rotate(-4deg)}}
+@keyframes shake{0%,100%{transform:none}20%{transform:translate(-8px,4px)}40%{transform:translate(7px,-5px)}60%{transform:translate(-5px,3px)}80%{transform:translate(3px,-2px)}}
+@keyframes burst{0%{opacity:0;transform:scale(.6)}25%{opacity:1}100%{opacity:0;transform:scale(1.4)}}
+@keyframes sway{0%,100%{transform:rotate(-1.6deg)}50%{transform:rotate(1.6deg)}}
+@keyframes kb{to{transform:scale(1.08) translate(-1.5%,1%)}}
+@keyframes breath{50%{transform:scale(1.04);box-shadow:0 0 0 2px rgba(255,240,200,.7) inset,0 0 64px rgba(226,176,74,.9)}}
+@keyframes ripple{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.25)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important}.ult{opacity:1;transform:rotate(-4deg)}}
+</style>
+
+</head>
+<body>
+<div id="backdrop" aria-hidden="true"></div>
+<div id="seaFx" aria-hidden="true"><i></i><i class="b"></i></div>
+<canvas id="trailCv" aria-hidden="true"></canvas>
+<canvas id="amb" aria-hidden="true"></canvas>
+<div id="flash" aria-hidden="true"></div>
+<div id="prog" aria-hidden="true"><i></i></div>
+<button id="bgm" type="button" aria-pressed="false"><b></b><span>開啟音樂</span></button>
+<audio id="music" src="v/bgm.mp3?v=1" loop preload="none"></audio>
+
+<section id="hero" data-zone="sky">
+  <div class="hero-pin">
+    <video class="hero-v" poster="img/hero_poster.jpg?v=1" autoplay muted loop playsinline><source src="v/hero.mp4?v=1" type="video/mp4"><source src="v/hero.webm?v=1" type="video/webm"></video>
+    <div class="hero-shade"></div>
+    <div class="hero-logo"><div class="lg"><img src="img/logo_full.webp?v=1" alt="海賊新時代 AGE OF THE NEW OVERLORDS"></div><div class="kick" style="color:#fff3c8;text-shadow:0 1px 8px rgba(0,30,70,.95),0 0 2px #000">新時代的霸主</div></div>
+    <div class="hero-tag" id="tag">戴上草帽<br>從風車村揚帆</div>
+    <div class="hero-hint"><i></i>往下捲動　出航</div>
+  </div>
+</section>
+
+<section id="voyage" data-zone="sea">
+  <div class="wrap">
+    <div class="center"><div class="kick">GRAND LINE</div><h2>偉大航路</h2><p class="lede">13 座 3D 島嶼，從東海一路闖到艾爾巴夫。每座島都能自由走動、找人說話、解任務，最後和島上的 BOSS 一決勝負。</p></div>
+    <div class="route" id="route">
+      <svg aria-hidden="true"><path id="trail"/><path id="trailLit" style="display:none"/></svg>
+      <div id="ship"><img src="img/ship.webp?v=1" alt=""></div>
+      <div id="isles"></div>
+    </div>
+  </div>
+</section>
+
+<section id="storm" data-zone="storm">
+  <div class="clouds"></div>
+  <div class="center"><div class="kick">⚡ 進入四皇海域</div><h2>四皇降臨</h2><p class="lede">皇帝領海：隊長連戰、分身、真身。擊敗四皇，他就會加入你的船隊；集齊六皇，再戰洛克斯。</p></div>
+</section>
+<section id="emps" class="emps" data-zone="emp"><div class="stage" id="stage"><div class="glow"></div><div class="aura"></div><div class="burst" id="burst"></div><div id="eArts"></div><div class="shade" id="shade"></div><div id="eClips"></div><div id="eTxts"></div></div></section>
+
+<section id="crew" data-zone="gold">
+  <div class="wrap center">
+    <div class="kick">CREW</div><h2>懸賞召喚</h2>
+    <p class="lede">接起黃金電話蟲，撕開海軍本部的機密封條。每位船員都有自己的奧義演出與專屬特效。</p>
+  </div>
+  <div class="marqs" aria-hidden="true"><div class="marq" id="mq1"></div><div class="marq" id="mq2"></div></div>
+  <div class="wrap center">
+    <div class="ladder" id="ladder" aria-label="稀有度由高到低"></div>
+    <div class="duo">
+      <figure class="clip gacha" style="margin:0"><video data-src="v/gacha.mp4?v=1" muted loop playsinline></video><figcaption>黃金電話蟲來電中……</figcaption></figure>
+      <figure class="clip" style="margin:0"><video data-src="v/ult_zoro.mp4?v=1" muted loop playsinline></video><figcaption><b>實機奧義</b><span>索隆・九刀流 阿修羅</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="modes" data-zone="night">
+  <div class="wrap">
+    <div class="center"><div class="kick">WANTED</div><h2>不只是冒險</h2><p class="lede">船上的懸賞單，每一張都是一種玩法。</p></div>
+    <div class="posters" id="posters"></div>
+  </div>
+</section>
+
+<section id="throne" data-zone="void">
+  <div class="th-pin">
+    <div class="th-bg"></div><div class="th-rays" id="rays"></div>
+    <div class="th-imu" id="imu"><img src="img/imu_sil.webp?v=1" alt=""><img class="col" id="imuCol" src="img/imu_col.webp?v=1" alt="伊姆"></div>
+    <div class="th-txt center"><div class="kick">最終章</div><h2>登上虛空王座</h2><p class="lede">派出三位船員，挑戰伊姆完全體，比拚累積傷害。</p></div>
+    <div class="th-q" id="who">誰將成為——</div>
+  </div>
+</section>
+
+<section id="sail" data-zone="end">
+  <div class="bg"></div>
+  <div class="wrap center">
+    <img class="lg" src="img/logo_full.webp?v=1" alt="海賊新時代">
+    <a class="cta" href="../">揚帆出航</a>
+    <div class="kick" style="color:var(--paper)">瀏覽器即玩・手機／電腦皆可・免下載</div>
+    <p class="fine">非官方同人遊戲・畫面皆為遊戲內實際畫面。</p>
+  </div>
+</section>
+
+<script src="app.js?v=1"></script>
+</body>
+</html>

@@ -90,6 +90,7 @@
 - **環境飄落物（e3three.js setIsland 的 AMB 表）**: 每座島一組 [顏色, 數量, 上升/下降速度, 大小, 形狀 0塵 1花瓣 2氣泡 3光點]；低畫質自動減量
 - `js/landmarks.js`: F:各島原作地標，自動找空地放置 | R:scenes.js | A:LANDMARKS.build | S:放置時同時加入碰撞清單 O
 - `js/world.js`: F:探索、移動、跳躍與重力、牆壁碰撞、鏡頭、NPC 互動、小地圖 | R:scenes.js,app.js | A:World | S:只透過 renderer 介面繪圖，換引擎不用改這裡；空白鍵是跳躍、E／Enter 是互動
+- `promo/index.html`＋`promo/app.js`＋`promo/img/`＋`promo/v/`: F:滾動式宣傳網站（獨立頁面，不載入遊戲程式；片頭、偉大航路、四皇舞台、懸賞召喚、玩法懸賞單、虛空王座、揚帆出航） | R:js/fx_v111.js（奧義配色 PRESET／副標 SUB，複製到 app.js 的 P、EM）、js/data.js（CHAPTERS 篇名） | A:- | S:素材網址都帶 ?v=（app.js 的 V 與 index.html），改素材要一起加一，否則 sw.js 會給舊快取；四皇立繪靠 FACE 表（臉在圖上的比例）定位，換立繪要重量；動畫只用 transform／opacity，別加即時 filter 或大面積重畫，手機會卡；同時只播一支影片
 - `dev/east3.js` + `dev/sample_east.html`: F:東海 3D 場景樣板（開發用獨立頁面，用 <base href="../"> 對齊根目錄） | R:vendor/three | A:- | S:只是樣板，不影響正式關卡
 
 ## 大廳與介面
