@@ -1,0 +1,14 @@
+/* v145 戰鬥特效 3D 層（js/fx3d_v145.js） */
+#battleScreen .b-gl{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
+#battleScreen.gl-bg .b-bg{opacity:0}
+#battleScreen.shake .b-gl{animation:shk .42s}
+#battleScreen .b-pgl{pointer-events:none}
+.fighter .fx3-sil{position:absolute;display:block;pointer-events:none;background:#fff;opacity:0;z-index:2;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+#battleScreen .fx3-ghost{position:absolute;pointer-events:none;z-index:2;mix-blend-mode:screen;opacity:0;max-width:none}
+#battleScreen.fx3-if1{filter:grayscale(1) contrast(4) invert(1)}
+#battleScreen.fx3-if2{filter:grayscale(1) contrast(3.2) brightness(1.15)}
+@media (prefers-reduced-motion:reduce){#battleScreen.fx3-if1,#battleScreen.fx3-if2{filter:none}}
+/* v145 第二輪：奧義氣場（施放者身後的屬性色光）、命中停格 */
+.fighter .fx3-aura{position:absolute;display:block;pointer-events:none;opacity:0;z-index:0;filter:blur(10px) brightness(1.4);mix-blend-mode:screen;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+#battleScreen.fx3-stop .fighter img,#battleScreen.fx3-stop .fighter{animation-play-state:paused!important}
+@media (prefers-reduced-motion:reduce){.fighter .fx3-aura{display:none}}

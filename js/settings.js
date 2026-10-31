@@ -30,12 +30,12 @@ const GAME_VERSION = 'v144';
     const P = AUDIO.pref, U = typeof CLOUD !== 'undefined' && CLOUD.user ? CLOUD.user() : null, prof = typeof playerProfile === 'function' ? playerProfile() : {};
     panel.innerHTML = `<div class="dl-card st-card"><header><h3>⚙️ 設定</h3><button class="icon-btn sm" data-x aria-label="關閉">×</button></header><div class="st-body">
       <h4>聲音</h4>${row('音樂與音效', '關閉後完全靜音', sw('sound', !P.muted))}${row('音樂音量', '', `<input type="range" min="0" max="1" step="0.05" value="${P.music}" data-vol="music" aria-label="音樂音量">`)}${row('音效音量', '', `<input type="range" min="0" max="1" step="0.05" value="${P.sfx}" data-vol="sfx" aria-label="音效音量">`)}
-      <h4>畫面</h4>${row('畫質', '省電：降低 3D 解析度、關閉毛玻璃與大型光暈，手機發燙或卡頓時使用', seg('op_gfx', [['high', '高畫質'], ['low', '省電']], get('op_gfx') === 'low' ? 'low' : 'high'))}
+      <h4>畫面</h4>${row('畫質', '高畫質：3D 島嶼有遠景、光束、雲影、遠景柔焦；省電：降低 3D 解析度、關閉這些效果與毛玻璃、大型光暈，手機發燙或卡頓時使用', seg('op_gfx', [['high', '高畫質'], ['low', '省電']], get('op_gfx') === 'low' ? 'low' : 'high'))}
         ${row('新版 3D 島嶼畫面', 'Three.js 卡通渲染：描邊、陰影、草地、海面、泛光（關閉後改回舊畫面，重新整理頁面後生效）', sw('op_r3', get('op_r3') !== '0'))}
         ${row('減少動態效果', '關閉大部分動畫與震動畫面，容易頭暈時使用', sw('op_motion', get('op_motion') === '1'))}
         ${row('文字大小', '放大說明、戰報與面板文字', seg('op_text', [['n', '標準'], ['l', '加大']], get('op_text') === 'l' ? 'l' : 'n'))}
       <h4>戰鬥</h4>${row('預設戰鬥速度', '戰鬥中也可以隨時切換', seg('op_bspeed', [[1, '×1'], [2, '×2'], [3, '×3']], +(get('op_bspeed') || 1)))}
-        ${row('技能特效', '低：較省電，手機發燙或卡頓時使用', seg('op_fxpro', [['1', '高'], ['0', '低']], get('op_fxpro') === '0' ? '0' : '1'))}
+        ${row('技能特效', '高：戰鬥加上衝擊波、粒子與奧義鏡頭演出（畫質需為高畫質）；低：較省電，手機發燙或卡頓時使用', seg('op_fxpro', [['1', '高'], ['0', '低']], get('op_fxpro') === '0' ? '0' : '1'))}
         ${row('震動回饋', '受到傷害時震動（Android 支援；iPhone 瀏覽器不支援）', sw('op_vibe', get('op_vibe') === '1'))}
       <h4>好友與通知</h4>${row('即時對戰邀請通知', '好友邀請你對戰時，在任何畫面跳出提示', sw('op_live_pop', get('op_live_pop') !== '0'))}
         ${row('好友與對戰', U ? `已登入：${U.email || ''}` : '登入後可以加好友、留言、對戰', `<button class="btn-gold sm" data-go="social">開啟</button>`)}

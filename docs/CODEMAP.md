@@ -42,6 +42,7 @@
 - `css/v135.css`: .qo-*（掛機寶藏、召喚紀錄視窗）、.tp-*、#dlgSkip、.ps-claimall
 - **3D 分段下載（v135）**: index.html 不再直接載入 e3three.js；js/engine3d.js 的 window.ensure3D() 用 import() 載入（importmap 仍在 index.html），app.js enterChapter 先 await ensure3D() 再建立 World；進入遊戲 15 秒後背景預先下載
 - `js/ret_v136.js`: F:一般召喚券 ITEMS.summon_ticket（pull 外層包裝：券夠時先補回寶藏幣再呼叫原本的 pull）、回歸玩家 RETURN_CFG／window.RETURN（check／claim；SAVE.data.lastSeen、SAVE.data.ret）| D:pull、updateGachaBtns、openModes（第一次進大廳時 check） ；v137 領取視窗 RETURN.open（.rt-wrap，每天第一次進大廳自動跳出）、大廳入口 #lbRet（RETURN.rail） | S:樣式在 css/v137.css；視窗沿用 .qo-wrap
+- `js/fx3d_v145.js`／`css/fx3d_v145.css`: F:戰鬥 3D 特效層（Three.js，第一次進戰鬥才載入）：背景 #bGL（衝擊波扭曲、推近與放射模糊、屬性打光、熱浪）、粒子 #bPGL（各屬性爆發 impact）、受擊白色剪影、出招殘影、奧義蓄力（粒子聚集、腳下光圈與上竄能量 aura、施放者屬性氣場 aura2、鏡頭推近 camPush）、奧義第一擊 finisher（集中線、三重衝擊波、光柱、連續爆發、焦痕、畫面邊緣光、命中停格 hitStop、鏡頭甩向對手）、奧義期間白色閃光改屬性色 | R:fx.js(X.flash、fighterPoint),fx_v138.js(__FXPAL) | A:FX3D | S:包住 showDamage、playChoreo、startBattle；技能特效「高」且畫質不是省電、支援 WebGL2 才開；鏡頭推近用 composite:'add' 疊在 .b-arena 原本的 --cam 縮放上，不要改成直接設定 transform
 - `js/fx_v138.js`／`css/v138.css`: F:技能特效三層升級（FXPRO 泛光／命中／焦點；屬性氣場、魔法陣、屬性命中；CHAR_FX[id]=[主題, 奧義轉場, 配色]、__FXTR 轉場表、__FXPAL 主題配色）| D:FXE.add（啟動泛光）、FXE.P.flash／tint（期間降低泛光）、FXE.P.ring、hitFX、playChoreo（三層包裝） | S:開關 op_fxpro（'0'＝低）；新角色要在 CHAR_FX 加一行，否則依屬性挑主題、沒有奧義轉場；泛光圖層 #bBloom 跟著 #bCanvas 的位置
 - `js/stab_v139.js`／`css/v139.css`: F:全畫面視窗打開時 body.ov-cover（隱藏後面的 .screen 與 .modal.show、暫停動畫）、body.ov-open；觸控裝置拿掉視窗毛玻璃與大圖陰影濾鏡 | S:新增全畫面不透明視窗時把 class 加進 OPAQUE；不要在大張立繪上用 filter:drop-shadow（手機 GPU 會繪製不完整）
 - `js/fx_v140.js`: F:角色招牌動畫 MOTIF[id] → __MOTIF 繪製函式（每次出招，奧義放大；輔助招式繞著自己） | D:playChoreo | S:新角色要在 MOTIF 加一行；開關沿用 op_fxpro
@@ -51,6 +52,7 @@
 - `css/v134.css`: .gh-dot 紅點、.gr-tools、.gr-drop
 - `css/v132.css`: 寶物分頁、專精按鈕、覺醒外框（.gw-art.aw3f/.aw5f）、戰鬥 ★5 光效
 - `js/grow_v112.js`（v130）: S:重畫培養視窗時沿用舊的立繪 <img>（src 相同才沿用），避免大圖重新解碼閃爍
+- `js/lobby_v145.js`＋`css/lobby_v145.css`: F:手機直式左側圖示改單欄（常用 5 個 CORE＋「更多」#l2More 展開第二欄，隱藏項目有紅點時「更多」也亮）；右欄與左欄同寬 64px；直式（≤900）在限定召喚上方加主線航路橫條 #v5Strip（點擊＝#l2Mission）與船長名牌 #lbPlate；電腦版「備份存檔」改成整列提示條 | R:lobby.js,lobby_v118.js | A:lobbyV145 | S:位置用量到的限定召喚卡頂端（--v5pk）；CORE 順序：回歸禮、每日懸賞、活動中心、通行證、掛機寶藏、七日登入（最多 5 個）；頂部列維持原樣（使用者 10/31 選「用現在」）
 - `js/lobby_v121.js`＋`css/v121.css`: F:手機直式大廳的船長對話框放在限定召喚上方（量測左側圖示欄、右側欄、限定召喚橫條；依序：置中 → 偏左 → 縮小字級 → 收縮展開膠囊 say-fold／say-open） | A:lobbyPlaceSay
 - `js/roster_v118.js`／`ext_v118.js`／`fx_v118.js`: F:尼卡魯夫（luffy_nika）與效果 dmgToShield、nikaThunder（battle.js 的 onEvaded 掛鉤）、nikaTeamHeal、nikaTriple、nikaLegacy
 - `js/bag_v116.js`: F:背包 openBag（取代 app.js 版；分類 CAT_OF、獲取方式 SRC/GO、使用 USE）、頭像快取參數 FACES、橫式立繪偵測（.cer-char/.cx-art img 加 .wide） | S:vip_v115 之後載入；新道具要補 CAT_OF 與 SRC
@@ -87,6 +89,7 @@
 - `js/e3three.js`: F:Three.js 版渲染器，介面與 E3.Renderer 相同，13 座島共用；v125 toon({detail}) 世界座標表面細節、柔邊陰影、草叢分片、地面小石子 | R:engine3d.js,world.js,vendor/three | A:R3（取代 E3.Renderer）,setIsland | S:設定 op_r3=0 或不支援 WebGL2 時退回舊引擎；水面、天空不畫舊網格
 - `js/scenes.js`: F:各島地形、建築、植被、NPC 造型（npcMesh／LOOKS） | R:landmarks.js,data.js | A:SCENES.buildScene,SCENES.npcMesh | S:建築與道具要避開 layout.path、NPC 位置與任務地點（CHAPTERS 是 const，要用 typeof CHAPTERS 取得，不能用 global.CHAPTERS）；被碰撞包住的 NPC 會自動推到外側；13 座島全部是正式版；共用擺放工具 placer(D,O,H,章節id)；`_xxxOld` 是舊版函式，已不再使用；P.ship 已改用細節版 P.ship2（回傳甲板高度與局部座標）；德雷斯羅薩暫用 _alabastaOld、蛋糕島暫用 _skypieaOld、蛋頭島暫用 _eniesOld、蜂巢島用 dark
 - **立體結構（scenes.js 的 K）**: F:可走的平台／樓梯／橋（plats）、會擋人的牆（walls）、走進去會隱藏的屋頂（roofs）、兩層樓可進入的房子 house2 | R:world.js | A:scene.G(x,z,y),scene.onPlat,scene.walls,scene.roofs | S:只支援與 x／z 軸對齊的矩形；K.tower 是外圍螺旋樓梯高塔；牆頂要比上方地板低 0.6 以上，否則走上去會被牆卡住；樓梯每階高度 ≤0.38、玩家自動跨上 ≤0.8 的高度，超過要跳；平台高度相差要 >0.8 才不會誤判成同一層
+- **v145 高畫質（e3three.js，this.pro＝畫質不是省電）**: F:後製（景深只做遠景、深度環境遮蔽、高度霧、光束與鏡頭光斑、色差、顆粒、冷暖分色）、雲影、淺灘焦散、草浪與角色踩草、走路揚塵、積雲天空；每座島的招牌氣氛 LOOK 表（太陽高度°、陽光色與強度、色調 tint、光束 rays、空氣散射 scat、霧距 fogK、熱浪 heat、全島焦散 caus、天空 sky[天頂,地平線]、雲亮度 cl／暖色 cw、月亮 moon、地面霧 mist、煙柱 plume、光點 glow[色,數,0鬼火/1燈籠/2浮游]、閃電 bolt）；遠景地平線 HZN 表＋horizonGeo（hill／mesa／peak／spire／spike／fort／coral／cake／volcano／tower／tree／cloud，兩層 640／900） | R:engine3d.js（import 版本號） | A:LOOK,HZN,proTick | S:新增島嶼要在 LOOK、HZN 各加一筆，沒有就用 east；手機或畫質被自動降到最低時關閉景深（再低關閉環境遮蔽）；改 e3three.js 要同時改 engine3d.js 裡 import 的 ?v= 與 index.html 的 engine3d.js?v=
 - **環境飄落物（e3three.js setIsland 的 AMB 表）**: 每座島一組 [顏色, 數量, 上升/下降速度, 大小, 形狀 0塵 1花瓣 2氣泡 3光點]；低畫質自動減量
 - `js/landmarks.js`: F:各島原作地標，自動找空地放置 | R:scenes.js | A:LANDMARKS.build | S:放置時同時加入碰撞清單 O
 - `js/world.js`: F:探索、移動、跳躍與重力、牆壁碰撞、鏡頭、NPC 互動、小地圖 | R:scenes.js,app.js | A:World | S:只透過 renderer 介面繪圖，換引擎不用改這裡；空白鍵是跳躍、E／Enter 是互動

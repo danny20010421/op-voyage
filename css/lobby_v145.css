@@ -1,0 +1,82 @@
+/* v145 大廳版面整理：8px 網格、同列等高置中；左右兩側欄同寬對稱，船長立繪不被遮住 */
+
+/* 「更多」只在手機直式出現 */
+#modeScreen #lobby.l2 .l2-rail>.l2-more{display:none!important}
+
+/* ===== 手機直式（≤760）===== */
+@media (max-width:760px) and (orientation:portrait){
+  /* 頂部第二列：兩個貨幣等寬、填滿好友／設定右側的空間 */
+  #modeScreen .topbar .coin-pair{justify-self:stretch!important;display:grid!important;grid-template-columns:1fr 1fr;gap:var(--u)!important}
+  #modeScreen .topbar .coin-pair .coin{width:auto!important;min-width:0!important;justify-content:flex-start!important;padding-left:6px!important;padding-right:36px!important}
+
+  /* 左側：單欄 5 個常用 + 更多（56px 寬） */
+  #modeScreen #lobby.l2 .l2-rail{left:var(--u)!important;width:auto!important;grid-template-columns:56px!important;grid-auto-flow:row!important;row-gap:4px!important;padding:4px!important;max-height:none!important;overflow:visible!important}
+  #modeScreen #lobby.l2 .l2-rail>.l2-ic{order:var(--v5o,9);width:56px;padding:4px 0!important;gap:4px;justify-content:center}
+  #modeScreen #lobby.l2 .l2-rail>.l2-more{order:6;display:flex!important}
+  #modeScreen #lobby.l2 .l2-rail>.l2-ic>.l2-svg{width:40px!important;height:40px!important;padding:9px!important;border-radius:12px}
+  #modeScreen #lobby.l2 .l2-rail>.l2-ic b{font-size:11px!important;line-height:14px;white-space:nowrap;letter-spacing:0}
+  #modeScreen #lobby.l2 .l2-rail>.l2-ic small,#modeScreen #lobby.l2 .l2-rail>.l2-ic .l2-bar{display:none!important}
+  #modeScreen #lobby.l2 .l2-rail>.v5-x,#modeScreen #lobby.l2 .l2-rail>.l2-ic:not(#lbRet):not(#lbBounty):not(#lbWeekly):not(#lbPass):not(#lbAfk):not(#lbLogin):not(.l2-more){display:none!important}
+  #modeScreen #lobby.l2 .l2-rail.v5-open{grid-template-columns:56px 56px!important;grid-template-rows:repeat(6,auto);grid-auto-flow:column!important;column-gap:4px}
+  #modeScreen #lobby.l2 .l2-rail.v5-open>.v5-x:not([hidden]),#modeScreen #lobby.l2 .l2-rail.v5-open>.l2-ic:not(#lbRet):not(#lbBounty):not(#lbWeekly):not(#lbPass):not(#lbAfk):not(#lbLogin):not(.l2-more):not([hidden]){display:flex!important}
+  .l2-more .l2-svg svg{width:22px;height:22px}
+
+  /* 右側：與左側同寬（64px），三張卡片同樣式 */
+  #modeScreen #lobby.l2 .l2-side{right:var(--u)!important;width:64px!important;gap:var(--u)!important;max-height:none!important;overflow:visible!important}
+  #modeScreen #lobby.l2 .l2-team{padding:8px 0 12px!important;gap:16px!important;display:flex!important;flex-direction:column!important;align-items:center!important}
+  #modeScreen #lobby.l2 .l2-team .lbt-h{width:100%;margin:0!important;padding:0!important;text-align:center;display:block}
+  #modeScreen #lobby.l2 .l2-team .lbt-h b{font-size:11px!important;line-height:16px;letter-spacing:0}
+  #modeScreen #lobby.l2 .l2-team .lbt-av{width:44px!important;height:44px!important}
+  #modeScreen #lobby.l2 .l2-emperor,#modeScreen #lobby.l2 .l2-month{width:64px!important;height:72px!important;min-height:0!important;padding:4px 0!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;border-radius:16px!important}
+  #modeScreen #lobby.l2 .l2-emperor img,#modeScreen #lobby.l2 .l2-month img{width:40px!important;height:40px!important;margin:0!important}
+  #modeScreen #lobby.l2 .l2-emperor b,#modeScreen #lobby.l2 .l2-month b{font-size:11px!important;line-height:14px!important;white-space:nowrap;letter-spacing:0}
+  #modeScreen #lobby.l2 .l2-emperor small,#modeScreen #lobby.l2 .l2-month small{display:none!important}
+  #modeScreen #lobby.l2 .l2-month>span{display:block;margin:0!important;padding:0!important}
+
+  /* 限定召喚：名稱最多兩行，不再被截斷 */
+  #modeScreen #lobby.l2 .l2-pick .l2-pick-name{white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:18px!important;word-break:keep-all;font-size:13px!important}
+}
+
+/* ===== 直式（手機＋平板）：限定召喚上方加主線航路橫條＋船長名牌 ===== */
+@media (max-width:900px) and (orientation:portrait){
+  #lobby.v5-port .v5-strip{all:unset;box-sizing:border-box;position:absolute;z-index:4;left:var(--edge-x,16px);right:var(--edge-x,16px);bottom:calc(var(--v5pk,180px) + 8px);height:48px;display:flex;align-items:center;gap:8px;padding:0 8px 0 8px;border-radius:16px;cursor:pointer;
+    background:linear-gradient(90deg,rgba(14,24,52,.92),rgba(10,18,40,.82));border:1px solid rgba(235,199,126,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 20px rgba(0,0,0,.4);color:#f2ead8}
+  #lobby.v5-port .v5-strip .v5-st-h{flex:none;height:24px;display:grid;place-items:center;padding:0 8px;border-radius:8px;background:linear-gradient(180deg,#ffe2a0,#c8902e);color:#2a1a04;font-size:11px;font-weight:900;letter-spacing:.08em}
+  #lobby.v5-port .v5-strip b{flex:none;font:900 15px/1 var(--serif);letter-spacing:.04em}
+  #lobby.v5-port .v5-strip small{flex:1;min-width:0;font-size:12px;line-height:16px;color:#b8c4d6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #lobby.v5-port .v5-strip em{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:rgba(235,199,126,.14)}
+  #lobby.v5-port .v5-strip em svg{width:18px;height:18px;fill:none;stroke:#ebc77e;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  #lobby.v5-port .v5-strip:active{transform:scale(.98)}
+
+  #modeScreen #lobby.l2.v5-port .lb-plate{position:absolute!important;display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:8px!important;top:auto!important;bottom:calc(var(--v5pk,180px) + 64px)!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;margin:0!important;height:40px;box-sizing:border-box;padding:0 4px 0 16px!important;max-width:calc(100% - 160px);white-space:nowrap;border-radius:99px!important}
+  #modeScreen #lobby.l2.v5-port .lb-plate b{font-size:16px!important;line-height:1!important;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  #modeScreen #lobby.l2.v5-port .lb-plate .rar{flex:none}
+  #modeScreen #lobby.l2.v5-port .lb-plate .lbp-swap{display:inline-flex!important;flex:none;align-items:center;height:32px;padding:0 10px;border-radius:99px;font-size:12px}
+  #modeScreen #lobby.l2.v5-port .lb-plate .lbp-types{display:none!important}
+  #l2Mission{display:none!important}
+}
+@media (max-width:760px) and (orientation:portrait){
+  #modeScreen #lobby.l2.v5-port .lb-plate small{display:none!important}
+  #modeScreen #lobby.l2.v5-port .lb-plate{max-width:calc(100% - 144px)}
+  #modeScreen #lobby.l2.v5-port .lb-plate b{font-size:15px!important}
+}
+/* 矮手機（≤700 高）：名牌縮小 */
+@media (max-width:760px) and (orientation:portrait) and (max-height:700px){
+  #modeScreen #lobby.l2 .l2-rail>.l2-ic{padding:2px 0!important;gap:2px}
+  #modeScreen #lobby.l2 .l2-rail>.l2-ic>.l2-svg{width:32px!important;height:32px!important;padding:6px!important;border-radius:10px}
+  #modeScreen #lobby.l2 .l2-rail>.l2-ic b{font-size:10px!important;line-height:12px}
+  #modeScreen #lobby.l2 .l2-team{gap:12px!important}
+  #modeScreen #lobby.l2 .l2-team .lbt-av{width:40px!important;height:40px!important}
+  #modeScreen #lobby.l2 .l2-emperor,#modeScreen #lobby.l2 .l2-month{height:64px!important}
+  #modeScreen #lobby.l2 .l2-emperor img,#modeScreen #lobby.l2 .l2-month img{width:36px!important;height:36px!important}
+  #lobby.v5-port .v5-strip{height:40px}
+  #modeScreen #lobby.l2.v5-port .lb-plate{bottom:calc(var(--v5pk,180px) + 56px)!important;height:36px}
+  #modeScreen #lobby.l2.v5-port .lb-plate .lbp-swap{height:28px}
+}
+
+/* ===== 電腦版：左側功能圖示 3 欄，「備份存檔」提醒改成橫跨整列的提示條，不再孤單一格 ===== */
+#modeScreen #lobby.l2.l2-desk .l2-rail>#l2BackupIc:not([hidden]){grid-column:1/-1;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:8px;margin-top:8px;padding:8px!important;border-radius:12px;background:rgba(255,90,90,.08);border:1px solid rgba(255,120,120,.25);text-align:left}
+#modeScreen #lobby.l2.l2-desk .l2-rail>#l2BackupIc b{margin:0}
+#modeScreen #lobby.l2.l2-desk .l2-rail>#l2BackupIc small{margin:0 0 0 auto!important;color:#ffb4a8}
+/* 窄手機（≤380 寬）：名牌省略稀有度標籤，讓名字完整顯示 */
+@media (max-width:380px) and (orientation:portrait){#modeScreen #lobby.l2.v5-port .lb-plate .rar{display:none!important}#modeScreen #lobby.l2.v5-port .lb-plate{padding-left:12px!important}}
