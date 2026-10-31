@@ -80,3 +80,13 @@
 #modeScreen #lobby.l2.l2-desk .l2-rail>#l2BackupIc small{margin:0 0 0 auto!important;color:#ffb4a8}
 /* 窄手機（≤380 寬）：名牌省略稀有度標籤，讓名字完整顯示 */
 @media (max-width:380px) and (orientation:portrait){#modeScreen #lobby.l2.v5-port .lb-plate .rar{display:none!important}#modeScreen #lobby.l2.v5-port .lb-plate{padding-left:12px!important}}
+/* 很矮的手機（≤680 高，例如 FB／LINE 內建瀏覽器 375×640）：圖示與右欄再縮小，名牌不顯示，避免壓到限時月費 */
+@media (max-width:760px) and (orientation:portrait) and (max-height:680px){
+  #modeScreen #lobby.l2 .l2-rail>.l2-ic>.l2-svg{width:28px!important;height:28px!important;padding:5px!important;border-radius:8px}
+  #modeScreen #lobby.l2 .l2-rail{row-gap:4px!important}
+  #modeScreen #lobby.l2 .l2-team{padding:4px 0 8px!important;gap:12px!important}
+  #modeScreen #lobby.l2 .l2-team .lbt-av{width:36px!important;height:36px!important}
+  #modeScreen #lobby.l2 .l2-emperor,#modeScreen #lobby.l2 .l2-month{height:56px!important;gap:2px!important}
+  #modeScreen #lobby.l2 .l2-emperor img,#modeScreen #lobby.l2 .l2-month img{width:32px!important;height:32px!important}
+  #modeScreen #lobby.l2.v5-port .lb-plate{display:none!important}
+}
