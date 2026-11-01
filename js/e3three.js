@@ -104,7 +104,7 @@ const softTex = (a0, a1) => { const c = document.createElement('canvas'); c.widt
 /* v145 高畫質：每座島的招牌氣氛（太陽高度°、陽光色、強度、整體色調、光束、空氣散射、霧距倍率、熱浪、全島焦散、地面霧、煙柱、光點、閃電） */
 const LOOK = {
   east: { sky: ['#2f7fd8', '#bfe2f2'], el: 35, sun: '#ffe8c8', si: 2.85, tint: [1, 1, 1], rays: .55, scat: .18 },
-  alabasta: { sky: ['#6aa6d8', '#f2d29a'], cw: .25, el: 26, sun: '#ffd398', si: 3.05, tint: [1.07, 1, .88], rays: .62, scat: .28, fogK: .8, heat: 1, mist: ['#f0d2a0', 70, .16] },
+  alabasta: { sky: ['#6aa6d8', '#f2d29a'], cw: .25, el: 46, sun: '#ffd398', si: 3.05, tint: [1.07, 1, .88], rays: .62, scat: .28, fogK: .8, heat: 1, mist: ['#f0d2a0', 70, .16] },
   skypiea: { el: 42, sun: '#fff6e6', si: 2.7, tint: [1, 1, 1.03], rays: .5, scat: .12, mist: ['#ffffff', 90, .2] },
   enies: { sky: ['#5f9ad8', '#ffe0b4'], el: 30, sun: '#ffe0b0', si: 2.95, tint: [1.04, 1, .94], rays: .72, scat: .22 },
   thriller: { sky: ['#0b1230', '#26304e'], cl: .28, moon: 1, el: 20, sun: '#a8c0ff', si: 1.7, tint: [.88, .96, 1.1], rays: .5, scat: .22, fogK: .75, mist: ['#8a9cac', 150, .26], glow: ['#9effd0', 40, 0] },
