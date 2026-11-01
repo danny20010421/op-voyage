@@ -7,7 +7,7 @@
 
 ## 載入順序（index.html）
 資料 → 引擎 → 主程式 → 擴充（後載入的檔案用「包裝函式」覆寫前面的全域函式，順序不能任意調換）。
-`data.js → data_ext.js → story_ext.js → engine3d.js → landmarks.js → scenes.js → world.js →（模組）e3three.js → battle_core.js → battle.js → ext_effects.js → fx*.js → app.js → 其他模式與系統`
+`data.js → data_ext.js → story_ext.js → engine3d.js → landmarks.js → scenes.js → isle2.js → isle2_parts.js → isle2_<島>.js → world.js →（模組）e3three.js → battle_core.js → battle.js → ext_effects.js → fx*.js → app.js → 其他模式與系統`
 
 ## 資料
 - `js/data.js`: F:角色、篇章劇情、道具、難度等核心資料 | R:data_ext.js,story_ext.js | A:CHARACTERS,CHARACTER_ORDER,CHAPTERS,CHAPTER_DIFFICULTY,ITEMS,DATA_VERSION | S:改劇情或角色資料要把 DATA_VERSION 加一，否則後台舊設定會覆蓋新內容
@@ -92,6 +92,9 @@
 - **v145 高畫質（e3three.js，this.pro＝畫質不是省電）**: F:後製（景深只做遠景、深度環境遮蔽、高度霧、光束與鏡頭光斑、色差、顆粒、冷暖分色）、雲影、淺灘焦散、草浪與角色踩草、走路揚塵、積雲天空；每座島的招牌氣氛 LOOK 表（太陽高度°、陽光色與強度、色調 tint、光束 rays、空氣散射 scat、霧距 fogK、熱浪 heat、全島焦散 caus、天空 sky[天頂,地平線]、雲亮度 cl／暖色 cw、月亮 moon、地面霧 mist、煙柱 plume、光點 glow[色,數,0鬼火/1燈籠/2浮游]、閃電 bolt）；遠景地平線 HZN 表＋horizonGeo（hill／mesa／peak／spire／spike／fort／coral／cake／volcano／tower／tree／cloud，兩層 640／900） | R:engine3d.js（import 版本號） | A:LOOK,HZN,proTick | S:新增島嶼要在 LOOK、HZN 各加一筆，沒有就用 east；手機或畫質被自動降到最低時關閉景深（再低關閉環境遮蔽）；改 e3three.js 要同時改 engine3d.js 裡 import 的 ?v= 與 index.html 的 engine3d.js?v=
 - **環境飄落物（e3three.js setIsland 的 AMB 表）**: 每座島一組 [顏色, 數量, 上升/下降速度, 大小, 形狀 0塵 1花瓣 2氣泡 3光點]；低畫質自動減量
 - `js/landmarks.js`: F:各島原作地標，自動找空地放置 | R:scenes.js | A:LANDMARKS.build | S:放置時同時加入碰撞清單 O
+- `js/isle2.js`: F:v146 新版島嶼系統（關卡設計版）：島嶼規格 D（設計座標 × SC）→ prepare() 烘焙高度 Hg、道路碼 Rg、建築／水域 Bg 網格（陸地塊 land、海灣 bays、地形 terrain{ramp,g}、河 rivers、湖 lakes、懸崖 cliffs、道路 roads[點,種類]）→ build() 蓋路緣石路燈、石橋、碼頭、特色建築 landmarks、沿街房屋 town、田地牧場、樹林椰子岩石、地形網格與河湖水面 → apply(ch) 把 story（spawn、boss、spots、route、npcs、steps 各欄位）寫回 CHAPTERS | R:scenes.js（buildScene 遇到 ISLE2[id] 就改用它）,isle2_parts.js | A:ISLE2.define,ISLE2[id],ISLE2.parts,ISLE2.util | S:道路種類順序就是 Rg 的道路碼（PAVED＝鋪石）；房屋只沿鋪石路、門面向道路、靠海側不蓋；story 的位置會先保留（occ），房子與樹不會蓋上去；地形只有鋪石路或河流經過的 128 單位區塊用細網格；I.tstat 是各部分三角形數；新島嶼加一個 isle2_<id>.js 並放在 isle2_parts.js 後面
+- `js/isle2_parts.js`: F:新版島嶼的特色建築：tavern、guild（工會，三層＋塔樓＋懸賞看板）、hall（鐘樓）、fishmarket、hut、windmill（D.windmills 會轉）、lighthouse、fort、wreck、barn、plaza（水井／噴水池）、stall、boat | R:isle2.js | A:ISLE2.parts | S:每個函式收 {b,x,z,ry,o,Hs,house,O,ST,P,K,fp,flatPad,hd,D,CHIMNEYS,r}，有 o.key 的會記到 I.lm
+- `js/isle2_east.js`: F:東海・黎明島關卡規格（使用者 11/02 確認的東海關卡設計示意圖） | R:isle2.js,isle2_parts.js | A:ISLE2.east | S:改 NPC 或任務點後跑 /root/promo/reach.py 類的逐格搜尋，確認從登陸點走得到
 - `js/world.js`: F:探索、移動、跳躍與重力、牆壁碰撞、鏡頭、NPC 互動、小地圖 | R:scenes.js,app.js | A:World | S:只透過 renderer 介面繪圖，換引擎不用改這裡；空白鍵是跳躍、E／Enter 是互動
 - `promo/index.html`＋`promo/app.js`＋`promo/img/`＋`promo/v/`: F:滾動式宣傳網站（獨立頁面，不載入遊戲程式；片頭、偉大航路、四皇舞台、懸賞召喚、玩法懸賞單、虛空王座、揚帆出航） | R:js/fx_v111.js（奧義配色 PRESET／副標 SUB，複製到 app.js 的 P、EM）、js/data.js（CHAPTERS 篇名） | A:- | S:素材網址都帶 ?v=（app.js 的 V 與 index.html），改素材要一起加一，否則 sw.js 會給舊快取；四皇立繪靠 FACE 表（臉在圖上的比例）定位，換立繪要重量；動畫只用 transform／opacity，別加即時 filter 或大面積重畫，手機會卡；同時只播一支影片
 - `dev/east3.js` + `dev/sample_east.html`: F:東海 3D 場景樣板（開發用獨立頁面，用 <base href="../"> 對齊根目錄） | R:vendor/three | A:- | S:只是樣板，不影響正式關卡

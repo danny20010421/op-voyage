@@ -135,7 +135,7 @@
       if (p.moving) {
         let nx = p.x + p.vx * SPEED * dt, nz = p.z + p.vz * SPEED * dt;
         [nx, nz] = this._collide(nx, nz);
-        const S1 = this.scene, ok = (x, z) => S1.H(x, z) > .35 || (S1.onPlat && S1.onPlat(x, z, p.y)); /* 地面或平台（橋、地板）都可以走 */
+        const S1 = this.scene, ok = (x, z) => (S1.H(x, z) > .35 && !(S1.blocked && S1.blocked(x, z)) && !(S1.maxStep && (S1.H(x, z) - S1.H(p.x, p.z)) / (Math.hypot(x - p.x, z - p.z) || 1) > S1.maxStep)) || (S1.onPlat && S1.onPlat(x, z, p.y)); /* v146：新版島嶼的建築、河湖與太陡的懸崖不能走 */ /* 地面或平台（橋、地板）都可以走 */
         if (ok(nx, nz)) { p.x = nx; p.z = nz; } else if (ok(nx, p.z)) p.x = nx; else if (ok(p.x, nz)) p.z = nz; else p.target = null;
         const side = mx * rx + mz * rz; if (Math.abs(side) > .2) p.flip = side < 0;
         p.t += dt * 9 * Math.min(1, sp * 1.2);
@@ -193,8 +193,11 @@
       // 鏡頭避障：鏡頭與角色之間有障礙物時把鏡頭拉近
       let want = this.cam.dist; const sy = Math.sin(this.cam.yaw), cy = Math.cos(this.cam.yaw), cp0 = Math.cos(this.cam.pitch);
       for (const o of S.obstacles) { const ox = o[0] - p.x, oz = o[1] - p.z; if (ox * ox + oz * oz > 1600) continue; for (let k = .25; k <= 1; k += .125) { const d = want * k, qx = sy * d * cp0, qz = cy * d * cp0; if ((qx - ox) ** 2 + (qz - oz) ** 2 < (o[2] * 1.5 + 1) ** 2) { want = Math.max(7, d - 2); break; } } }
+      /* v146：被房子擋住時不要把鏡頭塞進牆裡，改成抬高視角從屋頂上方看 */
+      const blk = want < this.cam.dist * .7; if (blk && S.maxStep) want = Math.max(want, this.cam.dist * .8);
+      const pT = blk && S.maxStep ? Math.max(this.cam.pitch, .95) : this.cam.pitch; this.cam.pE = this.cam.pE == null ? pT : this.cam.pE + (pT - this.cam.pE) * Math.min(1, dt * (pT > this.cam.pE ? 6 : 2));
       this.cam.eff = this.cam.eff == null ? want : this.cam.eff + (want - this.cam.eff) * Math.min(1, dt * (want < this.cam.eff ? 10 : 3));
-      const cp = Math.cos(this.cam.pitch), eye = [p.x + Math.sin(this.cam.yaw) * this.cam.eff * cp, p.y + 2.5 + Math.sin(this.cam.pitch) * this.cam.eff, p.z + Math.cos(this.cam.yaw) * this.cam.eff * cp];
+      const PE = this.cam.pE, cp = Math.cos(PE), eye = [p.x + Math.sin(this.cam.yaw) * this.cam.eff * cp, p.y + 2.5 + Math.sin(PE) * this.cam.eff, p.z + Math.cos(this.cam.yaw) * this.cam.eff * cp];
       const minY = S.H(eye[0], eye[2]) + 2; if (eye[1] < minY) eye[1] = minY;
       r.setCamera(eye, [p.x, p.y + 3, p.z], .9);
       if (this.chapter.id === 'dark' || this.chapter.id === 'skypiea') { if (Math.random() < dt * .12) this._flashT = .35; if (this._flashT > 0) { this._flashT -= dt; r.flash = Math.max(0, this._flashT) * (this.chapter.id === 'dark' ? .5 : .35); } else r.flash = 0; }
@@ -252,23 +255,23 @@
     }
     _minimap() {
       const cv = this.mini; if (!cv || !cv.offsetParent) return; const now = performance.now(); if (this._mt && now - this._mt < 90) return; this._mt = now;
-      const ctx = cv.getContext('2d'), W = cv.width, sc = W / 200;
+      const ctx = cv.getContext('2d'), W = cv.width, EX = this.scene.ext || 100, sc = W / (EX * 2);
       if (!this._miniBase) {
         const b = document.createElement('canvas'); b.width = b.height = W; const bx = b.getContext('2d'); const img = bx.createImageData(W, W);
         const land = E3.hex(this.chapter.env.ground), sea = this.chapter.id === 'skypiea' ? [.93, .96, 1] : [.1, .25, .35];
-        for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) { const wx = x / sc - 100, wz = y / sc - 100, h = this.scene.H(wx, wz), i = (y * W + x) * 4; const c = h > .35 ? land.map(v => Math.min(1, v * 1.25 + h * .02)) : sea; img.data[i] = c[0] * 255; img.data[i + 1] = c[1] * 255; img.data[i + 2] = c[2] * 255; img.data[i + 3] = 255; }
+        for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) { const wx = x / sc - EX, wz = y / sc - EX, h = this.scene.H(wx, wz), i = (y * W + x) * 4; const c = h > .35 ? land.map(v => Math.min(1, v * 1.25 + h * .02)) : sea; img.data[i] = c[0] * 255; img.data[i + 1] = c[1] * 255; img.data[i + 2] = c[2] * 255; img.data[i + 3] = 255; }
         bx.putImageData(img, 0, 0); this._miniBase = b;
       }
       ctx.clearRect(0, 0, W, W); ctx.save(); ctx.beginPath(); ctx.arc(W / 2, W / 2, W / 2 - 1, 0, Math.PI * 2); ctx.clip(); ctx.drawImage(this._miniBase, 0, 0);
-      const dot = (x, z, r, c, ring) => { ctx.beginPath(); ctx.arc((x + 100) * sc, (z + 100) * sc, r, 0, Math.PI * 2); ctx.fillStyle = c; ctx.fill(); if (ring) { ctx.lineWidth = 2; ctx.strokeStyle = ring; ctx.stroke(); } };
+      const dot = (x, z, r, c, ring) => { ctx.beginPath(); ctx.arc((x + EX) * sc, (z + EX) * sc, r, 0, Math.PI * 2); ctx.fillStyle = c; ctx.fill(); if (ring) { ctx.lineWidth = 2; ctx.strokeStyle = ring; ctx.stroke(); } };
       const tg = this.target;
       for (const it of this.items) if (!it.taken) dot(it.x, it.z, 3, '#7fe3ff');
       for (const n of this.npcs) { const q = tg && tg.type === 'npc' && tg.ids.includes(n.id); dot(n.x, n.z, 3, q ? '#ffd26c' : '#f4ead2', q ? '#fff' : null); }
       if (this.beacon) dot(this.beacon.x, this.beacon.z, 5, '#ffd26c', '#fff');
       for (const g of this.guards) dot(g.x, g.z, 3.5, '#ff4a3a', '#fff');
-      if (this._guide) { const G = this._guide; ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = 'rgba(255,210,108,.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo((this.p.x + 100) * sc, (this.p.z + 100) * sc); ctx.lineTo((G.x + 100) * sc, (G.z + 100) * sc); ctx.stroke(); ctx.restore(); if (Math.floor(now / 300) % 2) dot(G.x, G.z, 6, '#ffd26c', '#c8322b'); }
+      if (this._guide) { const G = this._guide; ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = 'rgba(255,210,108,.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo((this.p.x + EX) * sc, (this.p.z + EX) * sc); ctx.lineTo((G.x + EX) * sc, (G.z + EX) * sc); ctx.stroke(); ctx.restore(); if (Math.floor(now / 300) % 2) dot(G.x, G.z, 6, '#ffd26c', '#c8322b'); }
       for (const e of this.enemies) dot(e.x, e.z, e.boss ? 5 : 3.2, e.boss ? (this.bossUnlocked ? '#ff5a4a' : '#8f9bb0') : '#e8553b', e.boss ? '#ffd26c' : null);
-      const px = (this.p.x + 100) * sc, pz = (this.p.z + 100) * sc, a = -this.cam.yaw;
+      const px = (this.p.x + EX) * sc, pz = (this.p.z + EX) * sc, a = -this.cam.yaw;
       ctx.translate(px, pz); ctx.rotate(a); ctx.beginPath(); ctx.moveTo(0, -7); ctx.lineTo(5, 5); ctx.lineTo(0, 2.5); ctx.lineTo(-5, 5); ctx.closePath(); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = '#0a1f33'; ctx.lineWidth = 1.5; ctx.stroke();
       ctx.restore();
     }

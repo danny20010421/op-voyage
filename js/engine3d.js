@@ -45,16 +45,17 @@
   /* v125 高精細模式（Three.js 渲染器、非低畫質時由 e3three.js 開啟 global.E3_HD）：地形網格加倍並改為平滑法線＋逐頂點顏色、球體與圓柱分段變多 */
   const HD = () => !!global.E3_HD;
   class Builder {
-    constructor() { this.p = []; this.n = []; this.c = []; this.smooth = []; }
+    constructor() { this.p = []; this.n = []; this.c = []; this.smooth = []; this.m = 0; this.t = null; }   /* v146：m＝目前材質（0 一般 1 木板 2 屋瓦 3 石塊 4 灰泥 5 樹皮），t＝每個頂點的材質（有用到才建立） */
+    _tag() { if (this.m || this.t) { if (!this.t) this.t = new Array(this.p.length / 3 - 3).fill(0); this.t.push(this.m, this.m, this.m); } }
     triV(a, b, c, ca, cb, cc) { /* 每個頂點各自的顏色（地形用，顏色在三角形內平滑漸變） */
       const ux=b[0]-a[0], uy=b[1]-a[1], uz=b[2]-a[2], vx=c[0]-a[0], vy=c[1]-a[1], vz=c[2]-a[2];
       let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx; const l=Math.hypot(nx,ny,nz)||1; nx/=l; ny/=l; nz/=l;
-      this.p.push(...a, ...b, ...c); for (let i = 0; i < 3; i++) this.n.push(nx, ny, nz); this.c.push(ca[0], ca[1], ca[2], cb[0], cb[1], cb[2], cc[0], cc[1], cc[2]);
+      this.p.push(...a, ...b, ...c); for (let i = 0; i < 3; i++) this.n.push(nx, ny, nz); this.c.push(ca[0], ca[1], ca[2], cb[0], cb[1], cb[2], cc[0], cc[1], cc[2]); this._tag();
     }
     tri(a, b, c, col) {
       const ux=b[0]-a[0], uy=b[1]-a[1], uz=b[2]-a[2], vx=c[0]-a[0], vy=c[1]-a[1], vz=c[2]-a[2];
       let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx; const l=Math.hypot(nx,ny,nz)||1; nx/=l; ny/=l; nz/=l;
-      this.p.push(...a, ...b, ...c); for (let i = 0; i < 3; i++) { this.n.push(nx, ny, nz); this.c.push(col[0], col[1], col[2]); }
+      this.p.push(...a, ...b, ...c); for (let i = 0; i < 3; i++) { this.n.push(nx, ny, nz); this.c.push(col[0], col[1], col[2]); } this._tag();
     }
     quad(a, b, c, d, col) { this.tri(a, b, c, col); this.tri(a, c, d, col); }
     // 以局部座標轉換：旋轉 Y、平移
@@ -63,7 +64,7 @@
       col = hex(col); const f = this._xf([cx, cy, cz], ry); const hx = sx/2, hz = sz/2, t = taper == null ? 1 : taper;
       const v = [f(-hx,0,-hz), f(hx,0,-hz), f(hx,0,hz), f(-hx,0,hz), f(-hx*t,sy,-hz*t), f(hx*t,sy,-hz*t), f(hx*t,sy,hz*t), f(-hx*t,sy,hz*t)];
       const top = shade(col, 1.06), side = col, bot = shade(col, .7);
-      this.quad(v[4], v[7], v[6], v[5], top); this.quad(v[0], v[1], v[2], v[3], bot);
+      this.quad(v[4], v[7], v[6], v[5], top); if (!this.noBot) this.quad(v[0], v[1], v[2], v[3], bot);
       this.quad(v[3], v[2], v[6], v[7], side); this.quad(v[1], v[0], v[4], v[5], side);
       this.quad(v[2], v[1], v[5], v[6], shade(col, .92)); this.quad(v[0], v[3], v[7], v[4], shade(col, .92));
     }
@@ -334,5 +335,5 @@ void main(){
 
 /* v135：Three.js 版渲染器（js/e3three.js＋vendor/three，約 2 MB）延後下載：第一次登島時才載入（市面手遊的分段下載做法）；
    進入遊戲 15 秒後，若不是省流量模式，會在背景先下載，讓第一次登島不用等。載入失敗時沿用舊版輕量渲染器。 */
-window.ensure3D = (function () { let p = null; return function () { if (!p) p = import('./e3three.js?v=145').catch(e => { console.warn('3D 模組載入失敗，改用舊版畫面', e); }); return p; }; })();
+window.ensure3D = (function () { let p = null; return function () { if (!p) p = import('./e3three.js?v=146').catch(e => { console.warn('3D 模組載入失敗，改用舊版畫面', e); }); return p; }; })();
 window.addEventListener('load', () => { try { const c = navigator.connection; if (c && (c.saveData || /2g/.test(c.effectiveType || ''))) return; } catch (e) { } setTimeout(() => { const go = () => window.ensure3D(); if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 5000 }); else go(); }, 15000); });

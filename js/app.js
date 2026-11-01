@@ -295,9 +295,10 @@ function digInfo() { const s = curStep(); if (s && s.type === 'dig') return { ce
 /* 藏寶點：第一次需要時才決定，避開建築與海面 */
 function digSpot() {
   const key = digKey(); if (!key || !WORLD || WORLD.chapter !== CH) return null; SAVE.data.digs = SAVE.data.digs || {};
+  if (SAVE.data.digs[key] && CH.__isle2 && SAVE.data.digs[key].v !== 146) delete SAVE.data.digs[key]; /* v146 新地圖：舊的藏寶點作廢 */
   if (!SAVE.data.digs[key]) { const inf = digInfo(); let x = inf.center[0], z = inf.center[1];
     for (let g = 0; g < 80; g++) { const a = Math.random() * 6.283, d = Math.sqrt(Math.random()) * inf.radius, tx = inf.center[0] + Math.cos(a) * d, tz = inf.center[1] + Math.sin(a) * d; if (WORLD.scene.H(tx, tz) < 1 || WORLD.scene.obstacles.some(o => Math.hypot(tx - o[0], tz - o[1]) < o[2] + 2.5)) continue; x = tx; z = tz; break; }
-    SAVE.data.digs[key] = { x, z, marks: [] }; SAVE.save(); }
+    SAVE.data.digs[key] = { x, z, marks: [], v: CH.__isle2 ? 146 : undefined }; SAVE.save(); }
   return SAVE.data.digs[key];
 }
 function heatOf(d) { return d < 8 ? ['滾燙', 100, '#ff4a3a'] : d < 15 ? ['很熱', 78, '#ff8a3a'] : d < 25 ? ['溫熱', 55, '#ffd26c'] : d < 40 ? ['微涼', 32, '#8fd8ff'] : ['冰冷', 12, '#6f8fb0']; }
@@ -305,12 +306,14 @@ function heatOf(d) { return d < 8 ? ['滾燙', 100, '#ff4a3a'] : d < 15 ? ['很�
 const CHEST_COUNT = 3;
 function chestState() {
   SAVE.data.chests = SAVE.data.chests || {}; let c = SAVE.data.chests[CH.id];
+  /* v146：換成新版大地圖的島，舊存檔的寶箱位置重新決定（已開過的數量保留） */
+  if (c && CH.__isle2 && c.v !== 146) { if (!WORLD || WORLD.chapter !== CH) return null; c = { spots: [], opened: c.opened || [], v: 146 }; }
   if (!c || !c.spots || c.spots.length < CHEST_COUNT) { if (!WORLD || WORLD.chapter !== CH) return null;
-    const S = WORLD.scene, spots = [], L = CH.layout || {}, far = (x, z) => Math.hypot(x - CH.spawn[0], z - CH.spawn[1]) > 25;
-    for (let g = 0; g < 600 && spots.length < CHEST_COUNT; g++) { const a = Math.random() * 6.283, d = 18 + Math.random() * 58, x = Math.cos(a) * d, z = Math.sin(a) * d;
-      if (S.H(x, z) < 1.2 || !far(x, z) || S.obstacles.some(o => Math.hypot(x - o[0], z - o[1]) < o[2] + 2) || spots.some(s => Math.hypot(s[0] - x, s[1] - z) < 25) || CH.npcs.some(n => Math.hypot(n.pos[0] - x, n.pos[1] - z) < 6) || Math.hypot(x - CH.bossPos[0], z - CH.bossPos[1]) < 18 || SPOTS().some(q => Math.hypot(q[0] - x, q[1] - z) < 14)) continue;
+    const S = WORLD.scene, spots = [], L = CH.layout || {}, far = (x, z) => Math.hypot(x - CH.spawn[0], z - CH.spawn[1]) > 25, K = (S.ext || 100) / 100 * (CH.__isle2 ? .8 : 1);
+    for (let g = 0; g < 900 && spots.length < CHEST_COUNT; g++) { const a = Math.random() * 6.283, d = (18 + Math.random() * 58) * K, x = Math.cos(a) * d, z = Math.sin(a) * d;
+      if (S.H(x, z) < 1.2 || (S.blocked && S.blocked(x, z)) || !far(x, z) || S.obstacles.some(o => Math.hypot(x - o[0], z - o[1]) < o[2] + 2) || spots.some(s => Math.hypot(s[0] - x, s[1] - z) < 25) || CH.npcs.some(n => Math.hypot(n.pos[0] - x, n.pos[1] - z) < 6) || Math.hypot(x - CH.bossPos[0], z - CH.bossPos[1]) < 18 || SPOTS().some(q => Math.hypot(q[0] - x, q[1] - z) < 14)) continue;
       spots.push([Math.round(x), Math.round(z), Math.random() * 6.28]); }
-    c = SAVE.data.chests[CH.id] = { spots, opened: [] }; SAVE.save(); }
+    c = SAVE.data.chests[CH.id] = { spots, opened: (c && c.opened) || [], v: CH.__isle2 ? 146 : undefined }; SAVE.save(); }
   return c;
 }
 function openChest(ch) {

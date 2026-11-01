@@ -32,6 +32,7 @@
 
   /* ---------- 共用物件 ---------- */
   const CHIMNEYS = []; /* 煙囪位置（新版畫面會冒煙） */
+  const FOLIAGE = [], PALMS = []; /* v146：樹冠球（中心、半徑、顏色）與椰子樹頂（高畫質畫蓬鬆葉片與垂下的椰葉） */
   /* ===== 立體結構工具（v85）：可以走上去的地板、樓梯、橋，會擋人的牆，玩家走進去時會隱藏的屋頂 =====
      plats：{x0,z0,x1,z1,y0,y1,ax}（ax 為 'x' 或 'z' 時是斜坡／樓梯，高度從 y0 漸變到 y1；沒有 ax 就是平台，高度 y0）
      walls：{x0,z0,x1,z1,y0,y1}（玩家的身體高度與牆重疊時擋住）
@@ -94,8 +95,9 @@
     tree(b, x, y, z, s, r, col) {
       /* 樹：樹幹＋一根側枝＋三團樹葉，輪廓更蓬鬆 */
       const c0 = col || mix('#3f8a3a', '#6fae44', r()), sd = (r() * 9999) | 0;
-      b.cyl(x, y - .3, z, .5 * s, .3 * s, 3.4 * s, 7, '#6b4a2f'); b.cyl(x + .3 * s, y + 2.2 * s, z, .14 * s, .1 * s, 1.4 * s, 5, '#6b4a2f', null, 0, [.7 * s, .1 * s]);
+      b.m = 5; b.cyl(x, y - .3, z, .5 * s, .3 * s, 3.4 * s, 7, '#6b4a2f'); b.cyl(x + .3 * s, y + 2.2 * s, z, .14 * s, .1 * s, 1.4 * s, 5, '#6b4a2f', null, 0, [.7 * s, .1 * s]); b.m = 0;
       b.sphere(x, y + 4 * s, z, 2.1 * s, 10, c0, .9, .18, sd); b.sphere(x + 1.2 * s, y + 3.3 * s, z + .6 * s, 1.5 * s, 9, shade(c0, .94), .9, .2, sd + 1); b.sphere(x - 1.1 * s, y + 3.5 * s, z - .5 * s, 1.4 * s, 9, shade(c0, 1.05), .9, .2, sd + 2);
+      FOLIAGE.push([x, y + 4 * s, z, 2.1 * s, c0], [x + 1.2 * s, y + 3.3 * s, z + .6 * s, 1.5 * s, shade(c0, .94)], [x - 1.1 * s, y + 3.5 * s, z - .5 * s, 1.4 * s, shade(c0, 1.05)]);
     },
     pine(b, x, y, z, s, col) {
       b.cyl(x, y - .3, z, .35 * s, .25 * s, 2 * s, 5, '#5b3d27');
@@ -103,16 +105,17 @@
     },
     palm(b, x, y, z, s, r) {
       let px = x, pz = z, py = y - .3; const lean = r() * Math.PI * 2, dx = Math.cos(lean) * .35 * s, dz = Math.sin(lean) * .35 * s;
-      for (let i = 0; i < 5; i++) { b.cyl(px, py, pz, .38 * s, .32 * s, 1.35 * s, 5, i % 2 ? '#8a6a3e' : '#7a5b33', null, 0, [dx, dz]); px += dx; pz += dz; py += 1.35 * s; }
+      b.m = 5; for (let i = 0; i < 5; i++) { b.cyl(px, py, pz, .38 * s, .32 * s, 1.35 * s, 5, i % 2 ? '#8a6a3e' : '#7a5b33', null, 0, [dx, dz]); px += dx; pz += dz; py += 1.35 * s; } b.m = 0;
+      if (global.E3_HD) { PALMS.push([px, py - .2 * s, pz, s, r()]); r();   /* 亂數用量與原本相同（兩次），其他擺設位置不受畫質影響 */ for (let k = 0; k < 3; k++) b.sphere(px + Math.cos(k * 2.1) * .35 * s, py - .45 * s, pz + Math.sin(k * 2.1) * .35 * s, .3 * s, 6, '#6a4a22'); return; }   /* 高畫質：椰葉由渲染器畫（垂下的羽狀葉片），這裡只放椰子 */
       b.cyl(px, py - .3 * s, pz, 3.6 * s, 0, 1.1 * s, 7, '#4f8f3a', null, r());
       b.cyl(px, py - .9 * s, pz, 3.2 * s, 0, .8 * s, 6, '#3e7a30', null, r() + .4);
     },
-    rock(b, x, y, z, s, r, col) { b.sphere(x, y + s * .3, z, s, 6, col || mix('#7b7f86', '#9aa0a6', r()), .75, .45, (r() * 9999) | 0); },
+    rock(b, x, y, z, s, r, col) { b.m = 3; b.sphere(x, y + s * .3, z, s, 6, col || mix('#7b7f86', '#9aa0a6', r()), .75, .45, (r() * 9999) | 0); b.m = 0; },
     house(b, x, y, z, w, d, h, wall, roof, ry) {
       /* 細節版民宅：石基、木骨架、門框與石階、窗框＋百葉窗＋花箱、階梯狀瓦片屋頂、屋脊、煙囪 */
       ry = ry || 0; const c = Math.cos(ry), s = Math.sin(ry), L = (lx, lz) => [x + lx * c + lz * s, z - lx * s + lz * c], beam = '#5e3e2a', shutter = ['#3f72b8', '#5a8a4a', '#b5543c', '#d8a03a'][Math.abs(Math.round(x * 3 + z)) % 4];
-      b.box(x, y - .6, z, w + .34, 1.0, d + .34, '#a99d90', ry);
-      b.box(x, y + .4, z, w, h - .4, d, wall, ry);
+      b.m = 3; b.box(x, y - .6, z, w + .34, 1.0, d + .34, '#a99d90', ry);
+      b.m = 4; b.box(x, y + .4, z, w, h - .4, d, wall, ry); b.m = 1;
       [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, e]) => { const [px, pz] = L(a * w / 2, e * d / 2); b.box(px, y + .3, pz, .34, h - .2, .34, beam, ry); });
       b.box(x, y + h - .12, z, w + .12, .26, d + .12, beam, ry); b.box(x, y + h * .52, z, w + .08, .18, d + .08, beam, ry);
       { const [fx, fz] = L(0, d / 2 + .07); b.box(fx, y - .02, fz, 1.5, 2.45, .18, beam, ry); const [ex, ez] = L(0, d / 2 + .15); b.box(ex, y, ez, 1.08, 2.15, .1, '#8a5a38', ry); const [gx, gz] = L(0, d / 2 + .55); b.box(gx, y - .4, gz, 1.9, .42, .9, '#b4a898', ry); }
@@ -120,16 +123,19 @@
         [-1, 1].forEach(q => { const [sx, sz] = L(lx + q * .74, k * (d / 2 + .1)); b.box(sx, y + h * .3, sz, .42, 1.0, .08, shutter, ry); });
         const [bx, bz] = L(lx, k * (d / 2 + .26)); b.box(bx, y + h * .3 - .3, bz, 1.12, .26, .3, '#8a5a38', ry); ['#ff6a8a', '#ffd34a', '#ffffff'].forEach((fc, q) => { const [px, pz] = L(lx - .32 + q * .32, k * (d / 2 + .28)); b.sphere(px, y + h * .3, pz, .16, 5, fc, 1, .2, q + 3); }); };
       if (w > 3.6) { win(-w * .3, d / 2); win(w * .3, d / 2); } win(0, d / 2, true);
+      b.m = 2;
       const over = .5, rh = h * .62, n = 6, hd = d / 2 + over;
       [-1, 1].forEach(sd => { for (let i = 0; i < n; i++) { const [rx, rz] = L(0, sd * hd * (1 - (i + .5) / n)); b.box(rx, y + h + rh * i / n - .04, rz, w + over * 2, rh / n + .14, hd / n * 1.18, shade(roof, .86 + (i % 2) * .12), ry); } });
-      for (let i = 0; i < n - 1; i++) b.box(x, y + h + rh * i / n, z, w - .04, rh / n, d * (1 - (i + 1) / n) + .02, wall, ry);
+      b.m = 4; for (let i = 0; i < n - 1; i++) b.box(x, y + h + rh * i / n, z, w - .04, rh / n, d * (1 - (i + 1) / n) + .02, wall, ry); b.m = 2;
       b.box(x, y + h + rh - .04, z, w + over * 2 + .12, .26, .5, shade(roof, .7), ry);
       { const [cx, cz] = L(w * .28, -d * .18); b.box(cx, y + h, cz, .8, rh + 1.2, .8, '#9a8e82', ry); b.box(cx, y + h + rh + 1.2, cz, 1, .2, 1, '#8a7e72', ry); CHIMNEYS.push([cx, y + h + rh + 1.5, cz]); }
+      b.m = 0;
     },
-    fence(b, x0, z0, x1, z1, hf, col) {
+    fence(b, x0, z0, x1, z1, hf, col) { b.m = 1;
       const n = Math.max(2, Math.round(Math.hypot(x1 - x0, z1 - z0) / 2.4)), ang = Math.atan2(x1 - x0, z1 - z0);
       for (let i = 0; i <= n; i++) { const t = i / n, x = x0 + (x1 - x0) * t, z = z0 + (z1 - z0) * t; b.box(x, hf(x, z) - .2, z, .25, 1.4, .25, col); }
       for (let i = 0; i < n; i++) { const t = (i + .5) / n, x = x0 + (x1 - x0) * t, z = z0 + (z1 - z0) * t; b.box(x, hf(x, z) + .7, z, .14, .16, Math.hypot(x1 - x0, z1 - z0) / n, col, ang); }
+      b.m = 0;
     },
     ship(b, x, y, z, ry, s, sail) { return P.ship2(b, x, y, z, ry, s, { sail }); },
     /* 細節版帆船：弧形船身（分段收窄、船首上翹）、船舷木板與吃水線、砲門、欄杆、船尾樓與發光的窗、船首樓與船首斜桅、船首像、
@@ -368,6 +374,9 @@
       /* --- 北方岬角（送行之戰）：石圈、火把、孤樹、長椅 --- */
       { const [bx, bz] = D.L.boss, by = H(bx, bz); P.arena(b, bx, by, bz, 14, '#8d8f92', 14); for (let i = -1; i <= 1; i += 2) P.torch(b, bx + i * 6, H(bx + i * 6, bz + 16), bz + 16);
         const tx = bx - 15, tz = bz - 10; if (H(tx, tz) > 1) { P.tree(b, tx, H(tx, tz), tz, 1.6, r, '#5aa040'); O.push([tx, tz, 2.4]); b.box(tx + 3, H(tx + 3, tz), tz + 2, 2.4, .3, .7, '#8a6240'); [-1, 1].forEach(k => b.box(tx + 3 + k, H(tx + 3, tz) - .2, tz + 2, .2, .5, .6, '#6b4a2f')); } }
+      /* v146：沙灘上的椰子樹（獨立亂數，不影響其他擺設；只在高畫質） */
+      if (global.E3_HD) { let s2 = 4711; const r2 = () => (s2 = s2 * 16807 % 2147483647) / 2147483647; let n = 0;
+        for (let k = 0; k < 400 && n < 16; k++) { const a = r2() * Math.PI * 2, d = 40 + r2() * 46, x = Math.cos(a) * d, z = Math.sin(a) * d, y = H(x, z); if (y < .45 || y > 1.25 || bad(x, z) || !free(x, z, 2.2)) continue; P.palm(b, x, y, z, .9 + r2() * .35, r2); O.push([x, z, .8]); n++; } }
     },
     alabasta(b, H, r, O, D) {
       /* ======== 阿拉巴斯坦（正式版）：港口、尤巴的乾涸綠洲（托托挖井處）、沙岩城鎮與市集、叛亂軍營地、雨宴賭場、阿爾巴那王宮與鐘樓 ======== */
@@ -1026,30 +1035,31 @@
       else { b.box(x, y - .2, z, 3.2, 1.1, 1.6, '#8a6240'); [-1.4, 1.4].forEach(dx => b.cyl(x + dx, y, z - .7, .08, .08, 2.6, 4, '#5a3a2a')); b.box(x, y + 2.5, z - .2, 3.6, .15, 2.2, T.stall, 0, .9); for (let k = 0; k < 3; k++) b.sphere(x - 1 + k, y + 1.05, z, .25, 5, ['#ff9a4a', '#e8553b', '#ffd26c'][k]); O.push([x, z, 1.8]); } });
   }
   function buildScene(renderer, chapterId, clear, layout) {
-    CHIMNEYS.length = 0;
+    CHIMNEYS.length = 0; FOLIAGE.length = 0; PALMS.length = 0;
     CLEAR = clear || []; CUR_PATH = layout ? layout.path : null;
     const base = OPTS[chapterId], opt = Object.assign({}, base);
     if (layout) { opt.lobes = layout.lobes || []; opt.flats = [...(base.flats || []), [layout.spawn[0], layout.spawn[1], 18], [layout.boss[0], layout.boss[1], 18, 2], ...layout.path.map(p => [p[0], p[1], 7])]; }
-    const H = makeHeight(opt);
+    const I2 = global.ISLE2 && global.ISLE2[chapterId]; /* v146：新版島嶼（地形、道路網、城鎮由 js/isle2.js 產生） */
+    const H = I2 ? I2.prepare() : makeHeight(opt);
     const b = new Builder(); const O = []; ST = { plats: [], walls: [], roofs: [] }; const D = { L: layout || { boss: [0, -60], spawn: [0, 55], path: null }, K, ST }; const r = rng(chapterId.length * 7919 + chapterId.charCodeAt(0));
-    BUILD[chapterId](b, H, r, O, D);
+    if (I2) I2.build(b, H, r, O, D, { P, K, ST, CHIMNEYS }); else BUILD[chapterId](b, H, r, O, D);
     // 路線：沿著各章的路徑鋪出貼地的道路
-    if (layout && layout.path) { const RC = { east: '#c9a06a', alabasta: '#e0c080', skypiea: '#f4f7ff', enies: '#c4bcac', dark: '#6a4a32', fishman: '#efe0b8', wano: '#b09a6e', giant: '#7a6440' }[chapterId] || '#c9a06a'; const pts = layout.path, wd = 2.6;
+    if (!I2 && layout && layout.path) { const RC = { east: '#c9a06a', alabasta: '#e0c080', skypiea: '#f4f7ff', enies: '#c4bcac', dark: '#6a4a32', fishman: '#efe0b8', wano: '#b09a6e', giant: '#7a6440' }[chapterId] || '#c9a06a'; const pts = layout.path, wd = 2.6;
       for (let i = 0; i < pts.length - 1; i++) { const [ax, az] = pts[i], [bx, bz] = pts[i + 1], L2 = Math.hypot(bx - ax, bz - az), n = Math.max(1, Math.ceil(L2 / 2)), nx = -(bz - az) / L2 * wd, nz = (bx - ax) / L2 * wd;
         for (let k = 0; k < n; k++) { const t0 = k / n, t1 = (k + 1) / n, x0 = ax + (bx - ax) * t0, z0 = az + (bz - az) * t0, x1 = ax + (bx - ax) * t1, z1 = az + (bz - az) * t1, y = (X, Z) => H(X, Z) + .08;
           const c = mix(RC, '#ffffff', hash(x0, z0) * .12); b.quad([x0 - nx, y(x0 - nx, z0 - nz), z0 - nz], [x0 + nx, y(x0 + nx, z0 + nz), z0 + nz], [x1 + nx, y(x1 + nx, z1 + nz), z1 + nz], [x1 - nx, y(x1 - nx, z1 - nz), z1 - nz], c); } } }
-    detail(b, H, r, O, chapterId);
-    if (global.LANDMARKS) LANDMARKS.build(chapterId, b, H, r, O, opt.R || 78, layout); /* 各島地標 */
+    if (!I2) detail(b, H, r, O, chapterId);
+    if (global.LANDMARKS && !I2) LANDMARKS.build(chapterId, b, H, r, O, opt.R || 78, layout); /* 各島地標 */
     /* NPC 若被建築或樹的碰撞範圍包住，往外推到碰撞範圍外（只調整站位，劇情不變） */
     { const chd = (typeof CHAPTERS !== 'undefined' ? CHAPTERS : []).find(c => c.id === chapterId); if (chd) chd.npcs.forEach(n => { for (let k = 0; k < 3; k++) { const o = O.find(o => Math.hypot(n.pos[0] - o[0], n.pos[1] - o[1]) < o[2] + .8); if (!o) break; const dx = n.pos[0] - o[0], dz = n.pos[1] - o[1], d = Math.hypot(dx, dz) || 1; n.pos = [o[0] + dx / d * (o[2] + 1.6), o[1] + dz / d * (o[2] + 1.6)]; } }); }
-    const w = new Builder(); w.grid(520, 44, 0, WATER[chapterId]);
+    const w = new Builder(); w.grid(I2 ? I2.ext * 5 : 520, 44, 0, WATER[chapterId]);
     /* 立體結構：地面高度查詢與可走判斷 */
     const PL = ST.plats, WL = ST.walls;
     const topAt = (p, x, z) => p.ax === 'x' ? p.y0 + (p.y1 - p.y0) * ((x - p.x0) / (p.x1 - p.x0 || 1)) : p.ax === 'z' ? p.y0 + (p.y1 - p.y0) * ((z - p.z0) / (p.z1 - p.z0 || 1)) : p.y0;
     const G = (x, z, y) => { let g = H(x, z); for (const p of PL) { if (x < p.x0 || x > p.x1 || z < p.z0 || z > p.z1) continue; const t = topAt(p, x, z); if (t > g && t <= y + (p.ax ? 1.4 : .8)) g = t; } return g; }; /* 樓梯的容許高度較大：畫面卡頓、一步跨得比較遠時也不會從樓梯上掉下去 */
     const onPlat = (x, z, y) => PL.some(p => x >= p.x0 && x <= p.x1 && z >= p.z0 && z <= p.z1 && topAt(p, x, z) <= y + .8);
     const roofs = ST.roofs.map(R => ({ x0: R.x0, z0: R.z0, x1: R.x1, z1: R.z1, mesh: renderer.mesh(R.b) }));
-    const scene = { plats: PL, walls: WL, roofs, G, onPlat, chimneys: CHIMNEYS.slice(), H, obstacles: O, dyn: D, staticMesh: renderer.mesh(b), water: renderer.mesh(w), waterAlpha: chapterId === 'skypiea' ? 1 : .9, tris: b.count / 3 };
+    const scene = { plats: PL, walls: WL, roofs, G, onPlat, chimneys: CHIMNEYS.slice(), foliage: FOLIAGE.slice(), palms: PALMS.slice(), H, obstacles: O, dyn: D, staticMesh: renderer.mesh(b), ext: I2 ? I2.ext : 100, blocked: I2 ? I2.blocked : null, roadAt: I2 ? I2.roadAt : null, maxStep: I2 ? 1.1 : 0, water: renderer.mesh(w), waterAlpha: chapterId === 'skypiea' ? 1 : .9, tris: b.count / 3 };
     if (D.windmills) { const bl = new Builder(); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2; bl.box(Math.cos(a) * 3.5, -.12, Math.sin(a) * 3.5, 7, .16, .22, '#6b4a2f', -a); bl.box(Math.cos(a) * 3.8 + Math.cos(a + 1.5708) * .7, -.06, Math.sin(a) * 3.8 + Math.sin(a + 1.5708) * .7, 5.6, .08, 1.3, '#f7f1e4', -a); for (let k = 0; k < 5; k++) bl.box(Math.cos(a) * (1.6 + k * 1.1) + Math.cos(a + 1.5708) * .7, .02, Math.sin(a) * (1.6 + k * 1.1) + Math.sin(a + 1.5708) * .7, .1, .08, 1.4, '#6b4a2f', -a); } bl.cyl(0, -.35, 0, .7, .7, .7, 12, '#8b3a2e'); scene.blade = renderer.mesh(bl); } /* 扇葉：骨架＋帆布＋橫桿 */
     if (D.fish) { const fb = new Builder(); fb.sphere(0, 0, 0, .5, 6, '#ffffff', .6); fb.cyl(-.5, -.25, 0, .02, .35, .5, 4, '#ffffff', null, 0, [-.2, 0]); scene.fishMesh = renderer.mesh(fb); }
     { const bb = new Builder(); bb.box(-.6, 0, 0, 1.2, .06, .35, '#ffffff', -.35); bb.box(.6, 0, 0, 1.2, .06, .35, '#ffffff', .35); scene.bird = renderer.mesh(bb); }
@@ -1065,5 +1075,5 @@
     return scene;
   }
 
-  global.SCENES = { buildScene, npcMesh, itemMesh, barrierMesh, beaconMesh, coneMesh, moundMesh, rng, lookScale };
+  global.SCENES = { buildScene, npcMesh, itemMesh, barrierMesh, beaconMesh, coneMesh, moundMesh, rng, lookScale, _P: P, _K: K };
 })(window);
