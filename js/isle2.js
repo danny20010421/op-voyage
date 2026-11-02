@@ -104,8 +104,9 @@
       const fp = (x, z, rad) => { occ.push([x, z, rad]); };
       occ.length = 0; houses.length = 0;
       /* v148 極致畫質：大量的小細節（石板路的每一顆石頭、屋瓦、地基石、草叢、花、小石頭、灌木）用「實例」交給渲染器，依距離顯示；地形改用更細的共用頂點網格 */
-      const UL = !!(global.E3_ULTRA && hd), UD = {}, put = (k, x, y, z, ry, sx, sy, sz, c) => { const a = UD[k] || (UD[k] = []); c = typeof c === 'string' ? hex(c) : c; a.push(x, y, z, ry, sx, sy, sz, c[0], c[1], c[2]); };
+      const UL = !!(global.E3_ULTRA && hd), UD = {}, put = (k, x, y, z, ry, sx, sy, sz, c, rx) => { const a = UD[k] || (UD[k] = []); c = typeof c === 'string' ? hex(c) : c; a.push(x, y, z, ry, rx || 0, sx, sy, sz, c[0], c[1], c[2]); };
       let us = 9173; const ur = () => (us = us * 16807 % 2147483647) / 2147483647;
+      const shrub = (px, py, pz, sz, base) => { const B = hex(base || mix('#4a8f38', '#6aac46', ur())); for (let q = 0; q < 3; q++) { const a3 = ur() * 6.283, d3 = sz * (.25 + ur() * .35), k = .86 + ur() * .22, r3 = sz * (.55 + ur() * .35); put('bush', px + Math.cos(a3) * d3, py - r3 * .25, pz + Math.sin(a3) * d3, ur() * 6, r3 * 1.6, r3 * 1.25, r3 * 1.6, [B[0] * k, B[1] * k, B[2] * k]); } };
       /* 劇情要用到的位置（登陸點、BOSS、NPC、敵人、任務點）先保留，房子和樹不會蓋在上面 */
       { const M = D.story || {}, keep = (p, rad) => p && occ.push([s(p[0]), s(p[1]), rad]); keep(M.spawn, 10); keep(M.boss, 14); Object.values(M.npcs || {}).forEach(p => keep(p, 4.5)); (M.spots || []).forEach(p => keep(p, 6));
         Object.values(M.steps || {}).forEach(m => { (m.points || []).concat(m.spots || []).forEach(p => keep(p, 4)); ['pos', 'goal', 'to', 'start'].forEach(f => keep(m[f], 5)); }); }
@@ -154,17 +155,41 @@
           else if (hd) { const [lx, lz] = L(1.1 * K, d / 2 + .25); b.m = 0; b.box(lx, y + 2.1 * K, lz, .22, .34, .22, '#ffd27a', ry); b.m = 1; } }
         if (o.sign) { const [sx, sz] = L(w / 2 + .3, d / 2 - .6); b.box(sx, y + 2.6 * K, sz, .1, .1, 1.4, fr, ry); const [tx, tz] = L(w / 2 + .3, d / 2 - .9); b.m = 0; b.box(tx, y + 1.9 * K, tz, .12, .8, 1.2, o.sign, ry); b.m = 1; }
         /* 屋頂 */
+        /* v149 屋頂：真正的斜面（有厚度、屋簷、山牆三角、博風板、屋脊），不再是一階一階的方塊；瓦片沿著斜面一排排鋪 */
+        const P3 = (lx, yy, lz) => { const [px, pz] = L(lx, lz); return [px, yy, pz]; }, ctr = [x, 0, z];
+        const face = (a, bb, c, dd, col, out) => { const n = [(bb[1] - a[1]) * (c[2] - a[2]) - (bb[2] - a[2]) * (c[1] - a[1]), (bb[2] - a[2]) * (c[0] - a[0]) - (bb[0] - a[0]) * (c[2] - a[2]), (bb[0] - a[0]) * (c[1] - a[1]) - (bb[1] - a[1]) * (c[0] - a[0])];
+          if (n[0] * out[0] + n[1] * out[1] + n[2] * out[2] < 0) { if (dd) b.quad(a, dd, c, bb, col); else b.tri(a, c, bb, col); } else { if (dd) b.quad(a, bb, c, dd, col); else b.tri(a, bb, c, col); } };
+        const outOf = (...pts) => { let mx = 0, my = 0, mz = 0; pts.forEach(p => { mx += p[0]; my += p[1]; mz += p[2]; }); const k = pts.length; return [mx / k - ctr[0], .0001, mz / k - ctr[2]]; };
+        /* 一片有厚度的斜面：e0,e1 簷口，r0,r1 屋脊（r0===r1 時是三角形），條紋表現瓦片的層次 */
+        const slab = (e0, e1, r0, r1, rc) => { const nS = hd ? 6 : 3, th = .26, lerp = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t, p[2] + (q[2] - p[2]) * t];
+          for (let i = 0; i < nS; i++) { const t0 = i / nS, t1 = (i + 1) / nS, a = lerp(e0, r0, t0), bb = lerp(e1, r1, t0), c = lerp(e1, r1, t1), dd = lerp(e0, r0, t1), col = shade(rc, (i % 2 ? .93 : 1.02) * (.97 + vh(x + i, z) * .06));
+            face(a, bb, c, dd, col, [0, 1, 0]); }
+          const dn = p => [p[0], p[1] - th, p[2]], u0 = dn(e0), u1 = dn(e1), v0 = dn(r0), v1 = dn(r1); face(u0, u1, v1, v0, shade(rc, .55), [0, -1, 0]);
+          const C0 = [(e0[0] + e1[0] + r0[0] + r1[0]) / 4, 0, (e0[2] + e1[2] + r0[2] + r1[2]) / 4], ow = (p, q) => [(p[0] + q[0]) / 2 - C0[0], .0001, (p[2] + q[2]) / 2 - C0[2]];
+          face(e0, e1, u1, u0, shade(rc, .7), ow(e0, e1)); face(e0, r0, v0, u0, shade(rc, .72), ow(e0, r0)); if (r0 !== r1 || e1 !== r1) face(e1, r1, v1, u1, shade(rc, .72), ow(e1, r1)); };
+        /* 極致：沿斜面鋪瓦片（每片會依斜面傾斜） */
+        const tiles = (e0, e1, r0, r1, rc) => { if (!UL) return; const C = hex(rc), sl = Math.hypot(r0[0] - e0[0], r0[1] - e0[1], r0[2] - e0[2]), nr = Math.max(2, Math.round(sl / .42));
+          for (let i = 0; i < nr; i++) { const t = (i + .5) / nr, A = [e0[0] + (r0[0] - e0[0]) * t, e0[1] + (r0[1] - e0[1]) * t + .08, e0[2] + (r0[2] - e0[2]) * t], B = [e1[0] + (r1[0] - e1[0]) * t, e1[1] + (r1[1] - e1[1]) * t + .08, e1[2] + (r1[2] - e1[2]) * t];
+            const len = Math.hypot(B[0] - A[0], B[2] - A[2]); if (len < .3) continue; const dx = (B[0] - A[0]) / len, dz = (B[2] - A[2]) / len, yaw = Math.atan2(-dz, dx), mid = [(e0[0] + e1[0]) / 2 - (r0[0] + r1[0]) / 2, (e0[2] + e1[2]) / 2 - (r0[2] + r1[2]) / 2], hz = Math.hypot(mid[0], mid[1]) || 1,
+              pitch = Math.atan2(r0[1] - e0[1], hz * 1), sgn = (mid[0] * Math.sin(yaw) + mid[1] * Math.cos(yaw)) > 0 ? 1 : -1, m = Math.max(1, Math.round(len / .5));
+            for (let j = 0; j < m; j++) { const s2 = (j + .5 + (i % 2) * .5) / m; if (s2 > 1) continue; const k = .84 + ur() * .24; put('tile', A[0] + (B[0] - A[0]) * s2, A[1] + (B[1] - A[1]) * s2 - .04, A[2] + (B[2] - A[2]) * s2, yaw, len / m * .94, .1, sl / nr * 1.25, [C[0] * k, C[1] * k, C[2] * k], sgn * (pitch + .06)); } } };
         const top = y + .3 + h, RT = o.roofType || S0.roof; let rtop = top;
-        if (RT === 'gable') { b.m = 2; const over = .55, rh = Math.min(3.4 * K, w * .42), n = hd ? 5 : 3, hdz = d / 2 + over;
-          [-1, 1].forEach(sd => { for (let i = 0; i < n; i++) { const [rx, rz] = L(0, sd * hdz * (1 - (i + .5) / n)); b.box(rx, top + rh * i / n - .05, rz, w + over * 2, rh / n + .16, hdz / n * 1.2, shade(roof, .84 + (i % 2) * .12), ry); } });
-          b.m = 4; for (let i = 0; i < n - 1; i++) b.box(x, top + rh * i / n, z, w - .06, rh / n, d * (1 - (i + 1) / n) + .02, wall, ry); b.m = 2;
-          b.box(x, top + rh - .05, z, w + over * 2 + .14, .28, .52, shade(roof, .68), ry); rtop = top + rh;
-          if (UL) { const rc = hex(roof); [-1, 1].forEach(sd => { for (let i = 0; i < n; i++) { const lz = sd * hdz * (1 - (i + .5) / n), ty = top + rh * i / n + rh / n + .08; for (let lx = -w / 2 - over + .26; lx < w / 2 + over - .2; lx += .52) { const [tx, tz] = L(lx + (i % 2) * .26, lz), k = .82 + ur() * .26; put('tile', tx, ty, tz, ry, .46, .12, hdz / n * 1.18, [rc[0] * k, rc[1] * k, rc[2] * k]); } } }); } }
-        else if (RT === 'hip') { b.m = 2; const over = S0.skirt ? 1.3 : .6, rh = Math.min(3 * K, Math.min(w, d) * .5), n = hd ? 5 : 3;
-          for (let i = 0; i < n; i++) { const f = 1 - i / n; b.box(x, top + rh * i / n - .05, z, (w + over * 2) * f + .4, rh / n + .1, (d + over * 2) * f + .4, shade(roof, .84 + (i % 2) * .12), ry); }
-          if (S0.skirt) b.box(x, top + rh - .1, z, w * .5, .5, .5, shade(roof, .6), ry); rtop = top + rh;
-          if (UL) { const rc = hex(roof); for (let i = 0; i < n; i++) { const f = 1 - i / n, W2 = (w + over * 2) * f + .4, D2 = (d + over * 2) * f + .4, ty = top + rh * i / n + rh / n + .05;
-            for (const [ex, ez, along] of [[0, D2 / 2, 1], [0, -D2 / 2, 1], [W2 / 2, 0, 0], [-W2 / 2, 0, 0]]) { const len = along ? W2 : D2; for (let t = -len / 2 + .26; t < len / 2 - .2; t += .52) { const [tx, tz] = along ? L(t, ez - Math.sign(ez) * .35) : L(ex - Math.sign(ex) * .35, t), k = .82 + ur() * .26; put('tile', tx, ty, tz, ry + (along ? 0 : Math.PI / 2), .46, .12, .9, [rc[0] * k, rc[1] * k, rc[2] * k]); } } } } }
+        if (RT === 'gable') { b.m = 2; const over = .6, hdz = d / 2 + over, hx = w / 2 + over * .8, rh = Math.min(3.6 * K, d * .55), ye = top - over * rh / (d / 2), yr = top + rh;
+          for (const sd of [-1, 1]) { const e0 = P3(-hx, ye, sd * hdz), e1 = P3(hx, ye, sd * hdz), r0 = P3(-hx, yr, 0), r1 = P3(hx, yr, 0); slab(e0, e1, r0, r1, roof); tiles(e0, e1, r0, r1, roof); }
+          b.m = 4; for (const sx of [-1, 1]) { const a = P3(sx * w / 2, top, -d / 2), bb = P3(sx * w / 2, top, d / 2), c = P3(sx * w / 2, yr - .1, 0), out = P3(sx * 5, 0, 0); face(a, bb, c, null, shade(wall, .97), [out[0] - x, 0, out[2] - z]);
+            if (hd && beam) { b.m = 1; const [mx, mz] = L(sx * (w / 2 + .06), 0); b.box(mx, top, mz, .16, rh * .8, .2, beam, ry); b.m = 4; } }
+          b.m = 2; b.box(x, yr - .2, z, (hx + .1) * 2, .32, .46, shade(roof, .62), ry); rtop = yr; }
+        else if (RT === 'hip') { b.m = 2; const over = S0.skirt ? 1.1 : .6, ex = w / 2 + over, ez = d / 2 + over, mn = Math.min(ex, ez), rh = Math.min(3.2 * K, Math.min(w, d) * .5), ye = top - .2, yr = top + rh, rx = Math.max(0, ex - ez), rz = Math.max(0, ez - ex);
+          const R1 = P3(-rx, yr, -rz), R2 = P3(rx, yr, rz), E = [P3(-ex, ye, ez), P3(ex, ye, ez), P3(ex, ye, -ez), P3(-ex, ye, -ez)], Rf = rx ? [R1, R2] : [P3(0, yr, -rz), P3(0, yr, rz)];
+          /* 四面：前後（梯形或三角）、左右 */
+          const F = rx ? [[E[0], E[1], P3(rx, yr, 0), P3(-rx, yr, 0)], [E[2], E[3], P3(-rx, yr, 0), P3(rx, yr, 0)], [E[1], E[2], P3(rx, yr, 0), P3(rx, yr, 0)], [E[3], E[0], P3(-rx, yr, 0), P3(-rx, yr, 0)]]
+            : [[E[0], E[1], P3(0, yr, rz), P3(0, yr, rz)], [E[2], E[3], P3(0, yr, -rz), P3(0, yr, -rz)], [E[1], E[2], P3(0, yr, -rz), P3(0, yr, rz)], [E[3], E[0], P3(0, yr, rz), P3(0, yr, -rz)]];
+          for (const [e0, e1, r1, r0] of F) { slab(e0, e1, r0, r1, roof); tiles(e0, e1, r0, r1, roof); }
+          if (S0.skirt) { /* 和式：屋簷往外再翹出去一圈 */ const fx = ex + 1, fz = ez + 1, yf = ye - .45, G = [P3(-fx, yf, fz), P3(fx, yf, fz), P3(fx, yf, -fz), P3(-fx, yf, -fz)];
+            for (let i = 0; i < 4; i++) { const e0 = G[i], e1 = G[(i + 1) % 4], r0 = E[i], r1 = E[(i + 1) % 4]; slab(e0, e1, r0, r1, shade(roof, .92)); }
+            b.box(x, yr - .25, z, rx ? (rx + .4) * 2 : .7, .5, rz ? (rz + .4) * 2 : .7, shade(roof, .6), ry); }
+          else b.box(x, yr - .18, z, rx ? (rx + .25) * 2 : .5, .3, rz ? (rz + .25) * 2 : .5, shade(roof, .68), ry);
+          b.m = 4; b.box(x, top - .3, z, w + .1, .35, d + .1, shade(wall, .85), ry); b.m = 2; rtop = yr; }
         else if (RT === 'dome') { b.m = 4; b.box(x, top - .05, z, w + .3, .3, d + .3, shade(wall, .9), ry); b.m = 2; const R = Math.min(w, d) * .5; b.sphere(x, top + .2, z, R, hd ? 10 : 7, roof, .7); rtop = top + R * .7; }
         else { b.m = 4; b.box(x, top - .05, z, w + .2, .25, d + .2, shade(wall, .82), ry); [[0, d / 2], [0, -d / 2], [w / 2, 0], [-w / 2, 0]].forEach(([lx, lz]) => { const [px, pz] = L(lx, lz); b.box(px, top + .1, pz, lz ? w + .2 : .3, .7, lz ? .3 : d + .2, shade(wall, .92), ry); });
           if (S0.dome && vh(z, x) < .35) { b.m = 2; b.sphere(x, top + .2, z, Math.min(w, d) * .28, 8, pick(S0.dome, x, z), .8); }
@@ -178,7 +203,7 @@
       I.house = house;
       /* --- 道路的立體細節：主街路緣石、路燈 --- */
       for (const R of roads) { const hw = R.w / 2;
-        if (hd && (R.kind === 'promenade' || R.kind === 'main')) for (let k = 0; k < R.P.length - 1; k += 1) { const [ax, az] = R.P[k], [bx, bz] = R.P[k + 1], L = Math.hypot(bx - ax, bz - az) || 1, nx = -(bz - az) / L, nz = (bx - ax) / L, ang = Math.atan2(bx - ax, bz - az);
+        if (hd && R.kind === 'promenade') for (let k = 0; k < R.P.length - 1; k += 1) { const [ax, az] = R.P[k], [bx, bz] = R.P[k + 1], L = Math.hypot(bx - ax, bz - az) || 1, nx = -(bz - az) / L, nz = (bx - ax) / L, ang = Math.atan2(bx - ax, bz - az);
           for (const sd of [-1, 1]) { const cx = (ax + bx) / 2 + nx * hw * sd, cz = (az + bz) / 2 + nz * hw * sd; if (I.roadAt(cx + nx * sd * 1.2, cz + nz * sd * 1.2)) continue; b.m = 3; b.box(cx, Hs(cx, cz) - .25, cz, .34, .42, L + .05, D.curb || '#9c958a', ang); b.m = 0; } }
         if (R.kind !== 'trail' && R.kind !== 'alley') { const gap = R.kind === 'lane' ? 34 : 18; let acc = 0, side = 1;
           for (let k = 1; k < R.P.length; k++) { acc += Math.hypot(R.P[k][0] - R.P[k - 1][0], R.P[k][1] - R.P[k - 1][1]); if (acc < gap) continue; acc = 0; side = -side;
@@ -256,7 +281,8 @@
           if (kind === 'kelp') { b.m = 0; const hh = 6 + rn() * 9, a3 = rn() * 6.28; for (let q = 0; q < 3; q++) b.cyl(x + q * .4, y - .3, z + q * .3, .22, .1, hh * (1 - q * .2), 5, mix('#2e7a4a', '#4a9a5a', rn()), null, 0, [Math.cos(a3 + q) * 1.2, Math.sin(a3 + q) * 1.2]); fp(x, z, .8); i++; continue; }
           if (kind === 'dead') { b.m = 5; const a2 = rn() * 6.28; b.cyl(x, y - .2, z, .3, .16, 4 + rn() * 2, 6, '#8a6a44', null, 0, [Math.cos(a2) * .8, Math.sin(a2) * .8]); b.m = 0; O.push([x, z, .6]); fp(x, z, 1); i++; continue; }
           if (kind === 'pine' || (kind !== 'tree' && y > 34 * (D.vScale || .5) * SC / 2 && rn() < .6)) P.pine(b, x, y, z, 1 + rn() * .7, mix('#2f6b3c', '#3f7a44', rn())); else P.tree(b, x, y, z, .9 + rn() * .9, r, mix('#4f9a3c', '#77b84e', rn()));
-          O.push([x, z, 1.1]); fp(x, z, 1.4); i++; } }
+          O.push([x, z, 1.1]); fp(x, z, 1.4); i++;
+          if (UL) { const c = mix(D.grass || '#6faa4a', D.grass2 || '#8cc456', vn(x * .08, z * .08)); for (let q = 0; q < 5; q++) { const a2 = ur() * 6.283, d2 = 1.4 + ur() * 2.6, px = x + Math.cos(a2) * d2, pz = z + Math.sin(a2) * d2, py = Hs(px, pz); if (I.roadAt(px, pz)) continue; if (q < 1) shrub(px, py, pz, .7 + ur() * .6); else put('tuft', px, py - .05, pz, ur() * 6, 1, .9 + ur() * .6, 1, [c[0] * .7, c[1] * .8, c[2] * .62]); } } } }
       for (const [gx, gz, gr, gn] of D.palms || []) { const x0 = s(gx), z0 = s(gz), R0 = s(gr);
         for (let i = 0, tries = 0; i < gn && tries < gn * 8; tries++) { const a = rn() * 6.283, dd = Math.sqrt(rn()) * R0, x = x0 + Math.cos(a) * dd, z = z0 + Math.sin(a) * dd, y = Hs(x, z); if (y < .7 || y > (D.palmMax || 4) || I.roadAt(x, z) || I.waterAt(x, z) || !free(x, z, 1.4)) continue; P.palm(b, x, y, z, .95 + rn() * .4, r); O.push([x, z, .8]); fp(x, z, 1.2); i++; } }
       for (const [gx, gz, gr, gn] of D.rocks || []) { const x0 = s(gx), z0 = s(gz), R0 = s(gr);
@@ -271,9 +297,18 @@
         if (D.colorFn) { const cc = D.colorFn(x, y, z, { n, n2, rc, kind: rc ? Object.keys(RW)[rc - 1] : null, slope: slope(x, z), water: I.waterAt(x, z), mix, vh }); if (cc) return cc; }
         if (rc) { const kind = Object.keys(RW)[rc - 1], base = RCOL[kind]; if (PAVED[kind]) { const bx = Math.floor(x * 1.4 + Math.floor(z * 2.2) * .5), bz = Math.floor(z * 2.2); return mix((D.rcol && D.rcol[kind]) || base, D.cobble || '#9c9488', vh(bx, bz) * .35); } return mix((D.rcol && D.rcol[kind]) || base, D.dirt || '#8e7a58', n2 * .3); }
         if (I.waterAt(x, z)) return mix('#6a8a8a', '#57707a', n2);
-        if (y < 1.25) return mix(D.sand || '#e8d6a6', D.sand2 || '#f1e2b8', n2);
-        const sl = slope(x, z); if (sl > 2.6) return mix(D.rock || '#8f877c', D.rock2 || '#a39a8c', n2);
-        const g = mix(D.grass || '#6faa4a', D.grass2 || '#8cc456', n * .9 + n2 * .1); return y > 30 ? mix(g, '#7a9a5a', Math.min(1, (y - 30) / 30)) : g; };
+        /* v149 自然的地面：大範圍的濕潤／乾燥色塊、窪地較深較綠、坡頂偏乾、坡度漸漸露出岩石、沙灘到草地漸層、路邊被踩出的泥土 */
+        const sand = mix(D.sand || '#e8d6a6', D.sand2 || '#f1e2b8', n2), sl = slope(x, z), rock = mix(D.rock || '#8f877c', D.rock2 || '#a39a8c', n2);
+        if (y < .95) return mix(sand, shade(sand, .82), sm(.95, .35, y));
+        const m1 = vn(x * .011 + 3, z * .011 + 7), m2 = vn(x * .027 + 11, z * .027 + 5), cav = Hs(x, z) - (Hs(x + 3, z) + Hs(x - 3, z) + Hs(x, z + 3) + Hs(x, z - 3)) / 4;
+        const G1 = hex(D.grass || '#6faa4a'), G2 = hex(D.grass2 || '#8cc456'), dark = shade(G1, .78), dry = mix(G2, '#c8bf78', .45);
+        let g = mix(G1, G2, n * .75 + n2 * .25); g = mix(g, dark, Math.max(0, Math.min(1, -cav * .9 + (m1 - .5) * .9))); g = mix(g, dry, Math.max(0, Math.min(1, cav * .7 + (m2 - .55) * 1.6)) * .6);
+        if (y > 30) g = mix(g, '#7a9a5a', Math.min(1, (y - 30) / 30));
+        { const q = idx(x, z); let near = 0; if (q >= 0) for (const [ox, oz] of [[2, 0], [-2, 0], [0, 2], [0, -2], [1.4, 1.4], [-1.4, -1.4], [1.4, -1.4], [-1.4, 1.4]]) if (I.roadAt(x + ox, z + oz)) near++;
+          if (near) g = mix(g, mix(D.dirt || '#8e7a58', g, .35 + n2 * .3), near / 8 * .75); }
+        if (vn(x * .045 + 9, z * .045 + 2) > .74 && sl < 2) g = mix(g, D.dirt || '#8e7a58', (vn(x * .045 + 9, z * .045 + 2) - .74) * 2.2);
+        if (y < 2.2) g = mix(sand, g, sm(1.0, 2.2, y + (n2 - .5) * .6));
+        return mix(g, rock, sm(1.6, 2.9, sl + (n2 - .5) * .5)); };
       if (UL) { const RU = D.ultraRes || .62, tiles = []; let ttris = 0;
         for (let tz = -ext; tz < ext; tz += TILE) for (let tx = -ext; tx < ext; tx += TILE) {
           let any = false; for (let z = tz; z <= tz + TILE && !any; z += 8) for (let x = tx; x <= tx + TILE; x += 8) if (Hs(x, z) > -2.5) { any = true; break; } if (!any) continue;
@@ -289,12 +324,12 @@
         for (let z = -ext; z < ext; z += 1.6) for (let x = -ext; x < ext; x += 1.6) { const px = x + ur() * 1.6, pz = z + ur() * 1.6, y = Hs(px, pz); if (y < 1.3 || I.roadAt(px, pz) || I.blocked(px, pz) || ur() > (D.clutter || 1)) continue;
           const sl = slope(px, pz), c = hex(col(px, y, pz)), green = c[1] > c[0] * 1.05 && c[1] > c[2], r0 = ur();
           if (sl > 2.4) { if (r0 < .45) { const k = .8 + ur() * .3; put('peb', px, y - .2, pz, ur() * 6, .6 + ur() * 1.1, .4 + ur() * .7, .6 + ur() * 1.1, [c[0] * k, c[1] * k, c[2] * k]); } continue; }
-          if (green) { if (r0 < .6) put('tuft', px, y - .05, pz, ur() * 6, .8 + ur() * .7, .6 + ur() * .9, .8 + ur() * .7, [c[0] * .78, c[1] * .86, c[2] * .7]); else if (r0 < .68) { const fc = hex(FL[(ur() * FL.length) | 0]); put('flower', px, y + .05, pz, ur() * 6, .9, .9 + ur() * .6, .9, fc); } else if (r0 < .72) { const k = .7 + ur() * .3; put('bush', px, y - .1, pz, ur() * 6, 1 + ur() * 1.3, .7 + ur() * .7, 1 + ur() * 1.3, [c[0] * k * .8, c[1] * k * .95, c[2] * k * .7]); } else if (r0 < .78) put('peb', px, y - .05, pz, ur() * 6, .25 + ur() * .35, .18 + ur() * .2, .25 + ur() * .35, [.55 + ur() * .15, .54 + ur() * .12, .5 + ur() * .1]); }
+          if (green) { if (r0 < .6) put('tuft', px, y - .05, pz, ur() * 6, .8 + ur() * .7, .6 + ur() * .9, .8 + ur() * .7, [c[0] * .78, c[1] * .86, c[2] * .7]); else if (r0 < .68 && vn(px * .07, pz * .07) > .56) { const fc = hex(FL[Math.floor(vn(px * .03, pz * .03) * FL.length * 1.6 + ur() * 1.2) % FL.length]); put('flower', px, y + .05, pz, ur() * 6, .9, .9 + ur() * .6, .9, fc); } else if (r0 < .72 && vn(px * .05 + 4, pz * .05 + 8) > .66) shrub(px, y, pz, .8 + ur() * .7); else if (r0 < .78) put('peb', px, y - .05, pz, ur() * 6, .25 + ur() * .35, .18 + ur() * .2, .25 + ur() * .35, [.55 + ur() * .15, .54 + ur() * .12, .5 + ur() * .1]); }
           else if (r0 < .3) put('tuft', px, y - .05, pz, ur() * 6, .7 + ur() * .6, .4 + ur() * .6, .7 + ur() * .6, [c[0] * .72, c[1] * .68, c[2] * .55]);
           else if (r0 < .44) { const k = .78 + ur() * .2; put('peb', px, y - .05, pz, ur() * 6, .22 + ur() * .4, .14 + ur() * .2, .22 + ur() * .4, [c[0] * k, c[1] * k, c[2] * k]); } }
         if (D.planks) for (let z = -ext; z < ext; z += .62) for (let x = -ext; x < ext; x += 3.2) { const px = x + (Math.round(z / .62) % 4) * .8, y = Hs(px, z); if (y < 3 || I.blocked(px, z)) continue; const c = hex(col(px, y, z)), k = .8 + ur() * .3; put('tile', px, y - .02, z, 0, 3.1, .1, .58, [c[0] * k, c[1] * k, c[2] * k]); }
         if (D.ultraExtra) D.ultraExtra({ put, ur, Hs, I, ext, hex, col });
-        const KT = { cob: 20, tile: 12, block: 12, peb: 80, bush: 80, tuft: 12, flower: 8 }; let dtris = 0; const det = {}; for (const k in UD) { det[k] = Float32Array.from(UD[k]); dtris += UD[k].length / 10 * (KT[k] || 12); }
+        const KT = { cob: 20, tile: 12, block: 12, peb: 80, bush: 80, tuft: 12, flower: 8 }; let dtris = 0; const det = {}; for (const k in UD) { det[k] = Float32Array.from(UD[k]); dtris += UD[k].length / 11 * (KT[k] || 12); }
         I.ultra = { tiles, det, tris: ttris + dtris, ttris, dtris };
       } else
       for (let tz = -ext; tz < ext; tz += TILE) for (let tx = -ext; tx < ext; tx += TILE) {
