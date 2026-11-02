@@ -10,8 +10,8 @@
     SC: 2, ext: 340, base: 2.5, vScale: .5, rough: 1.8, style: 'marine', fine: 1.5, houseStep: 4, maxHouses: 120, curb: '#c8c8cc', rockA: '#cfe8f8', rockB: '#e8f6ff',
     grass: '#86a868', grass2: '#98b874', sand: '#e0dccc', sand2: '#ece8d8', rock: '#8a8c94', rock2: '#a0a2aa', dirt: '#8e8678', cobble: '#b0b0b4',
     rcol: { promenade: '#d8d8dc', main: '#d4d4d8', street: '#c8c8cc', alley: '#c0c0c4', lane: '#b4ac9c' },
-    land: [[0, -70, 120, .06], [-108, 34, 40, .1], [108, 34, 40, .1]],
-    rawFn: (dx, dz, u) => { const d = Math.hypot(dx - BAY[0], dz - BAY[1]); if (d < BR - 4 && dz > -4) return 1.3 + Math.sin(dx * .3) * Math.sin(dz * .27) * .08; if (d < BR + 2 && dz > 0) return 1.3 + (d - BR + 4) * .5 * 0; return undefined; },
+    land: [[0, -70, 120, .06], [-108, 34, 40, .1], [108, 34, 40, .1], [0, 60, 82, .04]],
+    post: (h, dx, dz, sm) => { const d = Math.hypot(dx - BAY[0], dz - BAY[1]), f = (1 - sm(BR - 16, BR - 3, d)) * sm(-14, 2, dz); return h + (.6 - h) * f + Math.sin(dx * .3) * Math.sin(dz * .27) * .04 * f; },
     terrain: [{ g: [0, -110, 50, 8] }, { plateau: [0, -58, 8, 10, 1.2], max: true }, { g: [-110, 40, 20, 6] }, { g: [110, 40, 20, 6] }],
     colorFn: (x, y, z, c) => { const dx = x / 2, dz = z / 2, d = Math.hypot(dx - BAY[0], dz - BAY[1]); if (d < BR - 3 && dz > -4 && !c.rc) { const crack = Math.abs(Math.sin(dx * .21 + Math.sin(dz * .13) * 2)) < .04 || Math.abs(Math.sin(dz * .19 + dx * .05)) < .03; return crack ? '#6aa8cc' : c.mix('#bfe2f6', '#a4d2ee', c.n * .7 + c.n2 * .3); }
       for (const [cx, cz, r] of CR) { const e = Math.hypot(dx - cx, dz - cz); if (e < r) return c.mix('#e85a1a', '#3a2a24', Math.min(1, e / r * 1.2)); } return null; },

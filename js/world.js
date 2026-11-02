@@ -41,7 +41,7 @@
       if (!this.coneMesh) { this.coneMesh = SCENES.coneMesh(this.r); this.moundMesh = SCENES.moundMesh(this.r); }
       this.chests = (st.chests || []).map(c => ({ ...c, kind: 'chest', name: '寶箱' }));
       if (!this.chestMesh) { const B = new E3.Builder(); B.box(0, 0, 0, 1.6, .9, 1.1, '#8a5a2e'); B.box(0, 0, 0, 1.66, .16, 1.16, '#e8c170'); B.box(0, .45, 0, 1.66, .12, 1.16, '#e8c170'); this.chestBase = this.r.mesh(B); const Lb = new E3.Builder(); Lb.box(0, 0, 0, 1.64, .45, 1.14, '#9a6a36', 0, .7); Lb.box(0, .1, .58, .3, .3, .06, '#ffd26c'); this.chestLid = this.r.mesh(Lb); this.chestMesh = true; }
-      this.escort = st.escort || null; this._escDone = false; this.canDig = !!st.canDig; this.digMarks = st.digMarks || [];
+      this.escort = st.escort || null; this._escDone = false; this._trail = null; this._path = null; if (this._nav && this._nav.S !== this.scene) this._nav = null; if (!this._nav) { const S0 = this.scene; (window.requestIdleCallback || (f => setTimeout(f, 300)))(() => { if (this.scene === S0) this._navGrid(); }, { timeout: 2500 }); } this.canDig = !!st.canDig; this.digMarks = st.digMarks || [];
       this.guards = (st.guards || []).map(g => ({ ...g, x: g.path[0][0], z: g.path[0][1], seg: 0, face: 0 }));
       this.guards.forEach(g => { if (!this.npcMeshes[g.look]) this.npcMeshes[g.look] = SCENES.npcMesh(this.r, g.look); });
       if (st.escortPos && this.npcs) { const n = this.npcs.find(n => n.id === st.escortPos.id); if (n) { n.x = st.escortPos.x; n.z = st.escortPos.z; } }
@@ -68,14 +68,14 @@
       c.addEventListener('touchend', e => { if (e.touches.length < 2) pinch0 = 0; }, { passive: true });
       c.addEventListener('wheel', e => { e.preventDefault(); this.cam.dist = Math.max(10, Math.min(38, this.cam.dist + e.deltaY * .02)); }, { passive: false });
     }
-    setJoystick(x, y) { this.joy.x = x; this.joy.y = y; if (x || y) { this.p.target = null; this.autoGo = false; } }
+    setJoystick(x, y) { this.joy.x = x; this.joy.y = y; if (x || y) { this.p.target = null; this.autoGo = false; this._path = null; } }
     _clickMove(e) {
       const rect = this.canvas.getBoundingClientRect(), nx = (e.clientX - rect.left) / rect.width * 2 - 1, ny = 1 - (e.clientY - rect.top) / rect.height * 2;
       const eye = this.r.eye, tg = this.r.target; let fx = tg[0] - eye[0], fy = tg[1] - eye[1], fz = tg[2] - eye[2]; const fl = Math.hypot(fx, fy, fz); fx /= fl; fy /= fl; fz /= fl;
       const R = this.r.right; const ux = R[1] * fz - R[2] * fy, uy = R[2] * fx - R[0] * fz, uz = R[0] * fy - R[1] * fx;
       const t = Math.tan(.45), a = this.r.aspect; const dx = fx + R[0] * nx * t * a + ux * ny * t, dy = fy + R[1] * nx * t * a + uy * ny * t, dz = fz + R[2] * nx * t * a + uz * ny * t;
       let x = eye[0], y = eye[1], z = eye[2];
-      for (let i = 0; i < 400; i++) { x += dx * .6; y += dy * .6; z += dz * .6; if (y <= this.scene.H(x, z)) { if (this.scene.H(x, z) > .3) { this.p.target = [x, z]; this.cb.onMoveMarker && this.cb.onMoveMarker(); this._marker = { x, z, t: 0 }; } return; } }
+      for (let i = 0; i < 400; i++) { x += dx * .6; y += dy * .6; z += dz * .6; if (y <= this.scene.H(x, z)) { if (this.scene.H(x, z) > .3) { this.autoGo = false; this.navTo(x, z, 1.2); this.cb.onMoveMarker && this.cb.onMoveMarker(); this._marker = { x, z, t: 0 }; } return; } }
     }
 
     /* ---------- 互動 ---------- */
@@ -109,8 +109,62 @@
       el.querySelector('i').style.transform = `rotate(${a}rad)`; el.querySelector('b').textContent = Math.round(dist) + 'm';
       el.classList.add('show');
     }
-    autoGuide(on) { this.autoGo = on; if (!on) this.p.target = null; }
-    goTo(obj) { this.p.target = [obj.x, obj.z + 3]; this._goObj = obj; }
+    autoGuide(on) { this.autoGo = on; this._navGoal = null; if (!on) { this.p.target = null; this._path = null; } }
+    goTo(obj) { this.navTo(obj.x, obj.z, 2.4, obj); }
+    /* ---------- v149 自動導航：可行走網格上的 A*（含橋、平台、坡道的高度），拉直成轉折點後沿路走 ---------- */
+    _navGrid() { const S = this.scene; if (this._nav && this._nav.S === S) return this._nav; const E = Math.ceil(S.ext || 100), N = 2 * E + 1, ob = new Uint8Array(N * N);
+      const OB = S.obstacles.concat(this.npcs.filter(n => !n.walking).map(n => [n.x, n.z, SCENES.lookScale(n.look) * 1.1]));
+      for (const o of OB) { const r = o[2] + 1.4; for (let j = Math.max(0, Math.floor(o[1] - r + E)); j <= Math.min(N - 1, Math.ceil(o[1] + r + E)); j++) for (let i = Math.max(0, Math.floor(o[0] - r + E)); i <= Math.min(N - 1, Math.ceil(o[0] + r + E)); i++) if (Math.hypot(i - E - o[0], j - E - o[1]) <= r) ob[j * N + i] = 1; }
+      const ok = new Uint8Array(N * N), hg = new Float32Array(N * N), pl = new Uint8Array(N * N), wl = new Uint8Array(N * N);
+      for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) { const q = j * N + i, x = i - E, z = j - E, g = S.H(x, z); hg[q] = g; ok[q] = g > .35 && !(S.blocked && S.blocked(x, z)) && !ob[q] ? 1 : 0; }
+      const mark = (A, x0, z0, x1, z1) => { for (let j = Math.max(0, Math.floor(z0 + E) - 1); j <= Math.min(N - 1, Math.ceil(z1 + E) + 1); j++) for (let i = Math.max(0, Math.floor(x0 + E) - 1); i <= Math.min(N - 1, Math.ceil(x1 + E) + 1); i++) A[j * N + i] = 1; };
+      (S.plats || []).forEach(P => mark(pl, P.x0, P.z0, P.x1, P.z1)); (S.walls || []).forEach(w => mark(wl, w.x0, w.z0, w.x1, w.z1));
+      return this._nav = { S, E, N, ob, ok, hg, pl, wl, sx: 1e9, sz: 1e9 }; }
+    /* 網格點之間的快速版本：附近沒有平台、牆時直接查表 */
+    _stepC(i0, j0, y0, i1, j1) { const nav = this._nav, N = nav.N, q = j1 * N + i1; if (nav.pl[q] || nav.wl[q] || nav.pl[j0 * N + i0] || y0 - nav.hg[j0 * N + i0] > 1.2) return this._step(i0 - nav.E, j0 - nav.E, y0, i1 - nav.E, j1 - nav.E);
+      if (!nav.ok[q] && !(nav.ob[q] && Math.hypot(i1 - nav.E - nav.sx, j1 - nav.E - nav.sz) < 2.5 && nav.hg[q] > .35)) return NaN; const g = nav.hg[q], S = this.scene; /* 角色身邊 2.5 以內不算障礙物的外圍（避免一開始就被自己旁邊的樹困住） */ if (S.maxStep && Math.abs(g - nav.hg[j0 * N + i0]) / ((i1 !== i0 && j1 !== j0) ? 1.4142 : 1) > nav.slope) return NaN; /* 網格比實際移動粗：導航只走坡度 0.8 以內的路（實際可以走到 1.5），留安全餘裕 */
+      if (nav.en) for (const e of nav.en) if (Math.abs(i1 - nav.E - e[0]) < e[2] && Math.abs(j1 - nav.E - e[1]) < e[2] && Math.hypot(i1 - nav.E - e[0], j1 - nav.E - e[1]) < e[2]) return NaN; return g; }
+    /* 從 (x0,z0,高度 y0) 走一步到 (x1,z1)：可以走就回傳新的高度，不能走回傳 NaN（規則和實際移動一樣） */
+    _step(x0, z0, y0, x1, z1) { const S = this.scene, nav = this._nav, g = S.H(x1, z1), len = Math.hypot(x1 - x0, z1 - z0) || 1, onP = S.onPlat && S.onPlat(x1, z1, y0) && S.G(x1, z1, y0) > y0 - .85;
+      const gOK = g > .35 && !(S.blocked && S.blocked(x1, z1)) && !(S.maxStep && (y0 - S.H(x0, z0) > .5 ? (g - y0 > .8) : Math.abs(g - S.H(x0, z0)) / len > 1.1)) /* 從平台走下來：上下高度差都不能超過 0.85（走得下去就走得回來，不會掉進回不去的地方） */;
+      if (!onP && y0 - g > .85 && S.maxStep) return NaN; /* 不會從橋、平台邊緣掉下去 */
+      if (!gOK && !onP) return NaN; const ny = S.G ? S.G(x1, z1, y0) : g; if (onP && ny - y0 > .7) return NaN; /* 導航只走一步高度差小的平台（實際可跨 0.8），留餘裕 */
+      if (!onP || ny - g < .5) { const i = Math.round(x1 + nav.E), j = Math.round(z1 + nav.E); if (i < 0 || j < 0 || i >= nav.N || j >= nav.N || (nav.ob[j * nav.N + i] && Math.hypot(x1 - nav.sx, z1 - nav.sz) > 2.5)) return NaN; }
+      const W2 = S.walls; if (W2 && W2.length) for (const w of W2) { if (ny + 1.7 <= w.y0 || ny + .3 >= w.y1) continue; if (x1 > w.x0 - .5 && x1 < w.x1 + .5 && z1 > w.z0 - .5 && z1 < w.z1 + .5) return NaN; }
+      for (const e of (nav.en || [])) if (Math.hypot(x1 - e[0], z1 - e[1]) < e[2]) return NaN;
+      return ny; }
+    findPath(sx, sz, sy, gx, gz, near) { const nav = this._navGrid(), S = this.scene, E = nav.E, N = nav.N, NL = 6; near = near || 2; nav.en = this.enemies.map(e => [e.x, e.z, e.boss && !this.bossUnlocked ? 14.7 : 3]); nav.sx = sx; nav.sz = sz; nav.slope = this._relax ? 1.35 : .8;
+      if (!nav.yS) { const M = N * N * NL; nav.yS = new Float32Array(M); nav.pa = new Int32Array(M); nav.st = new Uint16Array(M); nav.stamp = 0; } /* 第一次自動導航時才配置 */
+      if (nav.stamp >= 65000) { nav.st.fill(0); nav.stamp = 0; } const yS = nav.yS, pa = nav.pa, st = nav.st, stamp = ++nav.stamp;
+      const K = (i, j, y) => { const c = j * N + i; const d = y - nav.hg[c]; return c * NL + (d < .4 ? 0 : 1 + (Math.floor(y / 6) % (NL - 1) + NL - 1) % (NL - 1)); }; /* 同一格分層：地面一層，平台依高度每 6 單位輪流分到 5 層（橋下有坡道、螺旋坡道上下兩圈都不會混在一起） */
+      const si = Math.round(sx + E), sj = Math.round(sz + E); if (si < 0 || sj < 0 || si >= N || sj >= N) return null;
+      /* 目標在 NPC、房子或障礙物裡面時，改成最近的可走格子，避免整張圖都搜一遍 */
+      { const gi = Math.round(gx + E), gj = Math.round(gz + E), okC = (i, j) => i >= 0 && j >= 0 && i < N && j < N && (nav.ok[j * N + i] || nav.pl[j * N + i]);
+        if (!okC(gi, gj)) { let bd = 1e9, bi = -1, bj = -1; for (let r = 1; r <= 8 && bi < 0; r++) for (let dj = -r; dj <= r; dj++) for (let di = -r; di <= r; di++) { if (Math.max(Math.abs(di), Math.abs(dj)) !== r || !okC(gi + di, gj + dj)) continue; const d = Math.hypot(di, dj); if (d < bd) { bd = d; bi = gi + di; bj = gj + dj; } }
+          if (bi >= 0) { gx = bi - E; gz = bj - E; near = Math.min(near, 1.5); } } }
+      /* 廣度優先搜尋（從角色往外一圈圈擴散，碰到目標就停）：整張圖約 20 萬格也只要幾十毫秒，坡道、天界、冥界繞多遠都找得到 */
+      const gy = (S.Ho || S.H)(gx, gz), Q = nav.Q || (nav.Q = new Int32Array(N * N * NL)), k0 = K(si, sj, sy); st[k0] = stamp; yS[k0] = sy; pa[k0] = -1; Q[0] = k0; let qh = 0, qt = 1;
+      const D8 = [[1, 0], [-1, 0], [0, 1], [0, -1]]; let best = k0, bh = Math.hypot(si - E - gx, sj - E - gz) + Math.abs(sy - gy) * .3, found = null, n = 0; /* 四方向擴散最快，最後再拉直成斜線 */
+      while (qh < qt) { const k = Q[qh++], cell = (k / NL) | 0, i = cell % N, j = (cell / N) | 0, y0 = yS[k]; n++;
+        const h0 = Math.hypot(i - E - gx, j - E - gz); if (h0 + Math.abs(y0 - gy) * .3 < bh) { bh = h0 + Math.abs(y0 - gy) * .3; best = k; } if (h0 < near && Math.abs(y0 - gy) < 4) { found = k; break; }
+        const esc = k === k0 && Math.abs(y0 - nav.hg[j * N + i]) < .3;
+        for (const [di, dj] of D8) { const ni = i + di, nj = j + dj; if (ni < 0 || nj < 0 || ni >= N || nj >= N) continue;
+          let y1 = this._stepC(i, j, y0, ni, nj); if (y1 !== y1 && esc && nav.ok[nj * N + ni] && Math.abs(nav.hg[nj * N + ni] - y0) < 2.2) y1 = nav.hg[nj * N + ni]; /* 已經卡在坑裡時，第一步放寬坡度讓人走得出來 */ if (y1 !== y1) continue;
+          if (di && dj && !esc) { const ya = this._stepC(i, j, y0, ni, j), yb = this._stepC(i, j, y0, i, nj); if (ya !== ya || yb !== yb) continue; }
+          const nk = K(ni, nj, y1); if (st[nk] === stamp) continue; st[nk] = stamp; yS[nk] = y1; pa[nk] = k; Q[qt++] = nk; } }
+      let k = found != null ? found : best; if (k === k0) return null; const P = [];
+      let guard = 0; while (k >= 0 && k !== k0 && guard++ < 20000) { const cell = (k / NL) | 0; P.push([cell % N - E, ((cell / N) | 0) - E, yS[k]]); k = pa[k]; } if (guard >= 20000) return null; P.reverse();
+      /* 拉直：能直線走到的轉折點就跳過中間的格子 */
+      const los = (a, b) => { if (!this._los(a, b)) return false; const L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, ox = -(b[1] - a[1]) / L * .4, oz = (b[0] - a[0]) / L * .4; return this._los([a[0] + ox, a[1] + oz, a[2]], [b[0] + ox, b[1] + oz, b[2]]) && this._los([a[0] - ox, a[1] - oz, a[2]], [b[0] - ox, b[1] - oz, b[2]]); }; /* 拉直時兩側各留 0.4 的寬度，轉彎抄近路也不會踩空 */
+      const out = []; let a = [sx, sz, sy], ai = -1; while (ai < P.length - 1) { let bj = ai + 1; { let lo = ai + 1, hi = Math.min(P.length - 1, ai + 80); if (los(a, P[hi])) bj = hi; else { while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (los(a, P[mid])) lo = mid; else hi = mid; } bj = lo; } } /* 二分搜尋最遠能直走到的點 */ out.push(P[bj]); a = P[bj]; ai = bj; }
+      return { pts: out, partial: found == null }; }
+    _los(a, b) { const L = Math.hypot(b[0] - a[0], b[1] - a[1]), m = Math.ceil(L / .4); let x = a[0], z = a[1], y = a[2]; for (let q = 1; q <= m; q++) { const nx = a[0] + (b[0] - a[0]) * q / m, nz = a[1] + (b[1] - a[1]) * q / m, ny = this._step(x, z, y, nx, nz); if (ny !== ny) return false; x = nx; z = nz; y = ny; } return b[2] == null || Math.abs(y - b[2]) < 1; } /* 直線走過去要到得了同一個高度（不能把爬坡道的那段拉直成穿過去） */
+    /* 這一步可不可以走（實際移動、自動導航、脫困共用） */
+    _okMove(x, z) { const p = this.p, S1 = this.scene, sY = S1.G ? S1.G(p.x, p.z, p.y) : S1.H(p.x, p.z); return (sY - S1.H(x, z) < .85 || !S1.maxStep) && (S1.H(x, z) > .35 && !(S1.blocked && S1.blocked(x, z)) && !(S1.maxStep && (sY - S1.H(p.x, p.z) > .5 ? (S1.H(x, z) - sY > .8) : Math.abs(S1.H(x, z) - S1.H(p.x, p.z)) / (Math.hypot(x - p.x, z - p.z) || 1) > S1.maxStep))) || (S1.onPlat && S1.onPlat(x, z, p.y) && S1.G(x, z, p.y) > sY - .85); }
+    /* 脫困：卡住時往四周找一個能走、又更靠近下一個轉折點的位置，直接挪過去一小步 */
+    _unstick(wp) { const p = this.p; let best = null, bd = Math.hypot(wp[0] - p.x, wp[1] - p.z); for (let r of [.6, 1.1]) for (let k = 0; k < 16; k++) { const a = k / 16 * 6.2832, x = p.x + Math.cos(a) * r, z = p.z + Math.sin(a) * r; if (!this._okMove(x, z)) continue; const [cx, cz] = this._collide(x, z); if (Math.hypot(cx - x, cz - z) > .3) continue; const d = Math.hypot(wp[0] - x, wp[1] - z); if (d < bd - .2) { bd = d; best = [x, z]; } }
+      if (!best) return false; p.x = best[0]; p.z = best[1]; return true; }
+    navTo(x, z, near, obj) { const p = this.p; let r = this.findPath(p.x, p.z, p.y, x, z, near || 2); if (!r || (r.partial && Math.hypot(r.pts[r.pts.length - 1][0] - x, r.pts[r.pts.length - 1][1] - z) > 8)) { this._relax = true; const r2 = this.findPath(p.x, p.z, p.y, x, z, near || 2); this._relax = false; if (r2 && (!r || !r2.partial)) r = r2; } /* 站在陡坡上時，放寬坡度再找一次 */ this._goObj = obj || null; if (r && r.pts.length) { this._path = r.pts; this._pi = 0; this._navStuck = 0; p.target = this._path[0].slice(0, 2); return true; } this._path = null; p.target = [x, z]; return false; }
 
     /* ---------- 更新 ---------- */
     frame(now) {
@@ -127,7 +181,12 @@
       let iz = (k.w || k.arrowup ? 1 : 0) - (k.s || k.arrowdown ? 1 : 0) + this.joy.y;
       let mx = 0, mz = 0;
       const fx = -Math.sin(yaw), fz = -Math.cos(yaw), rx = Math.cos(yaw), rz = -Math.sin(yaw);
-      if (ix || iz) { const l = Math.min(1, Math.hypot(ix, iz)) / (Math.hypot(ix, iz) || 1); mx = (fx * iz + rx * ix) * l; mz = (fz * iz + rz * ix) * l; }
+      if (ix || iz) { this._path = null; this._goObj = null; const l = Math.min(1, Math.hypot(ix, iz)) / (Math.hypot(ix, iz) || 1); mx = (fx * iz + rx * ix) * l; mz = (fz * iz + rz * ix) * l; }
+      else if (this._path) { /* 沿著導航路徑走：到了一個轉折點就換下一個；卡住就重新找路 */
+        let wp = this._path[this._pi]; while (wp) { const dw = Math.hypot(wp[0] - p.x, wp[1] - p.z) + Math.max(0, Math.abs(p.y - wp[2]) - .9), nx2 = this._path[this._pi + 1]; if (dw < .45 || (dw < 1.4 && (!nx2 ? dw < .7 : this._los([p.x, p.z, p.y], nx2)))) wp = this._path[++this._pi]; else break; }
+        if (!wp) { this._path = null; p.target = null; if (this._goObj) { const o = this._goObj; this._goObj = null; if (Math.hypot(o.x - p.x, o.z - p.z) < FIGHT_R + 1) this.interact(); } }
+        else { p.target = [wp[0], wp[1]]; const dx = wp[0] - p.x, dz = wp[1] - p.z, d = Math.hypot(dx, dz) || 1; mx = dx / d; mz = dz / d;
+          this._navT = (this._navT || 0) + dt; if (this._navT > .5) { if (Math.hypot(p.x - (this._navX ?? 1e9), p.z - (this._navZ ?? 1e9)) < .35) { this._navStuck = (this._navStuck || 0) + 1; if (this._unstick(wp)) { this._navT = 0; this._navX = p.x; this._navZ = p.z; } else { const last = this._path[this._path.length - 1], o = this._goObj; if (this._navStuck < 9) { const sc = this._navStuck; this.navTo(last[0], last[1], 1, o); this._navStuck = sc; } else { this._path = null; p.target = null; } } } this._navT = 0; this._navX = p.x; this._navZ = p.z; } } }
       else if (p.target) { const dx = p.target[0] - p.x, dz = p.target[1] - p.z, d = Math.hypot(dx, dz); if (d < .8) { p.target = null; if (this._goObj) { const o = this._goObj; this._goObj = null; if (Math.hypot(o.x - p.x, o.z - p.z) < FIGHT_R + 1) this.interact(); } } else { mx = dx / d; mz = dz / d; } }
       // 加速度緩衝：起步與停下更順
       const acc = Math.min(1, dt * (mx || mz ? 10 : 14)); p.vx = (p.vx || 0) + (mx - (p.vx || 0)) * acc; p.vz = (p.vz || 0) + (mz - (p.vz || 0)) * acc;
@@ -135,8 +194,8 @@
       if (p.moving) {
         let nx = p.x + p.vx * SPEED * dt, nz = p.z + p.vz * SPEED * dt;
         [nx, nz] = this._collide(nx, nz);
-        const S1 = this.scene, ok = (x, z) => (S1.H(x, z) > .35 && !(S1.blocked && S1.blocked(x, z)) && !(S1.maxStep && (S1.H(x, z) - S1.H(p.x, p.z)) / (Math.hypot(x - p.x, z - p.z) || 1) > S1.maxStep)) || (S1.onPlat && S1.onPlat(x, z, p.y)); /* v146：新版島嶼的建築、河湖與太陡的懸崖不能走 */ /* 地面或平台（橋、地板）都可以走 */
-        if (ok(nx, nz)) { p.x = nx; p.z = nz; } else if (ok(nx, p.z)) p.x = nx; else if (ok(p.x, nz)) p.z = nz; else p.target = null;
+        const ok = (x, z) => this._okMove(x, z);
+        if (ok(nx, nz)) { p.x = nx; p.z = nz; } else if (ok(nx, p.z)) { p.x = nx; p.vz *= .3; } else if (ok(p.x, nz)) { p.z = nz; p.vx *= .3; } else { p.vx = p.vz = 0; if (!this._path) p.target = null; } /* 撞到邊時把那個方向的速度去掉，不會一直往外推而卡住 */
         const side = mx * rx + mz * rz; if (Math.abs(side) > .2) p.flip = side < 0;
         p.t += dt * 9 * Math.min(1, sp * 1.2);
         // 行進時鏡頭緩慢跟到背後
@@ -164,10 +223,13 @@
       if (this.autoGo) { const g = this._guide; if (!g || this.paused) this.autoGo = false; else { const d = Math.hypot(g.x - p.x, g.z - p.z);
         if (d < (g.npc ? 3 : 2.2)) { this.autoGo = false; p.target = null; }
         else { // 卡住時往側邊繞路
-          this._agT = (this._agT || 0) + dt; if (this._agT > .45) { const mv = Math.hypot(p.x - (this._agX ?? p.x), p.z - (this._agZ ?? p.z)); if (mv < .6 && !(this._det > 0)) { this._det = .9; this._detS = -(this._detS || 1); } this._agT = 0; this._agX = p.x; this._agZ = p.z; }
-          if (this._det > 0) { this._det -= dt; const a = Math.atan2(g.x - p.x, g.z - p.z) + this._detS * 1.3; p.target = [p.x + Math.sin(a) * 5, p.z + Math.cos(a) * 5]; } else p.target = [g.x, g.z]; } } }
+          /* v149：用 A* 找整條路；目標換了（或還沒有路）才重新找 */
+          const ng = this._navGoal; if (!ng || Math.hypot(ng[0] - g.x, ng[1] - g.z) > 1.5 || (!this._path && !p.target)) { this._navGoal = [g.x, g.z]; this.navTo(g.x, g.z, g.npc ? 2.6 : 1.8); } } } }
       if (Object.values(this.keys).some(Boolean)) this.autoGo = false;
-      if (this.escort) { const n = this.npcs.find(n => n.id === this.escort.id); if (n) { const dx = p.x - n.x, dz = p.z - n.z, d = Math.hypot(dx, dz); n.walking = d > 3.4; if (n.walking) { const sp = Math.min(d - 3.2, SPEED * .95 * dt); n.x += dx / d * sp; n.z += dz / d * sp; n.face = Math.atan2(dx, dz); }
+      if (this.escort) { const n = this.npcs.find(n => n.id === this.escort.id); if (n) { /* v149：護送的 NPC 沿著玩家走過的路跟上，不會穿牆 */
+        const T = this._trail || (this._trail = [[n.x, n.z]]), lt = T[T.length - 1]; if (Math.hypot(p.x - lt[0], p.z - lt[1]) > .8) { T.push([p.x, p.z]); if (T.length > 600) T.splice(0, 200); }
+        const d = Math.hypot(p.x - n.x, p.z - n.z); n.walking = d > 3.4; if (n.walking) { let tg = T[0]; while (T.length > 1 && Math.hypot(tg[0] - n.x, tg[1] - n.z) < .5) { T.shift(); tg = T[0]; } if (Math.hypot(p.x - n.x, p.z - n.z) > 30) { const q = T[Math.max(0, T.length - 6)]; n.x = q[0]; n.z = q[1]; T.splice(0, T.length - 6); }
+          const dx = tg[0] - n.x, dz = tg[1] - n.z, dd = Math.hypot(dx, dz) || 1, sp = Math.min(dd, SPEED * .95 * dt); n.x += dx / dd * sp; n.z += dz / dd * sp; n.face = Math.atan2(dx, dz); }
         if (!this._escDone && Math.hypot(n.x - this.escort.to[0], n.z - this.escort.to[1]) < (this.escort.r || 6)) { this._escDone = true; this.cb.onEscortDone && this.cb.onEscortDone(); } } }
       if (this._spotCd > 0) this._spotCd -= dt;
       for (const g of this.guards) { const tg = g.path[(g.seg + 1) % g.path.length], gx = tg[0] - g.x, gz = tg[1] - g.z, gd = Math.hypot(gx, gz), sp = (g.speed || 5) * dt; if (gd <= sp) g.seg = (g.seg + 1) % g.path.length; else { g.x += gx / gd * sp; g.z += gz / gd * sp; const want = Math.atan2(gx, gz); g.face += Math.atan2(Math.sin(want - g.face), Math.cos(want - g.face)) * Math.min(1, dt * 6); }
@@ -182,7 +244,7 @@
       for (const e of this.enemies) { const dx = x - e.x, dz = z - e.z, d = Math.hypot(dx, dz), m = (e.boss && !this.bossUnlocked ? 13.5 : 1.8) + pr; if (d < m && d > 1e-4) { x = e.x + dx / d * m; z = e.z + dz / d * m; } }
       /* 牆：身體高度和牆重疊才擋 */
       const W2 = this.scene.walls; if (W2 && W2.length) { const y = this.p.y, r2 = .55; for (const w of W2) { if (y + 1.7 <= w.y0 || y + .3 >= w.y1) continue; if (x < w.x0 - r2 || x > w.x1 + r2 || z < w.z0 - r2 || z > w.z1 + r2) continue; const dl = x - (w.x0 - r2), dr = (w.x1 + r2) - x, dn = z - (w.z0 - r2), df = (w.z1 + r2) - z, m = Math.min(dl, dr, dn, df); if (m === dl) x = w.x0 - r2; else if (m === dr) x = w.x1 + r2; else if (m === dn) z = w.z0 - r2; else z = w.z1 + r2; } }
-      const d = Math.hypot(x, z); if (d > 95) { x *= 95 / d; z *= 95 / d; }
+      const EB = (this.scene.ext || 100) - 4, d = Math.hypot(x, z); if (this.scene.ext && this.scene.ext > 100) { x = Math.max(-EB, Math.min(EB, x)); z = Math.max(-EB, Math.min(EB, z)); } else if (d > 95) { x *= 95 / d; z *= 95 / d; } /* v149：新版大地圖用地圖邊界，不再把角色拉回半徑 95 以內 */
       return [x, z];
     }
 

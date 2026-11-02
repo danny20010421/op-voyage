@@ -55,6 +55,7 @@
         else if (t.dunes) { const [amp, fq] = t.dunes; h += amp * Math.abs(Math.sin(dx * fq + fbm(dx * .02, dz * .02) * 6 + dz * fq * .4)); }
       }
       h += fbm(dx * .045 + 3, dz * .045 + 5) * (D.rough || 4);
+      if (D.post) h = D.post(h, dx, dz, sm);
       for (const R of D.rivers || []) { const d = polyD(dx, dz, R.pts); h -= Math.pow(Math.max(0, 1 - d / (R.valley || 16)), 1.5) * (R.depth || 6); }
       for (const L of D.lakes || []) { const d = Math.hypot((dx - L.x) / (L.rx / L.rz), dz - L.z); if (d < L.rz + 4) h = Math.min(h, h * .4 + (d - L.rz - 4) * .5); }
       h *= Math.min(1, mask * 1.6);
@@ -186,11 +187,11 @@
             const y = Hs(lx, lz); b.m = 1; b.cyl(lx, y - .2, lz, .14, .1, 3.6, 6, '#3a3430'); b.box(lx, y + 3.4, lz, .5, .5, .5, '#3a3430'); b.m = 0; b.box(lx, y + 3.15, lz, .36, .4, .36, '#ffe2a0'); O.push([lx, lz, .4]); } } }
       /* --- 石橋（跨河，可以走） --- */
       for (const [p0, p1] of D.bridges || []) { const [ax, az] = sp(p0), [bx, bz] = sp(p1), L = Math.hypot(bx - ax, bz - az), ang = Math.atan2(bx - ax, bz - az), ya = Hs(ax, az), yb = Hs(bx, bz), n = Math.ceil(L / 1.2);
-        for (let k = 0; k < n; k++) { const t = (k + .5) / n, x = ax + (bx - ax) * t, z = az + (bz - az) * t, y = ya + (yb - ya) * t + Math.sin(Math.PI * t) * 1.2; b.m = 3; b.box(x, y - .6, z, 4.6, .6, L / n + .05, '#b8ae9e', ang); if (hd) { const nx = Math.cos(ang), nz = -Math.sin(ang); [-1, 1].forEach(sd => b.box(x + nx * 2.2 * sd, y, z + nz * 2.2 * sd, .4, .7, L / n + .05, '#a39886', ang)); } b.m = 0;
-          ST.plats.push({ x0: x - 1.8, z0: z - 1.8, x1: x + 1.8, z1: z + 1.8, y0: y, y1: y }); } }
+        for (let k = 0; k < n; k++) { const t = (k + .5) / n, x = ax + (bx - ax) * t, z = az + (bz - az) * t, y = ya + (yb - ya) * t + Math.sin(Math.PI * t) * 1.2; b.m = 3; b.box(x, y - .6, z, 5.4, .6, L / n + .05, '#b8ae9e', ang); if (hd) { const nx = Math.cos(ang), nz = -Math.sin(ang); [-1, 1].forEach(sd => b.box(x + nx * 2.6 * sd, y, z + nz * 2.6 * sd, .4, .7, L / n + .05, '#a39886', ang)); } b.m = 0;
+          ST.plats.push({ x0: x - 2.4, z0: z - 2.4, x1: x + 2.4, z1: z + 2.4, y0: y, y1: y }); } }
       /* --- 碼頭（木棧道，可以走） --- */
-      for (const [p0, p1, wd] of D.piers || []) { const [ax, az] = sp(p0), [bx, bz] = sp(p1), L = Math.hypot(bx - ax, bz - az), ang = Math.atan2(bx - ax, bz - az), n = Math.ceil(L / 1.4), w = s(wd || 2), y = 1.4;
-        for (let k = 0; k < n; k++) { const t = (k + .5) / n, x = ax + (bx - ax) * t, z = az + (bz - az) * t; b.m = 1; b.box(x, y - .3, z, w, .3, L / n - .06, '#9a7048', ang); if (k % 2 === 0) { const nx = Math.cos(ang), nz = -Math.sin(ang); [-1, 1].forEach(sd => b.cyl(x + nx * (w / 2 - .2) * sd, -2.5, z + nz * (w / 2 - .2) * sd, .2, .2, 4.4, 6, '#6e4c30')); } b.m = 0;
+      for (const [p0, p1, wd] of D.piers || []) { const [ax, az] = sp(p0), [bx, bz] = sp(p1), L = Math.hypot(bx - ax, bz - az), ang = Math.atan2(bx - ax, bz - az), n = Math.ceil(L / 1.4), w = s(wd || 2);
+        for (let k = 0; k < n; k++) { const t = (k + .5) / n, x = ax + (bx - ax) * t, z = az + (bz - az) * t, y = Math.max(1.4, Hs(x, z) + .15); /* 碼頭從岸上平順接過去 */ b.m = 1; b.box(x, y - .3, z, w, .3, L / n - .06, '#9a7048', ang); if (k % 2 === 0) { const nx = Math.cos(ang), nz = -Math.sin(ang); [-1, 1].forEach(sd => b.cyl(x + nx * (w / 2 - .2) * sd, -2.5, z + nz * (w / 2 - .2) * sd, .2, .2, 4.4, 6, '#6e4c30')); } b.m = 0;
           ST.plats.push({ x0: x - w / 2, z0: z - w / 2, x1: x + w / 2, z1: z + w / 2, y0: y, y1: y }); } }
       /* --- 城牆、木柵與城門（擋路，只能從城門進出） --- */
       const markB = (x, z, rad) => { for (let jz = Math.floor((z - rad + ext) / G); jz <= Math.ceil((z + rad + ext) / G); jz++) for (let ix = Math.floor((x - rad + ext) / G); ix <= Math.ceil((x + rad + ext) / G); ix++) { if (ix < 0 || jz < 0 || ix >= N || jz >= N) continue; if (Math.hypot(-ext + ix * G - x, -ext + jz * G - z) <= rad) Bg[jz * N + ix] = 1; } };
@@ -211,7 +212,7 @@
       for (const S of D.skyways || []) { const P = spline(S.pts.map(sp), 1), acc = [0]; for (let k = 1; k < P.length; k++) acc.push(acc[k - 1] + Math.hypot(P[k][0] - P[k - 1][0], P[k][1] - P[k - 1][1])); const T = acc[acc.length - 1] || 1;
         const y0 = S.y ? S.y[0] : Math.max(1.4, Hs(P[0][0], P[0][1])), y1 = S.y ? S.y[1] : Math.max(1.4, Hs(P[P.length - 1][0], P[P.length - 1][1])), w = S.w || 4, hw = w / 2, st = S.style || 'wood';
         for (let k = 0; k < P.length; k++) { const [x, z] = P[k], t = acc[k] / T, y = y0 + (y1 - y0) * t + (S.arch || 0) * Math.sin(Math.PI * t), nx = P[Math.min(P.length - 1, k + 1)], px = P[Math.max(0, k - 1)], ang = Math.atan2(nx[0] - px[0], nx[1] - px[1]);
-          ST.plats.push({ x0: x - hw * .8, z0: z - hw * .8, x1: x + hw * .8, z1: z + hw * .8, y0: y, y1: y });
+          const pw = Math.max(1.6, hw - .35); ST.plats.push({ x0: x - pw, z0: z - pw, x1: x + pw, z1: z + pw, y0: y, y1: y });
           if (st === 'cloud') { if (k % 2 === 0) { b.m = 0; b.sphere(x, y - .9, z, hw * 1.25, hd ? 7 : 5, mix('#ffffff', '#eef4ff', vh(k, 3)), .42, .15, k + 1); if (hd && k % 4 === 0) { const sx = Math.cos(ang) * hw * 1.1, sz = -Math.sin(ang) * hw * 1.1; b.sphere(x + sx, y - .5, z + sz, hw * .6, 6, '#ffffff', .6, .2, k + 7); b.sphere(x - sx, y - .5, z - sz, hw * .55, 6, '#f4f8ff', .6, .2, k + 9); } } }
           else { const deck = st === 'stone' ? '#b8ae9e' : st === 'root' ? '#7a5a3a' : st === 'metal' ? '#c8d0dc' : '#9a7048', rail = st === 'red' ? '#c8322b' : st === 'stone' ? '#a39886' : st === 'metal' ? '#5ad0ff' : '#6e4c30';
             b.m = st === 'stone' ? 3 : st === 'metal' ? 0 : st === 'root' ? 5 : 1; b.box(x, y - (st === 'root' ? 1.2 : .45), z, w, st === 'root' ? 1.2 : .45, 1.12, deck, ang);
