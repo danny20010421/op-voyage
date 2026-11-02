@@ -20,7 +20,7 @@
   /* 鬼之島：北坡之字形山路到山頂 */
   roads.push([[[0, -31], [-12, -24], [8, -17], [-6, -11], [0, -6]], 'lane']);
   ISLE2.define('wano', {
-    SC: 2, ext: 340, base: 4, vScale: .5, rough: 3.2, style: 'japan', fine: 1.45, houseStep: 4, maxHouses: 170, curb: '#8a8478',
+    SC: 2, ext: 340, ultraRes: .5, base: 4, vScale: .5, rough: 3.2, style: 'japan', fine: 1.45, houseStep: 4, maxHouses: 170, curb: '#8a8478',
     grass: '#6aa64a', grass2: '#84b85a', sand: '#e4d8b4', sand2: '#ece2c4', rock: '#6e6a66', rock2: '#86807a', dirt: '#9a7e58', cobble: '#9a948a',
     rcol: { main: '#c8bca4', street: '#bcae94', alley: '#b0a088', lane: '#a08a64' },
     land, roads, skyways,

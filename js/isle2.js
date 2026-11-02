@@ -102,6 +102,9 @@
       const { P, K, ST, CHIMNEYS } = api, hd = !!global.E3_HD;
       const fp = (x, z, rad) => { occ.push([x, z, rad]); };
       occ.length = 0; houses.length = 0;
+      /* v148 極致畫質：大量的小細節（石板路的每一顆石頭、屋瓦、地基石、草叢、花、小石頭、灌木）用「實例」交給渲染器，依距離顯示；地形改用更細的共用頂點網格 */
+      const UL = !!(global.E3_ULTRA && hd), UD = {}, put = (k, x, y, z, ry, sx, sy, sz, c) => { const a = UD[k] || (UD[k] = []); c = typeof c === 'string' ? hex(c) : c; a.push(x, y, z, ry, sx, sy, sz, c[0], c[1], c[2]); };
+      let us = 9173; const ur = () => (us = us * 16807 % 2147483647) / 2147483647;
       /* 劇情要用到的位置（登陸點、BOSS、NPC、敵人、任務點）先保留，房子和樹不會蓋在上面 */
       { const M = D.story || {}, keep = (p, rad) => p && occ.push([s(p[0]), s(p[1]), rad]); keep(M.spawn, 10); keep(M.boss, 14); Object.values(M.npcs || {}).forEach(p => keep(p, 4.5)); (M.spots || []).forEach(p => keep(p, 6));
         Object.values(M.steps || {}).forEach(m => { (m.points || []).concat(m.spots || []).forEach(p => keep(p, 4)); ['pos', 'goal', 'to', 'start'].forEach(f => keep(m[f], 5)); }); }
@@ -154,15 +157,20 @@
         if (RT === 'gable') { b.m = 2; const over = .55, rh = Math.min(3.4 * K, w * .42), n = hd ? 5 : 3, hdz = d / 2 + over;
           [-1, 1].forEach(sd => { for (let i = 0; i < n; i++) { const [rx, rz] = L(0, sd * hdz * (1 - (i + .5) / n)); b.box(rx, top + rh * i / n - .05, rz, w + over * 2, rh / n + .16, hdz / n * 1.2, shade(roof, .84 + (i % 2) * .12), ry); } });
           b.m = 4; for (let i = 0; i < n - 1; i++) b.box(x, top + rh * i / n, z, w - .06, rh / n, d * (1 - (i + 1) / n) + .02, wall, ry); b.m = 2;
-          b.box(x, top + rh - .05, z, w + over * 2 + .14, .28, .52, shade(roof, .68), ry); rtop = top + rh; }
+          b.box(x, top + rh - .05, z, w + over * 2 + .14, .28, .52, shade(roof, .68), ry); rtop = top + rh;
+          if (UL) { const rc = hex(roof); [-1, 1].forEach(sd => { for (let i = 0; i < n; i++) { const lz = sd * hdz * (1 - (i + .5) / n), ty = top + rh * i / n + rh / n + .08; for (let lx = -w / 2 - over + .26; lx < w / 2 + over - .2; lx += .52) { const [tx, tz] = L(lx + (i % 2) * .26, lz), k = .82 + ur() * .26; put('tile', tx, ty, tz, ry, .46, .12, hdz / n * 1.18, [rc[0] * k, rc[1] * k, rc[2] * k]); } } }); } }
         else if (RT === 'hip') { b.m = 2; const over = S0.skirt ? 1.3 : .6, rh = Math.min(3 * K, Math.min(w, d) * .5), n = hd ? 5 : 3;
           for (let i = 0; i < n; i++) { const f = 1 - i / n; b.box(x, top + rh * i / n - .05, z, (w + over * 2) * f + .4, rh / n + .1, (d + over * 2) * f + .4, shade(roof, .84 + (i % 2) * .12), ry); }
-          if (S0.skirt) b.box(x, top + rh - .1, z, w * .5, .5, .5, shade(roof, .6), ry); rtop = top + rh; }
+          if (S0.skirt) b.box(x, top + rh - .1, z, w * .5, .5, .5, shade(roof, .6), ry); rtop = top + rh;
+          if (UL) { const rc = hex(roof); for (let i = 0; i < n; i++) { const f = 1 - i / n, W2 = (w + over * 2) * f + .4, D2 = (d + over * 2) * f + .4, ty = top + rh * i / n + rh / n + .05;
+            for (const [ex, ez, along] of [[0, D2 / 2, 1], [0, -D2 / 2, 1], [W2 / 2, 0, 0], [-W2 / 2, 0, 0]]) { const len = along ? W2 : D2; for (let t = -len / 2 + .26; t < len / 2 - .2; t += .52) { const [tx, tz] = along ? L(t, ez - Math.sign(ez) * .35) : L(ex - Math.sign(ex) * .35, t), k = .82 + ur() * .26; put('tile', tx, ty, tz, ry + (along ? 0 : Math.PI / 2), .46, .12, .9, [rc[0] * k, rc[1] * k, rc[2] * k]); } } } } }
         else if (RT === 'dome') { b.m = 4; b.box(x, top - .05, z, w + .3, .3, d + .3, shade(wall, .9), ry); b.m = 2; const R = Math.min(w, d) * .5; b.sphere(x, top + .2, z, R, hd ? 10 : 7, roof, .7); rtop = top + R * .7; }
         else { b.m = 4; b.box(x, top - .05, z, w + .2, .25, d + .2, shade(wall, .82), ry); [[0, d / 2], [0, -d / 2], [w / 2, 0], [-w / 2, 0]].forEach(([lx, lz]) => { const [px, pz] = L(lx, lz); b.box(px, top + .1, pz, lz ? w + .2 : .3, .7, lz ? .3 : d + .2, shade(wall, .92), ry); });
           if (S0.dome && vh(z, x) < .35) { b.m = 2; b.sphere(x, top + .2, z, Math.min(w, d) * .28, 8, pick(S0.dome, x, z), .8); }
           if (o.style === 'future' || (D.style === 'future' && !o.style)) { b.m = 0; b.box(x, top + .2, z, w * .6, .12, d * .6, '#5ad0ff', ry); } rtop = top + .8; }
         if (S0.chim && !o.noChimney) { const [cx, cz] = L(w * .3, -d * .2); b.m = 3; b.box(cx, top - .2, cz, .8 * K, rtop - top + 1.3, .8 * K, '#9a8e82', ry); b.box(cx, rtop + 1.1, cz, 1 * K, .22, 1 * K, '#8a7e72', ry); CHIMNEYS.push([cx, rtop + 1.4, cz]); }
+        if (UL) { const fc = hex(S0.roof === 'flat' ? shade(wall, .78) : '#a99d90'); for (const [ax, az, bx2, bz2] of [[-1, -1, 1, -1], [1, -1, 1, 1], [1, 1, -1, 1], [-1, 1, -1, -1]]) { const len = Math.abs(bx2 - ax) * w + Math.abs(bz2 - az) * d, nn = Math.max(2, Math.round(len / .95));
+            for (let k = 0; k < nn; k++) { const t = (k + .5) / nn, [px, pz] = L((ax + (bx2 - ax) * t) * (w / 2 + .3), (az + (bz2 - az) * t) * (d / 2 + .3)), q = .86 + ur() * .22; put('block', px, y - .62, pz, ry, Math.abs(bx2 - ax) ? len / nn * .92 : .5, .5, Math.abs(bz2 - az) ? len / nn * .92 : .5, [fc[0] * q, fc[1] * q, fc[2] * q]); } } }
         b.m = 0; b.noBot = false; O.push([x, z, Math.max(w, d) / 2 + .2]); fp(x, z, Math.max(w, d) / 2 + .6);
         return { door: L(0, d / 2 + 2.2 * K), y, top: rtop };
       }
@@ -237,7 +245,7 @@
         for (let i = 0; i < 4; i++) { const [ax, az] = C[i], [bx, bz] = C[(i + 1) % 4], L = Math.hypot(bx - ax, bz - az), n = Math.ceil(L / 2.4), ang = Math.atan2(bx - ax, bz - az);
           for (let k = 0; k < n; k++) { const t = k / n, px = ax + (bx - ax) * t, pz = az + (bz - az) * t; if (I.roadAt(px, pz)) continue; b.m = 1; b.box(px, Hs(px, pz) - .2, pz, .22, 1.3, .22, '#8a6a46'); const qx = ax + (bx - ax) * (t + .5 / n), qz = az + (bz - az) * (t + .5 / n); if (!I.roadAt(qx, qz)) b.box(qx, Hs(qx, qz) + .7, qz, .12, .14, L / n, '#9a7a52', ang); b.m = 0; } } }
       /* --- 樹林、松樹、椰子樹、岩石群 --- */
-      for (const [gx, gz, gr, gn, kind] of D.groves || []) { const x0 = s(gx), z0 = s(gz), R0 = s(gr);
+      for (const [gx, gz, gr, gn0, kind] of D.groves || []) { const x0 = s(gx), z0 = s(gz), R0 = s(gr), gn = UL ? Math.round(gn0 * 1.7) : gn0;
         for (let i = 0, tries = 0; i < gn && tries < gn * 6; tries++) { const a = rn() * 6.283, dd = Math.sqrt(rn()) * R0, x = x0 + Math.cos(a) * dd, z = z0 + Math.sin(a) * dd, y = Hs(x, z); if (y < 1.4 || I.waterAt(x, z) || I.roadAt(x, z) || !free(x, z, 1.6)) continue;
           if (kind === 'palm') { P.palm(b, x, y, z, .9 + rn() * .45, r); O.push([x, z, .8]); fp(x, z, 1.2); i++; continue; }
           if (kind === 'candy') { const cc = ['#ff6aa8', '#ffd25a', '#6ad0ff', '#9ae07a', '#c89aff'][(rn() * 5) | 0], hh = 3 + rn() * 4; b.m = 0; b.cyl(x, y - .2, z, .18, .16, hh, 6, '#ffffff'); b.sphere(x, y + hh + 1, z, 1.4 + rn(), 9, cc, 1); b.sphere(x, y + hh + 1, z, .7, 6, '#ffffff', 1.05); O.push([x, z, .8]); fp(x, z, 1.6); i++; continue; }
@@ -265,6 +273,29 @@
         if (y < 1.25) return mix(D.sand || '#e8d6a6', D.sand2 || '#f1e2b8', n2);
         const sl = slope(x, z); if (sl > 2.6) return mix(D.rock || '#8f877c', D.rock2 || '#a39a8c', n2);
         const g = mix(D.grass || '#6faa4a', D.grass2 || '#8cc456', n * .9 + n2 * .1); return y > 30 ? mix(g, '#7a9a5a', Math.min(1, (y - 30) / 30)) : g; };
+      if (UL) { const RU = D.ultraRes || .62, tiles = []; let ttris = 0;
+        for (let tz = -ext; tz < ext; tz += TILE) for (let tx = -ext; tx < ext; tx += TILE) {
+          let any = false; for (let z = tz; z <= tz + TILE && !any; z += 8) for (let x = tx; x <= tx + TILE; x += 8) if (Hs(x, z) > -2.5) { any = true; break; } if (!any) continue;
+          const nr = Math.round(TILE / RU), st = TILE / nr, NV = (nr + 1) * (nr + 1), pos = new Float32Array(NV * 3), cl = new Float32Array(NV * 3), idx = [];
+          for (let j = 0, v = 0; j <= nr; j++) for (let i = 0; i <= nr; i++, v++) { const wx = tx + i * st, wz = tz + j * st, wy = Hs(wx, wz), c = hex(col(wx, wy, wz)); pos[v * 3] = wx; pos[v * 3 + 1] = wy; pos[v * 3 + 2] = wz; cl[v * 3] = c[0]; cl[v * 3 + 1] = c[1]; cl[v * 3 + 2] = c[2]; }
+          for (let j = 0; j < nr; j++) for (let i = 0; i < nr; i++) { const a0 = j * (nr + 1) + i, a1 = a0 + 1, a2 = a0 + nr + 1, a3 = a2 + 1; if (pos[a0 * 3 + 1] < -3.5 && pos[a1 * 3 + 1] < -3.5 && pos[a2 * 3 + 1] < -3.5 && pos[a3 * 3 + 1] < -3.5) continue; idx.push(a0, a2, a1, a1, a2, a3); }
+          ttris += idx.length / 3; tiles.push({ pos, col: cl, idx: idx.length > 65535 * 3 || NV > 65535 ? Uint32Array.from(idx) : Uint16Array.from(idx), cx: tx + TILE / 2, cz: tz + TILE / 2 }); }
+        /* 地面細節：石板路一顆顆的石頭、草叢、花、小石頭、灌木、坡上的岩塊 */
+        const cobC = hex(D.cobble || '#9c9488');
+        for (let z = -ext; z < ext; z += .5) for (let x = -ext + ((Math.round(z / .5) % 2) ? .25 : 0); x < ext; x += .5) { const rc = I.roadAt(x, z); if (!rc) continue; const kind = Object.keys(RW)[rc - 1]; if (!PAVED[kind]) continue;
+          const jx = x + (ur() - .5) * .12, jz = z + (ur() - .5) * .12, base = hex(col(jx, Hs(jx, jz), jz)), q = .8 + ur() * .3; put('cob', jx, Hs(jx, jz) + .02, jz, ur() * 3.14, .42 + ur() * .08, .14 + ur() * .06, .38 + ur() * .08, [(base[0] * .6 + cobC[0] * .4) * q, (base[1] * .6 + cobC[1] * .4) * q, (base[2] * .6 + cobC[2] * .4) * q]); }
+        const FL = ['#ff6a8a', '#ffd34a', '#ffffff', '#b08aff', '#ff9a4a', '#6ad0ff'];
+        for (let z = -ext; z < ext; z += 1.6) for (let x = -ext; x < ext; x += 1.6) { const px = x + ur() * 1.6, pz = z + ur() * 1.6, y = Hs(px, pz); if (y < 1.3 || I.roadAt(px, pz) || I.blocked(px, pz) || ur() > (D.clutter || 1)) continue;
+          const sl = slope(px, pz), c = hex(col(px, y, pz)), green = c[1] > c[0] * 1.05 && c[1] > c[2], r0 = ur();
+          if (sl > 2.4) { if (r0 < .45) { const k = .8 + ur() * .3; put('peb', px, y - .2, pz, ur() * 6, .6 + ur() * 1.1, .4 + ur() * .7, .6 + ur() * 1.1, [c[0] * k, c[1] * k, c[2] * k]); } continue; }
+          if (green) { if (r0 < .6) put('tuft', px, y - .05, pz, ur() * 6, .8 + ur() * .7, .6 + ur() * .9, .8 + ur() * .7, [c[0] * .78, c[1] * .86, c[2] * .7]); else if (r0 < .68) { const fc = hex(FL[(ur() * FL.length) | 0]); put('flower', px, y + .05, pz, ur() * 6, .9, .9 + ur() * .6, .9, fc); } else if (r0 < .72) { const k = .7 + ur() * .3; put('bush', px, y - .1, pz, ur() * 6, 1 + ur() * 1.3, .7 + ur() * .7, 1 + ur() * 1.3, [c[0] * k * .8, c[1] * k * .95, c[2] * k * .7]); } else if (r0 < .78) put('peb', px, y - .05, pz, ur() * 6, .25 + ur() * .35, .18 + ur() * .2, .25 + ur() * .35, [.55 + ur() * .15, .54 + ur() * .12, .5 + ur() * .1]); }
+          else if (r0 < .3) put('tuft', px, y - .05, pz, ur() * 6, .7 + ur() * .6, .4 + ur() * .6, .7 + ur() * .6, [c[0] * .72, c[1] * .68, c[2] * .55]);
+          else if (r0 < .44) { const k = .78 + ur() * .2; put('peb', px, y - .05, pz, ur() * 6, .22 + ur() * .4, .14 + ur() * .2, .22 + ur() * .4, [c[0] * k, c[1] * k, c[2] * k]); } }
+        if (D.planks) for (let z = -ext; z < ext; z += .62) for (let x = -ext; x < ext; x += 3.2) { const px = x + (Math.round(z / .62) % 4) * .8, y = Hs(px, z); if (y < 3 || I.blocked(px, z)) continue; const c = hex(col(px, y, z)), k = .8 + ur() * .3; put('tile', px, y - .02, z, 0, 3.1, .1, .58, [c[0] * k, c[1] * k, c[2] * k]); }
+        if (D.ultraExtra) D.ultraExtra({ put, ur, Hs, I, ext, hex, col });
+        const KT = { cob: 20, tile: 12, block: 12, peb: 80, bush: 80, tuft: 12, flower: 8 }; let dtris = 0; const det = {}; for (const k in UD) { det[k] = Float32Array.from(UD[k]); dtris += UD[k].length / 10 * (KT[k] || 12); }
+        I.ultra = { tiles, det, tris: ttris + dtris, ttris, dtris };
+      } else
       for (let tz = -ext; tz < ext; tz += TILE) for (let tx = -ext; tx < ext; tx += TILE) {
         let any = false; for (let z = tz; z <= tz + TILE && !any; z += 8) for (let x = tx; x <= tx + TILE; x += 8) if (Hs(x, z) > -2.5) { any = true; break; } if (!any) continue;
         const res = fineTile(tx, tz) ? RF : RC, nr = Math.round(TILE / res), st = TILE / nr, start = b.p.length / 3, V = [];
@@ -277,7 +308,7 @@
         b.m = D.waterCol ? 0 : 7; b.quad([ax - nx, ya, az - nz], [ax + nx, ya, az + nz], [bx + nx, yb, bz + nz], [bx - nx, yb, bz - nz], mix(D.waterCol || '#4aa0c8', D.waterCol2 || '#62b8d8', vh(k, 1))); b.m = 0; }
       for (const L of lakes) { const n = 40; b.m = D.waterCol ? 0 : 7; for (let k = 0; k < n; k++) { const a0 = k / n * 6.283, a1 = (k + 1) / n * 6.283; b.tri([L.x, L.y - .4, L.z], [L.x + Math.cos(a1) * L.rx, L.y - .4, L.z + Math.sin(a1) * L.rz], [L.x + Math.cos(a0) * L.rx, L.y - .4, L.z + Math.sin(a0) * L.rz], hex(D.waterCol || '#4a9cc4')); } b.m = 0; }
       if (D.after) D.after(I, { b, Hs, house, O, ST, P, K, fp, s, sp, hd, r: rn });
-      tk('terrain'); I.tstat = TS; I.houses = houses.length;
+      if (!UL) I.ultra = null; tk('terrain'); I.tstat = TS; I.houses = houses.length;
     };
     /* 劇情資料對到新地圖 */
     I.apply = ch => { if (!ch || ch.__isle2) return; ch.__isle2 = true; const M = D.story || {};

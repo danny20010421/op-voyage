@@ -7,7 +7,7 @@
   if (!window.ISLE2 || !ISLE2.define) return;
   const UY = [-10, -70];
   ISLE2.define('skypiea', {
-    SC: 2, ext: 340, base: 3, vScale: .5, rough: 3, style: 'white', curb: '#dfe6f0', palmMax: 8, fine: 1.5, houseStep: 4, maxHouses: 90,
+    SC: 2, ext: 340, ultraRes: .5, ultraExtra: U => { for (let z = -U.ext; z < U.ext; z += 4.4) for (let x = -U.ext; x < U.ext; x += 4.4) { const px = x + U.ur() * 4.4, pz = z + U.ur() * 4.4; if (U.Hs(px, pz) > -.5 || U.ur() < .35) continue; const r = 1.2 + U.ur() * 2.6, k = .92 + U.ur() * .08; U.put('peb', px, -.6 - U.ur() * .5, pz, U.ur() * 6, r * 2.2, r * .9, r * 2.2, [k, k, 1]); } }, base: 3, vScale: .5, rough: 3, style: 'white', curb: '#dfe6f0', palmMax: 8, fine: 1.5, houseStep: 4, maxHouses: 90,
     grass: '#7cc45a', grass2: '#9ad46a', sand: '#f6f8ff', sand2: '#ffffff', rock: '#b8b4a8', rock2: '#ccc8bc', dirt: '#a88a5e', cobble: '#e8eef8',
     rcol: { promenade: '#f4f6fa', main: '#eef2f8', street: '#e8ecf4', alley: '#e0e6ee', lane: '#b8986a', trail: '#a88a5e', cliff: '#b49e7e' },
     land: [[10, 92, 56, .12], [-26, 120, 22, .14], [44, 112, 20, .14], [UY[0], UY[1], 72, .1], [-60, -112, 28, .12], [0, -124, 26, .1]],

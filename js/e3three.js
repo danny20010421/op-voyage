@@ -152,7 +152,7 @@ const WATERC = { east: ['#145e9e', '#3fd0c4'], alabasta: ['#1a6aa0', '#5ad8c8'],
 
 class R3 {
   constructor(canvas) {
-    this.canvas = canvas; this.low = localStorage.getItem('op_gfx') === 'low'; this.maxDpr = this.low ? .75 : Math.min(devicePixelRatio || 1, 2); this.dpr = this.maxDpr;
+    this.canvas = canvas; this.low = localStorage.getItem('op_gfx') === 'low'; this.maxDpr = this.low ? .75 : Math.min(devicePixelRatio || 1, 2); this.dpr = this.maxDpr; this.ultra = !!window.E3_ULTRA && !this.low;
     const rd = this.rd = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' }); rd.shadowMap.enabled = true; rd.shadowMap.type = this.low ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap; rd.toneMapping = THREE.ACESFilmicToneMapping; rd.toneMappingExposure = .95;
     const S = this.scene = new THREE.Scene(); S.fog = new THREE.Fog(0xbfe3f6, 120, 480); this.camera = new THREE.PerspectiveCamera(52, 1, .4, 1600);
     this.hemi = new THREE.HemisphereLight(0xc6dcff, 0x7a8a5a, 1); S.add(this.hemi);
@@ -247,7 +247,7 @@ class R3 {
   }
   /* ---------- 新增：載入島嶼時建立水面與草地 ---------- */
   setIsland(S, chapter) {
-    this.island.clear(); this.water = null; if (S.cloud) S.cloud.skip = true; /* 舊的方塊雲改由新天空的雲取代 */ const id = chapter.id, E = chapter.env, EK = Math.max(1, (S.ext || 100) / 100), R0 = Math.max(170, (S.ext || 100) * 1.15), N = EK > 1.2 ? 384 : 256;
+    this.island.clear(); this.water = null; this.ultraFree(); if (S.ultra && this.ultra) this.ultraBuild(S); if (S.cloud) S.cloud.skip = true; /* 舊的方塊雲改由新天空的雲取代 */ const id = chapter.id, E = chapter.env, EK = Math.max(1, (S.ext || 100) / 100), R0 = Math.max(170, (S.ext || 100) * 1.15), N = EK > 1.2 ? 384 : 256;
     const hd = new Float32Array(N * N); for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) hd[j * N + i] = S.H(-R0 + i / (N - 1) * R0 * 2, -R0 + j / (N - 1) * R0 * 2);
     const hTex = new THREE.DataTexture(hd, N, N, THREE.RedFormat, THREE.FloatType); hTex.minFilter = hTex.magFilter = THREE.LinearFilter; hTex.needsUpdate = true;
     const wc = WATERC[id] || ['#145e9e', '#3fd0c4'], cloudSea = id === 'skypiea';
@@ -417,7 +417,30 @@ class R3 {
       const pt = vn(x * .09, z * .09) * .65 + vn(x * .3, z * .3) * .35; if (pt < .18 && rnd() < .6) continue; e.set(0, rnd() * 6.28, 0); q.setFromEuler(e); Mx.compose(V.set(x, h - .05, z), q, Sc.set(.8 + rnd() * .5, (.5 + rnd() * .75) * (.8 + pt * .5), 1)); gm.setMatrixAt(n, Mx); c.copy(D.base).lerp(D.tip, rnd() * .6 + pt * .4).lerp(D.dry, Math.max(0, .55 - pt) * .5); gm.setColorAt(n, c); n++; }
     if (!n) { gm.dispose(); return null; } gm.count = n; gm.instanceMatrix.needsUpdate = true; if (gm.instanceColor) gm.instanceColor.needsUpdate = true; gm.computeBoundingSphere(); this.island.add(gm); return gm; }
   /* v145 高畫質：每一幀更新後製與互動參數 */
-  proTick(sd, fog) { this.grassTick();
+  /* ---------- v148 極致畫質：細網格地形＋分區塊的實例細節（依距離顯示） ---------- */
+  ultraFree() { (this.ultraObjs || []).forEach(o => { if (o.parent) o.parent.remove(o); if (o.geometry && !o.userData.sharedGeo) o.geometry.dispose(); if (o.dispose) o.dispose(); }); this.ultraObjs = []; this.ultraCh = []; }
+  ultraBuild(S) { const U = S.ultra, objs = this.ultraObjs = [], CH = this.ultraCh = [];
+    for (const t of U.tiles) { const g = new THREE.BufferGeometry(), c = new Float32Array(t.col.length); for (let i = 0; i < c.length; i++) c[i] = lin(t.col[i]);
+      g.setAttribute('position', new THREE.BufferAttribute(t.pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(c, 3)); g.setAttribute('mat', new THREE.BufferAttribute(new Float32Array(t.pos.length / 3), 1)); g.setIndex(new THREE.BufferAttribute(t.idx, 1)); g.computeVertexNormals(); g.computeBoundingSphere();
+      const m = new THREE.Mesh(g, this.mat); m.receiveShadow = true; m.castShadow = true; m.matrixAutoUpdate = false; this.island.add(m); objs.push(m); }
+    if (!this.ultraGeo) { const G = this.ultraGeo = {};
+      G.cob = new THREE.IcosahedronGeometry(.5, 0); G.tile = new THREE.BoxGeometry(1, 1, 1).translate(0, .5, 0); G.block = G.tile; G.peb = new THREE.IcosahedronGeometry(.5, 1).translate(0, .3, 0); G.bush = new THREE.IcosahedronGeometry(.5, 1).translate(0, .42, 0); G.flower = new THREE.OctahedronGeometry(.14).translate(0, .5, 0);
+      { const P = [], N = []; for (let k = 0; k < 6; k++) { const a = k / 6 * 6.283 + .3, ca = Math.cos(a), sa = Math.sin(a), w = .07, lx = -sa * w, lz = ca * w, tx = ca * .22, tz = sa * .22, h = .55 + (k % 3) * .15;
+          P.push(-lx, 0, -lz, lx, 0, lz, tx + lx * .2, h, tz + lz * .2, -lx, 0, -lz, tx + lx * .2, h, tz + lz * .2, tx - lx * .2, h, tz - lz * .2); for (let q = 0; q < 6; q++) N.push(0, 1, 0); }
+        G.tuft = new THREE.BufferGeometry(); G.tuft.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); G.tuft.setAttribute('normal', new THREE.Float32BufferAttribute(N, 3)); }
+      this.ultraMat = toon({ vc: false }); this.ultraMatDS = toon({ vc: false, side: THREE.DoubleSide }); }
+    const DIST = { cob: 170, tile: 240, block: 170, peb: 260, bush: 260, tuft: 120, flower: 120 }, SH = { peb: 1, bush: 1 }, M = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), v = new THREE.Vector3(), sc = new THREE.Vector3(), col = new THREE.Color(), CS = 80;
+    for (const k in U.det) { const A = U.det[k], n = A.length / 10, cells = new Map(); for (let i = 0; i < n; i++) { const key = Math.floor(A[i * 10] / CS) + ',' + Math.floor(A[i * 10 + 2] / CS); let L = cells.get(key); if (!L) cells.set(key, L = []); L.push(i); }
+      for (const [key, L] of cells) { const im = new THREE.InstancedMesh(this.ultraGeo[k] || this.ultraGeo.tile, k === 'tuft' ? this.ultraMatDS : this.ultraMat, L.length); im.userData.sharedGeo = true; let cx = 0, cz = 0;
+        L.forEach((i, j) => { const o = i * 10; v.set(A[o], A[o + 1], A[o + 2]); e.set(0, A[o + 3], 0); q.setFromEuler(e); sc.set(A[o + 4], A[o + 5], A[o + 6]); M.compose(v, q, sc); im.setMatrixAt(j, M); col.setRGB(lin(A[o + 7]), lin(A[o + 8]), lin(A[o + 9])); im.setColorAt(j, col); cx += A[o]; cz += A[o + 2]; });
+        im.instanceMatrix.needsUpdate = true; if (im.instanceColor) im.instanceColor.needsUpdate = true; im.computeBoundingSphere(); im.receiveShadow = true; im.castShadow = !!SH[k]; im.matrixAutoUpdate = false;
+        this.island.add(im); objs.push(im); CH.push({ o: im, x: cx / L.length, z: cz / L.length, R: DIST[k] || 200 }); } }
+    this.ultraK = 1; this._uT = performance.now(); this._uF = 0; }
+  ultraTick() { const C = this.ultraCh; if (!C || !C.length) return; const ex = this.eye[0], ez = this.eye[2], K = this.ultraK || 1;
+    for (const c of C) { const d = Math.hypot(c.x - ex, c.z - ez); c.o.visible = d < c.R * K + 40; }
+    /* 太卡時自動縮短細節的顯示距離 */
+    this._uF++; const now = performance.now(); if (now - this._uT > 3000) { const fps = this._uF * 1000 / (now - this._uT); if (fps < 26 && K > .45) this.ultraK = K * .75; else if (fps > 50 && K < 1) this.ultraK = Math.min(1, K * 1.15); this._uT = now; this._uF = 0; } }
+  proTick(sd, fog) { this.grassTick(); this.ultraTick();
     const id = this.chapterId, cam = this.camera, PU = this.PU, pl = this._pl;
     U.uMatOn.value = 1; U.uCloudOn.value = id === 'fishman' ? 0 : id === 'skypiea' ? .45 : 1; U.uCaus.value = id === 'skypiea' ? 0 : 1;
     if (pl) U.uPlayer.value.set(pl.x, pl.y, pl.z);
@@ -454,7 +477,9 @@ class R3 {
     this.composer.render();
   }
 }
-if (window.E3 && ok && enabled()) { try { window.E3_HD = localStorage.getItem('op_gfx') !== 'low'; } catch (e) { window.E3_HD = true; } /* v125：地形加倍與平滑、圓形物件分段變多（engine3d.js Builder） */
+if (window.E3 && ok && enabled()) { try { window.E3_HD = localStorage.getItem('op_gfx') !== 'low'; } catch (e) { window.E3_HD = true; }
+  /* v148 極致畫質：設定選「極致」，或沒選過畫質的電腦（滑鼠操作、螢幕夠大、記憶體 ≥ 6GB）自動開啟；手機、平板預設不開 */
+  try { const g = localStorage.getItem('op_gfx'), desk = !matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) >= 700 && (navigator.deviceMemory || 8) >= 6; window.E3_ULTRA = g === 'ultra' || (!g && desk); } catch (e) { window.E3_ULTRA = false; } /* v125：地形加倍與平滑、圓形物件分段變多（engine3d.js Builder） */
   window.E3.Renderer = R3; window.E3.Renderer3 = R3; window.E3.RendererOld = OLD;
   /* 載入島嶼時，讓新渲染器建立水面與草地 */
   if (window.World) { const L = window.World.prototype.load; window.World.prototype.load = function (ch, pid, st) { const r = L.apply(this, arguments); if (this.r && this.r.setIsland) this.r.setIsland(this.scene, ch); return r; }; }

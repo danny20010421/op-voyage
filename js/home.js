@@ -49,13 +49,13 @@
       <label class="set-row"><span><b>音樂與音效</b><small>關閉後完全靜音</small></span><input type="checkbox" class="sw" data-k="on" ${P.muted ? '' : 'checked'}></label>
       <label class="set-row"><span><b>音樂音量</b></span><input type="range" min="0" max="1" step="0.05" value="${P.music}" data-k="music"></label>
       <label class="set-row"><span><b>音效音量</b></span><input type="range" min="0" max="1" step="0.05" value="${P.sfx}" data-k="sfx"></label>
-      <div class="set-row"><span><b>畫質</b><small>省電模式會降低 3D 解析度，手機發燙時使用（重新進入島嶼後生效）</small></span><div class="seg" role="radiogroup"><button data-g="high" class="${low ? '' : 'on'}">高畫質</button><button data-g="low" class="${low ? 'on' : ''}">省電</button></div></div>
+      <div class="set-row"><span><b>畫質</b><small>省電模式會降低 3D 解析度，手機發燙時使用（重新進入島嶼後生效）</small></span><div class="seg" role="radiogroup"><button data-g="ultra" class="${localStorage.getItem('op_gfx') === 'ultra' ? 'on' : ''}">極致</button><button data-g="high" class="${low || localStorage.getItem('op_gfx') === 'ultra' ? '' : 'on'}">高畫質</button><button data-g="low" class="${low ? 'on' : ''}">省電</button></div></div>
       <div class="set-row"><span><b>雲端存檔</b><small>用 Google 帳號在不同裝置之間接續進度</small></span><button class="btn-gold sm" onclick="openCloud()">開啟</button></div>
       <label class="set-row"><span><b>首頁公告預設展開</b></span><input type="checkbox" class="sw" data-k="news" ${localStorage.getItem('op_news_open') !== '0' ? 'checked' : ''}></label>
     </div>`, b => {
       b.querySelector('[data-k=on]').onchange = e => { AUDIO.setPref({ muted: !e.target.checked }); if (typeof syncSound === 'function') syncSound(); };
       b.querySelectorAll('input[type=range]').forEach(r => r.oninput = () => AUDIO.setPref({ [r.dataset.k]: +r.value }));
-      b.querySelectorAll('[data-g]').forEach(x => x.onclick = () => { localStorage.setItem('op_gfx', x.dataset.g); b.querySelectorAll('[data-g]').forEach(y => y.classList.toggle('on', y === x)); if (window.WORLD && WORLD.r) { WORLD.r.maxDpr = x.dataset.g === 'low' ? .75 : Math.min(devicePixelRatio || 1, 1.6); WORLD.r.dpr = Math.min(WORLD.r.dpr, WORLD.r.maxDpr); } toast(x.dataset.g === 'low' ? '已切換為省電畫質' : '已切換為高畫質'); });
+      b.querySelectorAll('[data-g]').forEach(x => x.onclick = () => { localStorage.setItem('op_gfx', x.dataset.g); window.E3_ULTRA = x.dataset.g === 'ultra'; b.querySelectorAll('[data-g]').forEach(y => y.classList.toggle('on', y === x)); if (window.WORLD && WORLD.r) { WORLD.r.maxDpr = x.dataset.g === 'low' ? .75 : Math.min(devicePixelRatio || 1, 1.6); WORLD.r.dpr = Math.min(WORLD.r.dpr, WORLD.r.maxDpr); } toast(x.dataset.g === 'low' ? '已切換為省電畫質' : x.dataset.g === 'ultra' ? '已切換為極致畫質（重新進入島嶼後生效）' : '已切換為高畫質'); });
       b.querySelector('[data-k=news]').onchange = e => { if (typeof setNewsOpen === 'function') setNewsOpen(e.target.checked); };
     });
   }

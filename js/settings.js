@@ -2,7 +2,9 @@
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__installPrompt = e; });
 /* 設定頁（大廳「設定」與首頁「設定」共用）＋ 新手教學（大廳聚光燈導覽）。
    設定存在 localStorage：op_gfx（畫質）、op_motion（減少動態）、op_bspeed（預設戰鬥速度）、op_vibe（震動回饋）、op_live_pop（即時對戰邀請通知）、op_text（文字大小）、op_fxpro（技能特效高／低，v138）。 */
-const GAME_VERSION = 'v147';
+const GAME_VERSION = 'v148';
+/* v148：目前的畫質（沒選過時：電腦＝極致、手機平板＝高畫質，和 e3three.js 的 E3_ULTRA 規則相同） */
+function gfxNow() { try { const g = localStorage.getItem('op_gfx'); if (g) return g; return !matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) >= 700 && (navigator.deviceMemory || 8) >= 6 ? 'ultra' : 'high'; } catch (e) { return 'high'; } }
 (function () {
   const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, put = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { } };
   /* ---------- 套用設定 ---------- */
@@ -30,7 +32,7 @@ const GAME_VERSION = 'v147';
     const P = AUDIO.pref, U = typeof CLOUD !== 'undefined' && CLOUD.user ? CLOUD.user() : null, prof = typeof playerProfile === 'function' ? playerProfile() : {};
     panel.innerHTML = `<div class="dl-card st-card"><header><h3>⚙️ 設定</h3><button class="icon-btn sm" data-x aria-label="關閉">×</button></header><div class="st-body">
       <h4>聲音</h4>${row('音樂與音效', '關閉後完全靜音', sw('sound', !P.muted))}${row('音樂音量', '', `<input type="range" min="0" max="1" step="0.05" value="${P.music}" data-vol="music" aria-label="音樂音量">`)}${row('音效音量', '', `<input type="range" min="0" max="1" step="0.05" value="${P.sfx}" data-vol="sfx" aria-label="音效音量">`)}
-      <h4>畫面</h4>${row('畫質', '高畫質：3D 島嶼有遠景、光束、雲影、遠景柔焦；省電：降低 3D 解析度、關閉這些效果與毛玻璃、大型光暈，手機發燙或卡頓時使用', seg('op_gfx', [['high', '高畫質'], ['low', '省電']], get('op_gfx') === 'low' ? 'low' : 'high'))}
+      <h4>畫面</h4>${row('畫質', '極致：300 萬面以上的細緻場景（電腦預設）；高畫質：光影與遠景；省電：手機發燙、卡頓時用。重新進島後生效', seg('op_gfx', [['ultra', '極致'], ['high', '高畫質'], ['low', '省電']], gfxNow()))}
         ${row('新版 3D 島嶼畫面', 'Three.js 卡通渲染：描邊、陰影、草地、海面、泛光（關閉後改回舊畫面，重新整理頁面後生效）', sw('op_r3', get('op_r3') !== '0'))}
         ${row('減少動態效果', '關閉大部分動畫與震動畫面，容易頭暈時使用', sw('op_motion', get('op_motion') === '1'))}
         ${row('文字大小', '放大說明、戰報與面板文字', seg('op_text', [['n', '標準'], ['l', '加大']], get('op_text') === 'l' ? 'l' : 'n'))}
@@ -53,6 +55,7 @@ const GAME_VERSION = 'v147';
     q('[data-seg]').forEach(g => g.querySelectorAll('button').forEach(b => b.onclick = () => {
       const k = g.dataset.seg, v = b.dataset.v; put(k, v); g.querySelectorAll('button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', String(x === b)); });
       if (k === 'op_bspeed') { window.BSPEED = +v; if (typeof syncBattleBtns === 'function') syncBattleBtns(); }
+      if (k === 'op_gfx') { window.E3_ULTRA = v === 'ultra'; if (window.WORLD && WORLD.r && !WORLD.r.low) WORLD.r.ultra = v === 'ultra'; if (typeof toast === 'function') toast(v === 'ultra' ? '已切換為極致畫質：重新進入島嶼後生效' : v === 'low' ? '已切換為省電畫質' : '已切換為高畫質'); }
       if (k === 'op_gfx' && window.WORLD && WORLD.r) { WORLD.r.maxDpr = v === 'low' ? .75 : Math.min(devicePixelRatio || 1, 1.6); WORLD.r.dpr = Math.min(WORLD.r.dpr, WORLD.r.maxDpr); }
       apply();
     }));

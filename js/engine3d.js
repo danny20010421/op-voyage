@@ -69,7 +69,7 @@
       this.quad(v[2], v[1], v[5], v[6], shade(col, .92)); this.quad(v[0], v[3], v[7], v[4], shade(col, .92));
     }
     cyl(cx, cy, cz, rb, rt, h, seg, col, colTop, ry, tilt) {
-      if (HD() && seg >= 5) seg = Math.min(24, Math.round(seg * 1.5));
+      if (HD() && seg >= 5) seg = Math.min(global.E3_ULTRA ? 32 : 24, Math.round(seg * (global.E3_ULTRA ? 2 : 1.5)));
       col = hex(col); colTop = colTop ? hex(colTop) : shade(col, 1.08);
       const tx = tilt ? tilt[0] : 0, tz = tilt ? tilt[1] : 0; const f = this._xf([cx, cy, cz], ry || 0);
       for (let i = 0; i < seg; i++) {
@@ -81,7 +81,7 @@
       }
     }
     sphere(cx, cy, cz, r, seg, col, sy, jitter, seed) {
-      if (HD() && seg >= 5) { seg = Math.min(20, Math.round(seg * 1.5)); if (jitter) jitter *= .75; }
+      if (HD() && seg >= 5) { seg = Math.min(global.E3_ULTRA ? 26 : 20, Math.round(seg * (global.E3_ULTRA ? 2 : 1.5))); if (jitter) jitter *= .75; }
       col = hex(col); sy = sy || 1; const rings = Math.max(3, Math.floor(seg / 2)); let s = seed || 1;
       const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
       const pts = [];
@@ -335,5 +335,5 @@ void main(){
 
 /* v135：Three.js 版渲染器（js/e3three.js＋vendor/three，約 2 MB）延後下載：第一次登島時才載入（市面手遊的分段下載做法）；
    進入遊戲 15 秒後，若不是省流量模式，會在背景先下載，讓第一次登島不用等。載入失敗時沿用舊版輕量渲染器。 */
-window.ensure3D = (function () { let p = null; return function () { if (!p) p = import('./e3three.js?v=147').catch(e => { console.warn('3D 模組載入失敗，改用舊版畫面', e); }); return p; }; })();
+window.ensure3D = (function () { let p = null; return function () { if (!p) p = import('./e3three.js?v=148').catch(e => { console.warn('3D 模組載入失敗，改用舊版畫面', e); }); return p; }; })();
 window.addEventListener('load', () => { try { const c = navigator.connection; if (c && (c.saveData || /2g/.test(c.effectiveType || ''))) return; } catch (e) { } setTimeout(() => { const go = () => window.ensure3D(); if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 5000 }); else go(); }, 15000); });

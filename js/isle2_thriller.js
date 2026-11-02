@@ -8,7 +8,7 @@
   const RR = 130, U = ISLE2.util, circle = (r, n) => { const P = []; for (let i = 0; i <= n; i++) { const a = i / n * 6.2832; P.push([Math.cos(a) * r, Math.sin(a) * r]); } return P; };
   const RAIL = HULL.map(([x, z]) => [x * .955, z * .975]); RAIL.push(RAIL[0]);
   ISLE2.define('thriller', {
-    SC: 2, ext: 340, style: 'spooky', fine: 1.5, houseStep: 4, maxHouses: 70,
+    SC: 2, ext: 340, ultraRes: .4, planks: true, ultraExtra: U => { for (let z = -U.ext; z < U.ext; z += 7) for (let x = -U.ext; x < U.ext; x += 7) { const px = x + U.ur() * 7, pz = z + U.ur() * 7; if (U.Hs(px, pz) > -3 || U.ur() < .3) continue; const r = .8 + U.ur() * 2.4, k = .22 + U.ur() * .12; U.put('peb', px, -2.2 + U.ur(), pz, U.ur() * 6, r * 1.4, r * 2.2, r * 1.4, [k, k * 1.05, k * 1.15]); } }, style: 'spooky', fine: 1.5, houseStep: 4, maxHouses: 70,
     grass: '#4a5a48', grass2: '#56664e', rock: '#5a5660', rock2: '#6a6670', dirt: '#5a4a3a', cobble: '#5a5662',
     rcol: { promenade: '#6a5a4a', main: '#6e6258', street: '#666058', alley: '#5e5650', lane: '#5a4a3a', trail: '#54463a' },
     land: [], terrain: [],
