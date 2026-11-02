@@ -25,7 +25,7 @@
     ramparts: [{ pts: arc(BR + 3, 196, 344, 30), closed: false, h: 9, th: 2.6, col: '#a8acb4', towers: true, towerEvery: 5, roof: null, gates: [[0, -25, 18], [-58, 6, 7], [58, 6, 7]], crenel: true }],
     landmarks: [
       ['marineHQ', 0, -110, 0, { key: 'hq' }], ['scaffold', 0, -56, 0, { key: 'scaffold' }],
-      ['bigship', -24, 84, .4, { s: 1.4, sail: '#f4ecd8', hull: '#e8e0d0' }], ['bigship', 36, 100, -.6, { s: .9, sail: '#f4ecd8' }], ['bigship', -50, 112, 1.2, { s: .8, sail: '#f4ecd8' }], ['bigship', 56, 60, 2.4, { s: .7, sail: '#f4ecd8' }],
+      ['mobydick', -24, 84, .4, { key: 'mobydick', s: 1.7 }], ['bigship', 36, 100, -.6, { s: .9, sail: '#f4ecd8' }], ['bigship', -50, 112, 1.2, { s: .8, sail: '#f4ecd8' }], ['bigship', 56, 60, 2.4, { s: .7, sail: '#f4ecd8' }],
       ['bigship', -140, 90, .2, { s: .9, sail: '#ffffff', hull: '#e8ecf0' }], ['bigship', 140, 90, -.2, { s: .9, sail: '#ffffff', hull: '#e8ecf0' }],
       ['tower', -70, -60, 0, { r: 5, h: 26, c: '#e8e8ec', roof: '#2a4a8a', flag: '#ffffff' }], ['tower', 70, -60, 0, { r: 5, h: 26, c: '#e8e8ec', roof: '#2a4a8a', flag: '#ffffff' }],
       ['ruin', -52, -48, .3, { c: '#c8c8cc', w: 8 }], ['ruin', 48, -52, -.4, { c: '#c8c8cc', w: 7 }]],

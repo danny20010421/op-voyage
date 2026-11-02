@@ -36,6 +36,7 @@
       ['hut', 50, 98, -.5, { nets: 1, barrels: 1 }],
       ['windmill', 66, 12, 0], ['windmill', 82, 32, 0], ['windmill', 62, 42, 0],
       ['lighthouse', 30, 138, 0], ['fort', -102, 4, Math.PI / 2, { key: 'fort' }], ['wreck', -114, 80, .6],
+      /* v151 原作：北岸是哥亞王國的城牆，牆外是灰色終點站（垃圾山） */ ['goawall', -20, -110, 0, { key: 'goa', len: 64, h: 14 }], ['trashheap', -22, -93, 0, { key: 'grayterminal', r: 22 }],
       ['hut', 6, -30, -.4, { wall: '#d8c8a8' }], ['barn', -36, -2, .2], ['hut', 22, -66, .5, { wall: '#a8906c', roof: '#5e3e2a', barrels: 1 }],
       ['boat', 10, 126, 0, {}], ['boat', -56, 126, .3, {}], ['boat', 70, 126, 0, { sail: '#ffffff' }]],
     town: [[0, 76, 62, 2]],

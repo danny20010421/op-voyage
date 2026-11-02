@@ -30,14 +30,16 @@
   function Island(id, D) {
     const SC = D.SC || 2, ext = D.ext || 170 * SC, G = D.grid || 1, N = Math.round(ext * 2 / G) + 1;
     const s = v => v * SC, sp = p => [p[0] * SC, p[1] * SC];
-    const I = { id, ext, SC };
+    const I = { id, ext, SC, D };
     let Hg = null, Rg = null, Bg = null, river = [], lakes = [], roads = [], houses = [], occ = [];
     const idx = (x, z) => { const i = Math.round((x + ext) / G), j = Math.round((z + ext) / G); return i < 0 || j < 0 || i >= N || j >= N ? -1 : j * N + i; };
     const Hs = (x, z) => { const fx = (x + ext) / G, fz = (z + ext) / G; if (fx < 0 || fz < 0 || fx >= N - 1 || fz >= N - 1) return -4; const i = Math.floor(fx), j = Math.floor(fz), u = fx - i, w = fz - j, k = j * N + i;
       return (Hg[k] * (1 - u) + Hg[k + 1] * u) * (1 - w) + (Hg[k + N] * (1 - u) + Hg[k + N + 1] * u) * w; };
     I.H = Hs;
     /* 原始地形（還沒整平道路） */
-    function raw(x, z) {
+    /* v151 D.post2(h,dx,dz)：最後的高度（世界單位）再調整一次，海裡也會套用（司法島四周的大洞） */
+    function raw(x, z) { const v = raw0(x, z); return D.post2 ? D.post2(v, x / SC, z / SC) : v; }
+    function raw0(x, z) {
       const dx = x / SC, dz = z / SC; let land = -1e9;
       if (D.rawFn) { const v = D.rawFn(dx, dz, { fbm, sm, pip, polyD, s }); if (v !== undefined) return v; }
       for (const [bx, bz, r, j] of D.land) { const a = Math.atan2(dz - bz, dx - bx), rr = r * (1 + (j || .12) * (Math.sin(3 * a + bx * .1) + .6 * Math.sin(7 * a + bz * .07) + .3 * Math.sin(11 * a))); land = Math.max(land, (rr - Math.hypot(dx - bx, dz - bz)) / 12); }
@@ -127,32 +129,53 @@
         toy: { walls: ['#fff4e0', '#ffe8c8', '#f8f0e8', '#ffe0d0', '#f4e4f0'], roofs: ['#d8643a', '#c8542e', '#e07a40'], beam: null, roof: 'hip', shut: 1, flow: 1, glass: '#2c3e58', chim: 0 },
         wood: { walls: ['#a07a52', '#8e6a46', '#b08a5e'], roofs: ['#a8875a', '#94744a', '#6e5a3e'], beam: '#4a3220', roof: 'gable', shut: 0, flow: 0, glass: '#2a2018', chim: 1 },
         future: { walls: ['#f4f6fa', '#e8eef6', '#fff0f6'], roofs: ['#ff6aa8', '#6ad0ff', '#ffd24a'], beam: null, roof: 'flat', shut: 0, flow: 0, glass: '#5ad0ff', chim: 0 },
-        pirate: { walls: ['#8a7a66', '#7a6a58', '#9a8670', '#6e6052'], roofs: ['#4a3a30', '#5a4232', '#3a3a3e'], beam: '#3a2a1e', roof: 'gable', shut: 1, flow: 0, glass: '#ffb24a', chim: 1, jit: .12 }
+        pirate: { walls: ['#8a7a66', '#7a6a58', '#9a8670', '#6e6052'], roofs: ['#4a3a30', '#5a4232', '#3a3a3e'], beam: '#3a2a1e', roof: 'gable', shut: 1, flow: 0, glass: '#ffb24a', chim: 1, jit: .12 },
+        norse: { walls: ['#8e6a46', '#7a5a3a', '#9a7650', '#6e5236'], roofs: ['#5e8a3a', '#6a9a48', '#557e36', '#6e5a3e', '#5a4a3a', '#5a6068'], beam: '#3e2a1a', roof: 'gable', shut: 0, flow: 0, glass: '#ffcf6a', chim: 1, norse: 1, arch: ['longhouse', 'logcabin', 'watchtower', 'stonebase', 'stump', 'workshop'] }
       };
+      /* v151 每種風格的屋型（town 會輪流隨機挑，同一側相鄰兩棟不重複）：base 基本、wing 側屋、porch 門廊、dormer 老虎窗、shop 店面、jetty 上層外凸、setback 上層內縮、tower 角樓 */
+      const ARCH = { euro: ['base', 'wing', 'porch', 'dormer', 'shop', 'jetty', 'tower'], pirate: ['base', 'wing', 'porch', 'dormer', 'jetty', 'tower', 'shop'], stone: ['base', 'wing', 'tower', 'dormer', 'setback', 'shop'],
+        spooky: ['base', 'tower', 'dormer', 'jetty', 'wing'], wood: ['base', 'wing', 'porch', 'dormer'], marine: ['base', 'wing', 'setback', 'tower', 'porch'], toy: ['base', 'tower', 'porch', 'shop', 'dormer', 'wing'],
+        candy: ['base', 'tower', 'porch', 'dormer', 'wing', 'shop'], japan: ['base', 'wing', 'setback', 'porch', 'shop'], desert: ['base', 'wing', 'tower', 'setback', 'shop'], white: ['base', 'wing', 'setback', 'porch'],
+        coral: ['base', 'wing', 'setback', 'tower'], future: ['base', 'wing', 'setback', 'tower'] };
+      Object.keys(SY).forEach(k => { if (!SY[k].arch) SY[k].arch = ARCH[k] || ['base', 'wing', 'porch', 'tower']; });
       const pick = (A, x, z, m) => A[Math.abs(Math.round(x * (m || 3) + z * 7)) % A.length];
       function house(x, z, w, d, fl, ry, o) {
         o = o || {}; const S0 = SY[o.style || D.style || 'euro'] || SY.euro, K = o.k || 1; b.noBot = true; if (S0.jit && !o.exact) ry += (vh(x, z) - .5) * S0.jit;
         const y = o.y != null ? o.y : Hs(x, z), c = Math.cos(ry), sn = Math.sin(ry), L = (lx, lz) => [x + lx * c + lz * sn, z - lx * sn + lz * c], FH = 3.1 * K, h = fl * FH;
         const wall = o.wall || pick(S0.walls, x, z), roof = o.roof || pick(S0.roofs, z, x), beam = o.beam !== undefined ? o.beam : S0.beam, shut = ['#3f72b8', '#5a8a4a', '#b5543c', '#d8a03a', '#7a5aa0'][Math.abs(Math.round(x + z * 5)) % 5], glass = o.glass || S0.glass, fr = beam || shade(wall, .72);
+        let A = o.arch || 'base', WG = null;
+        if (S0.norse && !o.wing) return norse(x, z, w, d, fl, ry, o, A, S0, K, y, L, wall, roof);
+        if ((A === 'jetty' || A === 'setback') && fl < 2) A = 'porch';
+        if (A === 'wing') { const ww = w * .5, dw = d * .72, sw = vh(x, z) < .5 ? -1 : 1, [wx, wz] = L(sw * (w / 2 + ww / 2 - .05), -(d - dw) / 2); if (free(wx, wz, Math.max(ww, dw) / 2)) WG = { wx, wz, ww, dw }; else A = 'porch'; }
         if (o.y == null) flatPad(x, z, w + .6, d + .6, ry, y);
         b.m = 3; b.box(x, y - 1.2, z, w + .5, 1.5, d + .5, S0.roof === 'flat' ? shade(wall, .8) : '#a99d90', ry);
-        for (let f = 0; f < fl; f++) { const y0 = y + .3 + f * FH;
-          b.m = 4; b.box(x, y0, z, w, FH - .05, d, wall, ry); b.m = 1;
+        const w0 = w, d0 = d;
+        for (let f = 0; f < fl; f++) { const y0 = y + .3 + f * FH; { const sc = f && A === 'setback' ? Math.pow(.84, f) : f && A === 'jetty' ? 1.08 : 1; w = w0 * sc; d = d0 * sc; }
+          b.m = 4; b.box(x, y0, z, w, FH - .05, d, f === 0 && o.wall0 ? o.wall0 : wall, ry); b.m = 1;
+          if (f && A === 'jetty' && hd) for (let q = -2; q <= 2; q++) { const [jx, jz] = L(q * w0 / 4.4, d0 / 2 + .02); b.box(jx, y0 - .45, jz, .22 * K, .45, .5, fr, ry); }
           if (beam) { [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, e]) => { const [px, pz] = L(a * w / 2, e * d / 2); b.box(px, y0 - .05, pz, .3 * K, FH + .05, .3 * K, beam, ry); }); b.box(x, y0 + FH - .2 * K, z, w + .14, .24 * K, d + .14, beam, ry); }
           else if (f > 0) { b.m = 4; b.box(x, y0 - .12, z, w + .2, .22, d + .2, shade(wall, .86), ry); }
           if (S0.skirt && f < fl - 1) { b.m = 2; b.box(x, y0 + FH - .3, z, w + 1.8, .22, d + 1.8, shade(roof, .9), ry, .82); }
           if (hd) { const nW = Math.max(1, Math.floor(w / (2.6 * K))), ww = 1.05 * K, wh = 1.2 * K;
-            for (const side of [1, -1]) for (let k = 0; k < nW; k++) { const lx = (k - (nW - 1) / 2) * (w / nW); if (f === 0 && side === 1 && Math.abs(lx) < 1.1 * K) continue;
+            for (const side of [1, -1]) for (let k = 0; k < nW; k++) { const lx = (k - (nW - 1) / 2) * (w / nW); if (f === 0 && side === 1 && (Math.abs(lx) < 1.1 * K || A === 'shop')) continue;
               const [ax, az] = L(lx, side * (d / 2 + .05)), wy = y0 + FH * .32; b.m = 1; b.box(ax, wy, az, ww, wh, .14, fr, ry); const [gx, gz] = L(lx, side * (d / 2 + .1)); b.m = 0; b.box(gx, wy + .14 * K, gz, ww * .7, wh * .77, .08, glass, ry); b.m = 1;
               if (S0.shut) { const [s1x, s1z] = L(lx - .72 * K, side * (d / 2 + .09)), [s2x, s2z] = L(lx + .72 * K, side * (d / 2 + .09)); b.box(s1x, wy, s1z, .38 * K, wh, .07, shut, ry); b.box(s2x, wy, s2z, .38 * K, wh, .07, shut, ry); }
               if (S0.flow && (k + f) % 2 === 0) { const [fx, fz] = L(lx, side * (d / 2 + .3)); b.box(fx, wy - .3, fz, 1.1 * K, .26, .32, '#8a5a38', ry); b.m = 0; const [qx, qz] = L(lx, side * (d / 2 + .32)); b.box(qx, wy - .08, qz, .96 * K, .22, .26, ['#ff6a8a', '#ffd34a', '#ff9a4a', '#f4f0ff'][Math.abs(Math.round(x * 5 + k + f)) % 4], ry); b.m = 1; } }
             const nS = Math.max(1, Math.floor(d / (3 * K))); for (const side of [1, -1]) for (let k = 0; k < nS; k++) { const lz = (k - (nS - 1) / 2) * (d / nS), [ax, az] = L(side * (w / 2 + .05), lz), wy = y0 + FH * .32; b.box(ax, wy, az, .14, 1.15 * K, ww, fr, ry); const [gx, gz] = L(side * (w / 2 + .1), lz); b.m = 0; b.box(gx, wy + .12 * K, gz, .08, .86 * K, ww * .68, glass, ry); b.m = 1; }
             if (f > 0 && (o.balcony || (Math.abs(Math.round(x + z)) % 3 === 0)) && S0.roof !== 'dome') { const bc = beam || shade(wall, .7), [bx, bz] = L(0, d / 2 + .7); b.box(bx, y0 - .12, bz, w * .5, .2, 1.4, bc, ry); for (let q = 0; q <= 4; q++) { const [px, pz] = L(-w * .25 + q * w * .125, d / 2 + 1.32); b.box(px, y0 + .08, pz, .1, .9, .1, bc, ry); } const [hx, hz] = L(0, d / 2 + 1.32); b.box(hx, y0 + .95, hz, w * .5, .1, .12, bc, ry); } } }
+        const wT = w, dT = d; w = w0; d = d0;
         /* 門、門框、石階、門燈 */
-        { const [fx, fz] = L(0, d / 2 + .08); b.box(fx, y + .2, fz, 1.6 * K, 2.5 * K, .2, fr, ry); const [ex, ez] = L(0, d / 2 + .16); b.box(ex, y + .25, ez, 1.12 * K, 2.2 * K, .1, o.door || (S0.roof === 'flat' ? '#6a4a2e' : '#7a4a2a'), ry); b.m = 3; const [gx, gz] = L(0, d / 2 + .7); b.box(gx, y - .45, gz, 2.1 * K, .5, 1.1, '#b4a898', ry); b.m = 1;
+        if (!o.noDoor) { const [fx, fz] = L(0, d / 2 + .08); b.box(fx, y + .2, fz, 1.6 * K, 2.5 * K, .2, fr, ry); const [ex, ez] = L(0, d / 2 + .16); b.box(ex, y + .25, ez, 1.12 * K, 2.2 * K, .1, o.door || (S0.roof === 'flat' ? '#6a4a2e' : '#7a4a2a'), ry); b.m = 3; const [gx, gz] = L(0, d / 2 + .7); b.box(gx, y - .45, gz, 2.1 * K, .5, 1.1, '#b4a898', ry); b.m = 1;
           if (S0.awn) { const [ax, az] = L(0, d / 2 + .9); b.m = 0; b.box(ax, y + 2.6 * K, az, 2.8 * K, .12, 1.8, pick(S0.awn, x, z, 5), ry, .85); b.m = 1; }
           if (S0.lantern) { const [lx, lz] = L(1.3 * K, d / 2 + .5); b.m = 0; b.sphere(lx, y + 2.3 * K, lz, .32 * K, 6, '#e8402e', 1.2); b.m = 1; }
           else if (hd) { const [lx, lz] = L(1.1 * K, d / 2 + .25); b.m = 0; b.box(lx, y + 2.1 * K, lz, .22, .34, .22, '#ffd27a', ry); b.m = 1; } }
+        if (A === 'shop' && !o.noDoor) { /* 店面：門兩側的大櫥窗＋遮雨棚 */ for (const sx of [-1, 1]) { const [gx, gz] = L(sx * w * .29, d / 2 + .1); b.m = 1; b.box(gx, y + .6, gz, w * .3, 1.9 * K, .16, fr, ry); b.m = 0; const [hx, hz] = L(sx * w * .29, d / 2 + .17); b.box(hx, y + .75, hz, w * .26, 1.6 * K, .1, glass, ry); b.m = 1; }
+          const [ax, az] = L(0, d / 2 + .9); b.m = 0; b.box(ax, y + 2.7 * K, az, w * .92, .14, 1.6, pick(S0.awn || ['#c8322b', '#2c6ab0', '#3a8a5a', '#d8a03a'], x, z, 5), ry, .85); b.m = 1; if (!o.sign) o.sign = pick(['#c8322b', '#2c6ab0', '#d8a03a', '#3a8a5a'], z, x); }
+        if (hd && !o.noDoor && vh(x + 1, z) < .65) { /* 門邊的小東西：木桶、木箱、花盆、柴堆 */ const sx = vh(z, x + 2) < .5 ? -1 : 1, [qx, qz] = L(sx * (w / 2 - .7 * K), d / 2 + .75 * K), kind = Math.floor(vh(x + 3, z + 1) * 4); b.m = 1;
+          if (kind === 0) { b.cyl(qx, y - .1, qz, .42 * K, .38 * K, 1 * K, 8, '#8a5a34', '#7a4e2c'); b.box(qx, y + .35 * K, qz, .9 * K, .08, .9 * K, '#5a5650', ry); }
+          else if (kind === 1) { b.box(qx, y - .1, qz, .9 * K, .85 * K, .9 * K, '#a8875a', ry + .3); b.box(qx + .3, y + .75 * K, qz - .2, .6 * K, .55 * K, .6 * K, '#9a7a4e', ry - .2); }
+          else if (kind === 2) { b.cyl(qx, y - .1, qz, .38 * K, .48 * K, .7 * K, 8, '#b5643c'); b.m = 0; b.sphere(qx, y + .75 * K, qz, .5 * K, 6, pick(['#e85a8a', '#f4c43a', '#8a5ad8', '#ff8a4a'], x, z), .8); }
+          else { for (let q = 0; q < 3; q++) b.box(qx, y - .1 + q * .34 * K, qz, 1.4 * K - q * .2, .32 * K, .7 * K, shade('#8a6440', .9 + q * .07), ry); } b.m = 0; }
         if (o.sign) { const [sx, sz] = L(w / 2 + .3, d / 2 - .6); b.box(sx, y + 2.6 * K, sz, .1, .1, 1.4, fr, ry); const [tx, tz] = L(w / 2 + .3, d / 2 - .9); b.m = 0; b.box(tx, y + 1.9 * K, tz, .12, .8, 1.2, o.sign, ry); b.m = 1; }
         /* 屋頂 */
         /* v149 屋頂：真正的斜面（有厚度、屋簷、山牆三角、博風板、屋脊），不再是一階一階的方塊；瓦片沿著斜面一排排鋪 */
@@ -173,12 +196,18 @@
             const len = Math.hypot(B[0] - A[0], B[2] - A[2]); if (len < .3) continue; const dx = (B[0] - A[0]) / len, dz = (B[2] - A[2]) / len, yaw = Math.atan2(-dz, dx), mid = [(e0[0] + e1[0]) / 2 - (r0[0] + r1[0]) / 2, (e0[2] + e1[2]) / 2 - (r0[2] + r1[2]) / 2], hz = Math.hypot(mid[0], mid[1]) || 1,
               pitch = Math.atan2(r0[1] - e0[1], hz * 1), sgn = (mid[0] * Math.sin(yaw) + mid[1] * Math.cos(yaw)) > 0 ? 1 : -1, m = Math.max(1, Math.round(len / .5));
             for (let j = 0; j < m; j++) { const s2 = (j + .5 + (i % 2) * .5) / m; if (s2 > 1) continue; const k = .84 + ur() * .24; put('tile', A[0] + (B[0] - A[0]) * s2, A[1] + (B[1] - A[1]) * s2 - .04, A[2] + (B[2] - A[2]) * s2, yaw, len / m * .94, .1, sl / nr * 1.25, [C[0] * k, C[1] * k, C[2] * k], sgn * (pitch + .06)); } } };
+        w = wT; d = dT;
         const top = y + .3 + h, RT = o.roofType || S0.roof; let rtop = top;
         if (RT === 'gable') { b.m = 2; const over = .6, hdz = d / 2 + over, hx = w / 2 + over * .8, rh = Math.min(3.6 * K, d * .55), ye = top - over * rh / (d / 2), yr = top + rh;
           for (const sd of [-1, 1]) { const e0 = P3(-hx, ye, sd * hdz), e1 = P3(hx, ye, sd * hdz), r0 = P3(-hx, yr, 0), r1 = P3(hx, yr, 0); slab(e0, e1, r0, r1, roof); tiles(e0, e1, r0, r1, roof); }
           b.m = 4; for (const sx of [-1, 1]) { const a = P3(sx * w / 2, top, -d / 2), bb = P3(sx * w / 2, top, d / 2), c = P3(sx * w / 2, yr - .1, 0), out = P3(sx * 5, 0, 0); face(a, bb, c, null, shade(wall, .97), [out[0] - x, 0, out[2] - z]);
             if (hd && beam) { b.m = 1; const [mx, mz] = L(sx * (w / 2 + .06), 0); b.box(mx, top, mz, .16, rh * .8, .2, beam, ry); b.m = 4; } }
-          b.m = 2; b.box(x, yr - .2, z, (hx + .1) * 2, .32, .46, shade(roof, .62), ry); rtop = yr; }
+          b.m = 2; b.box(x, yr - .2, z, (hx + .1) * 2, .32, .46, shade(roof, .62), ry); rtop = yr;
+          if (A === 'dormer') { /* 老虎窗：從前面的斜面伸出來的小窗屋 */ const nD = w > 7.5 * K ? 2 : 1, t = .4, lz0 = hdz * (1 - t), ys = ye + (yr - ye) * t, dw2 = 1.5 * K, dh = 1.6 * K, lzf = lz0 + 1.05 * K;
+            for (let q = 0; q < nD; q++) { const lx = nD === 1 ? 0 : (q - .5) * w * .46, [cx2, cz2] = L(lx, (lz0 + lzf) / 2 - .4); b.m = 4; b.box(cx2, ys - .6, cz2, dw2, dh + .6, lzf - lz0 + .8, wall, ry);
+              const [gx, gz] = L(lx, lzf - .35); b.m = 0; b.box(gx, ys + .05, gz, dw2 * .62, dh * .6, .12, glass, ry); b.m = 2;
+              const yt = ys + dh, ytr = yt + .75 * K; for (const sx of [-1, 1]) { const e0 = P3(lx + sx * (dw2 / 2 + .25), yt, lz0 - .6), e1 = P3(lx + sx * (dw2 / 2 + .25), yt, lzf + .2), r0 = P3(lx, ytr, lz0 - .6), r1 = P3(lx, ytr, lzf + .2); slab(e1, e0, r1, r0, roof); }
+              b.m = 4; face(P3(lx - dw2 / 2, yt, lzf - .3), P3(lx + dw2 / 2, yt, lzf - .3), P3(lx, ytr - .1, lzf - .3), null, shade(wall, 1), (() => { const [ox, oz] = L(lx, lzf + 5); return [ox - cx2, 0, oz - cz2]; })()); } } }
         else if (RT === 'hip') { b.m = 2; const over = S0.skirt ? 1.1 : .6, ex = w / 2 + over, ez = d / 2 + over, mn = Math.min(ex, ez), rh = Math.min(3.2 * K, Math.min(w, d) * .5), ye = top - .2, yr = top + rh, rx = Math.max(0, ex - ez), rz = Math.max(0, ez - ex);
           const R1 = P3(-rx, yr, -rz), R2 = P3(rx, yr, rz), E = [P3(-ex, ye, ez), P3(ex, ye, ez), P3(ex, ye, -ez), P3(-ex, ye, -ez)], Rf = rx ? [R1, R2] : [P3(0, yr, -rz), P3(0, yr, rz)];
           /* 四面：前後（梯形或三角）、左右 */
@@ -194,13 +223,70 @@
         else { b.m = 4; b.box(x, top - .05, z, w + .2, .25, d + .2, shade(wall, .82), ry); [[0, d / 2], [0, -d / 2], [w / 2, 0], [-w / 2, 0]].forEach(([lx, lz]) => { const [px, pz] = L(lx, lz); b.box(px, top + .1, pz, lz ? w + .2 : .3, .7, lz ? .3 : d + .2, shade(wall, .92), ry); });
           if (S0.dome && vh(z, x) < .35) { b.m = 2; b.sphere(x, top + .2, z, Math.min(w, d) * .28, 8, pick(S0.dome, x, z), .8); }
           if (o.style === 'future' || (D.style === 'future' && !o.style)) { b.m = 0; b.box(x, top + .2, z, w * .6, .12, d * .6, '#5ad0ff', ry); } rtop = top + .8; }
-        if (S0.chim && !o.noChimney) { const [cx, cz] = L(w * .3, -d * .2); b.m = 3; b.box(cx, top - .2, cz, .8 * K, rtop - top + 1.3, .8 * K, '#9a8e82', ry); b.box(cx, rtop + 1.1, cz, 1 * K, .22, 1 * K, '#8a7e72', ry); CHIMNEYS.push([cx, rtop + 1.4, cz]); }
+        if (A === 'porch' && !o.noDoor) { /* 門廊：兩根柱子＋小斜屋頂＋木平台 */ const pw = Math.min(w0 * .42, 2.6 * K), yB = y + 2.9 * K, yA = yB - .7 * K, pz = d0 / 2 + 1.25 * K; b.m = 1;
+          for (const sx of [-1, 1]) { const [px, pz2] = L(sx * pw, pz - .15); b.box(px, y - .1, pz2, .26 * K, yA - y + .1, .26 * K, fr, ry); }
+          const [dx2, dz2] = L(0, d0 / 2 + .6 * K); b.box(dx2, y - .3, dz2, pw * 2 + .5, .32, 1.3 * K, shade(beam || '#8a6a46', 1.05), ry); b.m = 2; const P3p = (lx, yy, lz) => { const [qx, qz] = L(lx, lz); return [qx, yy, qz]; };
+          slab(P3p(-pw - .3, yA, pz + .25), P3p(pw + .3, yA, pz + .25), P3p(-pw - .3, yB, d0 / 2), P3p(pw + .3, yB, d0 / 2), roof); b.m = 1; }
+        if (A === 'tower') { /* 角樓：比房子高一層的方塔，尖頂（平頂風格是女兒牆、圓頂風格是小圓頂） */ const sT = Math.max(2.2 * K, Math.min(w, d) * .42), sg = vh(z, x) < .5 ? -1 : 1, [tx, tz] = L(sg * (w / 2 - sT / 2 + .3), -d / 2 + sT / 2 - .3), th = h + FH * 1.15, yt = y + .3 + th;
+          b.m = 4; b.box(tx, y + .3, tz, sT, th, sT, shade(wall, .97), ry); b.m = 0; for (const [ax2, az2] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) { const [wx2, wz2] = L(sg * (w / 2 - sT / 2 + .3) + ax2 * (sT / 2 + .04), -d / 2 + sT / 2 - .3 + az2 * (sT / 2 + .04)); b.box(wx2, yt - FH * .62, wz2, az2 ? sT * .34 : .1, FH * .38, ax2 ? sT * .34 : .1, glass, ry); }
+          if (RT === 'flat') { b.m = 4; b.box(tx, yt, tz, sT + .3, .6, sT + .3, shade(wall, .9), ry); rtop = Math.max(rtop, yt + .6); }
+          else if (RT === 'dome') { b.m = 2; b.sphere(tx, yt, tz, sT * .55, hd ? 10 : 7, roof, .8); rtop = Math.max(rtop, yt + sT * .45); }
+          else { b.m = 2; b.cyl(tx, yt - .1, tz, sT * .8, 0, sT * (S0.jit ? 1.6 : 1.15), 4, roof, null, ry + Math.PI / 4); rtop = Math.max(rtop, yt + sT); } }
+        if (S0.chim && !o.noChimney) { const CPOS = [[.3, -.2], [-.3, -.2], [.32, .12], [-.26, .1]][Math.floor(vh(x * 3, z) * 4) % 4], [cx, cz] = L(w * CPOS[0], d * CPOS[1]); b.m = 3; b.box(cx, top - .2, cz, .8 * K, rtop - top + 1.3, .8 * K, '#9a8e82', ry); b.box(cx, rtop + 1.1, cz, 1 * K, .22, 1 * K, '#8a7e72', ry); CHIMNEYS.push([cx, rtop + 1.4, cz]); }
         if (UL) { const fc = hex(S0.roof === 'flat' ? shade(wall, .78) : '#a99d90'); for (const [ax, az, bx2, bz2] of [[-1, -1, 1, -1], [1, -1, 1, 1], [1, 1, -1, 1], [-1, 1, -1, -1]]) { const len = Math.abs(bx2 - ax) * w + Math.abs(bz2 - az) * d, nn = Math.max(2, Math.round(len / .95));
             for (let k = 0; k < nn; k++) { const t = (k + .5) / nn, [px, pz] = L((ax + (bx2 - ax) * t) * (w / 2 + .3), (az + (bz2 - az) * t) * (d / 2 + .3)), q = .86 + ur() * .22; put('block', px, y - .62, pz, ry, Math.abs(bx2 - ax) ? len / nn * .92 : .5, .5, Math.abs(bz2 - az) ? len / nn * .92 : .5, [fc[0] * q, fc[1] * q, fc[2] * q]); } } }
         b.m = 0; b.noBot = false; O.push([x, z, Math.max(w, d) / 2 + .2]); fp(x, z, Math.max(w, d) / 2 + .6);
+        if (WG) { flatPad(WG.wx, WG.wz, WG.ww + .6, WG.dw + .6, ry, y); house(WG.wx, WG.wz, WG.ww, WG.dw, Math.max(1, fl - 1), ry, { style: o.style, k: K, y, arch: 'base', noDoor: 1, noChimney: 1, roofType: RT === 'flat' || RT === 'dome' ? RT : 'gable', roof, wall, exact: 1, wing: 1 }); }
         return { door: L(0, d / 2 + 2.2 * K), y, top: rtop };
       }
       I.house = house;
+      /* v151 艾爾巴夫的北歐巨人風建築：長屋（草皮屋頂、龍頭交叉博風板、盾牌）、圓木屋（疊圓木牆、石煙囪）、瞭望塔（高腳）、石基大宅（下層石造）、樹樁屋、工坊（側屋、鐵鎚招牌、鐵砧）；
+         o.theme 是村子的特色擺設：fish 曬網與倒放的小船、hunt 獸皮架與弓靶、craft 鐵砧、west 木桶木箱 */
+      function norse(x, z, w, d, fl, ry, o, A, S0, K, y, L, wall, roof) {
+        const turf = ['#5e8a3a', '#6a9a48', '#557e36', '#668e40'], shing = ['#6e5a3e', '#5a4a3a', '#7a6446'], FH = 3.1 * K, base = { style: o.style, k: K, exact: 1, wing: 1 }, v = vh(x * 1.7, z * .9);
+        const P3 = (lx, yy, lz) => { const [px, pz] = L(lx, lz); return [px, yy, pz]; }, dq = (a, bb, c, dd, col) => { col = hex(col); b.quad(a, bb, c, dd, col); b.quad(a, dd, c, bb, col); };
+        const disc = (lx, yy, lz, r, col) => { col = hex(col); const n = hd ? 12 : 8, C = P3(lx, yy, lz + .03); for (let i = 0; i < n; i++) { const a0 = i / n * 6.2832, a1 = (i + 1) / n * 6.2832, p0 = P3(lx + Math.cos(a0) * r, yy + Math.sin(a0) * r, lz), p1 = P3(lx + Math.cos(a1) * r, yy + Math.sin(a1) * r, lz); b.tri(C, p0, p1, col); b.tri(C, p1, p0, col); } };
+        const beam = S0.beam, logW = pick(['#8a6440', '#7a5634'], x, z); let R;
+        if (A === 'stump') { /* 巨大樹樁裡的家 */ const Rr = Math.min(w, d) * .55, Ht = FH * 1.75; if (o.y == null) flatPad(x, z, Rr * 2 + 1, Rr * 2 + 1, ry, y);
+          b.m = 5; b.cyl(x, y - .6, z, Rr * 1.1, Rr, Ht + .6, 14, '#6e4e32', '#9a7a54'); b.m = 0; b.cyl(x, y + Ht - .1, z, Rr * 1.08, Rr * .82, .8 * K, 14, turf[0], turf[1]);
+          b.m = 5; for (let i = 0; i < 6; i++) { const a = i / 6 * 6.2832 + v; b.sphere(x + Math.cos(a) * Rr * 1.05, y - .2, z + Math.sin(a) * Rr * 1.05, Rr * .32, 6, '#5e4228', .45); }
+          b.m = 1; const [dx, dz] = L(0, Rr * .98); b.box(dx, y - .1, dz, 1.6 * K, 2.4 * K, .5, '#2a2018', ry); b.sphere(dx, y + 2.3 * K, dz, .8 * K, 8, '#2a2018', .5);
+          b.m = 0; for (const a of [-1.1, 1.1, 2.6]) { const [wx, wz] = L(Math.sin(a) * Rr * 1.01, Math.cos(a) * Rr * 1.01); b.box(wx, y + FH * .9, wz, .9 * K, .9 * K, .9 * K, S0.glass, ry + a); }
+          const [cx, cz] = L(Rr * .4, -Rr * .3); b.m = 3; b.cyl(cx, y + Ht, cz, .45 * K, .4 * K, 1.6 * K, 8, '#8a8478'); CHIMNEYS.push([cx, y + Ht + 1.8 * K, cz]);
+          b.m = 0; O.push([x, z, Rr * 1.15]); fp(x, z, Rr * 1.15 + .6); R = { door: L(0, Rr + 2.2 * K), y, top: y + Ht }; }
+        else if (A === 'watchtower') { /* 高腳瞭望塔：四根柱子撐起的小木屋＋梯子 */ const sT = Math.min(w, d), Hs2 = 4.6 * K; if (o.y == null) flatPad(x, z, sT + 1, sT + 1, ry, y);
+          b.m = 1; for (const [a, e] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) { const [px, pz] = L(a * sT * .42, e * sT * .42); b.box(px, y - .3, pz, .5 * K, Hs2 + .3, .5 * K, beam, ry); }
+          for (const e of [-1, 1]) { const [bx2, bz2] = L(0, e * sT * .42); b.box(bx2, y + Hs2 * .45, bz2, sT * .84, .3 * K, .3 * K, beam, ry); }
+          R = house(x, z, sT * .78, sT * .78, 1, ry, { ...base, y: y + Hs2, arch: 'base', roofType: 'hip', roof: pick(shing, x, z), wall, noChimney: 1 });
+          b.m = 1; const [rx1, rz1] = L(-.6 * K, sT * .39 + 1.4 * K), [rx2, rz2] = L(.6 * K, sT * .39 + 1.4 * K); b.box(rx1, y - .2, rz1, .2 * K, Hs2 + .3, .2 * K, beam, ry); b.box(rx2, y - .2, rz2, .2 * K, Hs2 + .3, .2 * K, beam, ry);
+          for (let q = 1; q < 7; q++) { const [lx, lz] = L(0, sT * .39 + 1.4 * K); b.box(lx, y + q * Hs2 / 7, lz, 1.3 * K, .14 * K, .16 * K, beam, ry); } b.m = 0;
+          const [fx, fz] = L(0, 0); b.m = 0; b.box(fx, R.top + .2, fz, .12 * K, 2.4 * K, .12 * K, '#4a3220', ry); b.box(fx + .5 * K, R.top + 1.6 * K, fz, 1 * K, .7 * K, .05, '#c8322b', ry); R.door = L(0, sT * .39 + 2.6 * K); }
+        else {
+          const opt = A === 'longhouse' ? { arch: 'base', roof: pick(turf, x, z), roofType: 'gable', fl: 1 } : A === 'logcabin' ? { arch: v < .5 ? 'porch' : 'base', roof: pick(shing, x, z), roofType: 'gable', fl: Math.min(fl, 2) }
+            : A === 'stonebase' ? { arch: v < .5 ? 'jetty' : 'base', roof: '#5a6068', roofType: v < .7 ? 'gable' : 'hip', fl: Math.max(2, fl), wall0: '#a8a29a' } : { arch: 'wing', roof: pick(shing, z, x), roofType: 'gable', fl: 1 };
+          R = house(x, z, w, d, opt.fl, ry, { ...base, y: o.y, arch: opt.arch, roof: opt.roof, roofType: opt.roofType, wall: A === 'logcabin' ? logW : wall, wall0: opt.wall0, noChimney: A === 'workshop' || A === 'logcabin' });
+          const yb = R.y, top = yb + .3 + opt.fl * FH;
+          if (A === 'longhouse') { /* 交叉的龍頭博風板＋前牆的圓盾 */ const over = .6, hdz = d / 2 + over, hx = w / 2 + over * .8, rh = Math.min(3.6 * K, d * .55), ye = top - over * rh / (d / 2), yr = top + rh;
+            for (const sx of [-1, 1]) { const lx = sx * (hx + .06); for (const sz of [-1, 1]) dq(P3(lx, ye, sz * hdz), P3(lx, ye + .45 * K, sz * hdz), P3(lx, yr + 1.35 * K, -sz * .9 * K), P3(lx, yr + .9 * K, -sz * .9 * K), beam);
+              b.m = 1; const [hx2, hz2] = L(lx, -.9 * K), [hx3, hz3] = L(lx, .9 * K); b.sphere(hx2, yr + 1.25 * K, hz2, .38 * K, 6, '#3e2a1a'); b.sphere(hx3, yr + 1.25 * K, hz3, .38 * K, 6, '#3e2a1a'); b.m = 0; }
+            const SH = ['#c8322b', '#2c6ab0', '#e8c84a', '#e8e0d0'], n = Math.floor(w / (2.6 * K)); for (let q = 0; q < n; q++) { const lx = (q - (n - 1) / 2) * w / n; if (Math.abs(lx) < 1.8 * K) continue; disc(lx, yb + .3 + FH * .55, d / 2 + .1, .62 * K, SH[(q + Math.round(x)) & 3]); disc(lx, yb + .3 + FH * .55, d / 2 + .16, .16 * K, '#8a8478'); } }
+          if (A === 'logcabin' && hd) { /* 疊圓木：每 0.45 一層的橫木，四角凸出 */ b.m = 1; for (let yy = yb + .5; yy < top - .3; yy += .5 * K) { const sh = shade(logW, .9 + ((yy * 3) % 2 > 1 ? .1 : 0));
+              for (const e of [-1, 1]) { const [ax, az] = L(0, e * (d / 2 + .02)); b.box(ax, yy, az, w + .7 * K, .26 * K, .12, sh, ry); const [bx2, bz2] = L(e * (w / 2 + .02), 0); b.box(bx2, yy + .13 * K, bz2, .12, .26 * K, d + .7 * K, sh, ry); } }
+            const [cx, cz] = L(-(w / 2 + .55 * K), 0); b.m = 3; b.box(cx, yb - .2, cz, 1.3 * K, top - yb + 3.6 * K, 1.6 * K, '#8a8478', ry); CHIMNEYS.push([cx, top + 3.6 * K, cz]); b.m = 0; }
+          if (A === 'workshop') { /* 熔爐煙囪、門上的鐵鎚招牌、門口的鐵砧 */ const [cx, cz] = L(w * .28, -d * .28); b.m = 3; b.box(cx, yb, cz, 1.8 * K, top - yb + 4 * K, 1.8 * K, '#7a7470', ry); CHIMNEYS.push([cx, top + 4.2 * K, cz]);
+            b.m = 1; const [hx, hz] = L(w * .3, d / 2 + .25); b.box(hx, yb + FH * .45, hz, .22 * K, 1.8 * K, .2, '#6a4a2e', ry); b.box(hx, yb + FH * .45 + 1.5 * K, hz, 1.2 * K, .55 * K, .45, '#5a5662', ry);
+            const [ax, az] = L(-w * .3, d / 2 + 1.6 * K); b.m = 3; b.box(ax, yb - .1, az, .7 * K, .9 * K, .6 * K, '#4a4650', ry); b.box(ax, yb + .8 * K, az, 1.4 * K, .4 * K, .7 * K, '#3a3640', ry); b.m = 0; } }
+        /* 村子特色擺設（在房子側邊，不放在路上） */
+        if (hd && o.theme) { const sx = v < .5 ? -1 : 1, [px, pz] = L(sx * (w / 2 + 2.2 * K), d * .1);
+          if (!I.roadAt(px, pz) && free(px, pz, 1.2 * K)) { const yy = Hs(px, pz); b.m = 1;
+            if (o.theme === 'fish') { for (const e of [-1, 1]) { const [qx, qz] = L(sx * (w / 2 + 2.2 * K), d * .1 + e * 1.4 * K); b.box(qx, yy - .2, qz, .2 * K, 2.6 * K, .2 * K, '#6a4a2e', ry); } b.m = 0; for (let q = 0; q < 5; q++) { const [qx, qz] = L(sx * (w / 2 + 2.2 * K), d * .1 - 1.2 * K + q * .6 * K); b.box(qx, yy + .5 * K, qz, .05, 1.9 * K, .07, '#c8b48a', ry); }
+              const [bx2, bz2] = L(sx * (w / 2 + 2.2 * K), d * .1 + 2.8 * K); b.m = 1; b.box(bx2, yy - .1, bz2, 1.4 * K, .8 * K, 3.2 * K, '#5a4a3a', ry, .7); }
+            else if (o.theme === 'hunt') { b.box(px, yy - .2, pz, 2.8 * K, .2 * K, .2 * K, '#6a4a2e', ry); for (const e of [-1, 1]) { const [qx, qz] = L(sx * (w / 2 + 2.2 * K) + e * 1.3 * K, d * .1); b.box(qx, yy - .2, qz, .2 * K, 2.4 * K, .2 * K, '#6a4a2e', ry); } b.m = 0; for (const e of [-.6, .6]) { const [qx, qz] = L(sx * (w / 2 + 2.2 * K) + e * K, d * .1); b.box(qx, yy + .7 * K, qz, .9 * K, 1.4 * K, .1, e < 0 ? '#8a6a4a' : '#9a9088', ry); } b.box(px, yy + 2.1 * K, pz, 2.8 * K, .16 * K, .16 * K, '#6a4a2e', ry); }
+            else if (o.theme === 'craft') { b.m = 3; b.box(px, yy - .1, pz, .8 * K, .9 * K, .7 * K, '#4a4650', ry); b.box(px, yy + .8 * K, pz, 1.5 * K, .4 * K, .7 * K, '#3a3640', ry); b.m = 1; b.box(px + .9 * K, yy - .1, pz, .3 * K, 1.6 * K, .3 * K, '#6a4a2e', ry); }
+            else { b.cyl(px, yy - .1, pz, .55 * K, .5 * K, 1.2 * K, 8, '#8a5a34'); b.cyl(px + 1.2 * K, yy - .1, pz + .3, .5 * K, .45 * K, 1.1 * K, 8, '#7a4e2c'); b.box(px - .4 * K, yy - .1, pz + 1.2 * K, 1 * K, 1 * K, 1 * K, '#a8875a', ry + .4); }
+            b.m = 0; } }
+        return R;
+      }
       /* --- 道路的立體細節：主街路緣石、路燈 --- */
       for (const R of roads) { const hw = R.w / 2;
         if (hd && R.kind === 'promenade') for (let k = 0; k < R.P.length - 1; k += 1) { const [ax, az] = R.P[k], [bx, bz] = R.P[k + 1], L = Math.hypot(bx - ax, bz - az) || 1, nx = -(bz - az) / L, nz = (bx - ax) / L, ang = Math.atan2(bx - ax, bz - az);
@@ -238,12 +324,28 @@
         const y0 = S.y ? S.y[0] : Math.max(1.4, Hs(P[0][0], P[0][1])), y1 = S.y ? S.y[1] : Math.max(1.4, Hs(P[P.length - 1][0], P[P.length - 1][1])), w = S.w || 4, hw = w / 2, st = S.style || 'wood';
         for (let k = 0; k < P.length; k++) { const [x, z] = P[k], t = acc[k] / T, y = y0 + (y1 - y0) * t + (S.arch || 0) * Math.sin(Math.PI * t), nx = P[Math.min(P.length - 1, k + 1)], px = P[Math.max(0, k - 1)], ang = Math.atan2(nx[0] - px[0], nx[1] - px[1]);
           const pw = Math.max(1.6, hw - .35); ST.plats.push({ x0: x - pw, z0: z - pw, x1: x + pw, z1: z + pw, y0: y, y1: y });
-          if (st === 'cloud') { if (k % 2 === 0) { b.m = 0; b.sphere(x, y - .9, z, hw * 1.25, hd ? 7 : 5, mix('#ffffff', '#eef4ff', vh(k, 3)), .42, .15, k + 1); if (hd && k % 4 === 0) { const sx = Math.cos(ang) * hw * 1.1, sz = -Math.sin(ang) * hw * 1.1; b.sphere(x + sx, y - .5, z + sz, hw * .6, 6, '#ffffff', .6, .2, k + 7); b.sphere(x - sx, y - .5, z - sz, hw * .55, 6, '#f4f8ff', .6, .2, k + 9); } } }
+          if (st === 'rainbow') { /* v151 彩虹橋：七色的帶子（走在最上面），起點往下延伸到海面，底下有彩虹霧 */ const RC = ['#e8463a', '#f08a2a', '#f4cc3a', '#5ab84a', '#3a8ad8', '#5a4ab8', '#9a5ad8'], seg = (cx, cy, cz, a2, hgt) => { for (let q = 0; q < 7; q++) { const off = -hw + (q + .5) * w / 7, sx = Math.cos(a2) * off, sz = -Math.sin(a2) * off; b.box(cx + sx, cy - hgt, cz + sz, w / 7 + .03, hgt, 1.18, RC[q], a2); } };
+            b.m = 0; seg(x, y, z, ang, 1.4); if (hd && k % 2 === 0) for (const sd of [-1, 1]) { const sx = Math.cos(ang) * (hw + .05) * sd, sz = -Math.sin(ang) * (hw + .05) * sd; b.box(x + sx, y - .1, z + sz, .12, .5, 1.1, '#ffffff', ang); }
+            if (k === 0) { const nx2 = P[Math.min(P.length - 1, 2)], ddx = P[0][0] - nx2[0], ddz = P[0][1] - nx2[1], dl = Math.hypot(ddx, ddz) || 1; for (let m = 1; m <= 10; m++) { const ex = x + ddx / dl * m * 1.1, ez = z + ddz / dl * m * 1.1, ey = y - m * (y + 2.5) / 10; seg(ex, ey, ez, ang, 1.4); }
+              for (let m = 0; m < 7; m++) b.sphere(x + ddx / dl * 9 + (vh(m, 1) - .5) * w * 1.6, -.6, z + ddz / dl * 9 + (vh(1, m) - .5) * w * 1.6, w * (.35 + vh(m, 4) * .3), hd ? 7 : 5, mix('#ffffff', '#f4eeff', vh(m, 2)), .5, .2, m + 3); }
+            if (k % 7 === 3) { b.m = 0; b.sphere(x, y - 3.2, z, w * .45, hd ? 6 : 5, '#f8f4ff', .45, .25, k); } }
+          else if (st === 'rope') { /* v151 繩索吊橋：一片片木板、兩側繩索、每隔一段一根柱子 */ b.m = 1; b.box(x, y - .3, z, w, .22, .82, mix('#8a6a46', '#a07a52', vh(k, 1)), ang + (vh(k, 2) - .5) * .08);
+            for (const sd of [-1, 1]) { const sx = Math.cos(ang) * (hw - .1) * sd, sz = -Math.sin(ang) * (hw - .1) * sd; b.box(x + sx, y + .95, z + sz, .1, .1, 1.15, '#c8a878', ang); if (k % 4 === 0) b.box(x + sx, y - .3, z + sz, .24, 1.45, .24, '#5e3e2a', ang); if (k % 2 === 0) b.box(x + sx, y - .1, z + sz, .05, 1.05, .05, '#b89868', ang); } b.m = 0; }
+          else if (st === 'cloud') { if (k % 2 === 0) { b.m = 0; b.sphere(x, y - .9, z, hw * 1.25, hd ? 7 : 5, mix('#ffffff', '#eef4ff', vh(k, 3)), .42, .15, k + 1); if (hd && k % 4 === 0) { const sx = Math.cos(ang) * hw * 1.1, sz = -Math.sin(ang) * hw * 1.1; b.sphere(x + sx, y - .5, z + sz, hw * .6, 6, '#ffffff', .6, .2, k + 7); b.sphere(x - sx, y - .5, z - sz, hw * .55, 6, '#f4f8ff', .6, .2, k + 9); } } }
           else { const deck = st === 'stone' ? '#b8ae9e' : st === 'root' ? '#7a5a3a' : st === 'metal' ? '#c8d0dc' : '#9a7048', rail = st === 'red' ? '#c8322b' : st === 'stone' ? '#a39886' : st === 'metal' ? '#5ad0ff' : '#6e4c30';
             b.m = st === 'stone' ? 3 : st === 'metal' ? 0 : st === 'root' ? 5 : 1; b.box(x, y - (st === 'root' ? 1.2 : .45), z, w, st === 'root' ? 1.2 : .45, 1.12, deck, ang);
             if (st !== 'root' && k % 2 === 0) { const sx = Math.cos(ang) * (hw - .15), sz = -Math.sin(ang) * (hw - .15); b.m = st === 'stone' ? 3 : 1; [-1, 1].forEach(sd => { b.box(x + sx * sd, y, z + sz * sd, .22, 1.1, .22, rail, ang); if (hd || st === 'red') b.box(x + sx * sd, y + 1, z + sz * sd, .16, .16, 2.1, rail, ang); }); }
             if (S.posts !== false && k % 6 === 0 && st !== 'root') { const gy = Math.max(-4, Hs(x, z)); if (y - gy > 1.5 && y - gy < 40) { b.m = 1; b.cyl(x, gy - .5, z, .3, .3, y - gy, 6, st === 'red' ? '#8a2a22' : st === 'stone' ? '#a89c8a' : '#6e4c30'); } } }
           b.m = 0; } }
+      /* v151 D.abyss：島四周往大洞落下的瀑布（司法島）。{ r 半徑, zMin 北邊不挖的界線 }，水面在洞裡不畫（e3three），洞底一片深色 */
+      if (D.abyss) { const R1 = s(D.abyss.r), zc = s(D.abyss.zMin), bot = -84; b.m = 0;
+        const fall = (x0, z0, x1, z1, k) => { const col = mix('#e8f4fc', '#9ccbe6', vh(k, 7) * .8), c2 = mix('#cfe6f4', '#7ab4d8', vh(k, 9)), top = [x0, .45, z0], top2 = [x1, .45, z1];
+          b.quad(top, top2, [x1, bot, z1], [x0, bot, z0], hex(col)); b.quad(top, [x0, bot, z0], [x1, bot, z1], top2, hex(c2));
+          if (hd && k % 2 === 0) b.sphere((x0 + x1) / 2, .2, (z0 + z1) / 2, 2.2, 6, '#ffffff', .5, .25, k); };
+        const a0 = Math.asin(Math.max(-1, Math.min(1, zc / R1))), n = Math.ceil(R1 * 2 * Math.PI / 3.2); let k = 0;
+        for (let i = 0; i < n; i++) { const t0 = i / n * 6.2832, t1 = (i + 1) / n * 6.2832, x0 = Math.cos(t0) * R1, z0 = Math.sin(t0) * R1, x1 = Math.cos(t1) * R1, z1 = Math.sin(t1) * R1; if (Math.min(z0, z1) < zc) continue; fall(x0, z0, x1, z1, k++); }
+        const xe = Math.sqrt(Math.max(0, R1 * R1 - zc * zc)); for (let xx = -xe; xx < xe; xx += 3.2) fall(Math.min(xe, xx + 3.2), zc, xx, zc, k++);
+        b.cyl(0, bot - .2, 0, R1 + 4, R1 + 4, .2, 48, '#10202e', '#10202e'); }
       const TS = {}, tk = n => TS[n] = (b.p.length / 9 | 0) - Object.values(TS).reduce((a, v) => a + v, 0); tk('roads');
       /* --- 特色建築 --- */
       const LMK = {};
@@ -251,16 +353,21 @@
         const fn = ISLE2.parts[kind]; if (!fn) continue; const res = fn({ b, x, z, ry: ry || 0, o, Hs, house, O, ST, P, K, fp, flatPad, hd, D: Dd, CHIMNEYS, r, markB, I }); if (o.key) LMK[o.key] = res; }
       I.lm = LMK; tk('landmarks');
       /* --- 沿街房屋 --- */
-      const town = (D.town || []).map(t => ({ x: s(t[0]), z: s(t[1]), r: s(t[2]), fl: t[3], style: t[4], k: t[5] || 1 }));
+      const town = (D.town || []).map(t => ({ x: s(t[0]), z: s(t[1]), r: s(t[2]), fl: t[3], style: t[4], k: t[5] || 1, theme: t[6] }));
       let seed = 4242; const rn = () => (seed = seed * 16807 % 2147483647) / 2147483647;
-      for (const R of roads) { if (!(R.kind in PAVED)) continue; const hw = R.w / 2;
+      let seedV = 777; const rv = () => (seedV = seedV * 16807 % 2147483647) / 2147483647; /* v151 屋型變化用另一組亂數，樹、岩石的位置維持和以前一樣 */
+      for (const R of roads) { if (!(R.kind in PAVED)) continue; const hw = R.w / 2, lastA = ['', '', ''];
         for (let k = 2; k < R.P.length - 2 && houses.length < (D.maxHouses || 220); k += (D.houseStep || 4)) { const [ax, az] = R.P[k - 1], [bx, bz] = R.P[k + 1], L = Math.hypot(bx - ax, bz - az) || 1, ux = (bx - ax) / L, uz = (bz - az) / L, cx = R.P[k][0], cz = R.P[k][1];
           const T = town.find(t => Math.hypot(cx - t.x, cz - t.z) < t.r); if (!T) continue; const core = 1 - Math.hypot(cx - T.x, cz - T.z) / T.r;
-          for (const sd of [-1, 1]) { const fl = Math.max(1, Math.min(3, T.fl + (core > .55 ? 1 : 0) - (core < .2 ? 1 : 0) - (rn() < .25 ? 1 : 0))), w = (fl === 1 ? 6.4 : fl === 2 ? 7.4 : 8.4) * T.k, d = (fl === 1 ? 5.4 : 6 + (fl - 2) * .6) * T.k;
+          for (const sd of [-1, 1]) { const fl = Math.max(1, Math.min(3, T.fl + (core > .55 ? 1 : 0) - (core < .2 ? 1 : 0) - (rn() < .25 ? 1 : 0))); let w = (fl === 1 ? 6.4 : fl === 2 ? 7.4 : 8.4) * T.k, d = (fl === 1 ? 5.4 : 6 + (fl - 2) * .6) * T.k;
+            /* v151 屋型：隨機挑，和同一側上一棟不同；尺寸也有些微差異；斜屋頂風格有 3 成換成另一種屋頂 */
+            const SYt = SY[T.style || D.style] || SY.euro, AL = SYt.arch; let ar = AL[(rv() * AL.length) | 0]; if (ar === lastA[sd + 1] && AL.length > 1) ar = AL[(AL.indexOf(ar) + 1 + ((rv() * (AL.length - 1)) | 0)) % AL.length];
+            w *= .9 + rv() * .22; d *= .92 + rv() * .16; if (SYt.norse) { if (ar === 'longhouse') { w *= 1.4; d *= .92; } else if (ar === 'watchtower' || ar === 'stump') { w = d = Math.min(w, d) * (ar === 'stump' ? 1.05 : .85); } }
+            const rt = !SYt.norse && (SYt.roof === 'gable' || SYt.roof === 'hip') && rv() < .3 ? (SYt.roof === 'gable' ? 'hip' : 'gable') : undefined;
             const off = hw + 1.4 * T.k + d / 2, x = cx - uz * off * sd, z = cz + ux * off * sd, rad = Math.max(w, d) / 2;
             const fx2 = cx - uz * (off + d) * sd, fz2 = cz + ux * (off + d) * sd; /* 靠海那一側不蓋房子，留出海景與沙灘 */
             if (Hs(x, z) < 1.2 || Hs(fx2, fz2) < 1.3 || !free(x, z, rad * .92)) continue; const ry = Math.atan2(-ux * sd, -uz * sd) + Math.PI / 2 * 0; /* 門面向道路 */
-            const face = Math.atan2(cx - x, cz - z); house(x, z, w, d, fl, face, { sign: rn() < .18 ? ['#c8322b', '#2c6ab0', '#d8a03a'][(rn() * 3) | 0] : null, style: T.style, k: T.k }); houses.push([x, z, fl]); } } }
+            const face = Math.atan2(cx - x, cz - z); house(x, z, w, d, fl, face, { sign: rn() < .18 ? ['#c8322b', '#2c6ab0', '#d8a03a'][(rn() * 3) | 0] : null, style: T.style, k: T.k, arch: ar, roofType: rt, theme: T.theme }); lastA[sd + 1] = ar; houses.push([x, z, fl]); } } }
       tk('houses');
       /* --- 田地、牧場（圍籬） --- */
       for (const F of D.fields || []) { const [fx, fz, fw, fd, fa, fc1, fc2] = F, x = s(fx), z = s(fz), w = s(fw), d = s(fd), c = Math.cos(fa), sn = Math.sin(fa);
@@ -274,6 +381,9 @@
       for (const [gx, gz, gr, gn0, kind] of D.groves || []) { const x0 = s(gx), z0 = s(gz), R0 = s(gr), gn = UL ? Math.round(gn0 * 1.7) : gn0;
         for (let i = 0, tries = 0; i < gn && tries < gn * 6; tries++) { const a = rn() * 6.283, dd = Math.sqrt(rn()) * R0, x = x0 + Math.cos(a) * dd, z = z0 + Math.sin(a) * dd, y = Hs(x, z); if (y < 1.4 || I.waterAt(x, z) || I.roadAt(x, z) || !free(x, z, 1.6)) continue;
           if (kind === 'palm') { P.palm(b, x, y, z, .9 + rn() * .45, r); O.push([x, z, .8]); fp(x, z, 1.2); i++; continue; }
+          if (kind === 'candy' && D.homies && rn() < .4) { /* 蛋糕島：會說話的樹（霍米茲）——樹幹上有眼睛和嘴巴 */ const sc = 1.5 + rn() * .8, fa = rn() * 6.283, fx = Math.sin(fa), fz = Math.cos(fa); P.tree(b, x, y, z, sc, r, mix('#6aa848', '#9ac85a', rn()));
+            b.m = 0; for (const e of [-1, 1]) { const ex = x + fx * .55 * sc + fz * e * .32 * sc, ez = z + fz * .55 * sc - fx * e * .32 * sc; b.sphere(ex, y + 2.1 * sc, ez, .3 * sc, 7, '#ffffff'); b.sphere(ex + fx * .2 * sc, y + 2.12 * sc, ez + fz * .2 * sc, .14 * sc, 6, '#1a1a1a'); }
+            b.box(x + fx * .6 * sc, y + 1.4 * sc, z + fz * .6 * sc, .7 * sc, .2 * sc, .12, '#3a1a1a', fa); O.push([x, z, 1.1 * sc]); fp(x, z, 1.6 * sc); i++; continue; }
           if (kind === 'candy') { const cc = ['#ff6aa8', '#ffd25a', '#6ad0ff', '#9ae07a', '#c89aff'][(rn() * 5) | 0], hh = 3 + rn() * 4; b.m = 0; b.cyl(x, y - .2, z, .18, .16, hh, 6, '#ffffff'); b.sphere(x, y + hh + 1, z, 1.4 + rn(), 9, cc, 1); b.sphere(x, y + hh + 1, z, .7, 6, '#ffffff', 1.05); O.push([x, z, .8]); fp(x, z, 1.6); i++; continue; }
           if (kind === 'sakura') { P.tree(b, x, y, z, 1 + rn() * .8, r, mix('#f4a8c8', '#ffd0e0', rn())); O.push([x, z, 1.1]); fp(x, z, 1.4); i++; continue; }
           if (kind === 'snowpine') { P.pine(b, x, y, z, 1 + rn() * .7, mix('#e8f0f4', '#cfdce4', rn())); O.push([x, z, 1.1]); fp(x, z, 1.4); i++; continue; }
@@ -323,10 +433,10 @@
         const FL = ['#ff6a8a', '#ffd34a', '#ffffff', '#b08aff', '#ff9a4a', '#6ad0ff'];
         for (let z = -ext; z < ext; z += 1.6) for (let x = -ext; x < ext; x += 1.6) { const px = x + ur() * 1.6, pz = z + ur() * 1.6, y = Hs(px, pz); if (y < 1.3 || I.roadAt(px, pz) || I.blocked(px, pz) || ur() > (D.clutter || 1)) continue;
           const sl = slope(px, pz), c = hex(col(px, y, pz)), green = c[1] > c[0] * 1.05 && c[1] > c[2], r0 = ur();
-          if (sl > 2.4) { if (r0 < .45) { const k = .8 + ur() * .3; put('peb', px, y - .2, pz, ur() * 6, .6 + ur() * 1.1, .4 + ur() * .7, .6 + ur() * 1.1, [c[0] * k, c[1] * k, c[2] * k]); } continue; }
+          if (sl > 2.4) { if (r0 < .45 && sl < 4.5 && D.slopeRocks !== false) { const k = .8 + ur() * .3; put('peb', px, y - .2, pz, ur() * 6, .6 + ur() * 1.1, .4 + ur() * .7, .6 + ur() * 1.1, [c[0] * k, c[1] * k, c[2] * k]); } continue; }
           if (green) { if (r0 < .6) put('tuft', px, y - .05, pz, ur() * 6, .8 + ur() * .7, .6 + ur() * .9, .8 + ur() * .7, [c[0] * .78, c[1] * .86, c[2] * .7]); else if (r0 < .68 && vn(px * .07, pz * .07) > .56) { const fc = hex(FL[Math.floor(vn(px * .03, pz * .03) * FL.length * 1.6 + ur() * 1.2) % FL.length]); put('flower', px, y + .05, pz, ur() * 6, .9, .9 + ur() * .6, .9, fc); } else if (r0 < .72 && vn(px * .05 + 4, pz * .05 + 8) > .66) shrub(px, y, pz, .8 + ur() * .7); else if (r0 < .78) put('peb', px, y - .05, pz, ur() * 6, .25 + ur() * .35, .18 + ur() * .2, .25 + ur() * .35, [.55 + ur() * .15, .54 + ur() * .12, .5 + ur() * .1]); }
           else if (r0 < .3) put('tuft', px, y - .05, pz, ur() * 6, .7 + ur() * .6, .4 + ur() * .6, .7 + ur() * .6, [c[0] * .72, c[1] * .68, c[2] * .55]);
-          else if (r0 < .44) { const k = .78 + ur() * .2; put('peb', px, y - .05, pz, ur() * 6, .22 + ur() * .4, .14 + ur() * .2, .22 + ur() * .4, [c[0] * k, c[1] * k, c[2] * k]); } }
+          else if (r0 < .44 && sl < 1.2) { const k = .78 + ur() * .2; put('peb', px, y - .05, pz, ur() * 6, .22 + ur() * .4, .14 + ur() * .2, .22 + ur() * .4, [c[0] * k, c[1] * k, c[2] * k]); } }
         if (D.planks) for (let z = -ext; z < ext; z += .62) for (let x = -ext; x < ext; x += 3.2) { const px = x + (Math.round(z / .62) % 4) * .8, y = Hs(px, z); if (y < 3 || I.blocked(px, z)) continue; const c = hex(col(px, y, z)), k = .8 + ur() * .3; put('tile', px, y - .02, z, 0, 3.1, .1, .58, [c[0] * k, c[1] * k, c[2] * k]); }
         if (D.ultraExtra) D.ultraExtra({ put, ur, Hs, I, ext, hex, col });
         const KT = { cob: 20, tile: 12, block: 12, peb: 80, bush: 80, tuft: 12, flower: 8 }; let dtris = 0; const det = {}; for (const k in UD) { det[k] = Float32Array.from(UD[k]); dtris += UD[k].length / 11 * (KT[k] || 12); }

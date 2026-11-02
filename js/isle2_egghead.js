@@ -19,7 +19,7 @@
     skyways: [{ pts: [[0, -14]].concat(sp.slice(2)).concat([[LAB[0] + 40, LAB[1] + 10]]), w: 6, style: 'metal', y: [3.4, 34] }],
     piers: [[[10, 116], [10, 144], 1.4], [[-30, 114], [-34, 140], 1.2]],
     landmarks: [
-      ['labegg', 0, -86, 0, { key: 'lab', r: 20 }], ['futuretower', -30, -84, 0, { h: 46, c: '#ff6aa8' }], ['futuretower', 30, -84, 0, { h: 46, c: '#5ad0ff' }],
+      ['labegg', 0, -86, 0, { key: 'lab', r: 20 }], ['punkrecords', 0, -86, 0, { key: 'punk', h: 74, r: 18 }], ['futuretower', -30, -84, 0, { h: 46, c: '#ff6aa8' }], ['futuretower', 30, -84, 0, { h: 46, c: '#5ad0ff' }],
       ['plaza', 0, 70, 0, { r: 9, fountain: 1 }], ['guild', -18, 84, .3, { key: 'guild', roof: '#ff6aa8', wall: '#f4f6fa' }],
       ['futuretower', 96, 10, 0, { h: 30, c: '#ffd24a' }], ['futuretower', 100, -24, 0, { h: 24, c: '#ffd24a' }], ['labegg', 70, -14, 0, { r: 9 }],
       ['bigship', 40, 150, 0, { s: .9, sail: '#ffffff', hull: '#e8ecf0' }], ['boat', 14, 154, 0, { sail: '#ff6aa8' }]],

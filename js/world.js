@@ -20,7 +20,10 @@
       this.scene = SCENES.buildScene(this.r, chapter.id, (state && state.clear) || [], chapter.layout);
       const env = chapter.env; this.r.env = { sky: E3.hex(env.sky), ground: E3.hex(env.ground), fog: E3.hex(env.fog), fogR: env.fogR, sun: env.sun };
       const [sx, sz] = chapter.spawn; this.p = { x: sx, z: sz, y: (this.scene.Ho || this.scene.H)(sx, sz), flip: false, moving: false, t: 0, target: null };
-      this.cam.yaw = this.cam.tYaw = 0;
+      /* v151 鏡頭：各篇章的距離與角度（新版大地圖），一進場就面向路線的下一個點 */
+      { const CP = { giant: [30, .5], thriller: [20, .5], enies: [22, .5], skypiea: [26, .46], wano: [26, .48], fishman: [24, .46], marineford: [26, .48], dressrosa: [24, .5] }, I2 = this.scene.maxStep, cp = I2 ? (CP[chapter.id] || [24, .48]) : null;
+        if (cp) { this.cam.dist = cp[0]; this.cam.pitch = cp[1]; } this.cam.base = cp; this.cam.pE = this.cam.eff = this.cam.la = null; this.cam.manT = -1e9;
+        const P1 = ((chapter.layout || {}).path || [])[1]; this.cam.yaw = this.cam.tYaw = P1 ? Math.atan2(sx - P1[0], sz - P1[1]) : 0; }
       this.npcs = chapter.npcs.map(n => { if (!this.npcMeshes[n.look]) this.npcMeshes[n.look] = SCENES.npcMesh(this.r, n.look); return { ...n, x: n.pos[0], z: n.pos[1], face: Math.PI, kind: 'npc' }; });
       this.items = []; this.enemies = [];
       this.barrier = this.barrier || SCENES.barrierMesh(this.r, '#8fd8ff');
@@ -54,12 +57,12 @@
     _bind() {
       const c = this.canvas;
       const typing = (e) => /input|textarea|select/i.test(e.target.tagName);
-      window.addEventListener('keydown', e => { if (!this.running || typing(e)) return; const k = e.key.toLowerCase(); this.keys[k] = true; if ((k === 'e' || k === 'enter') && !this.paused) { e.preventDefault(); this.interact(); } if (k === ' ' && !this.paused) { e.preventDefault(); this._jumpReq = true; } if (k === 'q') this.cam.tYaw += .5; if (k === 'r') this.cam.tYaw -= .5; if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k)) e.preventDefault(); if (/^[wasd]$|^arrow/.test(k)) this.p.target = null; });
+      window.addEventListener('keydown', e => { if (!this.running || typing(e)) return; const k = e.key.toLowerCase(); this.keys[k] = true; if ((k === 'e' || k === 'enter') && !this.paused) { e.preventDefault(); this.interact(); } if (k === ' ' && !this.paused) { e.preventDefault(); this._jumpReq = true; } if (k === 'q') { this.cam.tYaw += .5; this.cam.manT = performance.now(); } if (k === 'r') { this.cam.tYaw -= .5; this.cam.manT = performance.now(); } if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k)) e.preventDefault(); if (/^[wasd]$|^arrow/.test(k)) this.p.target = null; });
       window.addEventListener('keyup', e => { this.keys[e.key.toLowerCase()] = false; });
       window.addEventListener('blur', () => { this.keys = {}; });
       let down = null;
       c.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, yaw: this.cam.tYaw, pitch: this.cam.pitch, drag: false, id: e.pointerId }; c.setPointerCapture(e.pointerId); });
-      c.addEventListener('pointermove', e => { if (!down || down.id !== e.pointerId) return; const dx = e.clientX - down.x, dy = e.clientY - down.y; if (Math.hypot(dx, dy) > 6) down.drag = true; if (down.drag) { this.cam.tYaw = down.yaw - dx * .006; this.cam.pitch = Math.max(.18, Math.min(1.1, down.pitch + dy * .004)); } });
+      c.addEventListener('pointermove', e => { if (!down || down.id !== e.pointerId) return; const dx = e.clientX - down.x, dy = e.clientY - down.y; if (Math.hypot(dx, dy) > 6) down.drag = true; if (down.drag) { this.cam.manT = performance.now(); this.cam.tYaw = down.yaw - dx * .006; this.cam.pitch = Math.max(.18, Math.min(1.1, down.pitch + dy * .004)); } });
       c.addEventListener('pointerup', e => { if (down && !down.drag && !this.paused) this._clickMove(e); down = null; });
       c.addEventListener('pointercancel', () => { down = null; });
       const touches = new Map(); let pinch0 = 0, dist0 = 0;
@@ -199,7 +202,10 @@
         const side = mx * rx + mz * rz; if (Math.abs(side) > .2) p.flip = side < 0;
         p.t += dt * 9 * Math.min(1, sp * 1.2);
         // 行進時鏡頭緩慢跟到背後
-        if (!(ix || iz) && p.target) { const want = Math.atan2(-mx, -mz); let d = want - this.cam.tYaw; d = Math.atan2(Math.sin(d), Math.cos(d)); this.cam.tYaw += d * dt * .6; }
+        /* v151：自動前往時，鏡頭依路線前方約 10 單位的點提前轉到背後（看得到下一個轉彎）；手動轉過鏡頭的 3 秒內不自動轉 */
+        if (!(ix || iz) && p.target && performance.now() - (this.cam.manT || -1e9) > 3000) { let ax = p.target[0], az = p.target[1];
+          if (this._path) { let rem = 10, qx = p.x, qz = p.z; for (let i = this._pi; i < this._path.length && rem > 0; i++) { const w = this._path[i], L = Math.hypot(w[0] - qx, w[1] - qz); if (L >= rem) { qx += (w[0] - qx) * rem / L; qz += (w[1] - qz) * rem / L; rem = 0; } else { rem -= L; qx = w[0]; qz = w[1]; } } ax = qx; az = qz; }
+          if (Math.hypot(ax - p.x, az - p.z) > 1.5) { const want = Math.atan2(p.x - ax, p.z - az); let d = want - this.cam.tYaw; d = Math.atan2(Math.sin(d), Math.cos(d)); this.cam.tYaw += d * Math.min(1, dt * 1.6); } }
       }
       /* 高度：地形或腳下的平台；跳躍與掉落有重力 */
       { const S1 = this.scene, g = S1.G ? S1.G(p.x, p.z, p.y) : S1.H(p.x, p.z);
@@ -257,11 +263,15 @@
       for (const o of S.obstacles) { const ox = o[0] - p.x, oz = o[1] - p.z; if (ox * ox + oz * oz > 1600) continue; for (let k = .25; k <= 1; k += .125) { const d = want * k, qx = sy * d * cp0, qz = cy * d * cp0; if ((qx - ox) ** 2 + (qz - oz) ** 2 < (o[2] * 1.5 + 1) ** 2) { want = Math.max(7, d - 2); break; } } }
       /* v146：被房子擋住時不要把鏡頭塞進牆裡，改成抬高視角從屋頂上方看 */
       const blk = want < this.cam.dist * .7; if (blk && S.maxStep) want = Math.max(want, this.cam.dist * .8);
-      const pT = blk && S.maxStep ? Math.max(this.cam.pitch, .95) : this.cam.pitch; this.cam.pE = this.cam.pE == null ? pT : this.cam.pE + (pT - this.cam.pE) * Math.min(1, dt * (pT > this.cam.pE ? 6 : 2));
+      const pT = blk && S.maxStep ? Math.max(this.cam.pitch, .72) : this.cam.pitch; this.cam.pE = this.cam.pE == null ? pT : this.cam.pE + (pT - this.cam.pE) * Math.min(1, dt * (pT > this.cam.pE ? 6 : 2));
       this.cam.eff = this.cam.eff == null ? want : this.cam.eff + (want - this.cam.eff) * Math.min(1, dt * (want < this.cam.eff ? 10 : 3));
       const PE = this.cam.pE, cp = Math.cos(PE), eye = [p.x + Math.sin(this.cam.yaw) * this.cam.eff * cp, p.y + 2.5 + Math.sin(PE) * this.cam.eff, p.z + Math.cos(this.cam.yaw) * this.cam.eff * cp];
       const minY = S.H(eye[0], eye[2]) + 2; if (eye[1] < minY) eye[1] = minY;
-      r.setCamera(eye, [p.x, p.y + 3, p.z], .9);
+      /* v151 看向前方：鏡頭對準角色前方幾步，角色在畫面下方，走路時看得更遠；手機直拿時視野加寬 */
+      if (S.maxStep) { const fx = -Math.sin(this.cam.yaw), fz = -Math.cos(this.cam.yaw), mv = Math.hypot(p.vx || 0, p.vz || 0) > .2 || !!p.target, LA = this.cam.eff * (mv ? .42 : .3);
+        this.cam.la = this.cam.la == null ? LA : this.cam.la + (LA - this.cam.la) * Math.min(1, dt * 1.5); const asp = r.aspect || 1.6;
+        r.setCamera(eye, [p.x + fx * this.cam.la, p.y + 3 + this.cam.eff * .04, p.z + fz * this.cam.la], asp < 1 ? Math.min(1.2, .98 + (1 - asp) * .4) : .98); }
+      else r.setCamera(eye, [p.x, p.y + 3, p.z], .9);
       if (this.chapter.id === 'dark' || this.chapter.id === 'skypiea') { if (Math.random() < dt * .12) this._flashT = .35; if (this._flashT > 0) { this._flashT -= dt; r.flash = Math.max(0, this._flashT) * (this.chapter.id === 'dark' ? .5 : .35); } else r.flash = 0; }
       r.begin();
       if (S.sky) r.draw(S.sky, M.trs(p.x, 0, p.z, 0, 1), { noFog: true, noCull: true, mat: 3 });

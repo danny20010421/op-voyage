@@ -10,6 +10,9 @@
     grass: '#78a85c', grass2: '#8cb868', sand: '#e0d8c4', sand2: '#ece4d0', rock: '#8a8c94', rock2: '#a0a2aa', dirt: '#8e8678', cobble: '#a8a8ac',
     rcol: { promenade: '#d4d4d8', main: '#d0d0d4', street: '#c4c4c8', alley: '#bcbcc0', lane: '#b4ac9c', trail: '#a49c8c' },
     land: [[0, 34, 112, .05], [0, -88, 44, .08]],
+    /* v151 原作：司法島位在海中的大洞正中央，四周的海水往洞裡落下成為瀑布（北邊正義之門那一側留著海） */
+    abyss: { r: 160, zMin: -118 },
+    post2: (h, dx, dz) => { if (h > -.6) return h; const d = Math.hypot(dx, dz), sm = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }, f = sm(160, 154, d) * sm(-118, -112, dz); return h + (-84 - h) * f; },
     bays: [-120, -96, -72, -48, -24, 0, 24, 48, 72, 96, 120].map(x => [x, -46, 1, 12]),
     terrain: [{ fn: (dx, dz, sm) => 2 + 8 * sm(116, 113, dz) + 10 * sm(68, 65, dz) + 10 * sm(20, 17, dz) + 4 * sm(-56, -60, dz) }],
     roads: [

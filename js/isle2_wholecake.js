@@ -22,6 +22,7 @@
       ['mirror', 96, -18, -Math.PI / 2, { key: 'mirror' }], ['mirror', 90, -30, -Math.PI / 2], ['mirror', 102, -6, -Math.PI / 2],
       ['bigship', 0, 150, 0, { s: .9, sail: '#ffd0e0', hull: '#c87a9a' }], ['boat', -40, 150, .3, { sail: '#fff4e0' }]],
     town: [[0, 92, 44, 2, 'candy'], [0, -86, 40, 2, 'candy']],
+    homies: true,
     groves: [[-96, 10, 34, 70, 'candy'], [100, 70, 24, 20, 'candy'], [-60, -90, 24, 26, 'candy'], [120, -110, 18, 16, 'candy'], [60, -100, 18, 14]],
     rocks: [[120, -110, 18, 10], [-120, -70, 16, 8]],
     story: {

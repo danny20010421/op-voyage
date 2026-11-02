@@ -280,4 +280,67 @@
     for (let k = 1; k < 6; k++) b.cyl(x, y + 2 + k * H / 6, z, 3.8 - k * .2, 3.8 - k * .2, .8, 16, c, c); b.sphere(x, y + H + 3, z, 3, 10, c, 1); O.push([x, z, 5]); A.markB && A.markB(x, z, 4.5); fp(x, z, 7); return { y }; };
   /* 火山口（冒煙的暗紅坑） */
   PT.crater = A => { const { b, x, z, Hs, o } = A, y = Hs(x, z), R = o.r || 8; b.m = 0; b.cyl(x, y - .3, z, R, R * .7, .5, 18, '#e8501a', '#ff7a2a'); return { y }; };
+  /* v151 冥界：羅德的樂高城（彩色積木疊成的城牆、四座角塔、中央主堡，積木上有凸點） */
+  PT.legocastle = A => { const { b, x, z, ry, Hs, O, fp, flatPad, hd, o } = A, L = Lf(x, z, ry), y = Hs(x, z), S = o.s || 1, C = ['#d8352a', '#2a62c8', '#f4c430', '#3a9a4a', '#f4f4f0'];
+    flatPad(x, z, 34 * S, 28 * S, ry, y); let ci = 0;
+    const brick = (lx, ly, lz, w, h, d, col) => { const [bx, bz] = L(lx, lz); b.m = 0; b.box(bx, y + ly, bz, w, h, d, col, ry);
+      if (hd) { const nx = Math.max(1, Math.round(w / (1.6 * S))), nz = Math.max(1, Math.round(d / (1.6 * S))); if (nx * nz <= 12) for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) { const [sx, sz] = L(lx - w / 2 + (i + .5) * w / nx, lz - d / 2 + (j + .5) * d / nz); b.cyl(sx, y + ly + h, sz, .42 * S, .42 * S, .32 * S, 8, col); } } };
+    const wall = (x0, z0, x1, z1, gap) => { const len = Math.hypot(x1 - x0, z1 - z0), n = Math.round(len / (4 * S)), ux = (x1 - x0) / len, uz = (z1 - z0) / len;
+      for (let r = 0; r < 3; r++) for (let k = 0; k < n; k++) { const t = (k + (r % 2 ? .5 : 0)) * 4 * S; if (t > len - 2 * S) continue; const cx = x0 + ux * (t + 2 * S), cz = z0 + uz * (t + 2 * S);
+        if (gap && Math.abs(cx - gap[0]) < 4 * S && Math.abs(cz - gap[1]) < 4 * S && r < 2) continue; if (r === 2 && k % 2) continue;
+        brick(cx, r * 2.2 * S - .2, cz, Math.abs(ux) > .5 ? 4 * S : 2.4 * S, 2.2 * S, Math.abs(ux) > .5 ? 2.4 * S : 4 * S, C[(ci++) % 5]); }
+      for (let k = 0; k <= n; k++) { const lx = x0 + ux * k * 4 * S, lz = z0 + uz * k * 4 * S; if (gap && Math.hypot(lx - gap[0], lz - gap[1]) < 4.5 * S) continue; const [px, pz] = L(lx, lz); O.push([px, pz, 2 * S]); } };
+    const W = 15 * S, D2 = 12 * S; wall(-W, D2, W, D2, [0, D2]); wall(W, -D2, -W, -D2); wall(-W, -D2, -W, D2); wall(W, D2, W, -D2);
+    for (const [a, e] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) { for (let r = 0; r < 6; r++) brick(a * W, r * 2.2 * S - .2, e * D2, 5 * S, 2.2 * S, 5 * S, C[(r + (a + 2) + (e + 2) * 2) % 5]); const [tx, tz] = L(a * W, e * D2); O.push([tx, tz, 3.4 * S]); }
+    for (let r = 0; r < 7; r++) { const sh = r > 4 ? (r - 4) * 1.6 * S : 0; brick(0, r * 2.4 * S - .2, -2 * S, 12 * S - sh * 2, 2.4 * S, 9 * S - sh * 1.4, C[(r * 2 + 1) % 5]); }
+    { const [kx, kz] = L(0, -2 * S), [fx, fz] = L(1.6 * S, -2 * S); O.push([kx, kz, 6.5 * S]); b.m = 0; b.box(kx, y + 16.6 * S, kz, .3 * S, 6 * S, .3 * S, '#4a3a2a', ry); b.box(fx, y + 20.6 * S, fz, 3 * S, 1.8 * S, .12, '#d8352a', ry); }
+    fp(x, z, Math.hypot(W, D2) + 4); return { door: L(0, D2 + 4 * S), y }; };
+  /* ---------- v151 原作補強 ---------- */
+  /* 東海：哥亞王國的城牆（石牆、雉堞、兩座圓塔、城門，牆後露出高町的白色高樓） */
+  PT.goawall = A => { const { b, x, z, ry, Hs, O, fp, flatPad, house, hd, o } = A, L = Lf(x, z, ry), y = Hs(x, z), len = o.len || 80, h = o.h || 14; flatPad(x, z, len + 8, 10, ry, y);
+    b.m = 3; b.box(x, y - 1, z, len, h + 1, 3.4, '#b8b2a6', ry); for (let k = 0; k < len / 2.4; k++) { if (k % 2) continue; const [cx, cz] = L(-len / 2 + 1.2 + k * 2.4, 0); b.box(cx, y + h, cz, 1.3, 1.2, 3.6, '#aaa498', ry); }
+    for (const e of [-1, 1]) { const [tx, tz] = L(e * len / 2, 0); b.cyl(tx, y - 1, tz, 4.6, 4.2, h + 7, 16, '#c4beb2'); b.m = 2; b.cyl(tx, y + h + 6, tz, 5.2, 0, 6, 16, '#3a5a9a'); b.m = 3; O.push([tx, tz, 4.8]); }
+    { const [gx, gz] = L(0, 1.8); b.box(gx, y - .2, gz, 7, 8.6, .4, '#5a4632', ry); b.m = 3; for (const e of [-1, 1]) { const [px, pz] = L(e * 5.2, 0); b.box(px, y - 1, pz, 3.2, h + 4, 4.2, '#c4beb2', ry); } b.box(gx, y + 8.4, gz, 10.6, 1.4, 1, '#a49e92', ry); }
+    for (let k = 0; k <= len / 3; k++) { const [px, pz] = L(-len / 2 + k * 3, 0); O.push([px, pz, 2]); }
+    if (house) for (let k = 0; k < 4; k++) { const [hx, hz] = L(-len * .3 + k * len * .2, -9 - (k % 2) * 3); house(hx, hz, 7, 6, 3 + (k % 2), ry, { style: 'stone', wall: '#f4f0e8', roof: '#3a5a9a', arch: k % 2 ? 'tower' : 'base', noDoor: 1, exact: 1, wing: 1 }); }
+    b.m = 0; fp(x, z, len / 2 + 4); return { door: L(0, 6), y }; };
+  /* 東海：灰色終點站（城牆外的垃圾山：一座座垃圾堆、木板、木桶、廢鐵、拼湊的小屋、悶燒的煙） */
+  PT.trashheap = A => { const { b, x, z, Hs, O, fp, hd, o, CHIMNEYS } = A, R = o.r || 22; let s = 31; const rn = () => (s = s * 16807 % 2147483647) / 2147483647;
+    for (let k = 0; k < (hd ? 9 : 6); k++) { const a = rn() * 6.283, d = R * Math.sqrt(rn()) * .8, px = x + Math.cos(a) * d, pz = z + Math.sin(a) * d, py = Hs(px, pz), r = 3 + rn() * 4; b.m = 0; b.sphere(px, py - r * .3, pz, r, hd ? 9 : 6, mix('#6e665a', '#8a7a62', rn()), .55, .3, k + 5); O.push([px, pz, r * .8]);
+      for (let q = 0; q < (hd ? 7 : 3); q++) { const a2 = rn() * 6.283, d2 = r * (.3 + rn() * .6), qx = px + Math.cos(a2) * d2, qz = pz + Math.sin(a2) * d2, qy = py + r * .15 * (1 - d2 / r) + .2, t = rn();
+        if (t < .35) { b.m = 1; b.box(qx, qy, qz, .3, .25, 2.4 + rn() * 2, mix('#7a5a3a', '#9a7a52', rn()), a2); } else if (t < .6) { b.m = 1; b.cyl(qx, qy - .2, qz, .45, .4, 1, 8, mix('#6a4a2e', '#4a5a6a', rn())); } else if (t < .8) { b.m = 3; b.box(qx, qy - .1, qz, 1 + rn(), .7 + rn() * .6, .8 + rn(), mix('#5a5e66', '#8a6a4a', rn()), a2); } else { b.m = 0; b.box(qx, qy, qz, 1.6, .12, .9, mix('#8a8a90', '#6a7a8a', rn()), a2); } } }
+    { const a = rn() * 6.283, px = x + Math.cos(a) * R * .55, pz = z + Math.sin(a) * R * .55, py = Hs(px, pz); b.m = 1; b.box(px, py - .3, pz, 5, 3.4, 4, '#7a6a56', a); b.m = 3; b.box(px, py + 3.1, pz, 5.8, .3, 4.8, '#6a7078', a + .1); O.push([px, pz, 3]); }
+    for (let k = 0; k < 3; k++) { const a = rn() * 6.283, d = R * .5 * rn(), px = x + Math.cos(a) * d, pz = z + Math.sin(a) * d; CHIMNEYS.push([px, Hs(px, pz) + 3, pz]); }
+    b.m = 0; fp(x, z, R); return { y: Hs(x, z) }; };
+  /* 空島：天國之門（白海上的雲柱與拱門、登記處的小屋） */
+  PT.heavengate = A => { const { b, x, z, ry, o, hd } = A, L = Lf(x, z, ry), W = o.w || 26, H = o.h || 26, y = .4; b.m = 0;
+    for (const e of [-1, 1]) { const [px, pz] = L(e * W / 2, 0); for (let k = 0; k < 7; k++) b.sphere(px + Math.sin(k * 1.7) * .8, y + k * H / 7, pz + Math.cos(k * 2.3) * .8, 4.2 - k * .2, hd ? 9 : 6, mix('#ffffff', '#eef4ff', (k % 3) / 3), .8, .12, k + e * 9); }
+    const [ax, az] = L(0, 0); b.box(ax, y + H - 1, az, W + 4, 3, 3.4, '#ffffff', ry); b.box(ax, y + H + 2, az, W * .6, 2.4, .5, '#e8c048', ry); for (let k = 0; k < 9; k++) { const [cx, cz] = L(-W / 2 - 2 + k * (W + 4) / 8, 0); b.sphere(cx, y + H + .5, cz, 2.6, hd ? 8 : 6, '#ffffff', .6, .15, k + 30); }
+    const [bx, bz] = L(W / 2 + 7, 3); b.sphere(bx, y, bz, 5, hd ? 9 : 6, '#ffffff', .4, .1, 41); b.m = 4; b.cyl(bx, y + 1.4, bz, 2.4, 2.2, 3, 12, '#f4f6fa'); b.m = 2; b.sphere(bx, y + 4.4, bz, 2.6, 8, '#8ac0e8', .6); b.m = 0; return {}; };
+  /* 空島：巨大豆藤頂端的雲上香迪亞（雲朵島、斷柱、黃金鐘） */
+  PT.skybell = A => { const { b, x, z, Hs, o, hd } = A, yc = Hs(x, z) + (o.h || 90); b.m = 0;
+    for (let k = 0; k < (hd ? 14 : 8); k++) { const a = k * 2.399, d = 4 + (k % 4) * 3.4; b.sphere(x + Math.cos(a) * d, yc - 2 - (k % 3), z + Math.sin(a) * d, 6 + (k % 3) * 1.6, hd ? 9 : 6, mix('#ffffff', '#f0f4ff', (k % 4) / 4), .45, .15, k + 50); }
+    b.m = 3; for (let k = 0; k < 6; k++) { const a = k / 6 * 6.283 + .4, px = x + Math.cos(a) * 11, pz = z + Math.sin(a) * 11; b.cyl(px, yc - 1, pz, .8, .7, 3 + (k * 1.9) % 5, 10, '#d8c8a0'); }
+    PT.goldbell({ ...A, o: { y: yc }, O: [], fp: () => {} }); b.m = 0; return { y: yc }; };
+  /* 空島：艾尼路的方舟「馬克西姆」（浮在空中的黃金大船、兩側的螺旋槳） */
+  PT.ark = A => { const { b, x, z, ry, Hs, P, o } = A, L = Lf(x, z, ry), y = Hs(x, z) + (o.y || 40), s = o.s || 2.2;
+    P.ship2(b, x, y, z, ry, s, { len: 16, w: 6, sail: '#f8f0d0', hull: '#e8b830', deck: '#c8962a', trim: '#fff0b0', masts: [0], mastH: 9 });
+    b.m = 0; for (const e of [-1, 1]) for (const f of [-.25, .25]) { const [px, pz] = L(e * 6 * s * .6, f * 16 * s); b.cyl(px, y + 2 * s, pz, .5 * s, .5 * s, 3 * s, 10, '#c8962a'); for (let q = 0; q < 4; q++) b.box(px, y + 5 * s, pz, 6 * s, .15 * s, .7 * s, '#f0d060', ry + q * Math.PI / 4); }
+    return { y }; };
+  /* 頂上戰爭：白鬍子的莫比迪克號（鯨魚頭的大船，凍在冰面上） */
+  PT.mobydick = A => { const { b, x, z, ry, P, O, o } = A, sc = o.s || 1.7;
+    const sh = P.ship2(b, x, .7, z, ry, sc, { len: 15, w: 5.2, head: 'whale', masts: [-.16, .16], mastH: 10, sail: '#f4f2ea', hull: '#e8e4dc', deck: '#a87a50', trim: '#3a5a9a', flag: '#1c1c22' });
+    b.m = 0; for (let k = 0; k < 10; k++) { const a = k / 10 * 6.283, px = x + Math.cos(a) * 12 * sc / 1.7, pz = z + Math.sin(a) * 18 * sc / 1.7; b.box(px, .1, pz, 2 + (k % 3), 1 + (k % 2) * .6, 1.6, '#cfe8f4', a); }
+    O.push([x, z, 6 * sc]); return { y: .7, sh }; };
+  /* 阿拉巴斯坦：葬祭殿（王宮旁、羅賓看歷史本文的大陵墓：階梯基座、列柱、厚重的石頂） */
+  PT.tomb = A => { const { b, x, z, ry, Hs, O, fp, flatPad, hd, o } = A, L = Lf(x, z, ry), y = Hs(x, z), W = o.w || 22, D2 = o.d || 16, c = o.c || '#e4cfa0'; flatPad(x, z, W + 8, D2 + 8, ry, y);
+    b.m = 3; for (let k = 0; k < 4; k++) b.box(x, y - .6 + k * .9, z, W + 6 - k * 1.6, .9, D2 + 6 - k * 1.6, shade(c, .9 + k * .03), ry);
+    const yb = y + 3; for (let k = 0; k < 6; k++) for (const e of [-1, 1]) { const [px, pz] = L(-W / 2 + 1.4 + k * (W - 2.8) / 5, e * (D2 / 2 - 1.2)); b.cyl(px, yb, pz, .9, .8, 8, hd ? 12 : 8, shade(c, 1.04)); }
+    b.m = 4; b.box(x, yb, z, W - 5, 8, D2 - 5, shade(c, .82), ry); b.m = 3; b.box(x, yb + 8, z, W + 1, 1.6, D2 + 1, c, ry); b.box(x, yb + 9.6, z, W - 3, 1.4, D2 - 3, shade(c, .95), ry);
+    { const [dx, dz] = L(0, D2 / 2 - 2.4); b.m = 0; b.box(dx, yb, dz, 3, 5, .3, '#3a2a1e', ry); } O.push([x, z, Math.min(W, D2) / 2 + 2]); fp(x, z, Math.max(W, D2) / 2 + 3); b.m = 0; return { door: L(0, D2 / 2 + 5), y }; };
+  /* 蛋頭島：龐克紀錄（研究層上空的大腦形狀的雲，用一條光柱連到研究所） */
+  PT.punkrecords = A => { const { b, x, z, Hs, o, hd } = A, yc = Hs(x, z) + (o.h || 60), R = o.r || 16; b.m = 0;
+    for (let k = 0; k < (hd ? 26 : 14); k++) { const a = k * 2.399, side = k % 2 ? 1 : -1, d = R * (.25 + (k % 5) * .12), px = x + side * (R * .32 + Math.abs(Math.cos(a)) * d * .5), pz = z + Math.sin(a) * d, py = yc + Math.cos(a * 1.3) * R * .25;
+      b.sphere(px, py, pz, R * (.28 + (k % 3) * .06), hd ? 9 : 6, mix('#ffc8dc', '#f4e0f8', (k % 4) / 4), .8, .12, k + 70); }
+    b.box(x, yc - R * .1, z, .9, R * .7, R * 1.4, '#e8b0c8'); b.cyl(x, Hs(x, z) + 12, z, .8, .8, yc - Hs(x, z) - 12 - R * .3, 10, '#7ae0ff'); return { y: yc }; };
 })(typeof window !== 'undefined' ? window : globalThis);
