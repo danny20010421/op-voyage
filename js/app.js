@@ -282,6 +282,8 @@ function chState() { const st = SAVE.data.chapters[CH.id], m = STEP_INSERTS[CH.i
   const m3 = { marineford: { after: 4, n: 1 } }[CH.id]; if (st && m3 && !st.v103) { st.v103 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m3.after) st.step += m3.n; SAVE.save(); }
   /* v115：和之國篇在屋頂決戰之前插入「炎災」燼小 BOSS（第 11 步） */
   const m4 = { wano: { after: 10, n: 1 } }[CH.id]; if (st && m4 && !st.v115) { st.v115 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m4.after) st.step += m4.n; SAVE.save(); }
+  /* v152：巨人篇在前往冥界之前插入神之騎士團兩場 BOSS 對決（第 7、8 步） */
+  const m5 = { giant: { after: 6, n: 2 } }[CH.id]; if (st && m5 && !st.v152) { st.v152 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m5.after) st.step += m5.n; SAVE.save(); }
   return st; }
 function curStep() { const st = chState(); return st.cleared && st.step >= CH.steps.length ? null : CH.steps[Math.min(st.step, CH.steps.length - 1)]; }
 /* 敵人等級：開啟等級同步時，陣容太強會讓敵人跟著變強 */
@@ -483,7 +485,7 @@ function onInteract(n) {
     if (s && s.type === 'escort' && s.npc === n.id && !ESC) { say(s.startLines || [], () => { ESC = true; refreshWorld(); toast(`護送開始：帶${n.name}到「${s.label}」`, 'gold'); }); return; }
     if (s && s.type === 'talk' && s.npc === n.id) { say(s.lines, completeStep); return; }
     if (s && s.type === 'choice' && s.npc === n.id) { runChoice(s); return; }
-    if (s && s.type === 'duel' && s.npc === n.id) { say(s.lines || [], () => beginFight({ id: s.enemy, boss: false, kind: 'enemy', duel: true })); return; }
+    if (s && s.type === 'duel' && s.npc === n.id) { say(s.lines || [], () => beginFight({ id: s.enemy, boss: !!s.bossDuel, kind: 'enemy', duel: true })); return; } /* v152 bossDuel：用 BOSS 強度（等級、血量、能力加成）對決 */
     if (s && s.type === 'talkAll' && s.npcs.includes(n.id) && !st.talked.includes(n.id)) {
       say(s.lines[n.id], () => { st.talked.push(n.id); SAVE.save(); SFX.play('pickup'); if (s.npcs.every(id => st.talked.includes(id))) completeStep(); else { refreshWorld(); toast(`已打聽 ${s.npcs.filter(id => st.talked.includes(id)).length}/${s.npcs.length}`); } });
       return;
@@ -528,7 +530,7 @@ function onBattleEnd(r) {
     const b = SAVE.data.tokens; completeStep(); msgs.push(`連戰突破！任務完成：${s.title}（寶藏幣 +${SAVE.data.tokens - b}）`); return { message: msgs.join('<br>') };
   }
   if (!r.win) return {};
-  if (r.isBoss) {
+  if (r.isBoss && !(s && s.type === 'duel' && r.enemyId === s.enemy)) {
     if (s && s.type === 'boss') { window.__tbcNext = true; const before = SAVE.data.tokens; const first = !st.cleared; st.cleared = true; completeStep(); if (first) { SAVE.data.tokens += GAME_SETTINGS.clearBonus; msgs.push(`首次通關獎勵：寶藏幣 ×${GAME_SETTINGS.clearBonus}`); Object.entries(CHAR_OBTAIN).forEach(([cid, o]) => { if (o.reward === CH.id && !owned(cid)) { addCrew(cid, 10); msgs.push(`<b>${CHARACTERS[cid].name}</b> 加入了角色背包！（LV 10）`); } }); } SAVE.save(); coins(); const got = SAVE.data.tokens - before; if (got) msgs.unshift(`這一戰共得到寶藏幣 ×${got}`); { const bid = CH.boss, ob = CHAR_OBTAIN[bid] || {}, rate = first ? (ob.bossFirst ?? ob.boss ?? GAME_SETTINGS.bossJoinFirst) : (ob.bossRepeat ?? ob.boss ?? GAME_SETTINGS.bossJoinRepeat), again = ob.boss != null ? ob.boss : GAME_SETTINGS.bossJoinRepeat; if (!owned(bid) && rate <= 0) msgs.push(ob.reward === '_emperor' ? `${CHARACTERS[bid].name} 只能在「皇帝領海」挑戰中取得。` : ob.eventOnly ? `${CHARACTERS[bid].name} 只能從限定活動抽獎池取得。` : `${CHARACTERS[bid].name} 無法透過戰鬥取得，只能在懸賞處召喚。`); else if (!owned(bid)) { if (Math.random() < rate) { addCrew(bid, GAME_SETTINGS.bossJoinLv); msgs.push(`<b>${CHARACTERS[bid].name}</b> 被你的實力打動，加入了角色背包！（LV ${GAME_SETTINGS.bossJoinLv}）`); } else msgs.push(`${CHARACTERS[bid].name} 這次沒有加入。再次擊敗時仍有 ${Math.round(again * 100)}% 機率加入。`); } } pendingClear = { first }; }
   } else {
     if (s && s.type === 'duel' && r.enemyId === s.enemy) { const b = SAVE.data.tokens; completeStep(); msgs.push(`⚔ 對決勝利！任務完成：${s.title}（寶藏幣 +${SAVE.data.tokens - b}）`); if (s.joins && !owned(s.joins)) { addCrew(s.joins, s.joinLv || 20); msgs.push(`<b>${CHARACTERS[s.joins].name}</b> 加入了你的船隊！`); } if (s.after) setTimeout(() => say(s.after), 900); return { message: msgs.join('<br>') }; }

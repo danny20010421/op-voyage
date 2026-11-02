@@ -16,7 +16,7 @@
     ...block('東海篇', ['makino', 'mayor', 'lordcoast'], 10), ...block('阿拉巴斯坦篇', ['vivi', 'koza'], 8), ...block('空島篇', ['enel', 'wiper'], 6),
     ...block('司法島篇', [], 7), ...block('恐怖三桅帆船篇', ['perona'], 6), ...block('魚人島篇', ['hody', 'shirahoshi'], 7),
     ...block('德雷斯羅薩篇', ['monet', 'sugar'], 12), ...block('蛋糕島篇', [], 8), ...block('和之國篇', ['kid', 'kinemon', 'tama', 'yamato'], 12),
-    ...block('蜂巢島篇', [], 4), ...block('蛋頭島篇', ['vegapunk', 'york', 'morgans'], 8), ...block('巨人篇', ['loki', 'dorry', 'brogy'], 12),
+    ...block('蜂巢島篇', [], 4), ...block('蛋頭島篇', ['vegapunk', 'york', 'morgans'], 8), ...block('巨人篇', ['loki', 'dorry', 'brogy', 'gunko', 'shamrock'], 12),
     'imu', '!喬伊波伊'
   ];
   const finalList = ORDER.filter(x => x[0] === '?' || x[0] === '!' || CHARACTERS[x]); const extra = CHARACTER_ORDER.filter(id => !ORDER.includes(id) && CHARACTERS[id]);

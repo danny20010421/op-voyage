@@ -1,0 +1,35 @@
+/* v152 神之騎士團：立繪後方的召喚圖層（地獄三頭犬）與「黑轉支配」全畫面演出 */
+.fighter .f-summon{position:absolute;left:50%;bottom:0;height:100%;width:auto;max-width:none;translate:-50% 0;transform-origin:50% 100%;
+  transform:scale(calc(var(--sc) * var(--ssr,1.1))) scaleX(var(--mx));z-index:-1;pointer-events:none;opacity:.96;filter:drop-shadow(0 0 18px rgba(150,40,255,.55))}
+.fighter.R .f-summon{transform:scale(calc(var(--sc) * var(--ssr,1.1))) scaleX(calc(-1 * var(--mx)))}
+.fighter .f-summon.in{animation:sumIn 1.1s cubic-bezier(.2,.8,.2,1) both}
+.fighter .f-summon.out{animation:sumOut .7s ease-in both}
+@keyframes sumIn{0%{opacity:0;filter:brightness(0) blur(8px) drop-shadow(0 0 0 rgba(150,40,255,0))}45%{opacity:1;filter:brightness(.4) blur(2px) drop-shadow(0 0 40px rgba(170,60,255,.9))}100%{opacity:.96;filter:brightness(1) blur(0) drop-shadow(0 0 18px rgba(150,40,255,.55))}}
+@keyframes sumOut{to{opacity:0;filter:brightness(0) blur(10px)}}
+/* 黑轉支配：黑幕 → 紅色閃電劈開 → 白閃 → 標題重擊；背景圖放大衝進來、震動、紅藍錯位，停留後淡出 */
+.cut-bg{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;animation:cbIn .5s .45s both}
+.cut-bg .cut-img{position:absolute;inset:-4%;background:var(--img) center 30%/cover no-repeat;animation:cbZoom 4.6s .45s cubic-bezier(.15,.85,.25,1) both}
+.cut-bg .cut-rgb{position:absolute;inset:-4%;background:var(--img) center 30%/cover no-repeat;mix-blend-mode:screen;opacity:.45;filter:hue-rotate(-40deg) saturate(2);animation:cbRgb 1.2s .45s ease-out both}
+.cut-bg .cut-vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(255,40,60,0) 30%,rgba(60,0,20,.55) 75%,rgba(10,0,8,.85));animation:cbPulse 1.4s .45s ease-in-out 3}
+.cut-bg.out{animation:cbOut .8s ease-in both}
+@keyframes cbIn{from{opacity:0}to{opacity:1}}
+@keyframes cbOut{to{opacity:0}}
+@keyframes cbZoom{0%{transform:scale(1.45) rotate(-1.5deg);filter:brightness(2.2) contrast(1.4)}12%{transform:scale(1.04) rotate(.4deg);filter:brightness(1.2) contrast(1.2)}100%{transform:scale(1.12);filter:brightness(.95) contrast(1.1)}}
+@keyframes cbRgb{0%{transform:translate(-3%,0) scale(1.4)}30%{transform:translate(1.5%,0) scale(1.05)}100%{transform:translate(0,0) scale(1.1);opacity:0}}
+@keyframes cbPulse{50%{opacity:.6}}
+.cut-fx{position:absolute;inset:0;z-index:60;pointer-events:none;overflow:hidden}
+.cut-fx .cut-black{position:absolute;inset:0;background:#05000a;animation:cfBlack .75s ease-out both}
+.cut-fx .cut-bolts{position:absolute;inset:0;width:100%;height:100%}
+.cut-fx .cut-bolts polyline{fill:none;stroke:#ff2a3a;stroke-width:.7;stroke-linejoin:round;filter:drop-shadow(0 0 1.5px #ff3a4a) drop-shadow(0 0 4px #ff0030);stroke-dasharray:80;stroke-dashoffset:80;animation:cfBolt .9s cubic-bezier(.3,.9,.3,1) both}
+.cut-fx .cut-bolts polyline:nth-child(2n){animation-delay:.08s}.cut-fx .cut-bolts polyline:nth-child(3n){animation-delay:.16s}
+.cut-fx .cut-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,#fff,#ffd0e0 35%,rgba(255,40,80,0) 70%);opacity:0;animation:cfFlash .5s .38s ease-out both}
+.cut-fx .cut-title{position:absolute;left:0;right:0;top:40%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;animation:cfTitle 1.7s .45s cubic-bezier(.2,.9,.2,1) both}
+.cut-fx .cut-title b{font-size:clamp(48px,9vw,120px);font-weight:900;letter-spacing:.12em;color:#fff;-webkit-text-stroke:2px #1a0008;text-shadow:4px 0 0 #ff1a3a,-4px 0 0 #3a6aff,0 0 24px #ff0030,0 0 60px rgba(255,0,48,.8)}
+.cut-fx .cut-title small{font-size:clamp(16px,2.4vw,28px);font-weight:700;letter-spacing:.3em;color:#ffd0d8;text-shadow:0 0 12px #ff0030}
+@keyframes cfBlack{0%{opacity:1}60%{opacity:.95}100%{opacity:0}}
+@keyframes cfBolt{0%{stroke-dashoffset:80;opacity:1}70%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes cfFlash{0%{opacity:0}25%{opacity:1}100%{opacity:0}}
+@keyframes cfTitle{0%{opacity:0;transform:scale(2.6);filter:blur(6px)}14%{opacity:1;transform:scale(.94);filter:blur(0)}22%{transform:scale(1.04)}30%{transform:scale(1)}82%{opacity:1;transform:scale(1.02)}100%{opacity:0;transform:scale(1.1)}}
+#battleScreen.cut-shake .b-arena{animation-name:cutShake;animation-duration:.9s;animation-timing-function:linear}
+@keyframes cutShake{0%,100%{translate:0 0}10%{translate:-14px 6px}20%{translate:12px -8px}30%{translate:-10px 4px}40%{translate:8px -6px}55%{translate:-5px 3px}70%{translate:3px -2px}85%{translate:-1px 1px}}
+@media (prefers-reduced-motion:reduce){.cut-fx .cut-title,.cut-bg .cut-img{animation-duration:.01s}#battleScreen.cut-shake .b-arena{animation:none}}

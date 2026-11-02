@@ -196,6 +196,8 @@
     fisher: { skin: '#c99a73', hair: '#3a2a1a', hs: 'short', top: '#3f6fa3', bottom: '#2b3e59', hat: 'cap', hatC: '#e8e4dc', belly: true, stubble: '#6a5040' },
     franky: { skin: '#e8b890', hair: '#4aa8e8', hs: 'pomp', top: '#e85a8a', bottom: '#3a6ad8', glasses: 'sun', sc: 1.2, bigArms: true },
     kokoro: { skin: '#e8c29a', hair: '#6a3a8a', hs: 'bun', top: '#c8322b', bottom: '#e8b33b', legs: 'skirt', belly: true },
+    gunko: { skin: '#f4dccc', hair: '#3aa8e0', hs: 'short', top: '#1b1b2a', sleeve: '#1b1b2a', bottom: '#1b1b2a', legs: 'skirt', cape: '#f08aa8', hat: 'cap', hatC: '#1b1b22', mask: '#f4f4f0', eye: '#3a6ab0' },
+    shamrock: { skin: '#e8c0a0', hair: '#c8322b', hs: 'long', top: '#1b1b22', bottom: '#f4f2ea', cape: '#2c4ab0', belt: '#d8a03a', sc: 1.08 },
     sogeking: { skin: '#b88a60', hair: '#1b1b1b', hs: 'afro', top: '#e8e4dc', bottom: '#8a6240', cape: '#c8322b', mask: '#e8c170' },
     camie: { skin: '#f3d6bf', hair: '#3fb6a0', hs: 'long', top: '#ffd26c', tail: '#e8753a', sc: .9 },
     jinbe: { skin: '#4a78a8', hair: '#1b1b1b', hs: 'topknot', top: '#e8753a', bottom: '#2b3e59', legs: 'kimono', belly: true, sc: 1.35 },
