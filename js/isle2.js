@@ -102,7 +102,7 @@
 
     /* ---------- 建模 ---------- */
     I.build = (b, H, r, O, Dd, api) => {
-      const { P, K, ST, CHIMNEYS } = api, hd = !!global.E3_HD;
+      const { P, K, ST, CHIMNEYS } = api, hd = !!global.E3_HD, MB = api.mist || b;
       const fp = (x, z, rad) => { occ.push([x, z, rad]); };
       occ.length = 0; houses.length = 0;
       /* v148 極致畫質：大量的小細節（石板路的每一顆石頭、屋瓦、地基石、草叢、花、小石頭、灌木）用「實例」交給渲染器，依距離顯示；地形改用更細的共用頂點網格 */
@@ -324,11 +324,11 @@
         const y0 = S.y ? S.y[0] : Math.max(1.4, Hs(P[0][0], P[0][1])), y1 = S.y ? S.y[1] : Math.max(1.4, Hs(P[P.length - 1][0], P[P.length - 1][1])), w = S.w || 4, hw = w / 2, st = S.style || 'wood';
         for (let k = 0; k < P.length; k++) { const [x, z] = P[k], t = acc[k] / T, y = y0 + (y1 - y0) * t + (S.arch || 0) * Math.sin(Math.PI * t), nx = P[Math.min(P.length - 1, k + 1)], px = P[Math.max(0, k - 1)], ang = Math.atan2(nx[0] - px[0], nx[1] - px[1]);
           const pw = Math.max(1.6, hw - .35); ST.plats.push({ x0: x - pw, z0: z - pw, x1: x + pw, z1: z + pw, y0: y, y1: y });
-          if (st === 'rainbow') { /* v151 彩虹橋：七色的帶子（走在最上面），起點往下延伸到海面，底下有彩虹霧 */ const RC = ['#e8463a', '#f08a2a', '#f4cc3a', '#5ab84a', '#3a8ad8', '#5a4ab8', '#9a5ad8'], seg = (cx, cy, cz, a2, hgt) => { for (let q = 0; q < 7; q++) { const off = -hw + (q + .5) * w / 7, sx = Math.cos(a2) * off, sz = -Math.sin(a2) * off; b.box(cx + sx, cy - hgt, cz + sz, w / 7 + .03, hgt, 1.18, RC[q], a2); } };
-            b.m = 0; seg(x, y, z, ang, 1.4); if (hd && k % 2 === 0) for (const sd of [-1, 1]) { const sx = Math.cos(ang) * (hw + .05) * sd, sz = -Math.sin(ang) * (hw + .05) * sd; b.box(x + sx, y - .1, z + sz, .12, .5, 1.1, '#ffffff', ang); }
-            if (k === 0) { const nx2 = P[Math.min(P.length - 1, 2)], ddx = P[0][0] - nx2[0], ddz = P[0][1] - nx2[1], dl = Math.hypot(ddx, ddz) || 1; for (let m = 1; m <= 10; m++) { const ex = x + ddx / dl * m * 1.1, ez = z + ddz / dl * m * 1.1, ey = y - m * (y + 2.5) / 10; seg(ex, ey, ez, ang, 1.4); }
-              for (let m = 0; m < 7; m++) b.sphere(x + ddx / dl * 9 + (vh(m, 1) - .5) * w * 1.6, -.6, z + ddz / dl * 9 + (vh(1, m) - .5) * w * 1.6, w * (.35 + vh(m, 4) * .3), hd ? 7 : 5, mix('#ffffff', '#f4eeff', vh(m, 2)), .5, .2, m + 3); }
-            if (k % 7 === 3) { b.m = 0; b.sphere(x, y - 3.2, z, w * .45, hd ? 6 : 5, '#f8f4ff', .45, .25, k); } }
+          if (st === 'rainbow') { /* v151 彩虹橋：半透明、像霧氣的七色帶子（畫在 api.mist，world.js 用半透明畫），起點往下延伸到海面，四周有彩虹霧 */ const RC = ['#ff6a5a', '#ffaa4a', '#ffe06a', '#7ad86a', '#6ab0f0', '#8a7ae0', '#c08af0'], seg = (cx, cy, cz, a2, hgt) => { for (let q = 0; q < 7; q++) { const off = -hw + (q + .5) * w / 7, sx = Math.cos(a2) * off, sz = -Math.sin(a2) * off; MB.box(cx + sx, cy - hgt, cz + sz, w / 7 + .03, hgt, 1.18, RC[q], a2); } };
+            seg(x, y, z, ang, .5); if (k % 2 === 0) for (const sd of [-1, 1]) { const sx = Math.cos(ang) * (hw + .2) * sd, sz = -Math.sin(ang) * (hw + .2) * sd; MB.sphere(x + sx, y - .2, z + sz, 1.1 + vh(k, sd + 2) * .9, 6, mix('#ffffff', RC[sd < 0 ? 0 : 6], .25), .7, .3, k * 3 + sd); }
+            if (k === 0) { const nx2 = P[Math.min(P.length - 1, 2)], ddx = P[0][0] - nx2[0], ddz = P[0][1] - nx2[1], dl = Math.hypot(ddx, ddz) || 1; for (let m = 1; m <= 10; m++) { const ex = x + ddx / dl * m * 1.1, ez = z + ddz / dl * m * 1.1, ey = y - m * (y + 2.5) / 10; seg(ex, ey, ez, ang, .5); }
+              for (let m = 0; m < 9; m++) MB.sphere(x + ddx / dl * 9 + (vh(m, 1) - .5) * w * 1.8, -.4, z + ddz / dl * 9 + (vh(1, m) - .5) * w * 1.8, w * (.35 + vh(m, 4) * .35), 7, mix('#ffffff', '#f4eeff', vh(m, 2)), .5, .25, m + 3); }
+            if (k % 3 === 1) MB.sphere(x, y - 2.4 - vh(k, 5) * 2, z, w * (.5 + vh(k, 6) * .3), 6, mix('#ffffff', RC[k % 7], .3), .5, .3, k); }
           else if (st === 'rope') { /* v151 繩索吊橋：一片片木板、兩側繩索、每隔一段一根柱子 */ b.m = 1; b.box(x, y - .3, z, w, .22, .82, mix('#8a6a46', '#a07a52', vh(k, 1)), ang + (vh(k, 2) - .5) * .08);
             for (const sd of [-1, 1]) { const sx = Math.cos(ang) * (hw - .1) * sd, sz = -Math.sin(ang) * (hw - .1) * sd; b.box(x + sx, y + .95, z + sz, .1, .1, 1.15, '#c8a878', ang); if (k % 4 === 0) b.box(x + sx, y - .3, z + sz, .24, 1.45, .24, '#5e3e2a', ang); if (k % 2 === 0) b.box(x + sx, y - .1, z + sz, .05, 1.05, .05, '#b89868', ang); } b.m = 0; }
           else if (st === 'cloud') { if (k % 2 === 0) { b.m = 0; b.sphere(x, y - .9, z, hw * 1.25, hd ? 7 : 5, mix('#ffffff', '#eef4ff', vh(k, 3)), .42, .15, k + 1); if (hd && k % 4 === 0) { const sx = Math.cos(ang) * hw * 1.1, sz = -Math.sin(ang) * hw * 1.1; b.sphere(x + sx, y - .5, z + sz, hw * .6, 6, '#ffffff', .6, .2, k + 7); b.sphere(x - sx, y - .5, z - sz, hw * .55, 6, '#f4f8ff', .6, .2, k + 9); } } }

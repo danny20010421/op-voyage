@@ -15,7 +15,7 @@
     }
     /* ---------- 載入篇章 ---------- */
     load(chapter, playerId, state) {
-      if (this.scene) { this.r.free(this.scene.staticMesh); this.r.free(this.scene.water); (this.scene.roofs || []).forEach(R => this.r.free(R.mesh)); }
+      if (this.scene) { this.r.free(this.scene.staticMesh); if (this.scene.mist) this.r.free(this.scene.mist); this.r.free(this.scene.water); (this.scene.roofs || []).forEach(R => this.r.free(R.mesh)); }
       this.chapter = chapter; this.playerId = playerId;
       this.scene = SCENES.buildScene(this.r, chapter.id, (state && state.clear) || [], chapter.layout);
       const env = chapter.env; this.r.env = { sky: E3.hex(env.sky), ground: E3.hex(env.ground), fog: E3.hex(env.fog), fogR: env.fogR, sun: env.sun };
@@ -276,6 +276,7 @@
       r.begin();
       if (S.sky) r.draw(S.sky, M.trs(p.x, 0, p.z, 0, 1), { noFog: true, noCull: true, mat: 3 });
       r.draw(S.staticMesh, null, { mat: 1 });
+      if (S.mist) r.draw(S.mist, null, { alpha: true, tint: [1, 1, 1, .5], noOutline: true }); /* v151 艾爾巴夫的彩虹霧橋（半透明） */
       /* 屋頂：玩家走進房子時不畫，才看得到室內 */ if (S.roofs) for (const R of S.roofs) { if (p.x > R.x0 && p.x < R.x1 && p.z > R.z0 && p.z < R.z1) continue; r.draw(R.mesh, null, { mat: 1 }); }
       if (S.blade) S.dyn.windmills.forEach(([x, y, z], i) => r.draw(S.blade, M.mul(M.mul(M.trs(x, y, z, 0, 1), M.rz(t * .8 + i)), M.rx(Math.PI / 2))));
       if (S.cloud) S.dyn.clouds.forEach(([x, y, z, s, ph]) => r.draw(S.cloud, M.trs(x + Math.sin(t * .1 + ph) * 6, y + Math.sin(t * .4 + ph), z, ph, s)));
