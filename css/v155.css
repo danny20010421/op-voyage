@@ -4,3 +4,5 @@
 #cxCodexGrid .char.v2:not(.res) .c-art img{object-fit:contain!important;object-position:50% 40%!important;padding:4px 4px 0;box-sizing:border-box}
 /* v155 00GameDevs 特效畫布（js/fx_vfx_v155.js） */
 #battleScreen .b-vfx{pointer-events:none}
+/* 寬版立繪：放大填滿，以臉部為準（js/codex_v155.js 加上 .cx-wide 與 --cxf） */
+#cxCodexGrid .char.v2:not(.res) .c-art img.cx-wide{object-fit:cover!important;object-position:var(--cxf,50% 0%)!important;padding:0;transform:scale(1.22)!important;transform-origin:var(--cxo,50% 24%)}
