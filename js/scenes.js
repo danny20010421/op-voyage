@@ -156,6 +156,7 @@
       /* 船首樓與斜桅 */ { const [fx, fz] = L(0, Ln * .36); b.box(fx, deckY, fz, W * .5, .8 * s, Ln * .14, hull2, ry); const [bx2, bz2] = L(0, Ln * .52); b.cyl(bx2, deckY + .9 * s, bz2, .14 * s, .08 * s, Ln * .14, 6, '#5e3b22', null, 0, [sn * Ln * .12, c * Ln * .12]); }
       /* 船首像 */ { const [hx, hz] = L(0, Ln * .5 + .2 * s); if (o.head === 'whale') { b.sphere(hx, deckY - .4 * s, hz, 1.9 * s, 12, '#f4f2ea', .8); [-1, 1].forEach(sd => { const [ex, ez] = L(sd * .9 * s, Ln * .5 + 1.3 * s); b.sphere(ex, deckY + .1 * s, ez, .24 * s, 6, '#1a1a1a'); }); const [mx, mz] = L(0, Ln * .5 + 1.6 * s); b.box(mx, deckY - 1 * s, mz, 2 * s, .12 * s, .2 * s, '#3a2a2a', ry); }
         else if (o.head === 'sheep') { b.sphere(hx, deckY + .5 * s, hz, .9 * s, 10, '#f4ead8'); [-1, 1].forEach(sd => { const [ex, ez] = L(sd * .7 * s, Ln * .5); b.sphere(ex, deckY + .7 * s, ez, .35 * s, 6, '#e0c890'); }); }
+        else if (o.head === 'dog') { /* v153 卡普的軍艦：狗頭船首 */ b.sphere(hx, deckY + .6 * s, hz, 1.2 * s, 12, '#f4f2ea'); const [nx, nz] = L(0, Ln * .5 + 1.1 * s); b.sphere(nx, deckY + .4 * s, nz, .6 * s, 8, '#f4f2ea', .8); const [ox, oz] = L(0, Ln * .5 + 1.6 * s); b.sphere(ox, deckY + .55 * s, oz, .22 * s, 6, '#1c1c22'); [-1, 1].forEach(sd => { const [ex, ez] = L(sd * .85 * s, Ln * .5 - .1 * s); b.sphere(ex, deckY + 1.5 * s, ez, .45 * s, 6, '#d8d4cc', 1.3); }); }
         else if (o.head === 'lion') { b.sphere(hx, deckY + .6 * s, hz, 1.1 * s, 12, '#f0c040'); b.sphere(hx, deckY + .6 * s, hz, .8 * s, 10, '#f8d870'); }
         else b.sphere(hx, deckY + .2 * s, hz, .45 * s, 8, '#c9973a'); }
       /* 桅杆、帆桁、鼓起的帆、纜繩、旗 */
@@ -196,6 +197,22 @@
     fisher: { skin: '#c99a73', hair: '#3a2a1a', hs: 'short', top: '#3f6fa3', bottom: '#2b3e59', hat: 'cap', hatC: '#e8e4dc', belly: true, stubble: '#6a5040' },
     franky: { skin: '#e8b890', hair: '#4aa8e8', hs: 'pomp', top: '#e85a8a', bottom: '#3a6ad8', glasses: 'sun', sc: 1.2, bigArms: true },
     kokoro: { skin: '#e8c29a', hair: '#6a3a8a', hs: 'bun', top: '#c8322b', bottom: '#e8b33b', legs: 'skirt', belly: true },
+    /* v153 劇情人物造型（原本借用其他角色的外型） */
+    brook: { skin: '#f4f0e8', hair: '#1b1b1b', hs: 'afro', top: '#1b1b22', sleeve: '#1b1b22', bottom: '#1b1b22', hat: 'cowboy', hatC: '#1b1b22', cane: true, collar: '#f4f2ea', sc: 1.25 },
+    perona: { skin: '#f6dccc', hair: '#ff8ac0', hs: 'pony', top: '#1b1b22', sleeve: '#1b1b22', bottom: '#2a1a2a', legs: 'skirt', hat: 'crown', hatC: '#c83a6a', stripes: '#c83a6a' },
+    kuma: { skin: '#c89a73', hair: '#2a2a2a', hs: 'short', top: '#4a3a2a', bottom: '#3a3a3a', hat: 'horned', hatC: '#6a5a4a', glasses: 'round', glassC: '#1b1b1b', sc: 1.9, bigArms: true },
+    aokiji: { skin: '#c8986c', hair: '#1b1b22', hs: 'afro', top: '#f4f6f8', bottom: '#f4f6f8', coat: '#f4f6f8', glasses: 'sun', glassC: '#1b1b22', sc: 1.4 },
+    blackbeard_w: { skin: '#c89a73', hair: '#1b1b1b', hs: 'spiky', top: '#f4f2ea', bottom: '#2a2a3a', hat: 'bandana', hatC: '#c8322b', beard: '#1b1b1b', belly: true, sc: 1.35, coat: '#2a2a3a' },
+    king: { skin: '#8a6a5a', hair: '#f4f2ea', hs: 'long', top: '#1b1b1b', sleeve: '#1b1b1b', bottom: '#1b1b1b', mask: '#2a2a2a', wings: '#1b1b1b', sc: 1.5 },
+    law: { skin: '#d8a880', hair: '#1b1b1b', hs: 'short', top: '#1b1b22', bottom: '#d8c060', coat: '#1b1b22', hat: 'bucket', hatC: '#f4f2ea', hatStripe: '#8a6a4a', sword: true, stubble: '#3a2a20' },
+    kyros_toy: { skin: '#b8bcc4', hair: '#8a8e96', hs: 'buzz', top: '#9aa0a8', bottom: '#8a8e96', hat: 'helmet', hatC: '#b8bcc4', sword: true, sc: .7 },
+    viola: { skin: '#e8c0a0', hair: '#1b1b1b', hs: 'long', top: '#c8322b', sleeve: '#c8322b', bottom: '#c8322b', legs: 'skirt' },
+    sugar: { skin: '#f6dccc', hair: '#3a5a3a', hs: 'short', top: '#2a2a3a', bottom: '#2a2a3a', legs: 'skirt', hat: 'cap', hatC: '#2a2a3a', sc: .78 },
+    pudding: { skin: '#f6dccc', hair: '#8a5a3a', hs: 'long', top: '#ff9ab8', sleeve: '#ff9ab8', bottom: '#ff9ab8', legs: 'skirt', hat: 'scarf', hatC: '#ffd0e0' },
+    catarina: { skin: '#e8c0a0', hair: '#2a1a2a', hs: 'long', top: '#3a1a3a', bottom: '#1b1b22', coat: '#5a2a4a', hat: 'cowboy', hatC: '#2a1a2a' },
+    york: { skin: '#f0d0b8', hair: '#f4f2ea', hs: 'bun', top: '#f4f6fa', bottom: '#f4f6fa', legs: 'skirt', belly: true, sc: 1.1 },
+    bonney: { skin: '#f6dccc', hair: '#ff8ac0', hs: 'long', top: '#3a5a8a', bottom: '#5a3a2a', hat: 'cowboy', hatC: '#3a6a5a' },
+    whitebeard: { skin: '#e0b08a', hair: '#f4f2ea', hs: 'buzz', top: '#f4f2ea', bottom: '#2a2a3a', coat: '#f4f2ea', stache: '#f4f2ea', lance: true, sc: 2.1, bigArms: true },
     gunko: { skin: '#f4dccc', hair: '#3aa8e0', hs: 'short', top: '#1b1b2a', sleeve: '#1b1b2a', bottom: '#1b1b2a', legs: 'skirt', cape: '#f08aa8', hat: 'cap', hatC: '#1b1b22', mask: '#f4f4f0', eye: '#3a6ab0' },
     shamrock: { skin: '#e8c0a0', hair: '#c8322b', hs: 'long', top: '#1b1b22', bottom: '#f4f2ea', cape: '#2c4ab0', belt: '#d8a03a', sc: 1.08 },
     sogeking: { skin: '#b88a60', hair: '#1b1b1b', hs: 'afro', top: '#e8e4dc', bottom: '#8a6240', cape: '#c8322b', mask: '#e8c170' },

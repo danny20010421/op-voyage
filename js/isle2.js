@@ -350,7 +350,7 @@
       /* --- 特色建築 --- */
       const LMK = {};
       for (const L of D.landmarks || []) { const [kind, x0, z0, ry, opt] = L, x = s(x0), z = s(z0), o = opt || {};
-        const fn = ISLE2.parts[kind]; if (!fn) continue; const res = fn({ b, x, z, ry: ry || 0, o, Hs, house, O, ST, P, K, fp, flatPad, hd, D: Dd, CHIMNEYS, r, markB, I }); if (o.key) LMK[o.key] = res; }
+        const fn = ISLE2.parts[kind]; if (!fn) continue; const res = fn({ b, x, z, ry: ry || 0, o, Hs, house, O, ST, P, K, fp, flatPad, hd, D: Dd, CHIMNEYS, r, markB, I, MB }); if (o.key) LMK[o.key] = res; }
       I.lm = LMK; tk('landmarks');
       /* --- 沿街房屋 --- */
       const town = (D.town || []).map(t => ({ x: s(t[0]), z: s(t[1]), r: s(t[2]), fl: t[3], style: t[4], k: t[5] || 1, theme: t[6] }));

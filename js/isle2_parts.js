@@ -58,5 +58,6 @@
     b.m = 1; for (const [lx, lz] of [[-1.5, -.9], [1.5, -.9], [-1.5, .9], [1.5, .9]]) { const [px, pz] = L(lx, lz); b.box(px, y - .1, pz, .15, 2.6, .15, '#6e4c30'); } b.box(x, y - .1, z, 3.2, 1, 1.8, '#8a6a46', ry); b.m = 0; b.box(x, y + 2.5, z, 3.6, .14, 2.4, c, ry, .8);
     for (let q = 0; q < 4; q++) { const [fx, fz] = L(-1.1 + q * .73, 0); b.sphere(fx, y + 1.05, fz, .26, 6, ['#ff9a4a', '#e8553b', '#ffd26c', '#7ac85a'][q]); } O.push([x, z, 1.8]); return { y }; };
   /* 小船（停在水邊） */
-  PT.boat = A => { const { b, x, z, ry, P } = A; P.ship2(b, x, .2, z, ry, .38, { sail: A.o.sail || '#f4ecd8' }); return {}; };
+  PT.boat = A => { const { b, x, z, ry, P } = A, o = A.o || {}; P.ship2(b, x, .2, z, ry, o.s || .38, { sail: o.sail || '#f4ecd8', masts: o.masts, mastH: o.mastH, len: o.len, w: o.w, flag: o.flag, head: o.head });
+    if (o.barrel) { const c = Math.cos(ry), sn = Math.sin(ry), lz = (o.len || 14) * (o.s || .38) * .15; P.barrel(b, x + lz * sn, .2 + 3 * (o.s || .38) * .55, z + lz * c, .7); } /* v153：魯夫出航的小船（無桅、一個木桶） */ return {}; };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -58,7 +58,7 @@
   PT.well = A => { const { b, x, z, Hs, O, fp } = A, y = Hs(x, z); b.m = 3; b.cyl(x, y - .6, z, 1.8, 1.9, 1.1, 14, '#a99070', '#3a2a1e'); b.m = 1; [-1.4, 1.4].forEach(k => b.box(x + k, y - .1, z, .2, 3.2, .2, '#6b4a2f')); b.box(x, y + 3, z, 3.2, .22, .22, '#6b4a2f'); b.cyl(x, y + 1.8, z, .05, .05, 1.2, 4, '#c8b088');
     b.cyl(x + 2.6, y - .1, z + .6, .5, .45, .9, 8, '#8a5a32'); b.box(x - 2.4, y - .1, z - .8, .4, .2, 2.2, '#8a6a46', .6); b.m = 0; O.push([x, z, 2.2]); fp(x, z, 3.5); return { y }; };
   /* 碼頭邊的大帆船 */
-  PT.bigship = A => { const { b, x, z, ry, P, o } = A; P.ship2(b, x, .1, z, ry, o.s || .7, { sail: o.sail || '#f4ecd8', hull: o.hull }); A.O.push([x, z, 5 * (o.s || .7) / .7]); return {}; };
+  PT.bigship = A => { const { b, x, z, ry, P, o } = A; P.ship2(b, x, o.y != null ? o.y : .1, z, ry, o.s || .7, { sail: o.sail || '#f4ecd8', hull: o.hull, head: o.head, masts: o.masts, mastH: o.mastH, flag: o.flag, deck: o.deck, trim: o.trim, len: o.len, w: o.w }); /* v153：可指定船首像（whale/sheep/lion/dog）、桅杆、旗 */ A.O.push([x, z, 5 * (o.s || .7) / .7]); return {}; };
 
   /* ---------- 空島 ---------- */
   /* 雲之家：白色圓屋＋圓頂（天使島的房子） */

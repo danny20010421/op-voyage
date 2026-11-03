@@ -272,7 +272,8 @@ function selectChapter(id) {
 /* ---------- 3D 世界與劇情 ---------- */
 let WORLD = null, CH = null, TIMED = null, CHAIN = null;
 const ENEMY_SPOTS = [[-32, -24], [30, -30], [-8, -18], [-46, 22], [44, 18]];
-const SPOTS = () => (CH && CH.layout && CH.layout.spots) || ENEMY_SPOTS;
+const SPOTS = () => { const base = (CH && CH.layout && CH.layout.spots) || ENEMY_SPOTS, s = CH && typeof curStep === 'function' ? (() => { try { return curStep(); } catch (e) { return null; } })() : null; /* v153：擊敗類任務可以指定自己的敵人位置（在任務地點附近，不必走回頭路） */
+  return s && s.spots && ['defeat', 'gauntlet', 'keys'].includes(s.type) ? s.spots.concat(base.slice(s.spots.length)) : base; };
 /* v41 新增任務後的存檔轉換：已經走過插入點的進度往後移，已通關的篇章維持完成狀態 */
 const STEP_INSERTS = { enies: { after: 4, n: 1 }, wano: { after: 6, n: 2 } }, STEP_INSERTS49 = { east: { after: 5, n: 3 }, dark: { after: 6, n: 1 } };
 function chState() { const st = SAVE.data.chapters[CH.id], m = STEP_INSERTS[CH.id], m2 = STEP_INSERTS49[CH.id];
@@ -284,6 +285,8 @@ function chState() { const st = SAVE.data.chapters[CH.id], m = STEP_INSERTS[CH.i
   const m4 = { wano: { after: 10, n: 1 } }[CH.id]; if (st && m4 && !st.v115) { st.v115 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m4.after) st.step += m4.n; SAVE.save(); }
   /* v152：巨人篇在前往冥界之前插入神之騎士團兩場 BOSS 對決（第 7、8 步） */
   const m5 = { giant: { after: 6, n: 2 } }[CH.id]; if (st && m5 && !st.v152) { st.v152 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m5.after) st.step += m5.n; SAVE.save(); }
+  /* v153：東海篇在克比之前插入「亞爾麗塔號」（第 7 步） */
+  const m6 = { east: { after: 5, n: 1 } }[CH.id]; if (st && m6 && !st.v153 && CH.steps.some(x => x.title === '亞爾麗塔號')) { st.v153 = true; if (st.cleared) st.step = Math.max(st.step, CH.steps.length); else if (st.step > m6.after) st.step += m6.n; SAVE.save(); }
   return st; }
 function curStep() { const st = chState(); return st.cleared && st.step >= CH.steps.length ? null : CH.steps[Math.min(st.step, CH.steps.length - 1)]; }
 /* 敵人等級：開啟等級同步時，陣容太強會讓敵人跟著變強 */
@@ -496,7 +499,7 @@ function onInteract(n) {
     return;
   }
   const lines = ENCOUNTER_LINES[n.id] || ['來吧！'];
-  const intro = n.boss ? [['@' + n.id, lines[0]], ['@' + n.id, lines[1] || lines[0]]] : [['@' + n.id, lines[Math.floor(Math.random() * lines.length)]]];
+  const intro = n.boss && s && s.type === 'boss' && Array.isArray(s.lines) && s.lines.length ? s.lines.slice() /* v153：BOSS 步驟的台詞在開打前播 */ : n.boss ? [['@' + n.id, lines[0]], ['@' + n.id, lines[1] || lines[0]]] : [['@' + n.id, lines[Math.floor(Math.random() * lines.length)]]];
   if (s && s.type === 'gauntlet' && !n.boss) intro.push([null, `連戰開始！要連續擊敗 ${s.count} 名對手，中途體力不會回復。`]);
   say(intro, null, [{ label: n.boss ? '開始 BOSS 戰' : '開始對戰', primary: true, fn: () => beginFight(n) }, { label: '先離開', fn: () => { } }]);
 }
@@ -536,7 +539,7 @@ function onBattleEnd(r) {
     if (s && s.type === 'duel' && r.enemyId === s.enemy) { const b = SAVE.data.tokens; completeStep(); msgs.push(`⚔ 對決勝利！任務完成：${s.title}（寶藏幣 +${SAVE.data.tokens - b}）`); if (s.joins && !owned(s.joins)) { addCrew(s.joins, s.joinLv || 20); msgs.push(`<b>${CHARACTERS[s.joins].name}</b> 加入了你的船隊！`); } if (s.after) setTimeout(() => say(s.after), 900); return { message: msgs.join('<br>') }; }
     /* 只有「擊敗／連戰／奪鑰」任務進行中的戰鬥才會讓敵人消失；提前打倒的敵人會留在原地，避免任務卡住 */
     if (s && ['defeat', 'gauntlet', 'keys'].includes(s.type) && !st.defeated.includes(r.enemyId)) st.defeated.push(r.enemyId); SAVE.save();
-    if (s && s.type === 'keys') { st.keys = (st.keys || 0) + 1; SAVE.save(); if (st.keys >= s.count) { const b = SAVE.data.tokens; completeStep(); msgs.push(`🔑 集齊 ${s.count} 把${s.item || '鑰匙'}！任務完成：${s.title}（寶藏幣 +${SAVE.data.tokens - b}）`); if (s.lines) setTimeout(() => say(s.lines.slice(-1)), 900); } else msgs.push(`🔑 搶到第 ${st.keys} 把${s.item || '鑰匙'}！（${st.keys}/${s.count}）`); }
+    if (s && s.type === 'keys') { st.keys = (st.keys || 0) + 1; SAVE.save(); if (st.keys >= s.count) { const b = SAVE.data.tokens; completeStep(); msgs.push(`🔑 集齊 ${s.count} 把${s.item || '鑰匙'}！任務完成：${s.title}（寶藏幣 +${SAVE.data.tokens - b}）`); if (s.lines && s.lines.length) setTimeout(() => say(s.lines.slice(-1)), 900); } else msgs.push(`🔑 搶到第 ${st.keys} 把${s.item || '鑰匙'}！（${st.keys}/${s.count}）`); }
     if (s && s.type === 'defeat') { if (st.defeated.length >= s.count) { const b = SAVE.data.tokens; completeStep(); msgs.push(`任務完成：${s.title}（寶藏幣 +${SAVE.data.tokens - b}）`); } else msgs.push(`任務進度：${st.defeated.length}/${s.count}`); }
   }
   return { message: msgs.join('<br>') };
