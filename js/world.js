@@ -21,7 +21,7 @@
       const env = chapter.env; this.r.env = { sky: E3.hex(env.sky), ground: E3.hex(env.ground), fog: E3.hex(env.fog), fogR: env.fogR, sun: env.sun };
       const [sx, sz] = chapter.spawn; this.p = { x: sx, z: sz, y: (this.scene.Ho || this.scene.H)(sx, sz), flip: false, moving: false, t: 0, target: null };
       /* v151 鏡頭：各篇章的距離與角度（新版大地圖），一進場就面向路線的下一個點 */
-      { const CP = { giant: [30, .5], thriller: [20, .5], enies: [22, .5], skypiea: [26, .46], wano: [26, .48], fishman: [24, .46], marineford: [26, .48], dressrosa: [24, .5] }, I2 = this.scene.maxStep, cp = I2 ? (CP[chapter.id] || [24, .48]) : null;
+      { /* v154d 使用者 11/04：各篇章預設鏡頭調到最佳視角——拉近一點、角度抬高一點，前景房子比較不會擋住角色 */ const CP = { east: [22, .52], alabasta: [22, .58], skypiea: [24, .52], enies: [22, .52], thriller: [20, .52], marineford: [22, .52], fishman: [22, .5], dressrosa: [22, .54], wholecake: [22, .54], wano: [22, .54], egghead: [22, .52], dark: [22, .52], giant: [28, .52] }, I2 = this.scene.maxStep, cp = I2 ? (CP[chapter.id] || [22, .52]) : null;
         if (cp) { this.cam.dist = cp[0]; this.cam.pitch = cp[1]; } this.cam.base = cp; this.cam.pE = this.cam.eff = this.cam.la = null; this.cam.manT = -1e9;
         const P1 = ((chapter.layout || {}).path || [])[1]; this.cam.yaw = this.cam.tYaw = P1 ? Math.atan2(sx - P1[0], sz - P1[1]) : 0; }
       this.npcs = chapter.npcs.map(n => { if (!this.npcMeshes[n.look]) this.npcMeshes[n.look] = SCENES.npcMesh(this.r, n.look); return { ...n, x: n.pos[0], z: n.pos[1], face: Math.PI, kind: 'npc' }; });
@@ -269,7 +269,7 @@
       const PE = this.cam.pE, cp = Math.cos(PE), eye = [p.x + Math.sin(this.cam.yaw) * this.cam.eff * cp, p.y + 2.5 + Math.sin(PE) * this.cam.eff, p.z + Math.cos(this.cam.yaw) * this.cam.eff * cp];
       const minY = S.H(eye[0], eye[2]) + 2; if (eye[1] < minY) eye[1] = minY;
       /* v151 看向前方：鏡頭對準角色前方幾步，角色在畫面下方，走路時看得更遠；手機直拿時視野加寬 */
-      if (S.maxStep) { const fx = -Math.sin(this.cam.yaw), fz = -Math.cos(this.cam.yaw), mv = Math.hypot(p.vx || 0, p.vz || 0) > .2 || !!p.target, LA = this.cam.eff * (mv ? .42 : .3);
+      if (S.maxStep) { const fx = -Math.sin(this.cam.yaw), fz = -Math.cos(this.cam.yaw), mv = Math.hypot(p.vx || 0, p.vz || 0) > .2 || !!p.target, LA = this.cam.eff * ((r.aspect || 1.6) < 1 ? (mv ? .2 : .1) : (mv ? .36 : .24)); /* v154d 手機直拿時下方被航海日誌擋住，看向前方的距離縮短，角色留在可見畫面中間 */
         this.cam.la = this.cam.la == null ? LA : this.cam.la + (LA - this.cam.la) * Math.min(1, dt * 1.5); const asp = r.aspect || 1.6;
         r.setCamera(eye, [p.x + fx * this.cam.la, p.y + 3 + this.cam.eff * .04, p.z + fz * this.cam.la], asp < 1 ? Math.min(1.2, .98 + (1 - asp) * .4) : .98); }
       else r.setCamera(eye, [p.x, p.y + 3, p.z], .9);

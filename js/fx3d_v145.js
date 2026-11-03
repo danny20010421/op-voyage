@@ -229,11 +229,11 @@
         if (window.FX3D.ready && enabled() && cur && cur.side !== side) try { const now = performance.now(), F = side === 'L' ? battle.player : battle.enemy, big = cur.ult || amount > (F ? F.maxHp * .12 : 1e9);
           if (big && cur.ult && !cur.hitDone) { cur.hitDone = true; impactFrame(); lastT = now; const [fx0, fy0] = pt(side); finisher(fx0, fy0, cur.theme); camPush(side, 1.1, 90); setTimeout(() => camRelease(520), 260 / (window.BSPEED || 1)); }
           else if (big && !cur.ult && now - lastT > 110) hitStop(55);
-          if (now - lastT > 110 / (window.BSPEED || 1)) { lastT = now; const [x, y] = pt(side); impact(x, y, cur.theme, big, side); } } catch (e) { }
+          if (now - lastT > 110 / (window.BSPEED || 1)) { lastT = now; const [x, y] = pt(side); if (!(window.VFX00 && VFX00.hit(side, cur, big, x, y))) impact(x, y, cur.theme, big, side); } } catch (e) { } /* v155：00GameDevs 特效載入後由它接手命中爆發 */
         return r; }; window.showDamage.__fx3 = true; }
     if (typeof window.playChoreo === 'function' && !window.playChoreo.__fx3) { const _p = window.playChoreo; window.playChoreo = async function (side, actor, idx, skill) {
         if (!window.FX3D.ready || !enabled()) { load(); return _p.apply(this, arguments); }
-        const S = side === 'P' ? 'L' : 'R', ult = !!(skill && skill.ultimate), th = themeOf(actor), col = pal(th)[2]; cur = { side: S, theme: th, ult, hitDone: false };
+        const S = side === 'P' ? 'L' : 'R', ult = !!(skill && skill.ultimate), th = themeOf(actor), col = pal(th)[2]; cur = { side: S, theme: th, ult, hitDone: false, skill, actor };
         try { charge(S, th, ult); if (!(skill && skill.type === 'support')) ghosts(S, col); if (ult) { aura(S, th); aura2(S, th); camPush(S, 1.06, 650 / (window.BSPEED || 1)); setTimeout(() => { if (cur && !cur.hitDone) camRelease(600); }, 1300 / (window.BSPEED || 1)); } } catch (e) { }
         /* 奧義期間：全白閃光改成屬性色、強度壓低，避免畫面整片白、看不到特效 */
         const XX = typeof X !== 'undefined' ? X : null, _fl = XX && XX.flash, tf = toHex(mix(pal(th).map(hex)[1], [1, 1, 1], .35));
@@ -241,7 +241,7 @@
           return _fl.call(this, w ? tf : c, life, w ? Math.min(a || .7, .42) : a); };
         try { return await _p.apply(this, arguments); } finally { if (ult && _fl) XX.flash = _fl; camRelease(360); cur = null; BS.zT = 1; BS.rT = 0; BS.hT = 0; wake(); } }; window.playChoreo.__fx3 = true; }
   }
-  window.FX3D = { ready: false, load, impact: (s, th, big) => { const [x, y] = pt(s); impact(x, y, th, big, s); }, charge, impactFrame, enabled };
+  window.FX3D = { ready: false, load, pt, pal, themeOf, geo: () => geo, impact: (s, th, big) => { const [x, y] = pt(s); impact(x, y, th, big, s); }, charge, impactFrame, enabled };
   window.addEventListener('load', () => { setTimeout(hook, 0); });
   /* 第一次進戰鬥時載入 Three.js（之後一直保留） */
   if (typeof window.startBattle === 'function') { const _sb = window.startBattle; window.startBattle = function () { load(); const r = _sb.apply(this, arguments); setTimeout(wake, 0); return r; }; }

@@ -15,7 +15,7 @@
     'shanks', 'blackbeard', 'buggy', 'luffy_nika', 'whitebeard', 'bigmom', 'kaido', /* 第 4 位是魯夫（尼卡型態），立繪完成前保留為神秘編號 */
     ...block('東海篇', ['makino', 'mayor', 'lordcoast', 'alvida'], 10), ...block('阿拉巴斯坦篇', ['vivi', 'koza'], 8), ...block('空島篇', ['enel', 'wiper'], 6),
     ...block('司法島篇', [], 7), ...block('恐怖三桅帆船篇', ['perona'], 6), ...block('魚人島篇', ['hody', 'shirahoshi'], 7),
-    ...block('德雷斯羅薩篇', ['monet', 'sugar'], 12), ...block('蛋糕島篇', [], 8), ...block('和之國篇', ['kid', 'kinemon', 'tama', 'yamato'], 12),
+    ...block('德雷斯羅薩篇', ['monet', 'sugar'], 12), ...block('蛋糕島篇', [], 8), ...block('和之國篇', ['kid', 'kinemon', 'tama', 'yamato', 'luffy_wano', 'zoro_wano', 'sanji_wano'], 12),
     ...block('蜂巢島篇', [], 4), ...block('蛋頭島篇', ['vegapunk', 'york', 'morgans'], 8), ...block('巨人篇', ['loki', 'dorry', 'brogy', 'gunko', 'shamrock'], 12),
     'imu', '!喬伊波伊'
   ];

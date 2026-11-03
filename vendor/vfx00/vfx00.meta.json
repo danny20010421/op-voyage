@@ -1,0 +1,29 @@
+{
+ "source": "https://00gamedevs.com/ai/catalog.v2.json",
+ "contentVersion": "d0969655cdbbd2970e2ece49e16b72c4b69385d4e2d32589b4a06c0febbf782a",
+ "license": "MIT (00GameDevs original code) + Three.js MIT",
+ "assets": {
+  "fireball": "43e7b9d3a7560f73837eebd46ee8a51f659e93a56dc9e77c455406ef5a01c039",
+  "arc-ray": "f4e20d8e1aa0fa1a478d954319d65edf1fddeff096d1a9dfc5c3d067a2d7d174",
+  "healing-field": "bfc95d4eb9078c7ae273cf7a40989852578e30522418969f8b8ea1b49ac109c4",
+  "fire-explosion": "8a90ee8b230f9d04bad251fe6deca120fbdadd1d6eb7457aa0dbc8237fd17af1",
+  "energy-burst": "c24315413b782eecc479dd16880d97dfb8e1d7f405a8fa6215700d84f93a39c8",
+  "shockwave": "02d404d493c2044fd9a004b1b77b292b35fb8b1e6a53597a8986430dc96eec28",
+  "ice-shatter": "6550c1a0494e3b0b998dc6c938053ecc4883f2a8358d34acf549bc44be4fa1a0",
+  "wind-vortex": "78dd6bc861000805c76a30a76dddcebc02fb802439c93327fec69e517b96121f",
+  "dust-devil": "567a97919b0f06d2f653887e4a7591eec71be98a8719216ff71cf56da83a96da",
+  "smoke-column": "14a0dbf9eb9f0af7e84b8dac4357564a7e27f2e8496aa018eda37d53eb4b234f",
+  "flame-surge": "f8a8018f0bf00c75fdd6ae1fc78a320ede57ca8cb4211db869e3bb92a9c8c36e",
+  "thunder-strike": "c03cc61e9ccc3a68f1f04ea996d69ffbd9eff19809aeddc480637685f5c03e3e",
+  "tidal-surge": "5132159f89bb421c89b23c9257d8b21221911f95a3fa2a0514294c4c920456be",
+  "magma-fissure": "d92cc88fad3448f20da0a8a3b94f47968238ccdeb077ba5fd83e01128ada79b0",
+  "prism-guard": "4f722d53117a11fa5629a56cf34c8aa520bbe2a20e7771ff691adf4974072e7c",
+  "frost-lance-rain": "87337caa5481001623133ae375ead2cc4276d3b5608725a3e1310d56e0365b79",
+  "dimensional-rend": "166c8184c903f5dfa36a9be7143be6a6e09c53d42ba575e3549a90aee869892e",
+  "black-hole": "4c3f093cf4e2d21affc54accf94151eec2381fb2cc994977bfcba37b04934cf9",
+  "azure-sweep": "d0c5980c3e6b4f1cc184f9a9326e7ad07441458cb1cf799f5e124ca94b5634e1",
+  "weapon-smear": "ddefe447dbf0834e34b9217573b0c73a12034854853ebf0e2991ff32b0b9ef4d",
+  "spatial-sweep": "004e1fc5acd39667006770c00dcfc5a15e0d025c930d8c7b4712baf7ecf8bf3a",
+  "billowing-airburst": "ccc11b0764b3ef6bd23b6180e99d7107175b47585574f4ae077c2cbf80c5a2dd"
+ }
+}

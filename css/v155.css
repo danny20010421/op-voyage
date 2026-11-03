@@ -1,0 +1,6 @@
+/* v155 角色圖鑑卡片（使用者 11/04「圖鑑中的立繪不可以被資訊擋住：1.展示立繪整體 2.頭部清楚展示優先」；示意圖確認）
+   立繪區加高到 3:4、整張立繪縮放放進去（contain）不裁切；寬的立繪置中偏上，頭部一定在畫面內；上方稀有度／LV 列與下方名字列都在立繪區外面。 */
+#cxCodexGrid .char.v2 .c-art{aspect-ratio:3/4!important;background:radial-gradient(ellipse at 50% 30%,color-mix(in srgb,var(--rc) 26%,transparent),transparent 70%)}
+#cxCodexGrid .char.v2:not(.res) .c-art img{object-fit:contain!important;object-position:50% 40%!important;padding:4px 4px 0;box-sizing:border-box}
+/* v155 00GameDevs 特效畫布（js/fx_vfx_v155.js） */
+#battleScreen .b-vfx{pointer-events:none}

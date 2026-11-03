@@ -399,7 +399,7 @@ function renderQuest() {
   if (!s) {
     if (huntActive()) { const tp = treasurePiece(); $('questBox').innerHTML = `<h3><span><em class="q-kind k-main">主線</em>${TREASURE.title}</span>${tp.name}</h3><p>${tp.hint}</p>${detector}<small class="q-hint">走到探測器最熱的地方，按「挖掘」。</small>`; }
     else $('questBox').innerHTML = `<h3>${CH.name}</h3><div class="q-foot">${chestTag()}</div><p class="q-done">篇章已完成。${treasurePiece() && treasureFound().includes(CH.id) ? '這座島的歷史本文也已經找到了。' : ''}可以和居民聊天，或回海圖前往下一座島。</p>`;
-    return;
+    bindQuestMini(); return; /* v154d：篇章完成後的任務框也能收合／展開（使用者 11/04） */
   }
   let prog = '';
   if (s.type === 'collect' || s.type === 'timedCollect') prog = `<span class="q-count">${st.collected.length}/${s.count}</span>`;
@@ -556,7 +556,7 @@ function showClear(pc) {
 /* ---------- 對話 ---------- */
 let dialogOpen = false, dlgQueue = [], dlgDone = null, dlgChoices = null, typing = null;
 function faceFor(who) {
-  if (who && who[0] === '@') { const c = CHARACTERS[who.slice(1)]; return { name: c.name, html: `<img src="${c.avatar}" alt="">`, foe: true }; }
+  if (who && who[0] === '@') { const c = CHARACTERS[who.slice(1)]; return { name: c.name.replace(/（[^）]*篇）$/, ''), html: `<img src="${c.avatar}" alt="">`, foe: true }; } /* v154d：篇章版角色（例如「魯夫（和之國篇）」）在劇情裡只顯示名字 */
   if (!who) return { name: '航海日誌', html: '<span class="dlg-emblem">⚓</span>' };
   const n = CH.npcs.find(x => x.id === who); return { name: n ? n.name : who, html: `<span class="dlg-emblem npc-${n ? n.look : ''}">${(n ? n.name.replace(/^.*\s/, '') : '?').slice(0, 1)}</span>`, role: n && n.role };
 }
