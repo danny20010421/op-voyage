@@ -39,6 +39,10 @@
     const books = BOOKS.map(b => { const n = inv()[b] || 0, q = qty[b] || 0, it = ITEMS[b];
       return `<div class="gw-book ${n ? '' : 'off'}" data-b="${b}"><div class="gw-bi">${typeof itemIcon === 'function' ? itemIcon(it) : ''}<span class="gw-own">${n}</span></div><b>${it.name}</b><small>+${it.effect.exp.toLocaleString()}</small>
         <div class="gw-step"><button data-q="-1" aria-label="減少" ${q ? '' : 'disabled'}>−</button><output>${q}</output><button data-q="1" aria-label="增加" ${q < n && lv < MAX_LV ? '' : 'disabled'}>＋</button></div></div>`; }).join('');
+    /* v156：沒有手動選經驗書時，主按鈕直接「一鍵升級」（自動選書＋升級，一次完成），按鈕上先顯示會升到幾級 */
+    const hasBook = BOOKS.some(b => inv()[b] > 0), quick = !add && lv < MAX_LV && hasBook;
+    let qLv = lv; if (quick) { const keep = qty; autoFill(id); qLv = typeof previewLv === 'function' ? previewLv(id, totalExp()) : lv; qty = keep; }
+    const goTxt = lv >= MAX_LV ? '已達最高等級' : quick ? `<span>一鍵升級</span><small>LV ${lv} → ${qLv}</small>` : add ? `<span>升級</span><small>LV ${lv} → ${pv}</small>` : hasBook ? '升級' : '沒有經驗書';
     const m = el(), oldImg = m.querySelector('.gw-art img'); /* v130：重畫時沿用同一張立繪（不重新解碼大圖，避免每按一下就閃一下） */
     m.innerHTML = `<div class="gw" style="--rc:${col}">
       <header class="gw-head"><h3>角色培養</h3><button class="gw-x" aria-label="關閉">×</button></header>
@@ -51,7 +55,7 @@
           ${tab === 'lv' ? `<div class="gw-pow"><span>戰力</span><b>${A.pow.toLocaleString()}</b>${B.pow > A.pow ? `<em>(+${(B.pow - A.pow).toLocaleString()})</em>` : ''}</div>
           <dl class="gw-stats"><div><dt>⚔ 攻擊</dt><dd>${A.atk}${d('atk')}</dd></div><div><dt>🛡 防禦</dt><dd>${A.def}${d('def')}</dd></div><div><dt>❤ 體力</dt><dd>${A.hp}${d('hp')}</dd></div><div><dt>💨 速度</dt><dd>${A.spd}${d('spd')}</dd></div></dl>
           <h4>經驗書</h4><div class="gw-books">${books}</div>
-          <div class="gw-acts"><button class="btn-ghost gw-auto" ${lv < MAX_LV && BOOKS.some(b => inv()[b] > 0) ? '' : 'disabled'}>自動選擇</button><button class="btn-gold gw-go" ${add && lv < MAX_LV ? '' : 'disabled'}>${lv >= MAX_LV ? '已達最高等級' : '升級'}</button></div>
+          <div class="gw-acts"><button class="btn-ghost gw-auto" ${lv < MAX_LV && BOOKS.some(b => inv()[b] > 0) ? '' : 'disabled'}>自動選擇</button><button class="btn-gold gw-go ${quick ? 'quick' : ''}" ${(add || quick) && lv < MAX_LV ? '' : 'disabled'}>${goTxt}</button></div>
           <p class="gw-tip">經驗書可在懸賞處的道具商店、勇者之塔、寶箱取得。</p>`
           : tab === 'star' && P ? starPanel(id)
           : tab === 'gear' && window.GEAR ? gearPanel(id)
@@ -65,7 +69,7 @@
     m.querySelector('.gw-nav.prev').onclick = () => go(-1); m.querySelector('.gw-nav.next').onclick = () => go(1);
     m.querySelectorAll('.gw-book').forEach(x => { const b = x.dataset.b, n = inv()[b] || 0; x.querySelectorAll('[data-q]').forEach(btn => btn.onclick = () => { qty[b] = Math.max(0, Math.min(n, (qty[b] || 0) + +btn.dataset.q)); render(); }); });
     const au = m.querySelector('.gw-auto'); if (au) au.onclick = () => { autoFill(id); render(); };
-    const gb = m.querySelector('.gw-go'); if (gb) gb.onclick = () => { const e = totalExp(); if (!e) return; BOOKS.forEach(b => { if (qty[b]) SAVE.data.inventory[b] -= qty[b]; }); const before = crewLv(id); qty = {}; SAVE.save();
+    const gb = m.querySelector('.gw-go'); if (gb) gb.onclick = () => { if (!totalExp() && crewLv(id) < MAX_LV) autoFill(id); const e = totalExp(); if (!e) return; BOOKS.forEach(b => { if (qty[b]) SAVE.data.inventory[b] -= qty[b]; }); const before = crewLv(id); qty = {}; SAVE.save();
       gainExp(id, e, false, true); if (typeof track === 'function') track('grows'); const after = crewLv(id); if (typeof SFX !== 'undefined') SFX.play('quest'); if (typeof toast === 'function') toast(after > before ? `${c.name} 升到 LV ${after}！` : `${c.name} 獲得 ${e.toLocaleString()} 經驗`, 'gold');
       render(); const im = m.querySelector('.gw-art img'); if (im) { im.classList.remove('lvup'); void im.offsetWidth; im.classList.add('lvup'); } };
     if (window.fixIcons) fixIcons(m);
@@ -154,5 +158,5 @@
     if (!acts.querySelector('.gw-open')) { const b = document.createElement('button'); b.className = 'btn-primary gw-open'; b.innerHTML = '⬆ 培養'; b.onclick = () => openGrow(sel.dataset.id); acts.prepend(b); }
     const t = P.querySelector('[data-rt="grow"]'); if (t && !t.__gw) { t.__gw = true; t.onclick = e => { e.stopPropagation(); openGrow(sel.dataset.id); }; } }
   window.addEventListener('DOMContentLoaded', () => { const P = document.getElementById('cxPane_crew'); if (P) new MutationObserver(inject).observe(P, { childList: true }); inject();
-    window.__refreshCrew = () => { const s = document.querySelector('#cxPane_crew .sb-tile.on[data-id]'); if (s) s.click(); }; });
+    window.__refreshCrew = () => { const cm = document.getElementById('charModal'); if (cm && cm.classList.contains('show') && typeof renderCrew === 'function') renderCrew(); }; }); /* v156：直接重畫（保留捲動位置），不再模擬點擊角色卡 */
 })();

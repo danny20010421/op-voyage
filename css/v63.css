@@ -422,3 +422,7 @@
 .gd-tabs{margin-top:4px}
 @media (max-width:480px){.gd-boss{grid-template-columns:1fr}.gd-boss img{max-height:150px}}
 .gd-rank li{grid-template-columns:32px minmax(0,1fr) auto!important}
+/* v156：設定頁同一欄的按鈕等寬等高；手機上有分段選項的列，選項換到下一行並撐滿整列 */
+.st-body .st-act{min-width:80px;min-height:40px;padding:0 16px;flex:0 0 auto}
+.st-body .seg button{min-height:40px}
+@media (max-width:460px){.st-body .set-row.has-seg>span{flex:1 1 100%}.st-body .set-row.has-seg .seg{flex:1 1 100%}.st-body .set-row.has-seg .seg button{flex:1 1 0}}

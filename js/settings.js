@@ -2,7 +2,7 @@
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__installPrompt = e; });
 /* 設定頁（大廳「設定」與首頁「設定」共用）＋ 新手教學（大廳聚光燈導覽）。
    設定存在 localStorage：op_gfx（畫質）、op_motion（減少動態）、op_bspeed（預設戰鬥速度）、op_vibe（震動回饋）、op_live_pop（即時對戰邀請通知）、op_text（文字大小）、op_fxpro（技能特效高／低，v138）。 */
-const GAME_VERSION = 'v155';
+const GAME_VERSION = 'v156';
 /* v148：目前的畫質（沒選過時：電腦＝極致、手機平板＝高畫質，和 e3three.js 的 E3_ULTRA 規則相同） */
 function gfxNow() { try { const g = localStorage.getItem('op_gfx'); if (g) return g; return !matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) >= 700 && (navigator.deviceMemory || 8) >= 6 ? 'ultra' : 'high'; } catch (e) { return 'high'; } }
 (function () {
@@ -25,27 +25,27 @@ function gfxNow() { try { const g = localStorage.getItem('op_gfx'); if (g) retur
 
   /* ---------- 設定頁 ---------- */
   let panel = null;
-  function row(title, sub, ctl) { return `<div class="set-row"><span><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</span>${ctl}</div>`; }
+  function row(title, sub, ctl) { return `<div class="set-row${/class="seg"/.test(ctl) ? ' has-seg' : ''}"><span><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</span>${ctl}</div>`; }
   const seg = (k, opts, cur) => `<div class="seg" role="radiogroup" data-seg="${k}">${opts.map(([v, n]) => `<button data-v="${v}" class="${String(cur) === String(v) ? 'on' : ''}" role="radio" aria-checked="${String(cur) === String(v)}">${n}</button>`).join('')}</div>`;
   const sw = (k, on) => `<input type="checkbox" class="sw" data-sw="${k}" ${on ? 'checked' : ''}>`;
   function render() {
     const P = AUDIO.pref, U = typeof CLOUD !== 'undefined' && CLOUD.user ? CLOUD.user() : null, prof = typeof playerProfile === 'function' ? playerProfile() : {};
     panel.innerHTML = `<div class="dl-card st-card"><header><h3>⚙️ 設定</h3><button class="icon-btn sm" data-x aria-label="關閉">×</button></header><div class="st-body">
       <h4>聲音</h4>${row('音樂與音效', '關閉後完全靜音', sw('sound', !P.muted))}${row('音樂音量', '', `<input type="range" min="0" max="1" step="0.05" value="${P.music}" data-vol="music" aria-label="音樂音量">`)}${row('音效音量', '', `<input type="range" min="0" max="1" step="0.05" value="${P.sfx}" data-vol="sfx" aria-label="音效音量">`)}
-      <h4>畫面</h4>${row('畫質', '極致：300 萬面以上的細緻場景（電腦預設）；高畫質：光影與遠景；省電：手機發燙、卡頓時用。重新進島後生效', seg('op_gfx', [['ultra', '極致'], ['high', '高畫質'], ['low', '省電']], gfxNow()))}
-        ${row('新版 3D 島嶼畫面', 'Three.js 卡通渲染：描邊、陰影、草地、海面、泛光（關閉後改回舊畫面，重新整理頁面後生效）', sw('op_r3', get('op_r3') !== '0'))}
+      <h4>畫面</h4>${row('畫質', '極致：最細緻的場景，適合電腦；高畫質：光影與遠景；省電：手機發燙或卡頓時使用。重新進入島嶼後生效', seg('op_gfx', [['ultra', '極致'], ['high', '高畫質'], ['low', '省電']], gfxNow()))}
+        ${row('3D 島嶼新畫面', '描邊、陰影、草地、海面與光暈。舊手機進島後畫面全黑或閃退時再關閉（重新整理後生效）', sw('op_r3', get('op_r3') !== '0'))}
         ${row('減少動態效果', '關閉大部分動畫與震動畫面，容易頭暈時使用', sw('op_motion', get('op_motion') === '1'))}
         ${row('文字大小', '放大說明、戰報與面板文字', seg('op_text', [['n', '標準'], ['l', '加大']], get('op_text') === 'l' ? 'l' : 'n'))}
       <h4>戰鬥</h4>${row('預設戰鬥速度', '戰鬥中也可以隨時切換', seg('op_bspeed', [[1, '×1'], [2, '×2'], [3, '×3']], +(get('op_bspeed') || 1)))}
-        ${row('技能特效', '高：戰鬥加上衝擊波、粒子與奧義鏡頭演出（畫質需為高畫質）；低：較省電，手機發燙或卡頓時使用', seg('op_fxpro', [['1', '高'], ['0', '低']], get('op_fxpro') === '0' ? '0' : '1'))}
-        ${row('震動回饋', '受到傷害時震動（Android 支援；iPhone 瀏覽器不支援）', sw('op_vibe', get('op_vibe') === '1'))}
-      <h4>好友與通知</h4>${row('即時對戰邀請通知', '好友邀請你對戰時，在任何畫面跳出提示', sw('op_live_pop', get('op_live_pop') !== '0'))}
-        ${row('好友與對戰', U ? `已登入：${U.email || ''}` : '登入後可以加好友、留言、對戰', `<button class="btn-gold sm" data-go="social">開啟</button>`)}
-        ${row('雲端存檔', '在手機、平板、電腦之間接續進度', `<button class="btn-ghost sm" data-go="cloud">開啟</button>`)}
+        ${row('技能特效', '高：衝擊波、粒子與奧義鏡頭演出（畫質選「省電」時不顯示）；低：較省電，手機發燙或卡頓時使用', seg('op_fxpro', [['1', '高'], ['0', '低']], get('op_fxpro') === '0' ? '0' : '1'))}
+        ${row('震動回饋', '受到傷害、戰鬥勝負時輕微震動（iPhone 不支援）', sw('op_vibe', get('op_vibe') === '1'))}
+      <h4>帳號與好友</h4>${row('雲端存檔', U ? `已登入：${U.email || ''}・可在手機、平板、電腦之間接續進度` : '登入帳號後，就能在手機、平板、電腦之間接續進度', `<button class="btn-ghost sm st-act" data-go="cloud">${U ? '管理' : '登入'}</button>`)}
+        ${row('好友', '加好友、送禮、留言與即時對戰（需要先登入）', `<button class="btn-ghost sm st-act" data-go="social">開啟</button>`)}
+        ${row('即時對戰邀請通知', '好友邀請你對戰時，在任何畫面跳出提示', sw('op_live_pop', get('op_live_pop') !== '0'))}
+        ${row('玩家 ID', prof.id || '—', `<button class="btn-ghost sm st-act" data-go="copy">複製</button>`)}
 
-      <h4>說明</h4>${row('新手教學', '重新觀看大廳導覽', `<button class="btn-ghost sm" data-go="guide">觀看</button>`)}${row('安裝 App', '把遊戲安裝到手機主畫面，像 App 一樣全螢幕開啟', `<button class="btn-gold sm" data-go="install">安裝</button>`)}${row('屬性克制', '哪些屬性克制哪些屬性、傷害倍率', `<button class="btn-ghost sm" data-go="help-type">查看</button>`)}${row('遊戲說明', '戰鬥規則、各種玩法介紹', `<button class="btn-ghost sm" data-go="help-game">查看</button>`)}
-        ${row('取得最新版本', '更新後畫面怪怪的，或想確認是最新版時使用（存檔不受影響）', `<button class="btn-ghost sm" data-go="refresh">重新整理</button>`)}
-        ${row('玩家 ID', prof.id || '—', `<button class="btn-ghost sm" data-go="copy">複製</button>`)}
+      <h4>說明</h4>${row('新手教學', '重新觀看大廳導覽', `<button class="btn-ghost sm st-act" data-go="guide">觀看</button>`)}${row('安裝到主畫面', '把遊戲加到手機主畫面，像 App 一樣全螢幕開啟', `<button class="btn-ghost sm st-act" data-go="install">安裝</button>`)}${row('屬性克制', '哪些屬性克制哪些屬性、傷害倍率', `<button class="btn-ghost sm st-act" data-go="help-type">查看</button>`)}${row('遊戲說明', '戰鬥規則、各種玩法介紹', `<button class="btn-ghost sm st-act" data-go="help-game">查看</button>`)}
+        ${row('取得最新版本', '更新後畫面怪怪的，或想確認是最新版時使用（存檔不受影響）', `<button class="btn-ghost sm st-act" data-go="refresh">更新</button>`)}
         <p class="st-ver">海賊新時代 ${GAME_VERSION}・資料版本 ${typeof DATA_VERSION !== 'undefined' ? DATA_VERSION : ''}</p></div></div>`;
     const q = s => panel.querySelectorAll(s);
     panel.querySelector('[data-x]').onclick = close;
@@ -75,7 +75,7 @@ const GUIDE = (function () {
     { t: '歡迎來到海賊新時代！', d: '這裡是大廳，所有冒險都從這裡出發。跟著導覽花一分鐘認識主要功能吧！' },
     { s: '#lbGo', t: '出航', d: '主線劇情：在海圖上選擇篇章，登島探索、完成任務、打倒 BOSS。通關後還能挑戰「困難模式」拿星星。' },
     { s: '#lbTeam', t: '出戰陣容', d: '戰鬥時最多 3 位船員依序上場。點這裡可以更換、調整順序，等級越高越強。' },
-    { s: '#lbModesBtn', t: '冒險', d: '奪寶大冒險、勇者之塔（250 層）、懸賞金交易所、皇帝領海、虛空王座，都在這裡。' },
+    { s: '#lbModesBtn', t: '冒險', d: '奪寶大冒險、勇者之塔（250 層）、懸賞金交易所、皇帝領海、登上虛空王座、歌姬挑戰與海賊天梯，都在這裡。' },
     { s: '#l2Emperor', t: '皇帝領海', d: '挑戰四皇：打贏隊長、分身與真身，四皇就會加入你的船隊。' },
     { s: '[data-lb=gacha]', t: '召喚', d: '用寶藏幣召喚新船員。左下角的限定召喚會定期輪替，集滿碎片也能換角色。' },
     { s: '#lbBounty', t: '每日懸賞與活動', d: '左側是公告、每日懸賞、活動中心、七日登入、成就與寶藏日誌，有紅點就代表有獎勵可領。' },

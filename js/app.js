@@ -556,7 +556,7 @@ function showClear(pc) {
 /* ---------- 對話 ---------- */
 let dialogOpen = false, dlgQueue = [], dlgDone = null, dlgChoices = null, typing = null;
 function faceFor(who) {
-  if (who && who[0] === '@') { const c = CHARACTERS[who.slice(1)]; return { name: c.name.replace(/（[^）]*篇）$/, ''), html: `<img src="${c.avatar}" alt="">`, foe: true }; } /* v154d：篇章版角色（例如「魯夫（和之國篇）」）在劇情裡只顯示名字 */
+  if (who && who[0] === '@') { const c = CHARACTERS[who.slice(1)]; return { name: c.name.replace(/（[^）]*篇）$/, '').replace(/^初登場/, ''), html: `<img src="${c.avatar}" alt="">`, foe: true }; } /* v154d：篇章版角色（例如「魯夫（和之國篇）」）在劇情裡只顯示名字；v156：「初登場魯夫」等也只顯示名字 */
   if (!who) return { name: '航海日誌', html: '<span class="dlg-emblem">⚓</span>' };
   const n = CH.npcs.find(x => x.id === who); return { name: n ? n.name : who, html: `<span class="dlg-emblem npc-${n ? n.look : ''}">${(n ? n.name.replace(/^.*\s/, '') : '?').slice(0, 1)}</span>`, role: n && n.role };
 }
@@ -753,7 +753,7 @@ function boot() {
   $('gResOk').onclick = () => $('gResult').classList.remove('show');
   $('actBtn').onclick = () => WORLD && WORLD.interact();
   $('dialog').onclick = () => nextLine();
-  window.addEventListener('keydown', e => { if (dialogOpen && (e.key === ' ' || e.key === 'Enter' || e.key.toLowerCase() === 'e')) { e.preventDefault(); e.stopImmediatePropagation(); nextLine(); } if (e.key === 'Escape') document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show')); }, true);
+  window.addEventListener('keydown', e => { if (dialogOpen && (e.key === ' ' || e.key === 'Enter' || e.key.toLowerCase() === 'e')) { e.preventDefault(); e.stopImmediatePropagation(); nextLine(); } if (e.key === 'Escape' && !document.querySelector('#cxCodexDetail.open, #growModal.show, .zv.show, .gw-pop, #bagV2.show')) document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show')); }, true); /* v156：先關最上層的視窗（圖鑑詳細、培養、立繪檢視、背包），不要連角色背包一起關掉 */
   $('clearStay').onclick = () => $('clearOverlay').classList.remove('show');
   $('clearGo').onclick = () => { $('clearOverlay').classList.remove('show'); openChart(); };
   /* v134：不再預先下載全部角色立繪（約 33 MB）；載入畫面只下載已擁有角色的立繪，其他角色用到時才載入 */

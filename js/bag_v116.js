@@ -68,18 +68,21 @@
       ${src.length ? `<h4 class="bg2-h">獲取方式</h4><ul class="bg2-src">${src.map(([t, f], i) => `<li>${f ? `<button data-go="${(SRC[id] || [])[i]}"><span>${t}</span><i aria-hidden="true"></i></button>` : `<div><span>${t}</span></div>`}</li>`).join('')}</ul>` : ''}</div>
       <div class="bg2-da">${U ? `<button class="btn-gold" data-use>${U[0]}</button>` : '<p class="bg2-note">戰鬥中按「道具」使用</p>'}</div>`;
   }
+  /* v156：格子下方加上道具名稱、右上角稀有度；搜尋時只更新道具格（不重畫整個背包、輸入框不會失去焦點） */
+  const gridHTML = L => L.length ? L.map(id => { const it = ITEMS[id]; return `<button class="bg2-tile v156 ${id === sel ? 'on' : ''}" data-id="${id}" style="--rc:${RCOL[it.rarity] || RCOL.N}" aria-label="${esc(it.name)} ×${inv()[id]}" title="${esc(it.name)}"><span class="bg2-ic">${itemIcon(it)}</span><em class="bg2-tr">${esc(it.rarity || 'N')}</em><b>${fmtN(inv()[id])}</b><span class="bg2-tn">${esc(it.name)}</span></button>`; }).join('') : `<div class="bg2-none">${ids().length ? '找不到符合的道具' : '背包是空的。完成劇情任務、每日懸賞或到懸賞處召喚，就能拿到道具。'}</div>`;
+  function bindTiles(m) { m.querySelectorAll('.bg2-tile[data-id]').forEach(b => b.onclick = () => { sel = b.dataset.id; m.querySelectorAll('.bg2-tile').forEach(t => t.classList.toggle('on', t === b)); m.querySelector('.bg2-det').innerHTML = detail(sel); bindDet(m); if (window.fixIcons) fixIcons(m.querySelector('.bg2-det')); }); }
   function render() {
     const m = wrap(), L = listOf(); if (!sel || !L.includes(sel)) sel = L[0] || null;
     const counts = {}; ids().forEach(id => { const c = CAT_OF[id] || 'battle'; counts[c] = (counts[c] || 0) + 1; }); counts.all = ids().length;
     m.innerHTML = `<div class="bg2">
       <header class="bg2-head"><h2>背包</h2><label class="bg2-q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg><input type="search" placeholder="輸入物品名稱" value="${esc(q)}" aria-label="搜尋道具"></label><button class="bg2-x" aria-label="關閉">×</button></header>
       <nav class="bg2-cats" role="tablist">${CATS.map(([k, n]) => `<button role="tab" aria-selected="${cat === k}" class="${cat === k ? 'on' : ''}" data-cat="${k}"><span>${n}</span><small>${counts[k] || 0}</small></button>`).join('')}</nav>
-      <section class="bg2-grid" aria-label="道具">${L.length ? L.map(id => { const it = ITEMS[id]; return `<button class="bg2-tile ${id === sel ? 'on' : ''}" data-id="${id}" style="--rc:${RCOL[it.rarity] || RCOL.N}" aria-label="${esc(it.name)} ×${inv()[id]}" title="${esc(it.name)}"><span class="bg2-ic">${itemIcon(it)}</span><b>${fmtN(inv()[id])}</b></button>`; }).join('') : `<div class="bg2-none">${ids().length ? '找不到符合的道具' : '背包是空的。完成劇情任務、每日懸賞或到懸賞處召喚，就能拿到道具。'}</div>`}</section>
+      <section class="bg2-grid" aria-label="道具">${gridHTML(L)}</section>
       <aside class="bg2-det" aria-live="polite">${detail(sel)}</aside></div>`;
     m.querySelector('.bg2-x').onclick = close;
     m.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => { cat = b.dataset.cat; sel = null; render(); });
-    m.querySelectorAll('[data-id]').forEach(b => b.onclick = () => { sel = b.dataset.id; m.querySelectorAll('.bg2-tile').forEach(t => t.classList.toggle('on', t === b)); m.querySelector('.bg2-det').innerHTML = detail(sel); bindDet(m); });
-    const inp = m.querySelector('.bg2-q input'); inp.oninput = () => { q = inp.value.trim(); const pos = inp.selectionStart; render(); const n = wrap().querySelector('.bg2-q input'); n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) { } };
+    bindTiles(m);
+    const inp = m.querySelector('.bg2-q input'); inp.oninput = () => { q = inp.value.trim(); const L2 = listOf(), was = sel; if (!sel || !L2.includes(sel)) sel = L2[0] || null; const g = m.querySelector('.bg2-grid'); g.innerHTML = gridHTML(L2); g.scrollTop = 0; bindTiles(m); if (sel !== was) { m.querySelector('.bg2-det').innerHTML = detail(sel); bindDet(m); } if (window.fixIcons) fixIcons(m); };
     bindDet(m);
   }
   function bindDet(m) {

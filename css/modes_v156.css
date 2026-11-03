@@ -1,0 +1,26 @@
+/* v156 其他模式盤查 */
+/* 懸賞召喚：抽 100 次橫跨兩欄（原本單獨落在左下，右邊留空） */
+#gachaScreen .g-pulls .p100{grid-column:1 / -1;min-height:56px}
+#gachaScreen .g-pulls .p100 small{white-space:nowrap}
+#gachaScreen .g-pulls button small{white-space:nowrap}
+/* 機率表：船員列（每個稀有度一個標籤，不會在數字中間斷行）與補充說明 */
+#gachaScreen .rates .rt-ts{display:flex;flex-wrap:wrap;gap:4px 8px}
+#gachaScreen .rates .rt-t{white-space:nowrap}
+#gachaScreen .rates .rt-char small{display:block;margin-top:4px;font-size:11px;line-height:1.5;opacity:.78;font-weight:500}
+@media (max-width:860px){
+  /* 手機：抽獎按鈕固定在畫面下方時加上底板，後面的說明文字不會透出來疊在按鈕上 */
+  #gachaScreen .g-pulls{background:linear-gradient(180deg,rgba(42,24,10,.97),rgba(26,14,6,.98));padding:8px;margin:0 -8px;border-radius:16px;box-shadow:0 -8px 24px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,210,120,.18);gap:8px}
+  #gachaScreen .g-pulls button{min-height:64px}
+  #gachaScreen .g-pulls .p100{min-height:48px;flex-direction:row;gap:8px}
+}
+/* 活動池：已擁有角色的碎片自動換成覺醒結晶的提示 */
+.ev-shard .ev-conv{display:block;font-size:11px;color:#ffb3d9;margin-top:2px}
+/* 電腦版：右側抽獎面板從召喚池標籤下方開始，不再往上蓋住標籤；內容太長時面板內捲動 */
+@media (min-width:861px){
+  #gachaScreen .tavern .g-panel{top:var(--poolTop,112px)!important;transform:none!important;max-height:calc(100% - var(--poolTop,112px) - 16px);overflow-y:auto;overscroll-behavior:contain}
+}
+/* 掛機寶藏：「快速領取」說明改成第二行小字，兩顆按鈕都不會在字中間斷行 */
+.qo-btns button{flex-direction:column;gap:2px;white-space:nowrap}
+.qo-btns button small{font-size:11px;font-weight:600;opacity:.8}
+/* 新手福利：「免費拉霸」不在字中間斷行 */
+#gachaScreen #pullFree{white-space:nowrap;flex-shrink:0}

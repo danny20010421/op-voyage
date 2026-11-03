@@ -42,6 +42,11 @@
 - `css/v135.css`: .qo-*（掛機寶藏、召喚紀錄視窗）、.tp-*、#dlgSkip、.ps-claimall
 - **3D 分段下載（v135）**: index.html 不再直接載入 e3three.js；js/engine3d.js 的 window.ensure3D() 用 import() 載入（importmap 仍在 index.html），app.js enterChapter 先 await ensure3D() 再建立 World；進入遊戲 15 秒後背景預先下載
 - `js/ret_v136.js`: F:一般召喚券 ITEMS.summon_ticket（pull 外層包裝：券夠時先補回寶藏幣再呼叫原本的 pull）、回歸玩家 RETURN_CFG／window.RETURN（check／claim；SAVE.data.lastSeen、SAVE.data.ret）| D:pull、updateGachaBtns、openModes（第一次進大廳時 check） ；v137 領取視窗 RETURN.open（.rt-wrap，每天第一次進大廳自動跳出）、大廳入口 #lbRet（RETURN.rail） | S:樣式在 css/v137.css；視窗沿用 .qo-wrap
+- `js/lobby_v156.js`＋`css/lobby_v156.css`: F:v156 大廳版面（主線航程卡 #v6Route、資訊區 #v6Side、左側欄常用 5 個＋「更多」抽屜）；只搬移既有節點，點擊功能沿用原本的；取代 v145 主線橫條與 v118 電腦版兩欄的呈現 | R:lobby_v118/v121/v145 | S:手機橫式不啟用，節點放回原位
+- `js/balance_v156.js`: F:v156 強度定義與每位角色的 statScale、定位文字、路奇連擊；匯出 window.BALANCE_V156 | R:balance_v142、battle_core applyRarityScale（f.__rs）| S:只影響玩家角色、對戰、試煉，不影響關卡敵人與 BOSS；量測工具與表在 /root/promo/v156/balance（table.md）
+- `js/story_boss_v156.js`: F:v156 逐章 BOSS 設定（bossHp、bossStages/bossStageAdj、bossLvUp、revives、bossDmg、bossUltCap、bossFix）| R:CHAPTER_DIFFICULTY（ext_effects.js）| S:必須在 ext_effects.js 之後、admin.js 之前載入；困難模式共用
+- `js/modes_v156.js`＋`css/modes_v156.css`: F:懸賞召喚機率公示依 rollOne 實際算法重畫（window.GACHA_RATES）、召喚畫面手機／電腦版面修正
+- `css/v156_crew.css`: F:角色背包與培養的版面（手機兩排橫滑名單、培養按鈕固定底部、訓練營全部領取、背包名稱列、圖鑑詳細頁手機排版）
 - `js/fx_vfx_v155.js`＋`vendor/vfx00/vfx00.js`: F:00GameDevs Three.js 特效層（畫布 #bVFX，透視鏡頭對 z=0 平面，1 公尺＝立繪高度/5.5 像素）；MAP 依命中主題選特效，fx3d_v145 的 showDamage 掛勾呼叫 VFX00.hit，回傳 true 就不放原本的粒子；playChoreo 外層呼叫 VFX00.cast（輔助技）| R:FX3D.pt/geo/pal、CHAR_FX | A:vendor/vfx00（合併的執行期＋22 款預設、LICENSE.txt、meta.json）| S:開關跟 FX3D.enabled；新增素材時從 catalog.v2.json 下載、核對 SHA-256，把 preset 加進 PRESETS
 - `js/roster_v154w.js`: F:和之國篇三位 SSR（zoro_wano／luffy_wano／sanji_wano），CHAR_OBTAIN boss:0（一般懸賞召喚）；必須在 roster_v91 之前載入
 - `js/fx3d_v145.js`／`css/fx3d_v145.css`: F:戰鬥 3D 特效層（Three.js，第一次進戰鬥才載入）：背景 #bGL（衝擊波扭曲、推近與放射模糊、屬性打光、熱浪）、粒子 #bPGL（各屬性爆發 impact）、受擊白色剪影、出招殘影、奧義蓄力（粒子聚集、腳下光圈與上竄能量 aura、施放者屬性氣場 aura2、鏡頭推近 camPush）、奧義第一擊 finisher（集中線、三重衝擊波、光柱、連續爆發、焦痕、畫面邊緣光、命中停格 hitStop、鏡頭甩向對手）、奧義期間白色閃光改屬性色 | R:fx.js(X.flash、fighterPoint),fx_v138.js(__FXPAL) | A:FX3D | S:包住 showDamage、playChoreo、startBattle；技能特效「高」且畫質不是省電、支援 WebGL2 才開；鏡頭推近用 composite:'add' 疊在 .b-arena 原本的 --cam 縮放上，不要改成直接設定 transform

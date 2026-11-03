@@ -1,0 +1,189 @@
+/* v156 大廳版面重整（js/lobby_v156.js 加上 #lobby.v6 與 v6-ph／v6-tb／v6-desk）
+   8px 網格；框內內容水平垂直置中；同列控制項等高。位置用 JS 量到的 --v6tb（頂部列底）、--v6nb（導覽列高）、--v6sb（資訊區高）等變數。 */
+
+/* ---------- 共用：隱藏被取代的舊元件 ---------- */
+#modeScreen #lobby.l2.v6 #l2Mission,#modeScreen #lobby.l2.v6 #v5Strip,#modeScreen #lobby.l2.v6 #l2Qbtn,
+#modeScreen #lobby.l2.v6 .l2-colL,#modeScreen #lobby.l2.v6 .l2-colR,#modeScreen #lobby.l2.v6 .l2-side{display:none!important}
+#modeScreen #lobby.l2:not(.v6) .v6-side{display:none!important}
+
+/* ---------- 船長立繪：填滿量到的空間，靠下置中 ---------- */
+#modeScreen #lobby.l2.v6 .lb-hero{position:absolute!important;left:var(--v6hl,0)!important;right:var(--v6hr,0)!important;top:var(--v6ht,96px)!important;bottom:var(--v6hb,320px)!important;
+  width:auto!important;height:auto!important;aspect-ratio:auto!important;transform:none!important;margin:0!important;display:flex!important;align-items:flex-end!important;justify-content:center!important}
+#modeScreen #lobby.l2.v6 .lb-hero img{max-width:100%!important;max-height:100%!important;width:auto!important;height:auto!important;object-fit:contain}
+
+/* ---------- 名牌 ---------- */
+#modeScreen #lobby.l2.v6 .lb-plate{position:absolute!important;display:flex!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:center!important;gap:8px!important;
+  left:var(--v6pc,50%)!important;right:auto!important;top:auto!important;transform:translateX(-50%)!important;margin:0!important;height:48px;box-sizing:border-box;padding:0 4px 0 16px!important;
+  max-width:calc(100% - 32px);border-radius:24px!important;white-space:nowrap;
+  background:linear-gradient(90deg,rgba(8,14,32,.55),rgba(8,14,32,.88) 16%,rgba(8,14,32,.88) 84%,rgba(8,14,32,.55))!important;border:1px solid rgba(235,199,126,.35);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+#modeScreen #lobby.l2.v6 .lb-plate b{font-size:20px!important;line-height:24px!important;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#modeScreen #lobby.l2.v6 .lb-plate small{font-size:13px;line-height:16px;flex:none}
+#modeScreen #lobby.l2.v6 .lb-plate .rar{flex:none}
+#modeScreen #lobby.l2.v6 .lb-plate .lbp-types{display:flex!important;gap:4px;flex:none}
+#modeScreen #lobby.l2.v6 .lb-plate .lbp-swap{display:inline-flex!important;flex:none;align-items:center;justify-content:center;height:40px;padding:0 16px;border-radius:20px;font-size:13px;margin:0!important}
+#modeScreen #lobby.l2.v6.v6-desk .lb-plate{bottom:calc(var(--v6nb,76px) + 48px)!important}
+#modeScreen #lobby.l2.v6:not(.v6-desk) .lb-plate{bottom:calc(var(--v6sb,320px) + 8px)!important;height:40px;padding-left:12px!important;max-width:var(--v6pw,calc(100% - 32px))}
+#modeScreen #lobby.l2.v6:not(.v6-desk) .lb-plate b{font-size:17px!important}
+#modeScreen #lobby.l2.v6:not(.v6-desk) .lb-plate .lbp-swap{height:32px;padding:0 12px;font-size:12px}
+#modeScreen #lobby.l2.v6.v6-ph .lb-plate small,#modeScreen #lobby.l2.v6.v6-ph .lb-plate .lbp-types{display:none!important}
+
+/* ---------- 船長對話框：立繪區上方置中 ---------- */
+#modeScreen #lobby.l2.v6 .l2-say.show{position:absolute!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;text-align:center;
+  left:calc(var(--v6sayL,80px) + (100% - var(--v6sayL,80px) - var(--v6sayR,8px)) / 2)!important;right:auto!important;top:calc(var(--v6ht,96px) + 16px)!important;bottom:auto!important;
+  width:max-content!important;max-width:min(320px,calc(100% - var(--v6sayL,80px) - var(--v6sayR,8px) - 16px))!important;min-height:56px!important;height:auto!important;
+  padding:8px 16px!important;border-radius:16px!important;box-sizing:border-box;transform:translate(-50%,8px)!important;z-index:7!important}
+#modeScreen #lobby.l2.v6 .l2-say.show.in{transform:translate(-50%,0)!important}
+#modeScreen #lobby.l2.v6 .l2-say.show::before,#modeScreen #lobby.l2.v6 .l2-say.show::after{display:none!important}
+#modeScreen #lobby.l2.v6 .l2-say.show b{margin:0!important;font-size:12px!important;line-height:16px!important}
+#modeScreen #lobby.l2.v6 .l2-say.show span{display:block!important;font-size:14px!important;line-height:20px!important}
+
+/* ---------- 左側圖示欄：常用 5 個＋更多（所有裝置） ---------- */
+#modeScreen #lobby.l2.v6 .l2-rail{position:absolute!important;left:var(--edge-x,16px)!important;top:calc(var(--v6tb,88px) + 8px)!important;bottom:auto!important;right:auto!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;gap:8px!important;width:auto!important;max-height:none!important;overflow:visible!important;
+  padding:8px!important;margin:0!important;border-radius:16px!important;transform:none!important;z-index:8!important;--ic:72px;--icI:48px;--dc:72px}
+#modeScreen #lobby.l2.v6.v6-tb .l2-rail{--ic:64px;--icI:44px}
+#modeScreen #lobby.l2.v6.v6-ph .l2-rail{--ic:52px;--icI:36px;--dc:64px;padding:4px!important;gap:4px!important;left:8px!important}
+#modeScreen #lobby.l2.v6 .l2-rail>.l2-ic{order:var(--v5o,9);display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;
+  width:var(--ic)!important;height:var(--ic)!important;padding:0!important;margin:0!important;box-sizing:border-box;border-radius:12px!important;background:none;grid-column:auto!important;border:0!important;text-align:center}
+#modeScreen #lobby.l2.v6 .l2-rail>.l2-ic>.l2-svg{width:var(--icI)!important;height:var(--icI)!important;padding:calc(var(--icI) * .22)!important;border-radius:12px!important;flex:none;box-sizing:border-box}
+#modeScreen #lobby.l2.v6 .l2-rail>.l2-ic b{font-size:12px!important;line-height:16px!important;margin:0!important;white-space:nowrap;letter-spacing:0}
+#modeScreen #lobby.l2.v6.v6-ph .l2-rail>.l2-ic b{font-size:11px!important;line-height:12px!important}
+#modeScreen #lobby.l2.v6 .l2-rail>.l2-ic small,#modeScreen #lobby.l2.v6 .l2-rail>.l2-ic .l2-bar{display:none!important}
+#modeScreen #lobby.l2.v6 .l2-rail>.l2-ic.has-dot::after{top:2px!important;right:calc(50% - var(--icI) / 2 - 4px)!important}
+#modeScreen #lobby.l2.v6 .l2-rail>.l2-more{order:6;display:flex!important}
+#modeScreen #lobby.l2.v6 .l2-rail>.l2-more.v6-dot::after{content:'';position:absolute;top:2px;right:calc(50% - var(--icI) / 2 - 4px);width:9px;height:9px;border-radius:50%;background:#ff5a5a;box-shadow:0 0 0 2px #0b1430,0 0 8px #ff5a5a}
+#modeScreen #lobby.l2.v6 .l2-rail>.l2-more .l2-svg svg{width:100%;height:100%}
+#modeScreen #lobby.l2.v6 .l2-rail.v5-open>.l2-more{background:rgba(235,199,126,.16)!important;box-shadow:inset 0 0 0 2px rgba(255,243,200,.7)}
+/* 抽屜：隱藏的圖示，展開時排成格子放在圖示欄右邊 */
+#modeScreen #lobby.l2.v6 .l2-rail>.v5-x,#modeScreen #lobby.l2.v6 .l2-rail>.v6-x{display:none!important}
+#modeScreen #lobby.l2.v6 .l2-rail>.v6-drawer{display:none}
+#modeScreen #lobby.l2.v6 .l2-rail.v5-open>.v6-drawer{display:block;position:absolute;left:calc(100% + 8px);top:0;box-sizing:border-box;
+  width:calc(var(--dcols,4) * var(--dc) + (var(--dcols,4) - 1) * 8px + 32px);height:calc(48px + var(--drows,2) * var(--dc) + (var(--drows,2) - 1) * 8px + 16px);
+  border-radius:16px;background:linear-gradient(180deg,rgba(16,28,58,.97),rgba(8,14,32,.97));border:1px solid rgba(235,199,126,.42);box-shadow:0 16px 48px rgba(0,0,0,.6);pointer-events:none}
+#modeScreen #lobby.l2.v6 .l2-rail>.v6-drawer b{display:flex;align-items:center;height:48px;padding:0 16px;font-size:14px;font-weight:900;color:#ebc77e;letter-spacing:.08em}
+#modeScreen #lobby.l2.v6 .l2-rail.v5-open>.v5-x:not([hidden]),#modeScreen #lobby.l2.v6 .l2-rail.v5-open>.v6-x:not([hidden]){display:flex!important;position:absolute!important;z-index:2;width:var(--dc)!important;height:var(--dc)!important;
+  left:calc(100% + 8px + 16px + var(--dx,0) * (var(--dc) + 8px))!important;top:calc(48px + var(--dy,0) * (var(--dc) + 8px))!important;background:rgba(255,255,255,.06)!important;--icI:40px}
+#modeScreen #lobby.l2.v6 .l2-rail.v5-open>.v5-x:hover,#modeScreen #lobby.l2.v6 .l2-rail.v5-open>.v6-x:hover{background:rgba(235,199,126,.14)!important}
+
+/* ---------- 資訊區 #v6Side ---------- */
+#modeScreen #lobby.l2.v6 .v6-side{position:absolute;z-index:5;display:grid;gap:8px;box-sizing:border-box}
+#modeScreen #lobby.l2.v6 .v6-side>*{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;
+  margin:0!important;width:auto!important;max-width:none!important;min-width:0!important;box-sizing:border-box}
+/* 航程卡 */
+#modeScreen #lobby.l2.v6 .v6-route{all:unset;box-sizing:border-box;position:relative;display:block;grid-column:1/-1;overflow:hidden;cursor:pointer;border-radius:16px;
+  border:1px solid rgba(235,199,126,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 12px 28px rgba(0,0,0,.45);color:#f6efe0;background:#0b1430}
+#modeScreen #lobby.l2.v6 .v6-route:focus-visible{outline:3px solid #fff3c8;outline-offset:2px}
+.v6-r-art{position:absolute;inset:0;background:center/cover no-repeat;transition:transform .6s}
+.v6-r-art::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,12,24,.94),rgba(8,12,24,.72) 55%,rgba(8,12,24,.3))}
+.v6-route:hover .v6-r-art{transform:scale(1.04)}
+.v6-r-in{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;height:100%;padding:16px;box-sizing:border-box}
+.v6-r-tag{align-self:flex-start;display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:8px;background:rgba(242,200,106,.2);color:#f2c86a;font-size:12px;font-weight:800;letter-spacing:.04em}
+.v6-r-t{font:900 22px/32px var(--serif,serif);letter-spacing:.04em;text-shadow:0 2px 8px rgba(0,0,0,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v6-r-s{font-size:13px;line-height:16px;color:#c9d2e4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v6-r-row{display:flex;align-items:center;gap:16px;height:48px;margin-top:4px}
+.v6-voy{flex:1;min-width:0;display:flex;align-items:center;height:24px}
+.v6-voy i{flex:none;width:12px;height:12px;border-radius:50%;box-sizing:border-box;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.28)}
+.v6-voy i.d{background:#f2c86a;border-color:#f2c86a}
+.v6-voy i.n{width:20px;height:20px;background:#fff3c8;border-color:#f2c86a;box-shadow:0 0 0 4px rgba(242,200,106,.3);animation:v6Pulse 2s ease-in-out infinite}
+.v6-voy s{flex:1;min-width:2px;height:2px;background:rgba(255,255,255,.2)}.v6-voy s.d{background:#f2c86a}
+.v6-r-go{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;height:48px;padding:0 16px 0 24px;border-radius:24px;box-sizing:border-box;
+  background:linear-gradient(180deg,#ffe08a,#d9962f);color:#3a1e00;font-size:16px;font-weight:900;letter-spacing:.08em;box-shadow:0 4px 0 #8a5a14,0 0 24px rgba(242,200,106,.45);white-space:nowrap}
+.v6-r-go svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.v6-route:active .v6-r-go{transform:translateY(2px);box-shadow:0 2px 0 #8a5a14}
+@keyframes v6Pulse{50%{box-shadow:0 0 0 7px rgba(242,200,106,.12)}}
+@media (prefers-reduced-motion:reduce){.v6-voy i.n{animation:none}.v6-r-art{transition:none}}
+
+/* 限定召喚（重設 v119 直式橫條的 grid 排法） */
+#modeScreen #lobby.l2.v6 .v6-side>.l2-pick{display:block!important;grid-column:1/-1;aspect-ratio:16/9!important;height:auto!important;padding:0!important;border-radius:16px!important;overflow:hidden}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-pick img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:0!important;margin:0!important;box-shadow:none!important}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-pick .l2-pick-tag{position:absolute!important;left:0!important;top:8px!important;z-index:2;display:flex!important;align-items:center;height:24px;padding:0 16px 0 8px!important;margin:0!important;font-size:12px!important;line-height:1}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-pick .l2-pick-name{position:absolute!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;margin:0!important;padding:24px 16px 8px!important;
+  background:linear-gradient(0deg,rgba(4,8,20,.9),transparent)!important;font-size:14px!important;line-height:20px!important;white-space:nowrap!important;display:block!important;overflow:hidden;text-overflow:ellipsis}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-pick .l2-pc{display:flex!important;position:absolute!important;right:8px!important;top:8px!important;left:auto!important;bottom:auto!important;height:32px;gap:8px;padding:0 4px}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-pick .l2-pc[hidden]{display:none!important}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-pick .l2-pn{position:static!important;width:24px!important;height:24px!important;grid-area:auto!important}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-pick .l2-dots{position:static!important;transform:none!important;padding:0!important;background:none!important}
+/* 出戰陣容／皇帝領海／月費：等高卡片、內容置中 */
+#modeScreen #lobby.l2.v6 .v6-side>.l2-team,#modeScreen #lobby.l2.v6 .v6-side>.l2-emperor,#modeScreen #lobby.l2.v6 .v6-side>.l2-month{height:88px!important;min-height:0!important;padding:0 16px!important;
+  display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:center!important;gap:12px!important;border-radius:16px!important;cursor:pointer;text-align:left;overflow:hidden}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-team .lbt-h{order:2;display:flex!important;width:auto!important;margin:0!important;padding:0!important;flex:none}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-team .lbt-h i,#modeScreen #lobby.l2.v6 .v6-side>.l2-team .lbt-h em{display:none!important}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-team .lbt-h b{font-size:15px!important;line-height:20px;font-weight:900;letter-spacing:.04em;white-space:nowrap}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-team .lbt-av{order:1;width:48px!important;height:48px!important;flex:none;margin:0 0 0 -12px!important}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-team .lbt-av:first-of-type{margin-left:0!important}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-team .lbt-av em{display:none!important}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-team .lbt-empty{order:1;width:auto!important;padding:0 8px;height:40px;font-size:12px}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-emperor{background:linear-gradient(90deg,rgba(40,14,10,.9),rgba(16,14,34,.55)),url(../assets/ui/emperor_bg.webp?v=100) center/cover!important}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-emperor img{width:48px!important;height:48px!important;margin:0!important;flex:none}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-emperor b{font-size:16px!important;line-height:20px!important;letter-spacing:.06em}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-emperor small{display:block!important;font-size:12px;line-height:16px}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-month{grid-column:1/-1;height:64px!important}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-month img{width:40px!important;height:40px!important;margin:0!important;border-radius:50%;flex:none}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-month>span{display:flex!important;flex-direction:column;margin:0!important;padding:0!important}
+
+/* ===== 電腦版：右側欄 416px ===== */
+#modeScreen #lobby.l2.v6.v6-desk .v6-side{right:var(--edge-x,16px);top:calc(var(--v6tb,88px) + 8px);bottom:calc(var(--v6nb,76px) + 16px);width:clamp(352px,29vw,416px);
+  grid-template-columns:1fr 1fr;align-content:start}
+#modeScreen #lobby.l2.v6.v6-desk .v6-route{height:232px}
+#modeScreen #lobby.l2.v6.v6-desk .v6-side>.l2-team .lbt-av{width:40px!important;height:40px!important}
+#modeScreen #lobby.l2.v6.v6-desk .v6-side>.l2-team .lbt-h b{font-size:14px!important}
+/* 電腦版較矮（≤760 高）：航程卡縮小 */
+@media (max-height:760px){#modeScreen #lobby.l2.v6.v6-desk .v6-route{height:192px}#modeScreen #lobby.l2.v6.v6-desk .v6-side>.l2-pick{aspect-ratio:2.4/1!important}#modeScreen #lobby.l2.v6.v6-desk .v6-r-t{font-size:20px}}
+
+/* ===== 平板直式：航程卡全寬；限定召喚在左、陣容與皇帝領海在右 ===== */
+#modeScreen #lobby.l2.v6.v6-tb .v6-side{left:var(--edge-x,16px);right:var(--edge-x,16px);bottom:calc(var(--v6nb,76px) + 8px);grid-template-columns:1fr 1fr;align-content:end}
+#modeScreen #lobby.l2.v6.v6-tb .v6-route{height:192px}
+#modeScreen #lobby.l2.v6.v6-tb .v6-r-t{font-size:24px}
+#modeScreen #lobby.l2.v6.v6-tb .v6-side>.l2-pick{grid-column:1;grid-row:2 / span 2;aspect-ratio:auto!important;height:auto!important;min-height:184px}
+#modeScreen #lobby.l2.v6.v6-tb .v6-side.v6-m>.l2-pick{grid-row:2 / span 3}
+#modeScreen #lobby.l2.v6.v6-tb .v6-side>.l2-team,#modeScreen #lobby.l2.v6.v6-tb .v6-side>.l2-emperor,#modeScreen #lobby.l2.v6.v6-tb .v6-side>.l2-month{grid-column:2}
+
+/* ===== 手機直式：航程卡全寬；下面一列小卡（陣容、皇帝領海、限定召喚、月費），圖在上字在下 ===== */
+#modeScreen #lobby.l2.v6.v6-ph .v6-side{left:8px;right:8px;bottom:calc(var(--v6nb,76px) + 8px);grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:160px 80px}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side.v6-m{grid-template-columns:repeat(4,minmax(0,1fr))}
+#modeScreen #lobby.l2.v6.v6-ph .v6-route{grid-row:1;height:160px}
+#modeScreen #lobby.l2.v6.v6-ph .v6-r-in{padding:12px 16px}
+#modeScreen #lobby.l2.v6.v6-ph .v6-r-t{font-size:18px;line-height:24px}
+#modeScreen #lobby.l2.v6.v6-ph .v6-r-s{font-size:12px}
+#modeScreen #lobby.l2.v6.v6-ph .v6-r-row{height:40px;gap:12px}
+#modeScreen #lobby.l2.v6.v6-ph .v6-r-go{height:40px;padding:0 12px 0 16px;font-size:15px}
+#modeScreen #lobby.l2.v6.v6-ph .v6-voy i{width:8px;height:8px;border-width:0}
+#modeScreen #lobby.l2.v6.v6-ph .v6-voy i.n{width:16px;height:16px;border-width:2px}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>*:not(.v6-route){grid-column:auto!important;grid-row:2!important;height:80px!important;aspect-ratio:auto!important;padding:8px 4px!important;
+  flex-direction:column!important;flex-wrap:nowrap!important;gap:4px!important;text-align:center}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-team{display:flex!important;flex-flow:row wrap!important;align-content:center!important;row-gap:4px!important;column-gap:0!important}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-team .lbt-h{width:100%!important;justify-content:center}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-team .lbt-h b,#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-emperor b,#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-month b{font-size:12px!important;line-height:16px!important;letter-spacing:0}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-team .lbt-av{width:36px!important;height:36px!important;margin-left:-10px!important}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-team .lbt-av:first-of-type{margin-left:0!important}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-emperor img,#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-month img{width:40px!important;height:40px!important}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-emperor small,#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-month small{display:none!important}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-month>span{align-items:center}
+/* 限定召喚小卡：活動圖當底，下方標籤 */
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-pick{display:flex!important;justify-content:flex-end!important;align-items:center!important;padding:0 0 8px!important}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-pick::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(4,8,20,.9),rgba(4,8,20,.1) 70%);pointer-events:none}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-pick .l2-pick-tag{position:relative!important;left:auto!important;top:auto!important;z-index:1;display:flex;align-items:center;justify-content:center;height:20px;padding:0 8px!important;
+  clip-path:none!important;border-radius:10px;font-size:11px!important;line-height:1;letter-spacing:0!important;white-space:nowrap}
+#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-pick .l2-pick-name,#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-pick .l2-pc{display:none!important}
+
+/* 矮手機（≤700 高，例如 App 內建瀏覽器）：航程卡、小卡再縮一級 */
+@media (max-height:700px){
+  #modeScreen #lobby.l2.v6.v6-ph .v6-route{height:120px}
+  #modeScreen #lobby.l2.v6.v6-ph .v6-r-in{padding:8px 12px;gap:2px}
+  #modeScreen #lobby.l2.v6.v6-ph .v6-r-tag{display:none}
+  #modeScreen #lobby.l2.v6.v6-ph .v6-side{grid-template-rows:120px 72px}
+  #modeScreen #lobby.l2.v6.v6-ph .lb-plate{display:none!important}
+  #modeScreen #lobby.l2.v6.v6-ph .v6-side>*:not(.v6-route){height:72px!important}
+  #modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-emperor img,#modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-month img{width:32px!important;height:32px!important}
+  #modeScreen #lobby.l2.v6.v6-ph .v6-side>.l2-team .lbt-av{width:32px!important;height:32px!important}
+  #modeScreen #lobby.l2.v6.v6-ph .l2-rail{--ic:48px;--icI:32px}
+  #modeScreen #lobby.l2.v6.v6-ph .l2-rail>.l2-ic b{font-size:10px!important}
+}
+
+/* 電腦版窄螢幕（≤1280 寬，例如平板橫式）：右側欄較窄，小卡內容精簡 */
+@media (max-width:1280px){
+  #modeScreen #lobby.l2.v6.v6-desk .v6-side>.l2-emperor small{display:none!important}
+  #modeScreen #lobby.l2.v6.v6-desk .v6-side>.l2-team .lbt-av{width:36px!important;height:36px!important;margin-left:-10px!important}
+  #modeScreen #lobby.l2.v6.v6-desk .v6-side>.l2-team .lbt-av:first-of-type{margin-left:0!important}
+  #modeScreen #lobby.l2.v6.v6-desk .v6-side>.l2-team,#modeScreen #lobby.l2.v6.v6-desk .v6-side>.l2-emperor{padding:0 8px!important;gap:8px!important}
+}

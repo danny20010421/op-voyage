@@ -21,8 +21,8 @@
   const _ase = applySkillEffects;
   applySkillEffects = function (actor, target, skill, result) {
     _ase.apply(this, arguments); const ef = (skill && skill.effect) || {}; if (!actor || skill.__voidFx) return;
-    if (ef.fixedDot && target && target.hp > 0 && !blocked(target)) { const F = ef.fixedDot, seq = []; for (let i = 0; i < F.turns; i++) seq.push([F.range[0] / target.maxHp, F.range[1] / target.maxHp]);
-      target.status.dots.push({ turns: F.turns, sequence: seq, label: F.label || '持續傷害', index: 0 }); log(`🏹 ${target.name} 被${F.label || '箭矢'}纏住了！接下來 ${F.turns} 回合每回合受到 ${F.range[0]}～${F.range[1]} 點傷害`); }
+    if (ef.fixedDot && target && target.hp > 0 && !blocked(target)) { const F = ef.fixedDot, seq = [], k = actor.__rs || 1, a = Math.round(F.range[0] * k), b = Math.round(F.range[1] * k); for (let i = 0; i < F.turns; i++) seq.push([a / target.maxHp, b / target.maxHp]); /* v156：玩家角色依體質倍率縮放（BOSS 不變） */
+      target.status.dots.push({ turns: F.turns, sequence: seq, label: F.label || '持續傷害', index: 0 }); log(`🏹 ${target.name} 被${F.label || '箭矢'}纏住了！接下來 ${F.turns} 回合每回合受到 ${a}～${b} 點傷害`); }
     if (ef.gunkoAfter) { actor.status.gunkoAfter = Object.assign({}, ef.gunkoAfter, { left: ef.gunkoAfter.wait || 0 }); }
     if (ef.cerberus) { const C = ef.cerberus; actor.status.cerberus = Object.assign({}, C, { left: C.turns || 3 }); setSummon(actor, C.image, C.scale); log(`🐺 地獄三頭犬「塞博拉斯」出現在 ${actor.name} 身後！`); try { if (typeof banner === 'function') banner('地獄三頭犬', actor === battle.player ? 'me' : 'boss'); } catch (e) { } }
     if (ef.bgCutin && !ef.__cutDone) cutin(ef.bgCutin);
@@ -41,7 +41,7 @@
         if (CB.statUp && st.buffBlock <= 0) ['atk', 'def', 'spd'].forEach(k => { c.buffs[k] = clamp(c.buffs[k] + CB.statUp, -6, 6); });
         if (CB.atkUp && st.buffBlock <= 0) c.buffs.atk = clamp(c.buffs.atk + CB.atkUp, -6, 6);
         if (CB.regen && (typeof healOk !== 'function' || healOk(c))) { const h = Math.floor(c.maxHp * CB.regen); c.hp = Math.min(c.maxHp, c.hp + h); showHeal(sideOf(c), h); }
-        if (foe && foe.hp > 0) { const d = Math.min(capOf(foe), Math.round(R(CB.dmg[0], CB.dmg[1]))); foe.hp = Math.max(0, foe.hp - d); showDamage(sideOf(foe), d, '#ff5a3a'); if (CB.fear && Math.random() < CB.fear && typeof inflict === 'function') inflict(foe, 'fear', 1);
+        if (foe && foe.hp > 0) { const d = Math.min(capOf(foe), Math.round(R(CB.dmg[0], CB.dmg[1]) * (c.__rs || 1))); foe.hp = Math.max(0, foe.hp - d); showDamage(sideOf(foe), d, '#ff5a3a'); if (CB.fear && Math.random() < CB.fear && typeof inflict === 'function') inflict(foe, 'fear', 1);
           log(`🐺 地獄三頭犬撲向 ${foe.name}，造成 ${d} 點傷害！${CB.atkUp ? `${c.name} 攻擊 +${CB.atkUp}` : CB.statUp ? `${c.name} 全能力 +${CB.statUp}` : ''}${CB.regen ? '、恢復體力' : ''}`); }
         CB.left--; if (CB.left <= 0) { st.cerberus = null; setSummon(c, null); log(`🐺 地獄三頭犬回到了黑暗之中。`); } }
     }

@@ -1,0 +1,69 @@
+/* v156 角色背包、培養、背包的操作順暢度（js/crew.js、js/grow_v112.js、js/bag_v116.js）
+   原則沿用 v155：立繪整張縮放放進 3:4 區塊、頭部優先、不被資訊列蓋住；8px 網格；同列等高置中。 */
+
+/* ① v155 的圖鑑卡片原則套到角色背包裡所有角色卡（訓練營選船員、開場選角） */
+#charModal .char.v2 .c-art{aspect-ratio:3/4!important;background:radial-gradient(ellipse at 50% 30%,color-mix(in srgb,var(--rc) 26%,transparent),transparent 70%)}
+#charModal .char.v2:not(.res) .c-art img{object-fit:contain!important;object-position:50% 40%!important;padding:4px 4px 0;box-sizing:border-box}
+
+/* 右側資料欄：內容多時整欄捲動，「訊息／培養／訓練場」分頁不會被擠扁（v155 以前在電腦上被壓到看不見） */
+#charModal .sb-right>*{flex-shrink:0}
+
+/* ② 我的船員：技能次數「LV100 起 N 次」不要斷成兩行 */
+#cxPane_crew .sb-sk .pp-next{white-space:nowrap}
+
+/* ③ 手機、平板：待命船員改成可左右滑動的兩排名單，選角色後立繪與資料就在下方，不用一直往下捲 */
+@media (max-width:860px){
+  #cxPane_crew .sb-left{gap:8px}
+  #cxPane_crew .sb-slots{grid-template-columns:repeat(3,minmax(0,120px))!important;justify-content:center;gap:8px}
+  #cxPane_crew .sb-bench{grid-auto-flow:column;grid-template-columns:none!important;grid-template-rows:repeat(2,auto);grid-auto-columns:88px;gap:8px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:8px 8px 8px 4px;margin:0 -4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  #cxPane_crew .sb-bench .sb-tile{scroll-snap-align:start}
+  #cxPane_crew .sb-bench .sb-none{grid-row:1/-1}
+  /* 編隊列：儲存按鈕放在同一列，少佔一行 */
+  #cxPane_crew .tp-row{grid-template-columns:auto repeat(3,minmax(0,1fr)) auto;margin:0}
+  #cxPane_crew .tp-save{grid-column:auto;min-height:48px;padding:0 12px;font-size:13px;white-space:nowrap}
+  /* 放大按鈕移到立繪右上角，不壓在「培養／上陣」按鈕上 */
+  #cxPane_crew .zv-hint{top:64px!important;bottom:auto!important;right:12px!important}
+}
+@media (min-width:600px) and (max-width:860px){#cxPane_crew .sb-bench{grid-auto-columns:104px}}
+
+/* ④ 角色培養：一鍵升級按鈕顯示會升到幾級；手機上按鈕固定在畫面下方，不用捲到最底 */
+.gw-go small,.gw-go span{display:block;line-height:1.2}
+.gw-go small{font-size:12px;font-weight:700;opacity:.85;margin-top:2px}
+@media (max-width:760px){
+  .gw-acts{position:sticky;bottom:calc(-12px - var(--safeB,0px));z-index:3;margin:0 -12px;padding:16px 12px calc(20px + var(--safeB,0px));background:linear-gradient(180deg,rgba(11,20,40,0),#0b1428 16px)}
+}
+
+/* ⑤ 訓練營：全部領取、選船員時方案在上方 */
+#cxSlots .tc-all{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:56px;padding:8px 16px;border-radius:12px;background:linear-gradient(90deg,rgba(255,207,90,.18),rgba(255,207,90,.04));border:1px solid rgba(255,207,90,.5)}
+#cxSlots .tc-all span{font-size:14px;color:#ffe7a8}#cxSlots .tc-all b{font-size:18px;color:#fff}
+#cxSlots .tc-all .btn-gold{min-height:40px;padding:0 16px}
+#cxPicker .tc-pickh{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px}
+#cxPicker .tc-pickh .cx-h{margin:0}
+#cxPicker .cx-h small{margin-left:8px;font-size:12px;color:#c8d0e0;letter-spacing:0}
+#cxPicker .tc-planbox{scroll-margin-top:16px}
+#cxPicker .tc-hint{margin:0 0 8px}
+
+/* ⑥ 背包：格子下方顯示道具名稱、右上角稀有度，不用每個都點開才知道是什麼 */
+.bg2-tile.v156{aspect-ratio:auto;grid-template-rows:minmax(0,1fr) 24px;place-items:center;padding:8px 0 0;overflow:hidden}
+.bg2-tile.v156 .bg2-ic{width:54%;height:auto;aspect-ratio:1;margin-bottom:12px}
+.bg2-tile.v156>b{bottom:28px;right:6px}
+.bg2-tile.v156 .bg2-tn{align-self:stretch;justify-self:stretch;display:flex;align-items:center;justify-content:center;padding:0 4px;font-size:11px;font-weight:700;color:#eef3ff;background:rgba(4,10,28,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.bg2-tile.v156 .bg2-tr{position:absolute;left:4px;top:4px;padding:0 4px;border-radius:4px;font:800 10px/16px var(--num,system-ui);font-style:normal;color:#fff;background:color-mix(in srgb,var(--rc) 80%,#000 20%)}
+.bg2-tile.v156 .bg2-tn{display:block;line-height:24px;text-align:center}
+/* 手機：訓練中的按鈕放到下一行整列，倒數與經驗文字不再被擠成好幾行 */
+@media (max-width:560px){
+  #cxSlots .tc-slot:not(.empty) .tc-btns{flex:1 0 100%;flex-direction:row}
+  #cxSlots .tc-slot:not(.empty) .tc-btns .btn-gold{flex:1.6}#cxSlots .tc-slot:not(.empty) .tc-btns .btn-ghost{flex:1}
+  #cxSlots .tc-slot:not(.empty) .tc-btns button{min-height:40px}
+  #cxSlots .tc-slot.done>.btn-gold{flex:1 0 100%;min-height:44px}
+  #cxSlots .tc-left b{display:inline}
+}
+#cxSlots .tc-info .tc-left b{display:inline;margin-left:4px}
+/* v156 主助手：手機圖鑑詳細頁——立繪放上面、資料用整個寬度；頂端加一條遮罩列，× 不再壓在「角色定位」等文字上 */
+@media (max-width:600px){
+  #cxCodexDetail .cx-hero{grid-template-columns:1fr!important}
+  #cxCodexDetail .cx-art{width:min(200px,56vw);margin:0 auto}
+  #cxCodexDetail::before{content:'';position:sticky;top:0;display:block;height:56px;margin-bottom:-56px;background:linear-gradient(180deg,rgba(8,16,36,.96) 60%,rgba(8,16,36,0));z-index:2;pointer-events:none}
+  #cxCodexDetail .cx-close{z-index:4}
+  #cxCodexDetail .cx-head h3{padding-right:48px}
+}

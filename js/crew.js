@@ -7,9 +7,20 @@
   /* 神秘剪影（原創通用人形） */
   const MYSTERY_SIL = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400"><g fill="#111"><ellipse cx="150" cy="92" rx="96" ry="20"/><path d="M104 92q4-50 46-52q42 2 46 52z"/><circle cx="150" cy="122" r="44"/><path d="M78 400l8-150q4-74 64-86q60 12 64 86l8 150z"/><path d="M84 190q-44 40-52 120l26 6q10-56 38-86zM216 190q44 40 52 120l-26 6q-10-56-38-86z"/></g></svg>');
   let crewTab = 'crew', trainPick = null, revealAll = false;
+  /* v156：重畫時保留捲動位置、沿用已載入的圖片（不重新解碼，避免閃白與跳回頂端） */
+  const SCROLLERS = ['#charModal .modal-card', '#charModal .crew-body', '#cxPane_crew', '#cxPane_crew .sb-left', '#cxPane_crew .sb-right', '#cxPane_crew .sb-bench', '#cxPane_crew .sb-slots', '#cxPane_codex', '#cxPane_train', '#cxPane_skin'];
+  function keepView(root, fn) {
+    const sc = SCROLLERS.map(q => { const e = document.querySelector(q); return e ? [q, e.scrollTop, e.scrollLeft] : null; }).filter(Boolean);
+    const pool = {}; if (root) root.querySelectorAll('img').forEach(i => { if (!i.complete || !i.naturalWidth) return; const k = i.getAttribute('src'); (pool[k] = pool[k] || []).push(i); });
+    fn();
+    if (root) root.querySelectorAll('img').forEach(n => { const a = pool[n.getAttribute('src')], o = a && a.shift(); if (!o) return; o.className = n.className; o.alt = n.alt; o.style.cssText = n.style.cssText; n.replaceWith(o); });
+    const back = () => sc.forEach(([q, t, l]) => { const e = document.querySelector(q); if (e) { e.scrollTop = t; e.scrollLeft = l; } });
+    back(); queueMicrotask(() => requestAnimationFrame(back)); /* 編隊列等其他模組在下一幀才補上，補完再對齊一次 */
+  }
+  const narrow = () => matchMedia('(max-width:860px)').matches;
 
   /* ---------- 訓練營資料 ---------- */
-  const training = () => (SAVE.data.training = SAVE.data.training || []);
+  const training = () => { const T = SAVE.data.training = SAVE.data.training || []; for (let i = T.length - 1; i >= 0; i--) if (!T[i] || !CHARACTERS[T[i].id] || !SAVE.data.roster[T[i].id]) T.splice(i, 1); return T; }; /* v156：角色資料不存在的訓練紀錄會讓訓練營整頁壞掉，先清掉 */
   window.isTraining = id => training().some(t => t.id === id);
   const planOf = id => TRAIN_PLANS.find(p => p.id === id);
   const fmt = ms => { ms = Math.max(0, ms); const s = Math.ceil(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h ? `${h} 小時 ${String(m).padStart(2, '0')} 分` : `${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}`; };
@@ -29,6 +40,11 @@
     const t = training()[i]; if (!t || Date.now() < t.end) return;
     training().splice(i, 1); SAVE.save(); const r = gainExp(t.id, t.exp, false, true);
     SFX.play('rare'); if (r && r.to === r.from) toast(`${CHARACTERS[t.id].name} 完成訓練，經驗 +${t.exp.toLocaleString()}`, 'gold'); render(); coins();
+  }
+  function claimAll() {
+    const T = training(), now = Date.now(), done = T.filter(t => now >= t.end); if (!done.length) return; let up = 0;
+    done.forEach(t => { T.splice(T.indexOf(t), 1); const before = crewLv(t.id); gainExp(t.id, t.exp, false, true); if (crewLv(t.id) > before) up++; }); SAVE.save();
+    SFX.play('rare'); toast(`領取 ${done.length} 位船員的訓練經驗${up ? `，${up} 位升級了` : ''}`, 'gold'); render(); coins();
   }
   /* 付貝里立即完成：剩餘每分鐘 15 貝里，最少 50 */
   const rushCost = t => Math.max(50, Math.ceil(Math.max(0, t.end - Date.now()) / 60000) * 15);
@@ -83,7 +99,7 @@
   function card(id, opts) {
     const c = CHARACTERS[id], own = owned(id), lv = own ? crewLv(id) : 0, r = rarOf(id), k = SAVE.data.lineup.indexOf(id), tr = isTraining(id);
     if (opts.codex && c.mystery && !own && !revealAll) return resCard(c.no, noOf(id), opts.on); /* 伊姆：未獲得前保持神秘 */
-    const st = k === 0 ? '<span class="c-st team">先鋒</span>' : k > 0 ? `<span class="c-st team">陣容${k + 1}</span>` : tr ? '<span class="c-st train">訓練中</span>' : '<span class="c-st"></span>';
+    const st = opts.codex ? '<span class="c-st"></span>' : k === 0 ? '<span class="c-st team">先鋒</span>' : k > 0 ? `<span class="c-st team">陣容${k + 1}</span>` : tr ? '<span class="c-st train">訓練中</span>' : '<span class="c-st"></span>';
     const dim = opts.codex && !own && !revealAll;
     return `<button class="char v2 r-${r} ${opts.on ? 'on' : ''} ${dim ? 'sil' : ''}" data-id="${id}" aria-pressed="${!!opts.on}" aria-label="${c.name}${dim ? '（未獲得）' : ''}" style="--rc:${RAR_COLOR[r] || '#5fb8ff'}"><span class="c-top"><span class="rar c-rar r-${r}">${r}</span>${st}${own ? `<span class="c-lvt" style="--c:${TIERS[tierOf(lv)].color}">LV ${lv}</span>` : `<span class="c-not">${noOf(id)}</span>`}</span><span class="c-art"><img src="${c.image}" alt="" loading="lazy" style="object-position:${c.cardPos || '50% 12%'}"></span><span class="c-name">${c.name}</span></button>`;
   }
@@ -127,7 +143,7 @@
     const act = tr ? `<span class="sb-state">訓練中・剩 <b data-end="${tr.end}">${fmt(tr.end - Date.now())}</b></span>`
       : k >= 0 ? `${k ? '<button class="btn-gold" data-act="lead">設為先鋒</button>' : '<span class="sb-state">先鋒</span>'}<button class="btn-ghost" data-act="out" ${L.length <= 1 ? 'disabled' : ''}>下陣</button>`
         : `<button class="btn-primary" data-act="in">${L.length >= max ? '上陣（替換最後一位）' : '上陣'}</button>`;
-    $('cxPane_crew').innerHTML = `<div class="sb">
+    keepView($('cxPane_crew'), () => { $('cxPane_crew').innerHTML = `<div class="sb">
       <aside class="sb-left"><h4>出戰陣容 <small>${L.length}/${max}</small></h4><div class="sb-slots">${slots}</div>
         <h4>待命船員 <small>${bench.length}</small></h4><div class="sb-bench">${bench.map(x => tile(x, x === id)).join('') || '<p class="sb-none">沒有待命的船員</p>'}</div></aside>
       <section class="sb-stage" style="--rc:${RAR_COLOR[rarOf(id)]}"><div class="sb-top"><span class="sb-pow"><small>POWER</small><b>戰力</b><em>${Math.round(S.atk * 1.6 + S.def * 1.2 + S.hp * .45 + S.spd * 2.2).toLocaleString()}</em></span><span class="sb-lvb"><small>LEVEL</small><b>等級</b><em>${lv}</em></span><i class="sb-tag ${k === 0 ? 'lead' : k > 0 ? 'team' : tr ? 'train' : 'idle'}">${k === 0 ? '先鋒' : k > 0 ? `出戰 ${k + 1}` : tr ? '訓練中' : '待命'}</i></div><div class="sb-plat"></div><img src="${(() => { const k = ((SAVE.data.skins || {}).equip || {})[id]; return k && typeof SKINS !== 'undefined' && SKINS[k] ? SKINS[k].image : c.image; })()}" alt="${c.name}"><div class="sb-acts">${act}</div></section>
@@ -140,9 +156,11 @@
         <dl class="sb-stats"><div><dt>⚔ 攻擊力</dt><dd>${S.atk}</dd></div><div><dt>❤ 體力</dt><dd>${S.hp}</dd></div><div><dt>🛡 防禦力</dt><dd>${S.def}</dd></div><div><dt>💨 速度</dt><dd>${S.spd}</dd></div><div><dt>✦ 稀有度</dt><dd>${rarOf(id)}</dd></div><div><dt>◆ 屬性</dt><dd>${c.types.join('・')}</dd></div></dl>
         <h4 class="sb-h">技能 <small>${c.skills.filter((s2, i) => lv >= (SKILL_UNLOCK[i] || 1)).length}/${c.skills.length}</small></h4>
         <div class="sb-skills">${skills}</div>${skinBox(id)}`}
-      </aside></div>`;
+      </aside></div>`; });
     const P = $('cxPane_crew');
-    P.querySelectorAll('.sb-tile[data-id]').forEach(b => b.onclick = () => { pickChar = b.dataset.id; renderMine(); });
+    P.querySelectorAll('.sb-tile[data-id]').forEach(b => b.onclick = () => { if (pickChar === b.dataset.id) return; pickChar = b.dataset.id; renderMine();
+      /* 手機／平板：選好船員後，立繪與資料在名單下方；看不到時自動捲過去 */
+      if (narrow()) { const st = $('cxPane_crew').querySelector('.sb-stage'), r = st && st.getBoundingClientRect(); if (r && r.top > innerHeight - 160) requestAnimationFrame(() => requestAnimationFrame(() => st.scrollIntoView({ block: 'start', behavior: 'smooth' }))); } });
     P.querySelectorAll('[data-rt]').forEach(b => b.onclick = () => { if (b.dataset.rt === 'train') { crewTab = 'train'; trainPick = isTraining(id) || lv >= MAX_LV ? null : { slot: training().length, id }; render(); return; } rightTab = b.dataset.rt; renderMine(); });
     P.querySelectorAll('[data-act]').forEach(b => b.onclick = () => { const a = b.dataset.act; if (a === 'in') lineupAdd(id); if (a === 'out') lineupRemove(id); if (a === 'lead') lineupAdd(id, true); renderMine(); if (currentScreen === 'chapterScreen') openChart(selChapter); });
     P.querySelectorAll('.exp-row').forEach(row => { const b = row.dataset.row, n = SAVE.data.inventory[b] || 0;
@@ -180,10 +198,17 @@ function renderCodex() {
     const RES = (typeof RESERVED_NOS !== 'undefined' ? RESERVED_NOS : []).filter(r => !all.some(id => CHARACTERS[id].no === r.no));
     const slots = [...all.map(id => ({ no: CHARACTERS[id].no || 0, id })), ...RES.map(r => ({ no: r.no, res: r }))].sort((a, b) => a.no - b.no);
     const rno = x => (x.res && x.res.hideNo ? 'No.???' : 'No.' + String(x.no).padStart(3, '0'));
-    $('cxCodexGrid').innerHTML = slots.map(x => x.id ? card(x.id, { codex: true, on: x.id === codexPick }) : resCard(x.no, rno(x), codexPick === 'res' + x.no, x.res.name)).join('');
-    $('cxCodexGrid').querySelectorAll('[data-res]').forEach(b => b.onclick = () => { const k = 'res' + b.dataset.res, was = codexPick === k && $('cxCodexDetail').classList.contains('open'); codexPick = k; renderCodex(); if (!was) openCxSheet(); else closeCxSheet(); });
+    keepView($('cxCodexGrid'), () => { $('cxCodexGrid').innerHTML = slots.map(x => x.id ? card(x.id, { codex: true, on: x.id === codexPick }) : resCard(x.no, rno(x), codexPick === 'res' + x.no, x.res.name)).join(''); });
+    /* v156：點卡片只換選取框與詳細資料，不重畫整個圖鑑（79 張立繪不會重新載入、捲動位置不變） */
+    const pick = (k, b) => { const was = codexPick === k && $('cxCodexDetail').classList.contains('open'); codexPick = k;
+      $('cxCodexGrid').querySelectorAll('.char.on').forEach(x => { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); }); b.classList.add('on'); b.setAttribute('aria-pressed', 'true');
+      codexDetail(all, RES); if (!was) openCxSheet(); else closeCxSheet(); };
+    $('cxCodexGrid').querySelectorAll('[data-res]').forEach(b => b.onclick = () => pick('res' + b.dataset.res, b));
+    $('cxCodexGrid').querySelectorAll('.char[data-id]').forEach(b => b.onclick = () => pick(b.dataset.id, b));
+    codexDetail(all, RES);
+  }
+  function codexDetail(all, RES) {
     if (String(codexPick).startsWith('res')) { const r = RES.find(x => 'res' + x.no === codexPick) || (CHARACTERS.imu && CHARACTERS.imu.mystery && !owned('imu') && 'res' + CHARACTERS.imu.no === codexPick ? { no: CHARACTERS.imu.no, group: '最後的編號' } : null); if (r) { $('cxCodexDetail').innerHTML = `<div class="cx-hero" style="--rc:#8a93a6"><div class="cx-art sil reserved"><img src="${MYSTERY_SIL}" alt=""><span class="res-q big" aria-hidden="true">？</span><span class="cx-no">${r.hideNo || (CHARACTERS.imu && r.no === CHARACTERS.imu.no) ? 'No.???' : 'No.' + String(r.no).padStart(3, '0')}</span></div><div class="cx-head"><h3>${r.name || '？？？'}<small>${r.hideNo ? '傳說中的人物' : r.group}</small></h3><p class="cx-desc">${r.name ? `${r.name}預定在這個編號登場，立繪準備中。<br>` : ''}這個編號的船員還沒有登場。<br>也許在下一段航程中，就會在某座島上遇見。</p><div class="cx-src"><b>取得方式</b><span>尚未公開</span></div></div></div>`; return; } codexPick = all[0]; }
-    $('cxCodexGrid').querySelectorAll('.char[data-id]').forEach(b => b.onclick = () => { const was = codexPick === b.dataset.id && $('cxCodexDetail').classList.contains('open'); codexPick = b.dataset.id; renderCodex(); if (!was) openCxSheet(); else closeCxSheet(); });
     const id = codexPick, c = CHARACTERS[id], own = owned(id);
     $('cxCodexDetail').innerHTML = `<div class="cx-hero" style="--rc:${RAR_COLOR[rarOf(id)]}">
         <div class="cx-art ${own || revealAll ? '' : 'sil'}"><img src="${c.image}" alt=""><span class="rar c-rar r-${rarOf(id)}">${rarOf(id)}</span><span class="cx-no">${noOf(id)}</span></div>
@@ -211,22 +236,27 @@ function renderCodex() {
           <div class="bar"><i style="width:${pct}%"></i></div><small class="tc-left">${done ? '訓練完成！' : `剩下 <b data-end="${t.end}">${fmt(t.end - now)}</b>`}</small></div>
           ${done ? `<button class="btn-gold" data-claim="${i}">領取經驗</button>` : `<div class="tc-btns"><button class="btn-gold sm" data-rush="${i}">立即完成・${rushCost(t).toLocaleString()} 貝里</button><button class="btn-ghost sm" data-cancel="${i}">中止</button></div>`}</div>`; }
       else html += `<div class="tc-slot empty"><div class="tc-empty">空位 ${i + 1}</div><button class="btn-primary" data-pick="${i}">放入船員</button></div>`; }
-    $('cxSlots').innerHTML = html;
+    const ready = T.filter(t => now >= t.end).length;
+    if (ready >= 2) html = `<div class="tc-all"><span>有 <b>${ready}</b> 位船員訓練完成</span><button class="btn-gold" data-claimall>全部領取</button></div>` + html; /* v156：一鍵領取 */
+    keepView($('cxSlots'), () => { $('cxSlots').innerHTML = html; });
+    { const ca = $('cxSlots').querySelector('[data-claimall]'); if (ca) ca.onclick = claimAll; }
     $('cxSlots').querySelectorAll('[data-claim]').forEach(b => b.onclick = () => claimTraining(+b.dataset.claim));
     $('cxSlots').querySelectorAll('[data-cancel]').forEach(b => b.onclick = () => cancelTraining(+b.dataset.cancel));
     $('cxSlots').querySelectorAll('[data-rush]').forEach(b => b.onclick = () => rushTraining(+b.dataset.rush));
-    $('cxSlots').querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { trainPick = { slot: +b.dataset.pick, id: null }; renderTrain(); });
+    $('cxSlots').querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { trainPick = { slot: +b.dataset.pick, id: null }; renderTrain(); const pk = $('cxPicker'); if (pk && pk.getBoundingClientRect().top > innerHeight - 120) pk.scrollIntoView({ block: 'start', behavior: 'smooth' }); });
     // 選角與方案
     const P = $('cxPicker');
     if (!trainPick) { P.classList.add('hidden'); return; } P.classList.remove('hidden');
     const cand = ownedIds().filter(id => !isTraining(id) && crewLv(id) < MAX_LV);
     if (trainPick.id && !cand.includes(trainPick.id)) trainPick.id = null;
-    P.innerHTML = `<h4 class="cx-h">① 選擇要訓練的船員</h4>${cand.length ? `<div class="char-grid tc-cands">${cand.map(id => card(id, { on: id === trainPick.id })).join('')}</div>` : '<p class="cx-note">沒有可以訓練的船員（都在訓練中或已滿級）。</p>'}
-      ${trainPick.id ? `<h4 class="cx-h">② 選擇訓練方案</h4>${inLineup(trainPick.id) ? `<p class="cx-warn">${CHARACTERS[trainPick.id].name} 目前在陣容中，開始訓練後會移出陣容。${SAVE.data.lineup.length <= 1 ? '<b>但陣容只剩他一位，請先讓其他船員上陣。</b>' : ''}</p>` : ''}
-        <div class="tc-plans">${TRAIN_PLANS.map(p => { const pv = previewLv(trainPick.id, p.exp), lv = crewLv(trainPick.id); return `<button class="tc-plan" data-plan="${p.id}"><b>${p.label}</b><span>經驗 +${p.exp.toLocaleString()}</span><small>LV ${lv} → <em>LV ${pv}</em></small></button>`; }).join('')}</div>` : ''}
-      <button class="btn-ghost" id="cxPickCancel">取消</button>`;
-    P.querySelectorAll('.tc-cands .char').forEach(b => b.onclick = () => { trainPick.id = b.dataset.id; renderTrain(); });
-    P.querySelectorAll('[data-plan]').forEach(b => b.onclick = () => startTraining(trainPick.slot, trainPick.id, b.dataset.plan));
+    const plans = () => trainPick.id ? `<h4 class="cx-h">選擇訓練時間<small>${CHARACTERS[trainPick.id].name}</small></h4>${inLineup(trainPick.id) ? `<p class="cx-warn">${CHARACTERS[trainPick.id].name} 目前在陣容中，開始訓練後會移出陣容。${SAVE.data.lineup.length <= 1 ? '<b>但陣容只剩他一位，請先讓其他船員上陣。</b>' : ''}</p>` : ''}
+        <div class="tc-plans">${TRAIN_PLANS.map(p => { const pv = previewLv(trainPick.id, p.exp), lv = crewLv(trainPick.id); return `<button class="tc-plan" data-plan="${p.id}"><b>${p.label}</b><span>經驗 +${p.exp.toLocaleString()}</span><small>LV ${lv} → <em>LV ${pv}</em></small></button>`; }).join('')}</div>` : `<p class="cx-note tc-hint">點一位船員，再選擇訓練時間。</p>`;
+    /* v156：方案放在船員名單上方，選好船員不用往下捲；點船員只更新方案區，不重畫名單 */
+    keepView(P, () => { P.innerHTML = `<div class="tc-pickh"><h4 class="cx-h">放入訓練營</h4><button class="btn-ghost sm" id="cxPickCancel">取消</button></div><div class="tc-planbox">${plans()}</div><h4 class="cx-h">選擇船員</h4>${cand.length ? `<div class="char-grid tc-cands">${cand.map(id => card(id, { on: id === trainPick.id })).join('')}</div>` : '<p class="cx-note">沒有可以訓練的船員（都在訓練中或已滿級）。</p>'}`; });
+    const bindPlans = () => P.querySelectorAll('[data-plan]').forEach(b => b.onclick = () => startTraining(trainPick.slot, trainPick.id, b.dataset.plan));
+    P.querySelectorAll('.tc-cands .char').forEach(b => b.onclick = () => { trainPick.id = b.dataset.id; P.querySelectorAll('.tc-cands .char.on').forEach(x => x.classList.remove('on')); b.classList.add('on'); P.querySelector('.tc-planbox').innerHTML = plans(); bindPlans();
+      const pb = P.querySelector('.tc-planbox'), r = pb.getBoundingClientRect(); if (r.top < 0 || r.bottom > innerHeight) pb.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); });
+    bindPlans();
     $('cxPickCancel').onclick = () => { trainPick = null; renderTrain(); };
   }
   /* 倒數更新 */

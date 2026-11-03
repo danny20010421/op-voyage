@@ -7,7 +7,8 @@ function weightedChoice(items){const total=items.reduce((s,it)=>s+it[0],0);let r
 /* 稀有度體質：稀有度越高基礎越強，但差距不大（同階約 50%、相鄰階約 40～60%）；statScale 為個別角色的微調。 */
 function rarityScale(id){const r=(typeof CHAR_RARITY!=='undefined'&&CHAR_RARITY[id])||'SSR',R=(typeof GAME_SETTINGS!=='undefined'&&GAME_SETTINGS.rarityScale)||{};return (R[r]??1)*((CHARACTERS[id]&&CHARACTERS[id].statScale)||1)}
 /* 只用在玩家擁有的角色身上（battle.js 組隊時呼叫）；敵方 BOSS 由關卡難度另外調整 */
-function applyRarityScale(f){const rs=rarityScale(f.id);f.maxHp=Math.round(f.maxHp*rs);f.hp=Math.min(f.maxHp,Math.round(f.hp*rs));f.dmgMul*=rs;return f}
+/* v156：f.__rs 記錄這位玩家角色的體質倍率，固定數值傷害（ext_v152 的 fixedDot、地獄三頭犬）跟著同比例縮放 */
+function applyRarityScale(f){const rs=rarityScale(f.id);f.maxHp=Math.round(f.maxHp*rs);f.hp=Math.min(f.maxHp,Math.round(f.hp*rs));f.dmgMul*=rs;f.__rs=rs;return f}
 /* 立繪調整（後台）：存在獨立的本機設定，不會因改版而失效 */
 function visualOverride(key){try{return (JSON.parse(localStorage.getItem('op_visual_v1')||'{}'))[key]||null}catch(e){return null}}
 function buildFighter(id,lv,skin){
@@ -174,7 +175,7 @@ function applySkillEffects(actor,target,skill,result){
  if(ef.selfBuffAtk&&actor.status.buffBlock<=0){actor.buffs.atk=clamp(actor.buffs.atk+ef.selfBuffAtk,-6,6)}
  if(ef.selfBuffDef&&actor.status.buffBlock<=0){actor.buffs.def=clamp(actor.buffs.def+ef.selfBuffDef,-6,6)}
  if(ef.selfBuffSpd&&actor.status.buffBlock<=0){actor.buffs.spd=clamp(actor.buffs.spd+ef.selfBuffSpd,-6,6)}
- if(ef.dotChance&&target.status.immune<=0&&!target.status.immunePermanent&&chance(ef.dotChance)){target.status.dots.push({turns:ef.dotTurns,ratio:ef.dotRatio,label:ef.dotLabel});log(`🩸 ${target.name} 陷入${ef.dotLabel}！`)}
+ if(ef.dotChance&&ef.dotRatio&&target.status.immune<=0&&!target.status.immunePermanent&&chance(ef.dotChance)){target.status.dots.push({turns:ef.dotTurns,ratio:ef.dotRatio,label:ef.dotLabel});log(`🩸 ${target.name} 陷入${ef.dotLabel}！`)}
  if(ef.randomPPDown){const pool=target.skills.filter(s=>s.pp>0); if(pool.length){const chosen=pool[Math.floor(Math.random()*pool.length)]; chosen.pp=Math.max(0,chosen.pp-ef.randomPPDown); log(`🕳️ ${target.name} 的「${chosen.name}」PP -${ef.randomPPDown}！`)}}
  if(ef.rampAtkTurns){actor.status.rampAtk=ef.rampAtkTurns;log(`📈 ${actor.name} 接下來 ${ef.rampAtkTurns} 回合，每回合攻擊 +1！`)}  if(ef.rampDefTurns){actor.status.rampDef=ef.rampDefTurns;log(`🛡️ ${actor.name} 接下來 ${ef.rampDefTurns} 回合，每回合防禦 +1！`)}  if(ef.nextLifestealRange){actor.status.nextLifesteal=ef.nextLifestealRange;actor.status.nextLifestealTurns=ef.nextLifestealTurns||2}  if(ef.nextAttackMult&&ef.nextAttackMultChance&&!chance(ef.nextAttackMultChance)){log(`🎵 ${actor.name} 的歌聲這次沒有引起共鳴（倍率沒有發動）`)} else if(ef.nextAttackMult){actor.status.nextAttackMultValue=Array.isArray(ef.nextAttackMult)?Math.round(rand(ef.nextAttackMult[0],ef.nextAttackMult[1])*100)/100:ef.nextAttackMult; actor.status.nextAttackMultTurns=ef.nextAttackMultTurns||1}
  if(ef.damageMultTurns){actor.status.damageMultTurns=ef.damageMultTurns; actor.status.damageMultValue=ef.damageMultValue||2}

@@ -8,7 +8,7 @@ async () => {
   const noop = () => {}; ['log','floatText','showDamage','showHeal','triggerImpact','renderHUD','shake','flashScreen'].forEach(k => { try { window[k] = noop; } catch (e) {} });
   try { log = noop; } catch (e) {} try { showDamage = noop; } catch (e) {} try { showHeal = noop; } catch (e) {} try { floatText = noop; } catch (e) {} try { renderHUD = noop; } catch (e) {} try { triggerImpact = noop; } catch (e) {}
   const ids = CHARACTER_ORDER.filter(id => !['marine', 'mayor', 'imu', 'morgans'].includes(id)); const RR = {}; const tw = {};
-  const CC = ['skipAttack', 'freeze', 'paralyze', 'fear', 'petrify'];
+  const CC = [...CC_KEYS, 'skipAttack']; /* v156：與 battle.js 相同（石化、麻痺、疲憊、恐懼、暈眩＋封鎖）；舊版漏了暈眩與疲憊 */
   function act(A, B, side) { return act1(A, B, side); }
   function act1(A, B, side) {
     for (const k of CC) if (A.status[k] > 0 && k !== 'freeze') { A.status[k]--; return; }
@@ -25,7 +25,7 @@ async () => {
     const sk = JSON.parse(JSON.stringify(skill)); const tok = window.rocksPre ? rocksPre(A, B, sk) : null; try { return act2(A, B, side, sk); } finally { if (tok) rocksPost(tok); }
   }
   function act2(A, B, side, sk) {
-    if (A.status.attackFail > 0 && Math.random() < (A.status.attackFailChance || 0)) { A.status.attackFail--; return; } /* 與 battle.js 相同：攻擊失效 */
+    if (A.status.attackFail > 0 && Math.random() < (A.status.attackFailChance || 0)) { A.status.attackFail--; return; } /* 與 battle.js 相同：攻擊失效 */ if (A.status.attackFail > 0) A.status.attackFail--;
     if (sk.type === 'attack' && B.status.invuln > 0) return;
     if (sk.type === 'attack' && B.status.dodge > 0) { B.status.dodge--; return; }
     const r = computeSkillOutcome(A, B, sk, {});

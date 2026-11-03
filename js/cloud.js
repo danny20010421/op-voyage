@@ -34,7 +34,7 @@ const CLOUD = (function () {
   const summary = d => { try { const n = Object.keys(d.roster || {}).length, cl = (typeof CHAPTERS !== 'undefined' ? CHAPTERS : []).filter(c => d.chapters && d.chapters[c.id] && d.chapters[c.id].cleared).length; return `船員 ${n} 位・篇章 ${cl} 章・寶藏幣 ${(d.tokens || 0).toLocaleString()}・貝里 ${(d.berry || 0).toLocaleString()}`; } catch (e) { return ''; } };
 
   /* ---------- Firebase 載入 ---------- */
-  const loadScript = src => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.async = false; s.onload = res; s.onerror = () => rej(new Error('無法下載 Firebase（請確認網路連線）')); document.head.appendChild(s); });
+  const loadScript = src => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.async = false; s.onload = res; s.onerror = () => rej(new Error('暫時連不上登入服務，請確認網路連線後再試一次')); document.head.appendChild(s); });
   let loading = null;
   function sdk() { return loading || (loading = (async () => {
     if (!window.firebase || !window.firebase.firestore) { const b = `https://www.gstatic.com/firebasejs/${CLOUD_CONFIG.sdk}/`; await loadScript(b + 'firebase-app-compat.js'); await loadScript(b + 'firebase-auth-compat.js'); await loadScript(b + 'firebase-firestore-compat.js'); }

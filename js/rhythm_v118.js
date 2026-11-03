@@ -60,7 +60,7 @@
 
   /* ---------- 美音碎片 ---------- */
   function utaLine() { const U = st().uta, own = hasUta();
-    return `<div class="rg-uta"><img src="${art(bossId(), 'avatar')}" alt=""><div><b>美音碎片 <em>${U.shards}</em> / ${UTA.need}</b><small>${own ? '已擁有美音・碎片持續累積' : `每首歌第一次拿到 S 以上 +${UTA.per} 片（已拿 ${U.songs.length} 首）`}</small>
+    return `<div class="rg-uta"><img src="${art(bossId(), 'avatar')}" alt=""><div><b>美音碎片 <em>${U.shards}</em> / ${UTA.need}</b><small>${own ? '已擁有美音・碎片持續累積' : `每首歌第一次拿到 S 以上 +${UTA.per} 片（已拿 ${U.songs.length}／${songs().length} 首${songs().length * UTA.per < UTA.need ? `・目前最多 ${songs().length * UTA.per} 片，新歌推出後就能集滿` : ''}）`}</small>
       <i class="rg-uta-bar"><b style="width:${Math.min(100, U.shards / UTA.need * 100)}%"></b></i></div>${!own && U.shards >= UTA.need ? '<button class="btn-gold" data-a="synth">合成</button>' : ''}</div>`; }
   function synthUta() { const U = st().uta; if (hasUta() || U.shards < UTA.need || typeof addCrew !== 'function') return false;
     U.shards -= UTA.need; addCrew(BOSS, (typeof GAME_SETTINGS !== 'undefined' && GAME_SETTINGS.charLv) || 20); SAVE.save(); try { SFX.play('rare'); } catch (e) { }
@@ -517,7 +517,7 @@
     const U = st().uta, own = hasUta(), ok = !own && U.shards >= UTA.need, pct = Math.min(100, U.shards / UTA.need * 100), c = CHARACTERS[BOSS];
     const sec = document.createElement('section'); sec.className = 'sd-group sd-uta';
     sec.innerHTML = `<h4><span>${NAME}</span><small class="sd-ph live">常駐</small></h4><article class="sd-card ${ok ? 'ready' : ''} ${own ? 'own' : ''}" style="--c:#ff8ae0">
-      <img class="sd-icon" src="${c.avatar}" alt=""><div class="sd-head"><span class="sd-rar">${CHAR_RARITY[BOSS] || 'SSR'}</span><b>${c.name}</b><small>每首歌第一次 S 以上 +${UTA.per} 片（已拿 ${U.songs.length} 首）</small></div>
+      <img class="sd-icon" src="${c.avatar}" alt=""><div class="sd-head"><span class="sd-rar">${CHAR_RARITY[BOSS] || 'SSR'}</span><b>${c.name}</b><small>每首歌第一次 S 以上 +${UTA.per} 片（已拿 ${U.songs.length}／${songs().length} 首${songs().length * UTA.per < UTA.need ? '・新歌推出後才能集滿' : ''}）</small></div>
       <div class="sd-prog"><div class="sd-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${UTA.need}" aria-valuenow="${Math.min(U.shards, UTA.need)}"><i style="width:${pct}%"></i></div><span><b>${U.shards}</b> / ${UTA.need}</span></div>
       ${own ? '<span class="sd-state">✓ 已擁有</span>' : `<button class="sd-btn ${ok ? 'btn-gold' : ''}" data-uta="1" ${ok ? '' : 'disabled'}>${ok ? '合成角色' : `還差 ${UTA.need - U.shards} 片`}</button>`}</article>`;
     el.appendChild(sec); const b = sec.querySelector('[data-uta]'); if (b) b.onclick = () => { if (synthUta()) window.renderShardPane(el); };

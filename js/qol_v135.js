@@ -36,7 +36,7 @@ const AFK_CFG = { capH: 12, fastH: 2, minClaimMin: 10,
       <div class="qo-afk-top"><div class="qo-ring" style="--p:${h / C.capH * 100}%"><b>${fmtH(h)}</b><small>/ ${C.capH} 小時${full ? '・已滿' : ''}</small></div>
         <p>船員在海上替你蒐集物資，最多累積 ${C.capH} 小時。完成的篇章越多，每小時的貝里越多（目前 ${cleared()} 篇：每小時 ${fmtN(per.berry)} 貝里）。每 ${C.ticketEveryH} 小時還有一張一般召喚券。</p></div>
       <h3 class="qo-h3">目前可領取</h3><ul class="qo-rew">${rewRow(R) || '<li class="qo-none">還沒有累積到物資</li>'}</ul>
-      <div class="qo-btns"><button class="btn-ghost" data-fast ${fastOk ? '' : 'disabled'}>${fastOk ? `快速領取（${C.fastH} 小時份・今日免費）` : '今日快速領取已用'}</button><button class="btn-gold" data-claim ${can ? '' : 'disabled'}>領取</button></div>`);
+      <div class="qo-btns"><button class="btn-ghost" data-fast ${fastOk ? '' : 'disabled'}>${fastOk ? `快速領取<small>${C.fastH} 小時份・今日免費</small>` : '今日快速領取已用'}</button><button class="btn-gold" data-claim ${can ? '' : 'disabled'}>領取</button></div>`);
     o.querySelector('[data-claim]').onclick = claimAfk; o.querySelector('[data-fast]').onclick = fastAfk; }
   function lobby() { const b = document.getElementById('lbAfk'); if (!b || !SAVE.data || !SAVE.data.roster) return; const h = hoursNow();
     const t = document.getElementById('lbAfkTxt'), bar = document.getElementById('lbAfkBar'); if (t) t.textContent = h >= AFK_CFG.capH ? '已滿' : fmtH(h); if (bar) bar.style.width = (h / AFK_CFG.capH * 100) + '%';
@@ -73,7 +73,7 @@ const AFK_CFG = { capH: 12, fastH: 2, minClaimMin: 10,
       if (!ids.length) { toast('這組編隊是空的：先按「儲存目前陣容」'); return; }
       D().lineup = ids; SAVE.save(); toast(`已切換到編隊 ${i + 1}`, 'gold'); redraw(); });
     const s = pane.querySelector('[data-tps]'); if (s) s.onclick = e => { e.stopPropagation(); saving = !saving; redraw(); }; }
-  function redraw() { if (typeof openCrew === 'function') openCrew('crew'); }
+  function redraw() { if (typeof renderCrew === 'function' && document.getElementById('charModal').classList.contains('show')) renderCrew(); else if (typeof openCrew === 'function') openCrew('crew'); } /* v156：只重畫，不重新開啟（捲動位置不會跳回頂端） */
 
   /* ---------- ④ 劇情跳過 ---------- */
   function skipBtn() { const d = document.getElementById('dialog'); if (!d || document.getElementById('dlgSkip')) return; const b = document.createElement('button'); b.id = 'dlgSkip'; b.className = 'dlg-min dlg-skip'; b.type = 'button'; b.textContent = '跳過 ▸▸'; b.setAttribute('aria-label', '跳過對話');

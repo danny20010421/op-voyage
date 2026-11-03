@@ -487,3 +487,11 @@
 @media (max-height:520px){#bTicker{display:none!important}}
 /* v126：遊戲特色 9 張卡片在兩欄時，最後一張橫跨整列，不留單獨的空格 */
 @media (max-width:860px) and (min-width:421px){.feat-grid .feat:last-child:nth-child(odd){grid-column:1/-1}}
+/* v156：遊戲特色 10 張卡片在三欄時，最後一張橫跨整列；客服中心按鈕等寬等高；首頁「設定」按鈕圖示與文字視覺置中 */
+@media (min-width:861px){.feat-grid .feat:last-child:nth-child(3n+1){grid-column:1/-1}}
+.sup-actions{display:grid!important;grid-template-columns:repeat(3,1fr);gap:8px!important;margin-top:16px!important}
+.sup-actions>*{min-height:48px;margin:0!important;padding:0 12px!important;display:flex!important;align-items:center;justify-content:center;text-align:center;box-sizing:border-box}
+@media (max-width:460px){.sup-actions{grid-template-columns:1fr 1fr}.sup-actions>:last-child{grid-column:1/-1}}
+@media (min-width:861px){.hn-set{padding:8px 16px 8px 13px!important}}
+/* v156：登入頁小按鈕的圖示本身左側留白（喇叭 3/24、鎖頭 5/24），往左補回讓圖示＋文字視覺置中 */
+.login-sub #newsOpenBtn svg{margin-left:-2px}.login-sub #adminBtn svg{margin-left:-3px}
