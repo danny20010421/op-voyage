@@ -276,6 +276,10 @@
       if (this.chapter.id === 'dark' || this.chapter.id === 'skypiea') { if (Math.random() < dt * .12) this._flashT = .35; if (this._flashT > 0) { this._flashT -= dt; r.flash = Math.max(0, this._flashT) * (this.chapter.id === 'dark' ? .5 : .35); } else r.flash = 0; }
       r.begin();
       if (S.sky) r.draw(S.sky, M.trs(p.x, 0, p.z, 0, 1), { noFog: true, noCull: true, mat: 3 });
+      /* v154b 透視只在「要進建築」時開：角色在屋內，或任務目標在屋內且角色已走到附近（使用者 11/04：走路過程中房子一樣算障礙物） */
+      { const inR = (x, z) => (S.roofs || []).some(R => x > R.x0 - .5 && x < R.x1 + .5 && z > R.z0 - .5 && z < R.z1 + .5); let on = inR(p.x, p.z);
+        if (!on) { const T = this.beacon ? [this.beacon] : (this.target && this.target.type === 'npc' ? this.npcs.filter(n => this.target.ids.includes(n.id)) : []); on = T.some(o => inR(o.x, o.z) && Math.hypot(o.x - p.x, o.z - p.z) < 26); }
+        r.xrayOn = on; }
       r.draw(S.staticMesh, null, { mat: 1, xray: !!S.maxStep });
       if (S.mist) r.draw(S.mist, null, { alpha: true, tint: [1, 1, 1, .5], noOutline: true }); /* v151 艾爾巴夫的彩虹霧橋（半透明） */
       /* 屋頂：玩家走進房子時不畫，才看得到室內 */ if (S.roofs) for (const R of S.roofs) { if (p.x > R.x0 && p.x < R.x1 && p.z > R.z0 && p.z < R.z1) continue; r.draw(R.mesh, null, { mat: 1, xray: !!S.maxStep }); }

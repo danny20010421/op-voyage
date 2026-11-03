@@ -471,7 +471,7 @@ class R3 {
         for (let k = 0; k < 2; k++) { const j = D.i++ % D.n; pa.setXYZ(j, pl.x + (Math.random() - .5) * 1.1, pl.y + .15, pl.z + (Math.random() - .5) * 1.1); ba.setX(j, now + k * .03); } pa.needsUpdate = ba.needsUpdate = true; } }
     
   }
-  flush() { if (this._pl) U.uPlayer.value.set(this._pl.x, this._pl.y, this._pl.z); U.uXray.value = this.matX ? 1 : 0;
+  flush() { if (this._pl) U.uPlayer.value.set(this._pl.x, this._pl.y, this._pl.z); U.uXray.value = this.matX && this.xrayOn ? 1 : 0;
     const e = this.env; if (!e || !e.fog) return; this.resize(); this.time = this.time || 0; U.uTime.value = this.time;
     const fog = col3(e.fog), sky = col3(e.sky), gnd = col3(e.ground), sd = new THREE.Vector3(...(e.sun || [.4, .8, .3])).normalize();
     const LK = this.pro ? this.look || LOOK.east : null; if (LK && LK.sky) { sky.lerp(new THREE.Color(LK.sky[0]), .85); fog.lerp(new THREE.Color(LK.sky[1]), .7); } if (this.pro) { const el = LK.el * Math.PI / 180, hz = Math.hypot(sd.x, sd.z) || 1; sd.set(sd.x / hz * Math.cos(el), Math.sin(el), sd.z / hz * Math.cos(el)); }   /* v145：太陽壓低到約 35 度，影子拉長、看得到光束 */
