@@ -46,8 +46,13 @@ const ok = (() => { try { return !!document.createElement('canvas').getContext('
 const enabled = () => { try { return localStorage.getItem('op_r3') !== '0'; } catch (e) { return true; } };
 const lin = v => Math.pow(v, 2.2);
 const col3 = a => new THREE.Color().setRGB(a[0], a[1], a[2], THREE.SRGBColorSpace);
-const U = { uTime: { value: 0 }, uRim: { value: new THREE.Color(1, .95, .85) }, uRimK: { value: .3 }, uWind: { value: 1 },
+const U = { uXray: { value: 0 }, uTime: { value: 0 }, uRim: { value: new THREE.Color(1, .95, .85) }, uRimK: { value: .3 }, uWind: { value: 1 },
   /* v145 高畫質：雲影、淺灘焦散、角色踩草、草浪 */ uCloudOn: { value: 0 }, uCaus: { value: 0 }, uCausAll: { value: 0 }, uMatOn: { value: 0 }, uPlayer: { value: new THREE.Vector3(0, -999, 0) }, uWindDir: { value: new THREE.Vector2(.8, .6) } };
+/* v154 透視：鏡頭和角色之間的建築，在角色周圍挖一個漸層的洞（網點淡出），走過房子旁邊不會被擋住；腳下的地面不挖 */
+const XRAY_GLSL = `uniform vec3 uPlayer; uniform float uXray; varying vec3 vXW;
+bool _xray(){ if (uXray < .5) return false; vec3 T = uPlayer + vec3(0., 1.1, 0.), D = T - cameraPosition; float L2 = dot(D, D); float t = dot(vXW - cameraPosition, D) / L2; if (t < .03 || t > .93) return false;
+  if (vXW.y < uPlayer.y + .3) return false; float d = length(vXW - (cameraPosition + D * t)), r = mix(1.4, 3.6, smoothstep(.25, .9, t)); float a = (1. - smoothstep(r * .55, r, d)) * smoothstep(.03, .12, t) * smoothstep(.93, .82, t);
+  vec2 g = mod(floor(gl_FragCoord.xy), 4.); float th = (g.x * 4. + g.y) / 16.; th = fract(th * 7.31 + g.y * .5); return a > th + .03; }`;
 const CLOUD_GLSL = `uniform float uCloudOn, uTime; float _cloudSh(vec2 p, float t){ float n = _n3(p*.016 + vec2(t*.011, t*.005))*.7 + _n3(p*.045 - vec2(t*.008, -t*.01))*.3; return smoothstep(.46, .7, n) * uCloudOn; }`;
 /* 焦散（水底晃動的光紋）：Dave Hoskins 的可平鋪水光演算法簡化版 */
 const CAUS_GLSL = `uniform float uCaus, uCausAll; float _caustic(vec2 uv, float t){ vec2 p = mod(uv*6.2832, 6.2832) - 250.; vec2 i = p; float c = 1.; for (int n = 0; n < 3; n++){ float tt = t*(1. - 3.5/float(n+1)); i = p + vec2(cos(tt - i.x) + sin(tt + i.y), sin(tt - i.y) + cos(tt + i.x)); c += 1./length(vec2(p.x/(sin(i.x+tt)/.005), p.y/(cos(i.y+tt)/.005))); } c /= 3.; c = 1.17 - pow(c, 1.4); return pow(abs(c), 8.); }`;
@@ -74,6 +79,8 @@ vec3 _matTex(float m, vec3 p, vec3 n){ vec3 an = abs(n); bool vert = an.y < .55;
 function toon(o = {}) {
   const m = new THREE.MeshToonMaterial({ vertexColors: o.vc !== false, gradientMap: grad, color: o.color || 0xffffff, side: o.side || THREE.FrontSide });
   m.onBeforeCompile = sh => { Object.assign(sh.uniforms, U);
+    if (o.xray) { sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vXW;').replace('#include <begin_vertex>', '#include <begin_vertex>\n vXW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\n' + XRAY_GLSL).replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\n if (_xray()) discard;'); }
     if (o.detail) { sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP; varying vec3 vWN; attribute float mat; varying float vMat;').replace('#include <begin_vertex>', '#include <begin_vertex>\n vWP = (modelMatrix * vec4(transformed, 1.0)).xyz; vWN = normalize(mat3(modelMatrix) * objectNormal); vMat = mat;');
       sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP; varying vec3 vWN; varying float vMat;\n' + DETAIL_GLSL + CLOUD_GLSL + CAUS_GLSL + MAT_GLSL).replace('#include <color_fragment>', `#include <color_fragment>
  float _caus = 0.; diffuseColor.rgb *= 1. - .38*_cloudSh(vWP.xz, uTime);
@@ -91,11 +98,15 @@ function toon(o = {}) {
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>\nuniform vec3 uRim; uniform float uRimK;${o.grass ? ' varying float vGy, vGust; varying vec2 vGW;\n' + DETAIL_GLSL + CLOUD_GLSL : ''}`)
       .replace('#include <color_fragment>', `#include <color_fragment>${o.grass ? '\n diffuseColor.rgb *= mix(.42, 1.02, clamp(vGy,0.,1.)) * (1. + vGust*.22*clamp(vGy,0.,1.)*uCloudOn) * (1. - .38*_cloudSh(vGW, uTime));' : ''}`)
       .replace('#include <dithering_fragment>', '#include <dithering_fragment>\n float _rim = pow(1.0 - abs(dot(normalize(normal), normalize(vViewPosition))), 3.0); gl_FragColor.rgb += uRim * _rim * uRimK;' + (o.detail ? '\n gl_FragColor.rgb += vec3(.75, .95, 1.) * _caus * .55;' : '')); };
-  m.customProgramCacheKey = () => 'e3t' + (o.grass ? 'g' : '') + (o.detail ? 'd' : '');
+  m.customProgramCacheKey = () => 'e3t' + (o.grass ? 'g' : '') + (o.detail ? 'd' : '') + (o.xray ? 'x' : '');
   return m;
 }
-function outlineMat(thick) {
-  return new THREE.ShaderMaterial({ side: THREE.BackSide, fog: true, uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { uThick: { value: thick }, uCol: { value: new THREE.Color(0x2a1e24) } }]),
+function outlineMat(thick, xray) {
+  const um = THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { uThick: { value: thick }, uCol: { value: new THREE.Color(0x2a1e24) } }]); if (xray) { um.uPlayer = U.uPlayer; um.uXray = U.uXray; }
+  if (xray) return new THREE.ShaderMaterial({ side: THREE.BackSide, fog: true, uniforms: um,
+    vertexShader: `uniform float uThick; varying vec3 vXW;\n#include <fog_pars_vertex>\nvoid main(){ vXW = (modelMatrix * vec4(position, 1.0)).xyz; vec4 mvPosition = modelViewMatrix * vec4(position, 1.0); float d = -mvPosition.z; vec3 n = normalize(normalMatrix * normal); mvPosition.xyz += n * uThick * (1.0 + d*.012); gl_Position = projectionMatrix * mvPosition;\n#include <fog_vertex>\n}`,
+    fragmentShader: `uniform vec3 uCol;\n${XRAY_GLSL}\n#include <fog_pars_fragment>\nvoid main(){ if (_xray()) discard; gl_FragColor = vec4(uCol, 1.0);\n#include <fog_fragment>\n}` });
+  return new THREE.ShaderMaterial({ side: THREE.BackSide, fog: true, uniforms: um,
     vertexShader: `uniform float uThick;\n#include <fog_pars_vertex>\nvoid main(){ vec4 mvPosition = modelViewMatrix * vec4(position, 1.0); float d = -mvPosition.z; vec3 n = normalize(normalMatrix * normal); mvPosition.xyz += n * uThick * (1.0 + d*.012); gl_Position = projectionMatrix * mvPosition;\n#include <fog_vertex>\n}`,
     fragmentShader: `uniform vec3 uCol;\n#include <fog_pars_fragment>\nvoid main(){ gl_FragColor = vec4(uCol, 1.0);\n#include <fog_fragment>\n}` });
 }
@@ -221,7 +232,8 @@ class R3 {
     let o = h.pool[h.used];
     if (!o) { const alpha = !!opts.alpha;
       if (alpha) o = new THREE.Mesh(h.geo, new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: true }));
-      else if (h.chunks) { o = new THREE.Group(); h.chunks.forEach(cg => { const m = new THREE.Mesh(cg, this.mat); m.castShadow = true; m.receiveShadow = true; o.add(m); }); }
+      else if (h.chunks) { o = new THREE.Group(); h.chunks.forEach(cg => { const m = new THREE.Mesh(cg, opts.xray ? (this.matX || (this.matX = toon({ detail: !this.low, xray: true }))) : this.mat); m.castShadow = true; m.receiveShadow = true; o.add(m); }); }
+      else if (opts.xray) { o = new THREE.Mesh(h.geo, this.matX || (this.matX = toon({ detail: !this.low, xray: true }))); o.castShadow = true; o.receiveShadow = true; if (!opts.noOutline && !h.big) { const ol = new THREE.Mesh(h.geo, this.olX || (this.olX = outlineMat(.04, true))); ol.matrixAutoUpdate = false; o.add(ol); } }
       else { o = new THREE.Mesh(h.geo, this.mat); o.castShadow = true; o.receiveShadow = true; if (!opts.noOutline && !h.big) { const ol = new THREE.Mesh(h.geo, this.olObj); ol.matrixAutoUpdate = false; o.add(ol); } if (opts.noCull) o.material = this.matDS || (this.matDS = toon({ side: THREE.DoubleSide, detail: !this.low })); }
       o.matrixAutoUpdate = false; o.userData.alpha = alpha; h.pool.push(o); this.scene.add(o); }
     h.used++; o.visible = true;
@@ -248,7 +260,7 @@ class R3 {
   /* ---------- 新增：載入島嶼時建立水面與草地 ---------- */
   setIsland(S, chapter) {
     this.island.clear(); this.water = null; this.ultraFree(); if (S.ultra && this.ultra) this.ultraBuild(S); if (S.cloud) S.cloud.skip = true; /* 舊的方塊雲改由新天空的雲取代 */ const id = chapter.id, E = chapter.env, EK = Math.max(1, (S.ext || 100) / 100), R0 = Math.max(170, (S.ext || 100) * 1.15), N = EK > 1.2 ? 384 : 256;
-    const hd = new Float32Array(N * N); for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) hd[j * N + i] = S.H(-R0 + i / (N - 1) * R0 * 2, -R0 + j / (N - 1) * R0 * 2);
+    const hd = new Float32Array(N * N); for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) hd[j * N + i] = (S.Hw || S.H)(-R0 + i / (N - 1) * R0 * 2, -R0 + j / (N - 1) * R0 * 2); /* v154 浮空島底下仍是海 */
     const hTex = new THREE.DataTexture(hd, N, N, THREE.RedFormat, THREE.FloatType); hTex.minFilter = hTex.magFilter = THREE.LinearFilter; hTex.needsUpdate = true;
     const wc = WATERC[id] || ['#145e9e', '#3fd0c4'], cloudSea = id === 'skypiea';
     if (!this.nTex) { this.nTex = new THREE.TextureLoader().load('vendor/three/textures/waternormals.jpg'); this.nTex.wrapS = this.nTex.wrapT = THREE.RepeatWrapping; }
@@ -459,7 +471,7 @@ class R3 {
         for (let k = 0; k < 2; k++) { const j = D.i++ % D.n; pa.setXYZ(j, pl.x + (Math.random() - .5) * 1.1, pl.y + .15, pl.z + (Math.random() - .5) * 1.1); ba.setX(j, now + k * .03); } pa.needsUpdate = ba.needsUpdate = true; } }
     
   }
-  flush() {
+  flush() { if (this._pl) U.uPlayer.value.set(this._pl.x, this._pl.y, this._pl.z); U.uXray.value = this.matX ? 1 : 0;
     const e = this.env; if (!e || !e.fog) return; this.resize(); this.time = this.time || 0; U.uTime.value = this.time;
     const fog = col3(e.fog), sky = col3(e.sky), gnd = col3(e.ground), sd = new THREE.Vector3(...(e.sun || [.4, .8, .3])).normalize();
     const LK = this.pro ? this.look || LOOK.east : null; if (LK && LK.sky) { sky.lerp(new THREE.Color(LK.sky[0]), .85); fog.lerp(new THREE.Color(LK.sky[1]), .7); } if (this.pro) { const el = LK.el * Math.PI / 180, hz = Math.hypot(sd.x, sd.z) || 1; sd.set(sd.x / hz * Math.cos(el), Math.sin(el), sd.z / hz * Math.cos(el)); }   /* v145：太陽壓低到約 35 度，影子拉長、看得到光束 */

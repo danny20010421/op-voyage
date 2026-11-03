@@ -22,21 +22,22 @@
         { formImage: { image: img('gunko_dark'), scale: .8 / .6, turns: 2, label: '黑轉支配' }, statUpAll: 2, healRatio: .5, damageMultTurns: 3, damageMultRange: [5, 20], invulnTurns: 2,
           gunkoAfter: { wait: 2, dr: .35, turns: 3, chance: .3, mult: [2, 3] }, bgCutin: { image: img('gunko_cutin'), ms: 4200, title: '黑轉支配', sub: '曼麥亞・軍子宮' }, noRestore: true }, true)
     ] };
-  CHARACTERS.shamrock = { id: 'shamrock', name: '費加蘭德・夏姆洛克聖', title: '神之騎士團團長', types: ['格鬥'], scale: 1, worldScale: 1, battleScale: .65, ai: 'balanced',
+  CHARACTERS.shamrock = { id: 'shamrock', name: '費加蘭德・夏姆洛克聖', title: '神之騎士團團長', types: ['格鬥'], scale: 1, worldScale: 1, battleScale: .65, ai: 'aggressive',
     image: img('shamrock'), avatar: img('shamrock_face'), ultimateBg: img('shamrock'), cardPos: '50% 10%', cardFocus: '50% 12%',
-    maxHp: 1650, baseSpeed: 112, statScale: 1.05, role: '全能型',
+    maxHp: 1650, baseSpeed: 112, statScale: 1.05, role: '攻擊型',
     desc: '世界貴族「天龍人」，神之騎士團團長、前神之騎士團最高司令官五老星費加蘭德・賈林各聖的兒子。四皇「紅髮」的雙胞胎哥哥，配刀「塞博拉斯」。',
     skills: [
-      S('霸王纏刃', 'attack', 10, 125, '纏上霸王色的強烈斬擊，無視護盾；30% 機率使對手恐懼 1 回合，命中時 50% 機率清除對手的能力提升。', [['無視護盾', 'red'], ['恐懼', 'gold'], ['清除強化', 'blue']], 'slash',
-        { ignoreShield: true, fearChance: .3, fearTurns: 1, clearBuffsChance: .5 }),
-      S('不死之身', 'support', 3, 0, '恢復 50% 體力，獲得當前體力 30% 的護盾，解除自身的負面狀態與能力下降。', [['回復', 'green'], ['護盾', 'green'], ['淨化', 'green']], 'aura',
-        { healRatio: .5, selfShieldCurrentHpRatio: .3, clearSelfDebuffs: true }),
-      S('天龍人的威壓', 'support', 4, 0, '天龍人的威壓：對手攻擊 -2、速度 -1（3 回合）；自身防禦 +2，2 回合內受到的傷害 -30%。', [['降攻', 'blue'], ['降速', 'blue'], ['強化', 'gold'], ['減傷', 'green']], 'aura',
-        { enemyAtkDownChance: [[1, 1], 2, 3], enemySpdDownTemp: [1, 3], selfBuffDef: 2, damageReductionTurns: 2, damageReductionValue: .3 }),
-      S('雙生之影', 'attack', 6, 0, '紅髮的雙胞胎哥哥揮出連續斬擊 2～4 次；對手體力越低傷害越高（最多 2 倍），並吸收造成傷害的 30% 回復體力。', [['連擊', 'red'], ['斬殺', 'red'], ['吸血', 'green']], 'slash',
-        { multiHitNormal: [2, 4], perHitPower: 46, lowHpBonus: 2, lifestealRange: [.3, .3] }),
-      S('地獄三頭犬', 'attack', 2, 0, '奧義。揮出配刀「塞博拉斯」，身後出現地獄三頭犬（3 回合）：強烈攻擊 3 次；三頭犬在場的每回合，夏姆洛克全能力 +1、恢復 20% 體力，對手額外受到 300～1000 點傷害，15% 機率陷入恐懼。', [['奧義', 'gold'], ['召喚', 'gold'], ['連擊', 'red'], ['回復', 'green'], ['恐懼', 'gold']], 'slash',
-        { multiHitNormal: [3, 3], perHitPower: 70, cerberus: { turns: 3, regen: .2, statUp: 1, dmg: [300, 1000], fear: .15, image: img('shamrock_cerberus'), scale: 1.2 }, noRestore: true }, true)
+      /* v154：使用者 11/03「夏姆洛克要偏向攻擊型，而非生存型」——五招都改成以輸出為主 */
+      S('霸王纏刃', 'attack', 10, 135, '纏上霸王色的強烈斬擊，必中、無視護盾；30% 機率使對手恐懼 1 回合，命中時 50% 機率清除對手的能力提升。', [['必中', 'red'], ['無視護盾', 'red'], ['恐懼', 'gold'], ['清除強化', 'blue']], 'slash',
+        { sureHit: true, ignoreShield: true, fearChance: .3, fearTurns: 1, clearBuffsChance: .5 }),
+      S('不死之身', 'support', 3, 0, '不死的肉體：恢復 25% 體力並解除自身的負面狀態；攻擊 +2，接下來 2 回合的下一次攻擊威力 ×1.6。', [['回復', 'green'], ['淨化', 'green'], ['強化', 'gold']], 'aura',
+        { healRatio: .25, clearSelfDebuffs: true, selfBuffAtk: 2, nextAttackMult: 1.6, nextAttackMultTurns: 2 }),
+      S('天龍人的威壓', 'attack', 6, 110, '天龍人的霸氣壓下對手，無視護盾；對手防禦 -2（3 回合）、攻擊 -1（3 回合），自身攻擊 +1。', [['無視護盾', 'red'], ['降防', 'blue'], ['降攻', 'blue'], ['強化', 'gold']], 'haki',
+        { ignoreShield: true, enemyDefDownChance: [1, [2, 2], 3], enemyAtkDownChance: [[1, 1], 1, 3], selfBuffAtk: 1 }),
+      S('雙生之影', 'attack', 6, 0, '紅髮的雙胞胎哥哥揮出連續斬擊 3～5 次；對手體力越低傷害越高（最多 2.5 倍），吸收造成傷害的 15% 回復體力。', [['連擊', 'red'], ['斬殺', 'red'], ['吸血', 'green']], 'slash',
+        { multiHitNormal: [3, 5], perHitPower: 48, lowHpBonus: 2.5, lifestealRange: [.15, .15] }),
+      S('地獄三頭犬', 'attack', 2, 0, '奧義。揮出配刀「塞博拉斯」，身後出現地獄三頭犬（3 回合）：強烈攻擊 3 次；三頭犬在場的每回合，夏姆洛克攻擊 +2，對手額外受到 500～1200 點傷害，20% 機率陷入恐懼。', [['奧義', 'gold'], ['召喚', 'gold'], ['連擊', 'red'], ['強化', 'gold'], ['恐懼', 'gold']], 'slash',
+        { multiHitNormal: [3, 3], perHitPower: 80, cerberus: { turns: 3, regen: 0, statUp: 0, atkUp: 2, dmg: [500, 1200], fear: .2, image: img('shamrock_cerberus'), scale: 1.2 }, noRestore: true }, true)
     ] };
   ['gunko', 'shamrock'].forEach(id => { if (!CHARACTER_ORDER.includes(id)) CHARACTER_ORDER.push(id); CHAR_RARITY[id] = 'SSR';
     CHAR_OBTAIN[id] = { boss: 0, eventOnly: true, npc: '限定「神之騎士團」抽獎池（尚未開放）；目前只會在巨人篇劇情中以 BOSS 登場' }; });

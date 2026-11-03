@@ -3,6 +3,8 @@
 (function () {
   const I = window.ISLE2; if (!I) return;
   const mod = (id, f) => { const S = I[id] && I[id].D; if (S) f(S, S.landmarks = S.landmarks || []); };
+  /* v154：鬼之島浮空、新骷髏頭、歷史本文的洞穴還在製作中（使用者 11/03「3D 場景完成後再說」），先關掉；完成後改成 true */
+  const WIP3D = !!window.WIP3D_V154;
   const find = (L, kind, x, z) => L.find(l => l[0] === kind && Math.abs(l[1] - x) < .5 && Math.abs(l[2] - z) < .5);
   const move = (L, kind, x, z, nx, nz) => { const l = find(L, kind, x, z); if (l) { l[1] = nx; l[2] = nz; } return l; };
   /* 東海：魯夫出航的小船、西南岸外海的亞爾麗塔號與棧橋、漂來的木桶、海軍據點中庭綁著索隆的十字木樁 */
@@ -14,7 +16,8 @@
     D.piers = (D.piers || []).concat([[[-110, 92], [-128, 106], 1.3]]);
   });
   /* 空島：香迪亞遺跡中央的歷史本文 */
-  mod('skypiea', (D, L) => { L.push(['poneglyph', -50, -80, .3, { key: 'poneglyph', s: 1.2 }]); });
+  if (!WIP3D) mod('skypiea', (D, L) => { L.push(['poneglyph', -50, -80, .3, { key: 'poneglyph', s: 1.2 }]); });
+  if (WIP3D) mod('skypiea', (D, L) => { L.push(['cave', -78, -108, .9, { key: 'poneglyph', r: 7, inside: ['poneglyph', { s: .55 }] }]); }); /* v154：使用者「藏在森林深處的洞穴裡」——遺跡西南方樹林深處的洞穴，洞口朝東北（遺跡方向） */
   /* 司法島：可可羅搭來的火箭人號車頭（塔前） */
   mod('enies', (D, L) => { L.push(['rocketman', 28, -74, -.4, { key: 'rocketman' }]); });
   /* 恐怖三桅帆船：牆外的布魯克幽靈船、千陽號（獅子船首）、歐斯的冷凍庫；兩艘沉船移出木柵 */
@@ -51,6 +54,20 @@
     L.push(['pod', 12, 110, Math.PI, { key: 'pod' }], ['robot', 96, -52, -.8, { key: 'robot', s: 1 }],
       ['bigship', 0, -158, Math.PI, { s: .8, sail: '#ffffff', hull: '#8a8e96' }], ['bigship', 150, -40, -1.6, { s: .8, sail: '#ffffff', hull: '#8a8e96' }], ['bigship', -150, 30, 1.6, { s: .8, sail: '#ffffff', hull: '#8a8e96' }]);
   });
+  /* v154 阿拉巴斯坦：時計台裡的炸彈（從正面的窗口露出來） */
+  mod('alabasta', (D, L) => { const ct = L.find(l => l[0] === 'clocktower'); if (ct) { ct[3] = -Math.PI / 2; ct[4] = Object.assign(ct[4] || {}, { bomb: 1 }); } });
+  /* v154 和之國：鬼之島的骷髏頭（參考圖）放大，面向南邊的港口（從南港一路看得到它張開的大嘴） */
+  /* v154 鬼之島浮在半空（使用者 11/03 參考圖）：島上的地面整個抬高 LIFT，底下是倒錐形的鋸齒岩塊與環繞的雲帶；海面仍在島的下方；
+     花之都的長橋從地面一路斜上去接到島邊（isle2 skyway 的高度取兩端地面）。 */
+  if (WIP3D) mod('wano', (D, L) => { const LIFT = 30, OD = (dx, dz) => Math.hypot(dx, dz - 4), RIM = 46;
+    D.post2 = (v, dx, dz) => OD(dx, dz) < RIM ? (v > .25 ? v + LIFT : -7) : v;
+    D.waterH = (h, dx, dz) => OD(dx, dz) < RIM && h > 2 ? -7 : h;
+    D.cutTri = (dy, dx, dz) => dy > 9 && OD(dx, dz) < RIM + 4;
+    L.push(['floatbase', 0, 4, 0, { lift: LIFT, rim: RIM }]);
+    const BR = (D.skyways || []).find(S => S.pts[0][0] === 0 && S.pts[0][1] === -60); const W = I.wano;
+    { const ln = (D.roads || []).find(r => r[0][0][0] === 0 && r[0][0][1] === -31); if (ln) ln[0].unshift([0, -35.5]); } /* 山路往外接到橋頭 */
+    if (BR) { BR.arch = 1; BR.ramp = true; BR.pts = [[0, -63], [0, -49], [0, -34.5]]; /* 終點往島內多伸一段，接上抬高的地面（島緣是懸空的） */ Object.defineProperty(BR, 'y', { configurable: true, get: () => [W.H(0, -128) + .15, W.H(0, -67)] }); } });
+  if (WIP3D) mod('wano', (D, L) => { const sk = L.find(l => l[0] === 'skull'); if (sk) { sk[2] = 30; sk[3] = 0; sk[4] = Object.assign(sk[4] || {}, { r: 19 }); } });
   /* 巨人篇：漁夫村上空，神之騎士團的巨大箭頭標誌 */
   mod('giant', (D, L) => { L.push(['arrowsign', 100, -10, .5, { key: 'arrow', h: 26, s: 6 }]); });
 })();

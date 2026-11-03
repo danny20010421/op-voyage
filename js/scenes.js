@@ -156,7 +156,15 @@
       /* 船首樓與斜桅 */ { const [fx, fz] = L(0, Ln * .36); b.box(fx, deckY, fz, W * .5, .8 * s, Ln * .14, hull2, ry); const [bx2, bz2] = L(0, Ln * .52); b.cyl(bx2, deckY + .9 * s, bz2, .14 * s, .08 * s, Ln * .14, 6, '#5e3b22', null, 0, [sn * Ln * .12, c * Ln * .12]); }
       /* 船首像 */ { const [hx, hz] = L(0, Ln * .5 + .2 * s); if (o.head === 'whale') { b.sphere(hx, deckY - .4 * s, hz, 1.9 * s, 12, '#f4f2ea', .8); [-1, 1].forEach(sd => { const [ex, ez] = L(sd * .9 * s, Ln * .5 + 1.3 * s); b.sphere(ex, deckY + .1 * s, ez, .24 * s, 6, '#1a1a1a'); }); const [mx, mz] = L(0, Ln * .5 + 1.6 * s); b.box(mx, deckY - 1 * s, mz, 2 * s, .12 * s, .2 * s, '#3a2a2a', ry); }
         else if (o.head === 'sheep') { b.sphere(hx, deckY + .5 * s, hz, .9 * s, 10, '#f4ead8'); [-1, 1].forEach(sd => { const [ex, ez] = L(sd * .7 * s, Ln * .5); b.sphere(ex, deckY + .7 * s, ez, .35 * s, 6, '#e0c890'); }); }
-        else if (o.head === 'dog') { /* v153 卡普的軍艦：狗頭船首 */ b.sphere(hx, deckY + .6 * s, hz, 1.2 * s, 12, '#f4f2ea'); const [nx, nz] = L(0, Ln * .5 + 1.1 * s); b.sphere(nx, deckY + .4 * s, nz, .6 * s, 8, '#f4f2ea', .8); const [ox, oz] = L(0, Ln * .5 + 1.6 * s); b.sphere(ox, deckY + .55 * s, oz, .22 * s, 6, '#1c1c22'); [-1, 1].forEach(sd => { const [ex, ez] = L(sd * .85 * s, Ln * .5 - .1 * s); b.sphere(ex, deckY + 1.5 * s, ez, .45 * s, 6, '#d8d4cc', 1.3); }); }
+        else if (o.head === 'dog') { /* v154 卡普的軍艦：狗頭船首（使用者 11/03 參考圖）——奶油色的狗臉、往前凸的口鼻、大黑鼻子、黑眼睛、垂下來的耳朵 */
+          const cr = '#f2e6cc', Pd = (lx, ly, lz) => { const [px, pz] = L(lx * s, Ln * .5 + lz * s); return [px, deckY + ly * s, pz]; };
+          { const [px, py, pz] = Pd(0, .9, .5); b.sphere(px, py, pz, 1.45 * s, 14, cr, .92); }
+          { const [px, py, pz] = Pd(0, .45, 1.65); b.sphere(px, py, pz, .85 * s, 12, '#f8f0dc', .72); }
+          { const [px, py, pz] = Pd(0, .72, 2.4); b.sphere(px, py, pz, .34 * s, 8, '#141418', .85); }
+          { const [px, py, pz] = Pd(0, .05, 2.2); b.box(px, py, pz, .7 * s, .1 * s, .2 * s, '#5a2a2a', ry); }
+          [-1, 1].forEach(sd => { { const [px, py, pz] = Pd(sd * .55, 1.45, 1.55); b.sphere(px, py, pz, .2 * s, 8, '#141418'); }
+            { const [px, py, pz] = Pd(sd * .55, 1.78, 1.45); b.box(px, py, pz, .45 * s, .1 * s, .12 * s, '#6a5a4a', ry + sd * .25); }
+            { const [px, py, pz] = Pd(sd * 1.45, .3, .2); b.sphere(px, py, pz, .55 * s, 10, '#8a7666', 1.6); } }); }
         else if (o.head === 'lion') { b.sphere(hx, deckY + .6 * s, hz, 1.1 * s, 12, '#f0c040'); b.sphere(hx, deckY + .6 * s, hz, .8 * s, 10, '#f8d870'); }
         else b.sphere(hx, deckY + .2 * s, hz, .45 * s, 8, '#c9973a'); }
       /* 桅杆、帆桁、鼓起的帆、纜繩、旗 */
@@ -1081,8 +1089,23 @@
     if (PL.length > 150) for (const p of PL) for (let i = Math.floor(p.x0 / 16); i <= Math.floor(p.x1 / 16); i++) for (let j = Math.floor(p.z0 / 16); j <= Math.floor(p.z1 / 16); j++) { const k = i * 4096 + j; if (!PB.has(k)) PB.set(k, []); PB.get(k).push(p); }
     const G = (x, z, y) => { let g = H(x, z); for (const p of near(x, z)) { if (x < p.x0 || x > p.x1 || z < p.z0 || z > p.z1) continue; const t = topAt(p, x, z); if (t > g && t <= y + (p.ax ? 1.4 : .8)) g = t; } return g; }; /* 樓梯的容許高度較大：畫面卡頓、一步跨得比較遠時也不會從樓梯上掉下去 */
     const onPlat = (x, z, y) => near(x, z).some(p => x >= p.x0 && x <= p.x1 && z >= p.z0 && z <= p.z1 && topAt(p, x, z) <= y + .8);
+    /* v154 幾何碰撞：使用者 11/03「人物會穿過部分建築或障礙」——房子、船、道具原本只靠圓形或地塊近似，看起來是牆的地方不一定擋得住。
+       掃過靜態網格裡所有「近乎垂直」的面，落在身體高度（離腳下地面 0.35～1.8）的部分就把那一格標成擋住；每格記下擋住時腳下地面的高度（最多兩層），
+       上下層不同的地方（橋下、平台下）不會互相擋。 */
+    const GB = I2 ? (() => { const ext = I2.ext, Nn = Math.round(ext * 2) + 1, lo = new Float32Array(Nn * Nn).fill(NaN), hi = new Float32Array(Nn * Nn).fill(NaN), P0 = b.p, Nr = b.n, R = .25;
+      const put = (x, z, g) => { for (const ox of [-R, R]) for (const oz of [-R, R]) { const i = Math.round(x + ox + ext), j = Math.round(z + oz + ext); if (i < 0 || j < 0 || i >= Nn || j >= Nn) continue; const q = j * Nn + i, a = lo[q];
+        if (a !== a) lo[q] = g; else if (Math.abs(a - g) > 1.2) { const h = hi[q]; if (h !== h || Math.abs(h - g) > .3) hi[q] = Math.max(a, g), lo[q] = Math.min(a, g); } } };
+      const NC = b.ncr || []; let nci = 0; NC.sort((p, q) => p[0] - q[0]);
+      for (let t = 0; t < P0.length; t += 9) { while (nci < NC.length && t >= NC[nci][1]) nci++; if (nci < NC.length && t >= NC[nci][0]) { t = NC[nci][1] - 9; continue; } const ny = Nr[t + 1]; if (ny > .45 || ny < -.45) continue;
+        const ax = P0[t], ay = P0[t + 1], az = P0[t + 2], bx = P0[t + 3], by = P0[t + 4], bz = P0[t + 5], cx = P0[t + 6], cy = P0[t + 7], cz = P0[t + 8];
+        const y0 = Math.min(ay, by, cy), y1 = Math.max(ay, by, cy); if (y1 - y0 < .25) continue; if (Math.abs(ay - H(ax, az)) < .3 && Math.abs(by - H(bx, bz)) < .3 && Math.abs(cy - H(cx, cz)) < .3) continue; /* 地形本身（陡坡）不算 */ const hm = H((ax + bx + cx) / 3, (az + bz + cz) / 3); if (y1 < hm + .35 || y0 > hm + 40) continue;
+        const L = Math.max(Math.hypot(bx - ax, by - ay, bz - az), Math.hypot(cx - ax, cy - ay, cz - az), Math.hypot(cx - bx, cy - by, cz - bz)), n = Math.min(80, Math.ceil(L / .5));
+        for (let u = 0; u <= n; u++) for (let v = 0; v <= n - u; v++) { const w1 = u / n, w2 = v / n, w0 = 1 - w1 - w2, x = ax * w0 + bx * w1 + cx * w2, y = ay * w0 + by * w1 + cy * w2, z = az * w0 + bz * w1 + cz * w2;
+          const g = G(x, z, y - .4), h = y - g; if (h > .35 && h < 1.8 && g < H(x, z) + .3 && !near(x, z).some(p => x >= p.x0 - .7 && x <= p.x1 + .7 && z >= p.z0 - .7 && z <= p.z1 + .7)) put(x, z, g); } } /* 平台、橋、碼頭上的欄杆不算：平台本身已經不會讓人走出邊緣 */
+      const fn = (x, z, y) => { const i = Math.round(x + ext), j = Math.round(z + ext); if (i < 0 || j < 0 || i >= Nn || j >= Nn) return false; const q = j * Nn + i, a = lo[q], h = hi[q]; return (a === a && Math.abs(y - a) < 1.1) || (h === h && Math.abs(y - h) < 1.1); };
+      fn.lo = lo; return fn; })() : null;
     const roofs = ST.roofs.map(R => ({ x0: R.x0, z0: R.z0, x1: R.x1, z1: R.z1, mesh: renderer.mesh(R.b) }));
-    const scene = { plats: PL, walls: WL, roofs, G, onPlat, chimneys: CHIMNEYS.slice(), foliage: FOLIAGE.slice(), palms: PALMS.slice(), H, obstacles: O, dyn: D, staticMesh: renderer.mesh(b), mist: MB.count ? renderer.mesh(MB) : null, ext: I2 ? I2.ext : 100, blocked: I2 ? I2.blocked : null, roadAt: I2 ? I2.roadAt : null, maxStep: I2 ? 1.5 : 0, water: renderer.mesh(w), waterAlpha: chapterId === 'skypiea' ? 1 : .9, tris: b.count / 3 + (I2 && I2.ultra ? I2.ultra.tris : 0), ultra: I2 ? I2.ultra : null, Ho: (x, z) => { let g = H(x, z); for (const p of near(x, z)) if (p.obj && x >= p.x0 && x <= p.x1 && z >= p.z0 && z <= p.z1) g = Math.max(g, topAt(p, x, z)); return g; } };
+    const scene = { plats: PL, walls: WL, roofs, G, onPlat, chimneys: CHIMNEYS.slice(), foliage: FOLIAGE.slice(), palms: PALMS.slice(), H, obstacles: O, dyn: D, staticMesh: renderer.mesh(b), mist: MB.count ? renderer.mesh(MB) : null, ext: I2 ? I2.ext : 100, blocked: I2 ? I2.blocked : null, gb: GB, Hw: I2 && I2.Hw ? I2.Hw : null, roadAt: I2 ? I2.roadAt : null, maxStep: I2 ? 1.5 : 0, water: renderer.mesh(w), waterAlpha: chapterId === 'skypiea' ? 1 : .9, tris: b.count / 3 + (I2 && I2.ultra ? I2.ultra.tris : 0), ultra: I2 ? I2.ultra : null, Ho: (x, z) => { let g = H(x, z); for (const p of near(x, z)) if (p.obj && x >= p.x0 && x <= p.x1 && z >= p.z0 && z <= p.z1) g = Math.max(g, topAt(p, x, z)); return g; } };
     if (D.windmills) { const bl = new Builder(); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2; bl.box(Math.cos(a) * 3.5, -.12, Math.sin(a) * 3.5, 7, .16, .22, '#6b4a2f', -a); bl.box(Math.cos(a) * 3.8 + Math.cos(a + 1.5708) * .7, -.06, Math.sin(a) * 3.8 + Math.sin(a + 1.5708) * .7, 5.6, .08, 1.3, '#f7f1e4', -a); for (let k = 0; k < 5; k++) bl.box(Math.cos(a) * (1.6 + k * 1.1) + Math.cos(a + 1.5708) * .7, .02, Math.sin(a) * (1.6 + k * 1.1) + Math.sin(a + 1.5708) * .7, .1, .08, 1.4, '#6b4a2f', -a); } bl.cyl(0, -.35, 0, .7, .7, .7, 12, '#8b3a2e'); scene.blade = renderer.mesh(bl); } /* 扇葉：骨架＋帆布＋橫桿 */
     if (D.fish) { const fb = new Builder(); fb.sphere(0, 0, 0, .5, 6, '#ffffff', .6); fb.cyl(-.5, -.25, 0, .02, .35, .5, 4, '#ffffff', null, 0, [-.2, 0]); scene.fishMesh = renderer.mesh(fb); }
     { const bb = new Builder(); bb.box(-.6, 0, 0, 1.2, .06, .35, '#ffffff', -.35); bb.box(.6, 0, 0, 1.2, .06, .35, '#ffffff', .35); scene.bird = renderer.mesh(bb); }

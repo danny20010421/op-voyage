@@ -119,7 +119,7 @@
       const OB = S.obstacles.concat(this.npcs.filter(n => !n.walking).map(n => [n.x, n.z, SCENES.lookScale(n.look) * 1.1]));
       for (const o of OB) { const r = o[2] + 1.4; for (let j = Math.max(0, Math.floor(o[1] - r + E)); j <= Math.min(N - 1, Math.ceil(o[1] + r + E)); j++) for (let i = Math.max(0, Math.floor(o[0] - r + E)); i <= Math.min(N - 1, Math.ceil(o[0] + r + E)); i++) if (Math.hypot(i - E - o[0], j - E - o[1]) <= r) ob[j * N + i] = 1; }
       const ok = new Uint8Array(N * N), hg = new Float32Array(N * N), pl = new Uint8Array(N * N), wl = new Uint8Array(N * N);
-      for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) { const q = j * N + i, x = i - E, z = j - E, g = S.H(x, z); hg[q] = g; ok[q] = g > .35 && !(S.blocked && S.blocked(x, z)) && !ob[q] ? 1 : 0; }
+      for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) { const q = j * N + i, x = i - E, z = j - E, g = S.H(x, z); hg[q] = g; ok[q] = g > .35 && !(S.blocked && S.blocked(x, z)) && !(S.gb && S.gb(x, z, g)) && !ob[q] ? 1 : 0; }
       const mark = (A, x0, z0, x1, z1) => { for (let j = Math.max(0, Math.floor(z0 + E) - 1); j <= Math.min(N - 1, Math.ceil(z1 + E) + 1); j++) for (let i = Math.max(0, Math.floor(x0 + E) - 1); i <= Math.min(N - 1, Math.ceil(x1 + E) + 1); i++) A[j * N + i] = 1; };
       (S.plats || []).forEach(P => mark(pl, P.x0, P.z0, P.x1, P.z1)); (S.walls || []).forEach(w => mark(wl, w.x0, w.z0, w.x1, w.z1));
       return this._nav = { S, E, N, ob, ok, hg, pl, wl, sx: 1e9, sz: 1e9 }; }
@@ -135,6 +135,7 @@
       if (!onP || ny - g < .5) { const i = Math.round(x1 + nav.E), j = Math.round(z1 + nav.E); if (i < 0 || j < 0 || i >= nav.N || j >= nav.N || (nav.ob[j * nav.N + i] && Math.hypot(x1 - nav.sx, z1 - nav.sz) > 2.5)) return NaN; }
       const W2 = S.walls; if (W2 && W2.length) for (const w of W2) { if (ny + 1.7 <= w.y0 || ny + .3 >= w.y1) continue; if (x1 > w.x0 - .5 && x1 < w.x1 + .5 && z1 > w.z0 - .5 && z1 < w.z1 + .5) return NaN; }
       for (const e of (nav.en || [])) if (Math.hypot(x1 - e[0], z1 - e[1]) < e[2]) return NaN;
+      if (S.gb && S.gb(x1, z1, ny)) return NaN; /* v154 幾何碰撞 */
       return ny; }
     findPath(sx, sz, sy, gx, gz, near) { const nav = this._navGrid(), S = this.scene, E = nav.E, N = nav.N, NL = 6; near = near || 2; nav.en = this.enemies.map(e => [e.x, e.z, e.boss && !this.bossUnlocked ? 14.7 : 3]); nav.sx = sx; nav.sz = sz; nav.slope = this._relax ? 1.35 : .8;
       if (!nav.yS) { const M = N * N * NL; nav.yS = new Float32Array(M); nav.pa = new Int32Array(M); nav.st = new Uint16Array(M); nav.stamp = 0; } /* 第一次自動導航時才配置 */
@@ -163,7 +164,7 @@
       return { pts: out, partial: found == null }; }
     _los(a, b) { const L = Math.hypot(b[0] - a[0], b[1] - a[1]), m = Math.ceil(L / .4); let x = a[0], z = a[1], y = a[2]; for (let q = 1; q <= m; q++) { const nx = a[0] + (b[0] - a[0]) * q / m, nz = a[1] + (b[1] - a[1]) * q / m, ny = this._step(x, z, y, nx, nz); if (ny !== ny) return false; x = nx; z = nz; y = ny; } return b[2] == null || Math.abs(y - b[2]) < 1; } /* 直線走過去要到得了同一個高度（不能把爬坡道的那段拉直成穿過去） */
     /* 這一步可不可以走（實際移動、自動導航、脫困共用） */
-    _okMove(x, z) { const p = this.p, S1 = this.scene, sY = S1.G ? S1.G(p.x, p.z, p.y) : S1.H(p.x, p.z); return (sY - S1.H(x, z) < .85 || !S1.maxStep) && (S1.H(x, z) > .35 && !(S1.blocked && S1.blocked(x, z)) && !(S1.maxStep && (sY - S1.H(p.x, p.z) > .5 ? (S1.H(x, z) - sY > .8) : Math.abs(S1.H(x, z) - S1.H(p.x, p.z)) / (Math.hypot(x - p.x, z - p.z) || 1) > S1.maxStep))) || (S1.onPlat && S1.onPlat(x, z, p.y) && S1.G(x, z, p.y) > sY - .85); }
+    _okMove(x, z) { const p = this.p, S1 = this.scene, sY = S1.G ? S1.G(p.x, p.z, p.y) : S1.H(p.x, p.z); return (sY - S1.H(x, z) < .85 || !S1.maxStep) && (S1.H(x, z) > .35 && !(S1.blocked && S1.blocked(x, z)) && !(S1.gb && S1.gb(x, z, sY)) && !(S1.maxStep && (sY - S1.H(p.x, p.z) > .5 ? (S1.H(x, z) - sY > .8) : Math.abs(S1.H(x, z) - S1.H(p.x, p.z)) / (Math.hypot(x - p.x, z - p.z) || 1) > S1.maxStep))) || (S1.onPlat && S1.onPlat(x, z, p.y) && S1.G(x, z, p.y) > sY - .85); }
     /* 脫困：卡住時往四周找一個能走、又更靠近下一個轉折點的位置，直接挪過去一小步 */
     _unstick(wp) { const p = this.p; let best = null, bd = Math.hypot(wp[0] - p.x, wp[1] - p.z); for (let r of [.6, 1.1]) for (let k = 0; k < 16; k++) { const a = k / 16 * 6.2832, x = p.x + Math.cos(a) * r, z = p.z + Math.sin(a) * r; if (!this._okMove(x, z)) continue; const [cx, cz] = this._collide(x, z); if (Math.hypot(cx - x, cz - z) > .3) continue; const d = Math.hypot(wp[0] - x, wp[1] - z); if (d < bd - .2) { bd = d; best = [x, z]; } }
       if (!best) return false; p.x = best[0]; p.z = best[1]; return true; }
@@ -275,9 +276,9 @@
       if (this.chapter.id === 'dark' || this.chapter.id === 'skypiea') { if (Math.random() < dt * .12) this._flashT = .35; if (this._flashT > 0) { this._flashT -= dt; r.flash = Math.max(0, this._flashT) * (this.chapter.id === 'dark' ? .5 : .35); } else r.flash = 0; }
       r.begin();
       if (S.sky) r.draw(S.sky, M.trs(p.x, 0, p.z, 0, 1), { noFog: true, noCull: true, mat: 3 });
-      r.draw(S.staticMesh, null, { mat: 1 });
+      r.draw(S.staticMesh, null, { mat: 1, xray: !!S.maxStep });
       if (S.mist) r.draw(S.mist, null, { alpha: true, tint: [1, 1, 1, .5], noOutline: true }); /* v151 艾爾巴夫的彩虹霧橋（半透明） */
-      /* 屋頂：玩家走進房子時不畫，才看得到室內 */ if (S.roofs) for (const R of S.roofs) { if (p.x > R.x0 && p.x < R.x1 && p.z > R.z0 && p.z < R.z1) continue; r.draw(R.mesh, null, { mat: 1 }); }
+      /* 屋頂：玩家走進房子時不畫，才看得到室內 */ if (S.roofs) for (const R of S.roofs) { if (p.x > R.x0 && p.x < R.x1 && p.z > R.z0 && p.z < R.z1) continue; r.draw(R.mesh, null, { mat: 1, xray: !!S.maxStep }); }
       if (S.blade) S.dyn.windmills.forEach(([x, y, z], i) => r.draw(S.blade, M.mul(M.mul(M.trs(x, y, z, 0, 1), M.rz(t * .8 + i)), M.rx(Math.PI / 2))));
       if (S.cloud) S.dyn.clouds.forEach(([x, y, z, s, ph]) => r.draw(S.cloud, M.trs(x + Math.sin(t * .1 + ph) * 6, y + Math.sin(t * .4 + ph), z, ph, s)));
       if (S.bird && this.chapter.id !== 'fishman') for (let i = 0; i < 7; i++) { const a = t * (.25 + i * .03) + i * 1.3, R = 30 + i * 9; r.draw(S.bird, M.mul(M.trs(Math.cos(a) * R, 24 + i * 2 + Math.sin(t * 2 + i) * 1.5, Math.sin(a) * R, -a, 1.3), M.rz(Math.sin(t * 9 + i) * .35)), { noCull: true, tint: this.chapter.id === 'dark' ? [.3, .25, .35, 1] : [1, 1, 1, 1] }); }

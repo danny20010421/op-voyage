@@ -13,7 +13,7 @@
     ...block('白鬍子海賊團', ['ace', 'marco'], 16), ...block('紅髮海賊團', ['uta'], 11) /* v121：No.056 美音 */, ...block('百獸海賊團', ['king'], 12) /* v115：No.067 燼 */,
     ...block('BIG MOM 海賊團', ['katakuri'], 8), ...block('黑鬍子海賊團', ['catarina', 'burgess', 'vasco'], 10), ...block('十字公會', [], 6),
     'shanks', 'blackbeard', 'buggy', 'luffy_nika', 'whitebeard', 'bigmom', 'kaido', /* 第 4 位是魯夫（尼卡型態），立繪完成前保留為神秘編號 */
-    ...block('東海篇', ['makino', 'mayor', 'lordcoast'], 10), ...block('阿拉巴斯坦篇', ['vivi', 'koza'], 8), ...block('空島篇', ['enel', 'wiper'], 6),
+    ...block('東海篇', ['makino', 'mayor', 'lordcoast', 'alvida'], 10), ...block('阿拉巴斯坦篇', ['vivi', 'koza'], 8), ...block('空島篇', ['enel', 'wiper'], 6),
     ...block('司法島篇', [], 7), ...block('恐怖三桅帆船篇', ['perona'], 6), ...block('魚人島篇', ['hody', 'shirahoshi'], 7),
     ...block('德雷斯羅薩篇', ['monet', 'sugar'], 12), ...block('蛋糕島篇', [], 8), ...block('和之國篇', ['kid', 'kinemon', 'tama', 'yamato'], 12),
     ...block('蜂巢島篇', [], 4), ...block('蛋頭島篇', ['vegapunk', 'york', 'morgans'], 8), ...block('巨人篇', ['loki', 'dorry', 'brogy', 'gunko', 'shamrock'], 12),

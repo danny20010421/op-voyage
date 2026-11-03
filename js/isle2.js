@@ -98,6 +98,8 @@
     I.blocked = (x, z) => { const q = idx(x, z); return q < 0 || Bg[q] === 1 || Bg[q] === 2; };
     I.roadAt = (x, z) => { const q = idx(x, z); return q < 0 ? 0 : Rg[q]; };
     I.waterAt = (x, z) => { const q = idx(x, z); return q >= 0 && Bg[q] === 2; };
+    /* v154 浮空島：海面用的高度（浮在空中的島，底下仍是海） */
+    I.Hw = (x, z) => { const h = Hs(x, z); return D.waterH ? D.waterH(h, x / SC, z / SC) : h; };
     I.roadDist = (x, z) => { let d = 1e9; for (const R of roads) for (let k = 0; k < R.P.length - 1; k += 2) d = Math.min(d, Math.hypot(x - R.P[k][0], z - R.P[k][1]) - R.w / 2); return d; };
 
     /* ---------- 建模 ---------- */
@@ -323,7 +325,10 @@
       for (const S of D.skyways || []) { const P = spline(S.pts.map(sp), 1), acc = [0]; for (let k = 1; k < P.length; k++) acc.push(acc[k - 1] + Math.hypot(P[k][0] - P[k - 1][0], P[k][1] - P[k - 1][1])); const T = acc[acc.length - 1] || 1;
         const y0 = S.y ? S.y[0] : Math.max(1.4, Hs(P[0][0], P[0][1])), y1 = S.y ? S.y[1] : Math.max(1.4, Hs(P[P.length - 1][0], P[P.length - 1][1])), w = S.w || 4, hw = w / 2, st = S.style || 'wood';
         for (let k = 0; k < P.length; k++) { const [x, z] = P[k], t = acc[k] / T, y = y0 + (y1 - y0) * t + (S.arch || 0) * Math.sin(Math.PI * t), nx = P[Math.min(P.length - 1, k + 1)], px = P[Math.max(0, k - 1)], ang = Math.atan2(nx[0] - px[0], nx[1] - px[1]);
-          const pw = Math.max(1.6, hw - .35); ST.plats.push({ x0: x - pw, z0: z - pw, x1: x + pw, z1: z + pw, y0: y, y1: y });
+          const pw = Math.max(1.6, hw - .35); if (S.ramp && k < P.length - 1) { /* v154 陡的橋：每段用斜坡平台（沿主要方向內插高度），不用一格格的方塊 */ const [x2, z2] = P[k + 1], t2 = acc[k + 1] / T, y2 = y0 + (y1 - y0) * t2 + (S.arch || 0) * Math.sin(Math.PI * t2);
+            if (Math.abs(z2 - z) >= Math.abs(x2 - x)) ST.plats.push({ x0: Math.min(x, x2) - pw, x1: Math.max(x, x2) + pw, z0: Math.min(z, z2), z1: Math.max(z, z2), y0: z2 > z ? y : y2, y1: z2 > z ? y2 : y, ax: 'z' });
+            else ST.plats.push({ x0: Math.min(x, x2), x1: Math.max(x, x2), z0: Math.min(z, z2) - pw, z1: Math.max(z, z2) + pw, y0: x2 > x ? y : y2, y1: x2 > x ? y2 : y, ax: 'x' }); }
+          else if (!S.ramp) ST.plats.push({ x0: x - pw, z0: z - pw, x1: x + pw, z1: z + pw, y0: y, y1: y });
           if (st === 'rainbow') { /* v151 彩虹橋：半透明、像霧氣的七色帶子（畫在 api.mist，world.js 用半透明畫），起點往下延伸到海面，四周有彩虹霧 */ const RC = ['#ff6a5a', '#ffaa4a', '#ffe06a', '#7ad86a', '#6ab0f0', '#8a7ae0', '#c08af0'], seg = (cx, cy, cz, a2, hgt) => { for (let q = 0; q < 7; q++) { const off = -hw + (q + .5) * w / 7, sx = Math.cos(a2) * off, sz = -Math.sin(a2) * off; MB.box(cx + sx, cy - hgt, cz + sz, w / 7 + .03, hgt, 1.18, RC[q], a2); } };
             seg(x, y, z, ang, .5); if (k % 2 === 0) for (const sd of [-1, 1]) { const sx = Math.cos(ang) * (hw + .2) * sd, sz = -Math.sin(ang) * (hw + .2) * sd; MB.sphere(x + sx, y - .2, z + sz, 1.1 + vh(k, sd + 2) * .9, 6, mix('#ffffff', RC[sd < 0 ? 0 : 6], .25), .7, .3, k * 3 + sd); }
             if (k === 0) { const nx2 = P[Math.min(P.length - 1, 2)], ddx = P[0][0] - nx2[0], ddz = P[0][1] - nx2[1], dl = Math.hypot(ddx, ddz) || 1; for (let m = 1; m <= 10; m++) { const ex = x + ddx / dl * m * 1.1, ez = z + ddz / dl * m * 1.1, ey = y - m * (y + 2.5) / 10; seg(ex, ey, ez, ang, .5); }
@@ -424,7 +429,7 @@
           let any = false; for (let z = tz; z <= tz + TILE && !any; z += 8) for (let x = tx; x <= tx + TILE; x += 8) if (Hs(x, z) > -2.5) { any = true; break; } if (!any) continue;
           const nr = Math.round(TILE / RU), st = TILE / nr, NV = (nr + 1) * (nr + 1), pos = new Float32Array(NV * 3), cl = new Float32Array(NV * 3), idx = [];
           for (let j = 0, v = 0; j <= nr; j++) for (let i = 0; i <= nr; i++, v++) { const wx = tx + i * st, wz = tz + j * st, wy = Hs(wx, wz), c = hex(col(wx, wy, wz)); pos[v * 3] = wx; pos[v * 3 + 1] = wy; pos[v * 3 + 2] = wz; cl[v * 3] = c[0]; cl[v * 3 + 1] = c[1]; cl[v * 3 + 2] = c[2]; }
-          for (let j = 0; j < nr; j++) for (let i = 0; i < nr; i++) { const a0 = j * (nr + 1) + i, a1 = a0 + 1, a2 = a0 + nr + 1, a3 = a2 + 1; if (pos[a0 * 3 + 1] < -3.5 && pos[a1 * 3 + 1] < -3.5 && pos[a2 * 3 + 1] < -3.5 && pos[a3 * 3 + 1] < -3.5) continue; idx.push(a0, a2, a1, a1, a2, a3); }
+          for (let j = 0; j < nr; j++) for (let i = 0; i < nr; i++) { const a0 = j * (nr + 1) + i, a1 = a0 + 1, a2 = a0 + nr + 1, a3 = a2 + 1; if (pos[a0 * 3 + 1] < -3.5 && pos[a1 * 3 + 1] < -3.5 && pos[a2 * 3 + 1] < -3.5 && pos[a3 * 3 + 1] < -3.5) continue; if (D.cutTri) { const ys = [pos[a0 * 3 + 1], pos[a1 * 3 + 1], pos[a2 * 3 + 1], pos[a3 * 3 + 1]]; if (D.cutTri(Math.max(...ys) - Math.min(...ys), pos[a0 * 3] / SC, pos[a0 * 3 + 2] / SC)) continue; } idx.push(a0, a2, a1, a1, a2, a3); }
           ttris += idx.length / 3; tiles.push({ pos, col: cl, idx: idx.length > 65535 * 3 || NV > 65535 ? Uint32Array.from(idx) : Uint16Array.from(idx), cx: tx + TILE / 2, cz: tz + TILE / 2 }); }
         /* 地面細節：石板路一顆顆的石頭、草叢、花、小石頭、灌木、坡上的岩塊 */
         const cobC = hex(D.cobble || '#9c9488');
@@ -446,8 +451,8 @@
         let any = false; for (let z = tz; z <= tz + TILE && !any; z += 8) for (let x = tx; x <= tx + TILE; x += 8) if (Hs(x, z) > -2.5) { any = true; break; } if (!any) continue;
         const res = fineTile(tx, tz) ? RF : RC, nr = Math.round(TILE / res), st = TILE / nr, start = b.p.length / 3, V = [];
         for (let j = 0; j <= nr; j++) { const row = []; for (let i = 0; i <= nr; i++) { const wx = tx + i * st, wz = tz + j * st, wy = Hs(wx, wz); row.push([[wx, wy, wz], hex(col(wx, wy, wz))]); } V.push(row); }
-        for (let j = 0; j < nr; j++) for (let i = 0; i < nr; i++) { const a = V[j][i], bb = V[j][i + 1], c = V[j + 1][i + 1], d = V[j + 1][i]; if (a[0][1] < -3.5 && bb[0][1] < -3.5 && c[0][1] < -3.5 && d[0][1] < -3.5) continue; b.triV(a[0], c[0], bb[0], a[1], c[1], bb[1]); b.triV(a[0], d[0], c[0], a[1], d[1], c[1]); }
-        const skirt = (A, B) => { if (A[0][1] < -3.5 && B[0][1] < -3.5) return; const a2 = [A[0][0], A[0][1] - 1.6, A[0][2]], b2 = [B[0][0], B[0][1] - 1.6, B[0][2]]; b.triV(A[0], b2, B[0], A[1], B[1], B[1]); b.triV(A[0], a2, b2, A[1], A[1], B[1]); b.triV(A[0], B[0], b2, A[1], B[1], B[1]); b.triV(A[0], b2, a2, A[1], B[1], A[1]); };
+        for (let j = 0; j < nr; j++) for (let i = 0; i < nr; i++) { const a = V[j][i], bb = V[j][i + 1], c = V[j + 1][i + 1], d = V[j + 1][i]; if (a[0][1] < -3.5 && bb[0][1] < -3.5 && c[0][1] < -3.5 && d[0][1] < -3.5) continue; if (D.cutTri) { const ys = [a[0][1], bb[0][1], c[0][1], d[0][1]]; if (D.cutTri(Math.max(...ys) - Math.min(...ys), a[0][0] / SC, a[0][2] / SC)) continue; } b.triV(a[0], c[0], bb[0], a[1], c[1], bb[1]); b.triV(a[0], d[0], c[0], a[1], d[1], c[1]); }
+        const skirt = (A, B) => { if (A[0][1] < -3.5 && B[0][1] < -3.5) return; if (D.cutTri && D.cutTri(Math.abs(A[0][1] - B[0][1]), A[0][0] / SC, A[0][2] / SC)) return; const a2 = [A[0][0], A[0][1] - 1.6, A[0][2]], b2 = [B[0][0], B[0][1] - 1.6, B[0][2]]; b.triV(A[0], b2, B[0], A[1], B[1], B[1]); b.triV(A[0], a2, b2, A[1], A[1], B[1]); b.triV(A[0], B[0], b2, A[1], B[1], B[1]); b.triV(A[0], b2, a2, A[1], B[1], A[1]); };
         for (let i = 0; i < nr; i++) { skirt(V[0][i], V[0][i + 1]); skirt(V[nr][i], V[nr][i + 1]); skirt(V[i][0], V[i + 1][0]); skirt(V[i][nr], V[i + 1][nr]); }
         b.smooth.push([start, b.p.length / 3]); }
       for (const R of river) for (let k = 0; k < R.P.length - 1; k++) { const [ax, az] = R.P[k], [bx, bz] = R.P[k + 1], L = Math.hypot(bx - ax, bz - az) || 1, nx = -(bz - az) / L * R.w / 2, nz = (bx - ax) / L * R.w / 2, ya = R.hs[k] - .55, yb = R.hs[k + 1] - .55;

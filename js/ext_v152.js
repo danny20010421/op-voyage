@@ -39,9 +39,10 @@
       if (c.hp <= 0) { st.cerberus = null; setSummon(c, null); }
       else { const foe = other(c);
         if (CB.statUp && st.buffBlock <= 0) ['atk', 'def', 'spd'].forEach(k => { c.buffs[k] = clamp(c.buffs[k] + CB.statUp, -6, 6); });
+        if (CB.atkUp && st.buffBlock <= 0) c.buffs.atk = clamp(c.buffs.atk + CB.atkUp, -6, 6);
         if (CB.regen && (typeof healOk !== 'function' || healOk(c))) { const h = Math.floor(c.maxHp * CB.regen); c.hp = Math.min(c.maxHp, c.hp + h); showHeal(sideOf(c), h); }
         if (foe && foe.hp > 0) { const d = Math.min(capOf(foe), Math.round(R(CB.dmg[0], CB.dmg[1]))); foe.hp = Math.max(0, foe.hp - d); showDamage(sideOf(foe), d, '#ff5a3a'); if (CB.fear && Math.random() < CB.fear && typeof inflict === 'function') inflict(foe, 'fear', 1);
-          log(`🐺 地獄三頭犬撲向 ${foe.name}，造成 ${d} 點傷害！${c.name} 全能力 +${CB.statUp || 0}、恢復體力`); }
+          log(`🐺 地獄三頭犬撲向 ${foe.name}，造成 ${d} 點傷害！${CB.atkUp ? `${c.name} 攻擊 +${CB.atkUp}` : CB.statUp ? `${c.name} 全能力 +${CB.statUp}` : ''}${CB.regen ? '、恢復體力' : ''}`); }
         CB.left--; if (CB.left <= 0) { st.cerberus = null; setSummon(c, null); log(`🐺 地獄三頭犬回到了黑暗之中。`); } }
     }
     return r;
@@ -66,16 +67,18 @@
   }
   window.setSummon = setSummon;
   /* ---------- 黑轉支配：全畫面進場演出，接著當背景停留 ---------- */
+  let lastCut = 0;
   function cutin(C) {
+    if (Date.now() - lastCut < 3000) return; lastCut = Date.now(); /* v154：變身前播過就不再重播（技能效果拿到的 skill 物件是複本，__cutDone 標記不可靠） */
     const scr = document.getElementById('battleScreen'), bg = document.getElementById('bBg'); if (!scr || !bg) return;
     scr.querySelectorAll('.cut-bg,.cut-fx').forEach(e => e.remove());
-    const fx = document.createElement('div'); fx.className = 'cut-fx'; fx.innerHTML = `<i class="cut-black"></i><svg class="cut-bolts" viewBox="0 0 100 56" preserveAspectRatio="none">${[[50, 0, 44, 14, 52, 22, 46, 34], [50, 0, 58, 12, 50, 20, 60, 30], [0, 20, 16, 24, 22, 18, 36, 26], [100, 18, 84, 26, 78, 20, 64, 28], [20, 56, 28, 44, 24, 38, 38, 34], [80, 56, 72, 44, 78, 38, 62, 34]].map(p => `<polyline points="${p.join(' ')}"/>`).join('')}</svg><i class="cut-flash"></i>
-      <div class="cut-title"><b>${C.title || ''}</b><small>${C.sub || ''}</small></div>`;
+    const fx = document.createElement('div'); fx.className = 'cut-fx'; fx.innerHTML = `<i class="cut-black"></i><svg class="cut-bolts" viewBox="0 0 100 56" preserveAspectRatio="none">${[[50, 0, 44, 14, 52, 22, 46, 34], [50, 0, 58, 12, 50, 20, 60, 30], [0, 20, 16, 24, 22, 18, 36, 26], [100, 18, 84, 26, 78, 20, 64, 28], [20, 56, 28, 44, 24, 38, 38, 34], [80, 56, 72, 44, 78, 38, 62, 34]].map(p => `<polyline points="${p.join(' ')}"/>`).join('')}</svg><i class="cut-flash"></i>`; /* v154：標題只用遊戲本來的奧義標題（fx_v111 ultTitle），不再自己疊一層，也先收掉技能名橫幅 */
+    const bn = document.getElementById('bBanner'); if (bn) bn.classList.remove('show');
     const back = document.createElement('div'); back.className = 'cut-bg'; back.style.setProperty('--img', `url("${new URL(C.image, location.href).href}")`); /* 絕對網址：CSS 變數裡的相對路徑會以 css/ 為基準 */ back.innerHTML = '<i class="cut-img"></i><i class="cut-rgb"></i><i class="cut-vig"></i>';
-    (document.getElementById('bGL') || bg).after(back); /* 3D 背景畫布在 #bBg 後面，要蓋在它上面 */ scr.appendChild(fx); scr.classList.add('cut-shake');
+    (document.getElementById('bGL') || bg).after(back); /* 3D 背景畫布在 #bBg 後面，要蓋在它上面 */ scr.appendChild(fx); scr.classList.add('cut-shake', 'cut-on');
     try { if (typeof AUDIO !== 'undefined' && AUDIO.sfx) AUDIO.sfx('boom'); } catch (e) { }
     setTimeout(() => scr.classList.remove('cut-shake'), 900); setTimeout(() => fx.remove(), 2100);
-    const ms = C.ms || 4200; setTimeout(() => { back.classList.add('out'); setTimeout(() => back.remove(), 800); }, ms);
+    const ms = C.ms || 4200; setTimeout(() => { back.classList.add('out'); scr.classList.remove('cut-on'); setTimeout(() => back.remove(), 800); }, ms);
   }
   window.gunkoCutin = cutin;
   /* 變身招式：在變身演出之前先播進場演出（等 1.2 秒讓標題打完） */
@@ -84,5 +87,5 @@
     if (C && stage !== 'before') skill.effect.__cutDone = false; return _tf.apply(this, arguments); }; window.transformFx.__v152 = true; };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hookTF); else hookTF();
   /* 新戰鬥開始時清掉上一場留下的圖層 */
-  if (typeof startBattle === 'function') { const _sb = startBattle; startBattle = function () { document.querySelectorAll('.f-summon,.cut-bg,.cut-fx').forEach(e => e.remove()); return _sb.apply(this, arguments); }; }
+  if (typeof startBattle === 'function') { const _sb = startBattle; startBattle = function () { document.querySelectorAll('.f-summon,.cut-bg,.cut-fx').forEach(e => e.remove()); const sc = document.getElementById('battleScreen'); if (sc) sc.classList.remove('cut-on'); return _sb.apply(this, arguments); }; }
 })();
