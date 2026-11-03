@@ -117,14 +117,45 @@
       const q = [P(a0, r0 - 3, Math.min(gy0, top + 1) - .25), P(a1, r1 - 3, Math.min(gy1, top + 1) - .25), P(a1, r1 + .8, top - .4), P(a0, r0 + .8, top - .4)];
       b.triV(q[0], q[2], q[1], cc, cc, cc); b.triV(q[0], q[3], q[2], cc, cc, cc); b.triV(q[0], q[1], q[2], cc, cc, cc); b.triV(q[0], q[2], q[3], cc, cc, cc); }
     /* 垂下的尖石 */
-    for (let k = 0; k < 48; k++) { const a = h3(k, 1) * 6.2832, rr = .15 + h3(k, 2) * .75, kk = Math.floor(a / 6.2832 * M) % M, rad = rimR[kk] * rr, t = rad / rimR[kk], yb = top - .4 - (1 - Math.pow(Math.max(.01, t), .8)) * DEPTH * .9, hh = 5 + h3(k, 3) * 12;
+    for (let k = 0; k < 48; k++) { const a = h3(k, 1) * 6.2832, rr = .15 + h3(k, 2) * .75, kk = Math.floor(a / 6.2832 * M) % M, rad = rimR[kk] * Math.min(rr, .7), t = rad / rimR[kk], yb = top - 3 - Math.pow(1 - t, 1.25) * DEPTH * .95, hh = 5 + h3(k, 3) * 12; /* 尖石掛在倒錐面下方，不會穿出地面 */
       b.cyl(x + Math.cos(a) * rad, yb - hh, z + Math.sin(a) * rad, .15, 1.2 + h3(k, 4) * 2.2, hh + 1, 6, '#2a201c'); }
     { b.cyl(x, top - DEPTH - 10, z, .3, 5, 12, 8, '#221a18'); } /* 最底下的尖端 */
     b.m = 0;
     /* 雲帶：三圈白色的霧，斜斜地繞著島 */
-    const MM = MB || b; for (let ring = 0; ring < 3; ring++) { const yr = top - 4 - ring * DEPTH * .3, n = 72, tilt = .06 + ring * .03;
+    const MM = MB || b; if (o.clouds !== false) for (let ring = 0; ring < 3; ring++) { const yr = top - 4 - ring * DEPTH * .3, n = 72, tilt = .06 + ring * .03;
       for (let k = 0; k < n; k++) { const a = k / n * 6.2832 + ring, kk = Math.floor(((a % 6.2832) + 6.2832) % 6.2832 / 6.2832 * M) % M, r = rimR[kk] * (1.02 - ring * .18) + 3;
         MM.sphere(x + Math.cos(a) * r, yr + Math.sin(a + ring) * r * tilt, z + Math.sin(a) * r, 5.5 + h3(k, ring) * 3.5, 8, '#f4f6ff', .32, .2, k + ring * 50); } }
+    return {}; };
+
+  /* v154 鬼之島骷髏大嘴前的決戰廣場（使用者 11/04「放大，讓鬼島更精緻」）：八角形石板地、外圈石欄杆（北邊天橋、南邊大嘴兩個缺口）、
+     石燈籠、火盆、百獸海賊團的旗、入口鳥居。地面高度由 isle2 地形給（D.post2 讓廣場是平的），這裡只畫看得到的東西。 */
+  PT.oniplaza = A => { const { b, x, z, ry, O, o, MB } = A, y = o.y, R = o.r || 28, L = Lf(x, z, ry); let sd0 = 3; const rn = () => (sd0 = sd0 * 16807 % 2147483647) / 2147483647;
+    const ST = ['#8e8a84', '#7e7a74', '#9a958e', '#86827c'], SEG = 16, P = (a, r, yy) => [x + Math.cos(a) * r, yy, z + Math.sin(a) * r];
+    b.m = 3; /* 石板：同心圓一圈圈的石塊 */
+    for (let ring = 0, r0 = 0; r0 < R; ring++) { const r1 = Math.min(R, r0 + (ring ? 3.2 : 4)), n = ring ? Math.round(6.2832 * (r0 + r1) / 2 / 3.4) : 1;
+      for (let k = 0; k < n; k++) { const a0 = k / n * 6.2832 + ring * .37, a1 = (k + 1) / n * 6.2832 + ring * .37, c = hex(ST[(k + ring) % 4]), cc = [c[0] * (.92 + rn() * .14), c[1] * (.92 + rn() * .14), c[2] * (.92 + rn() * .14)], e = .06;
+        if (!ring) { for (let q = 0; q < 12; q++) { const b0 = q / 12 * 6.2832, b1 = (q + 1) / 12 * 6.2832; b.triV([x, y + .05, z], P(b1, r1 - e, y + .05), P(b0, r1 - e, y + .05), cc, cc, cc); } continue; }
+        const q = [P(a0 + e / r0, r0 + e, y + .05), P(a1 - e / r0, r0 + e, y + .05), P(a1 - e / r1, r1 - e, y + .05), P(a0 + e / r1, r1 - e, y + .05)]; b.triV(q[0], q[1], q[2], cc, cc, cc); b.triV(q[0], q[2], q[3], cc, cc, cc); } /* 面朝上（從上面看是逆時針） */
+      r0 = r1; }
+    /* 外緣：石板的厚邊＋石欄杆（北、南留缺口） */
+    const gap = a => { const d1 = Math.abs(((a - (ry - Math.PI / 2)) % 6.2832 + 9.42) % 6.2832 - 3.1416), d2 = Math.abs(((a - (ry + Math.PI / 2)) % 6.2832 + 9.42) % 6.2832 - 3.1416); return d1 < .2 || d2 < .34; };
+    const NE = 48; for (let k = 0; k < NE; k++) { const a0 = k / NE * 6.2832, a1 = (k + 1) / NE * 6.2832, c = hex('#6e6a64');
+      const q = [P(a0, R, y + .05), P(a1, R, y + .05), P(a1, R, y - 1.6), P(a0, R, y - 1.6)]; b.triV(q[0], q[1], q[2], c, c, c); b.triV(q[0], q[2], q[3], c, c, c);
+      if (gap((a0 + a1) / 2)) continue; const [px, , pz] = P(a0, R - .6, 0); b.box(px, y, pz, .7, 1.3, .7, '#9a958e', -a0); b.box(px, y + 1.3, pz, .9, .2, .9, '#a8a39b', -a0);
+      const [mx, , mz] = P((a0 + a1) / 2, R - .6, 0); b.box(mx, y + .9, mz, .3, .3, 6.2832 * R / NE, '#8e8a84', -(a0 + a1) / 2); }
+    /* 石燈籠（發光）與火盆 */
+    for (let k = 0; k < 10; k++) { const a = ry + Math.PI / 2 + (k - 4.5) / 10 * 6.2832; if (gap(a)) continue; const [lx, , lz] = P(a, R - 2.6, 0);
+      b.m = 3; b.box(lx, y, lz, .9, .5, .9, '#8a8680'); b.cyl(lx, y + .5, lz, .25, .25, 1.6, 6, '#9a958e'); b.box(lx, y + 2.1, lz, 1.1, .2, 1.1, '#8a8680'); b.m = 0; b.box(lx, y + 2.3, lz, .7, .7, .7, '#ffcf6a'); b.m = 3; b.cyl(lx, y + 3, lz, .95, .1, .7, 6, '#6e6a64'); b.m = 0; }
+    for (const s2 of [-1, 1]) for (const f of [.35, .78]) { const [fx, fz] = L(s2 * R * .62, R * (f - .5) * 1.5); b.m = 1; b.cyl(fx, y, fz, .3, .3, 1.6, 6, '#3a2a20'); b.cyl(fx, y + 1.6, fz, .5, 1.1, .6, 8, '#2a2a30'); b.m = 0;
+      b.sphere(fx, y + 2.4, fz, .8, 8, '#ff7a1a', 1.3); b.sphere(fx, y + 2.6, fz, .45, 6, '#ffd24a', 1.4); }
+    /* 百獸海賊團的旗（紫底） */
+    for (const s2 of [-1, 1]) for (const f of [.15, .55]) { const [gx, gz] = L(s2 * R * .82, R * (f - .5) * 1.6); b.m = 1; b.cyl(gx, y, gz, .14, .12, 8, 5, '#3a2a20'); b.m = 0; b.box(gx + Math.cos(ry) * s2 * .05, y + 5.2, gz, .08, 2.8, 1.6, '#5a2a7a', ry); b.box(gx + Math.cos(ry) * s2 * .1, y + 6.1, gz, .06, .6, .6, '#f4ead8', ry); }
+    O.push([x, z, .1]); return { y }; };
+
+  /* 環繞浮空島的雲帶（柔軟的雲團，半透明） */
+  PT.cloudring = A => { const { x, z, o, MB, b } = A, M = MB || b, R = o.r || 70, Y = o.y || 30; let q = 11; const rn = () => (q = q * 16807 % 2147483647) / 2147483647;
+    for (let ring = 0; ring < (o.rings || 2); ring++) { const n = 64, rr = R * (1 + ring * .12), yy = Y - ring * 9, tilt = .07 + ring * .04;
+      for (let k = 0; k < n; k++) { const a = k / n * 6.2832 + ring * .5, j = rn(); if (j < .12) continue; for (let m2 = 0; m2 < 3; m2++) M.sphere(x + Math.cos(a) * rr * (1 + (rn() - .5) * .1) + (rn() - .5) * 4, yy + Math.sin(a + ring) * rr * tilt + (rn() - .5) * 3, z + Math.sin(a) * rr * .82 + (rn() - .5) * 4, 1.6 + rn() * 2.6, 7, '#f6f4ff', .8, .3, k * 3 + ring + m2 * 97); } }
     return {}; };
 
   /* 森林深處的洞穴（v154：使用者「歷史本文藏在森林深處的洞穴裡」）：亂石堆成的拱頂，前方一個洞口（面向 ry），洞裡放 o.inside 指定的零件 */

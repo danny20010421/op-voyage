@@ -56,18 +56,26 @@
   });
   /* v154 阿拉巴斯坦：時計台裡的炸彈（從正面的窗口露出來） */
   mod('alabasta', (D, L) => { const ct = L.find(l => l[0] === 'clocktower'); if (ct) { ct[3] = -Math.PI / 2; ct[4] = Object.assign(ct[4] || {}, { bomb: 1 }); } });
-  /* v154 和之國：鬼之島的骷髏頭（參考圖）放大，面向南邊的港口（從南港一路看得到它張開的大嘴） */
-  /* v154 鬼之島浮在半空（使用者 11/03 參考圖）：島上的地面整個抬高 LIFT，底下是倒錐形的鋸齒岩塊與環繞的雲帶；海面仍在島的下方；
-     花之都的長橋從地面一路斜上去接到島邊（isle2 skyway 的高度取兩端地面）。 */
-  if (WIP3D) mod('wano', (D, L) => { const LIFT = 30, OD = (dx, dz) => Math.hypot(dx, dz - 4), RIM = 46;
-    D.post2 = (v, dx, dz) => OD(dx, dz) < RIM ? (v > .25 ? v + LIFT : -7) : v;
-    D.waterH = (h, dx, dz) => OD(dx, dz) < RIM && h > 2 ? -7 : h;
-    D.cutTri = (dy, dx, dz) => dy > 9 && OD(dx, dz) < RIM + 4;
-    L.push(['floatbase', 0, 4, 0, { lift: LIFT, rim: RIM }]);
-    const BR = (D.skyways || []).find(S => S.pts[0][0] === 0 && S.pts[0][1] === -60); const W = I.wano;
-    { const ln = (D.roads || []).find(r => r[0][0][0] === 0 && r[0][0][1] === -31); if (ln) ln[0].unshift([0, -35.5]); } /* 山路往外接到橋頭 */
-    if (BR) { BR.arch = 1; BR.ramp = true; BR.pts = [[0, -63], [0, -49], [0, -34.5]]; /* 終點往島內多伸一段，接上抬高的地面（島緣是懸空的） */ Object.defineProperty(BR, 'y', { configurable: true, get: () => [W.H(0, -128) + .15, W.H(0, -67)] }); } });
-  if (WIP3D) mod('wano', (D, L) => { const sk = L.find(l => l[0] === 'skull'); if (sk) { sk[2] = 30; sk[3] = 0; sk[4] = Object.assign(sk[4] || {}, { r: 19 }); } });
+  /* v154 鬼之島（使用者 11/04 提供 3D 模型 assets/models/onigashima.glb）：整座骷髏島是那個模型，浮在半空（模型由 e3three.js 載入，ISLE2.wano.D.oniModel 記錄擺放）。
+     模型本身的地面太崎嶇、不能直接走，所以骷髏大嘴前另外做一座石造廣場（同樣浮空，底下倒錐形岩塊）：大和、燼、凱多都在這裡；模型範圍內是擋住的。
+     花之都南岸的長橋改成之字形的上坡天橋，從岸邊一路爬到廣場。座標：設計座標（×SC＝世界座標）。 */
+  mod('wano', (D, L) => { const OFF = 58, PY = OFF + 9 /* 廣場比模型前緣的小街屋頂還高，蓋住它們 */, PLZ = [0, -31, 14], EL = [32.5, 25.5, 13], RIM = 52;
+    const inPlz = (dx, dz) => Math.hypot(dx - PLZ[0], dz - PLZ[1]) < PLZ[2], inMod = (dx, dz) => (dx / EL[0]) ** 2 + ((dz - EL[2]) / EL[1]) ** 2 < 1, inRim = (dx, dz) => Math.hypot(dx, dz - 13) < RIM || inPlz(dx, dz);
+    D.oniModel = { url: 'assets/models/onigashima.glb?v=154', pos: [0, OFF, 26], ry: Math.PI, s: 130, glow: [0, OFF + 26, 4] }; /* 模型往南移，前緣漂浮的碎岩不會穿進廣場 */
+    D.post2 = (v, dx, dz) => !inRim(dx, dz) ? v : inPlz(dx, dz) ? PY : inMod(dx, dz) ? OFF + 30 : -7;
+    D.waterH = (h, dx, dz) => inRim(dx, dz) ? -7 : h; D.noGrass = inRim;
+    { const cf = D.colorFn; D.colorFn = (x, y, z, c) => inRim(x / 2, z / 2) ? c.mix('#7a766e', '#8a857c', c.n2) : cf ? cf(x, y, z, c) : null; } /* 廣場是石頭，不長草 */
+    D.cutTri = (dy, dx, dz) => inRim(dx, dz) || (dy > 6 && (Math.hypot(dx, dz - 13) < RIM + 3 || Math.hypot(dx - PLZ[0], dz - PLZ[1]) < PLZ[2] + 3)); /* 邊界上一半在廣場、一半在海裡的三角形也要切掉，否則會拉出一根大柱子 */
+    /* 拿掉舊的鬼之島：骷髏頭、山頂的城、島上的枯樹林與岩石、之字形山路 */
+    for (let k = L.length - 1; k >= 0; k--) { const l = L[k]; if (inRim(l[1], l[2]) && ['skull', 'jcastle', 'torii', 'ruin', 'tower', 'hut'].includes(l[0])) L.splice(k, 1); }
+    D.groves = (D.groves || []).filter(g => !inRim(g[0], g[1])); D.rocks = (D.rocks || []).filter(g => !inRim(g[0], g[1]));
+    D.roads = (D.roads || []).filter(r => !r[0].some(p => inRim(p[0], p[1]) && !inPlz(p[0], p[1])));
+    L.push(['floatbase', PLZ[0], PLZ[1], 0, { lift: PY, rim: PLZ[2] + 1, clouds: false }], ['oniplaza', PLZ[0], PLZ[1], 0, { y: PY, r: PLZ[2] * 2 }], ['torii', 0, PLZ[1] - PLZ[2] + 3, 0, { w: 9 }], ['cloudring', 0, 13, 0, { r: 92, y: OFF - 26, rings: 2 }]);
+    if (D.story) { D.story.boss = [0, -27]; D.story.npcs = Object.assign(D.story.npcs || {}, { yamato: [7, -40], king_n: [-8, -38] }); D.story.route = (D.story.route || []).filter(p => !inRim(p[0], p[1])).concat([[0, -43], [0, -27]]); }
+    { const ch = typeof CHAPTERS !== 'undefined' && CHAPTERS.find(c => c.id === 'wano'), SC = D.SC || 2; if (ch) { ch.bossPos = [0, -27 * SC]; ch.layout = Object.assign({}, ch.layout || {}, { boss: ch.bossPos, path: D.story.route.map(p => [p[0] * SC, p[1] * SC]) }); } } /* isle2.apply 已經在 define 時跑過，這裡直接改章節資料 */
+    const BR = (D.skyways || []).find(S => S.pts[0][0] === 0 && S.pts[0][1] === -60), W = I.wano;
+    if (BR) { BR.arch = 0; BR.ramp = true; BR.w = 6; BR.pts = [[0, -62], [24, -58], [-24, -53], [20, -48], [0, -44.5]];
+      Object.defineProperty(BR, 'y', { configurable: true, get: () => [W.H(0, -124) + .15, PY] }); } });
   /* 巨人篇：漁夫村上空，神之騎士團的巨大箭頭標誌 */
   mod('giant', (D, L) => { L.push(['arrowsign', 100, -10, .5, { key: 'arrow', h: 26, s: 6 }]); });
 })();

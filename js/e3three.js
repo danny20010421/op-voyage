@@ -258,8 +258,33 @@ class R3 {
     return rec;
   }
   /* ---------- 新增：載入島嶼時建立水面與草地 ---------- */
+  /* v154 外部 3D 模型（目前只有鬼之島 assets/models/onigashima.glb：單一網格＋一張貼圖）：自己解析 GLB，不另外載入 GLTFLoader */
+  async loadIslandModel(M, group) { try {
+      const buf = await (await fetch(M.url)).arrayBuffer(), dv = new DataView(buf), jl = dv.getUint32(12, true), J = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, jl))), bin = 20 + jl + 8;
+      const view = i => { const v = J.bufferViews[i]; return [bin + (v.byteOffset || 0), v.byteLength]; };
+      const acc = (i, T) => { const a = J.accessors[i], [o] = view(a.bufferView), n = { SCALAR: 1, VEC2: 2, VEC3: 3 }[a.type], st = o + (a.byteOffset || 0); return new T(buf.slice(st, st + a.count * n * T.BYTES_PER_ELEMENT)); };
+      const P = J.meshes[0].primitives[0], g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(acc(P.attributes.POSITION, Float32Array), 3));
+      if (P.attributes.TEXCOORD_0 != null) g.setAttribute('uv', new THREE.BufferAttribute(acc(P.attributes.TEXCOORD_0, Float32Array), 2));
+      const ia = J.accessors[P.indices]; g.setIndex(new THREE.BufferAttribute(acc(P.indices, ia.componentType === 5125 ? Uint32Array : Uint16Array), 1)); g.computeVertexNormals();
+      let map = null; if (J.images && J.images.length) { const [io, il] = view(J.images[0].bufferView), bmp = await createImageBitmap(new Blob([new Uint8Array(buf, io, il)], { type: J.images[0].mimeType || 'image/png' }));
+        map = new THREE.Texture(bmp); map.flipY = false; map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = 4; map.needsUpdate = true; }
+      if (this.island !== group || !group.parent) return; /* 換島了 */
+      /* 貼圖裡燒紅的部分（岩漿、眼睛、燈火）另外做一張發光遮罩，讓它們真的發光（泛光會把它們暈開） */
+      let emi = null; if (map) { try { const im = map.image, W = Math.min(1024, im.width), H = Math.round(im.height * W / im.width), cv = document.createElement('canvas'); cv.width = W; cv.height = H; const cx = cv.getContext('2d'); cx.drawImage(im, 0, 0, W, H);
+          const d = cx.getImageData(0, 0, W, H), a = d.data; for (let i = 0; i < a.length; i += 4) { const r = a[i] / 255, gg = a[i + 1] / 255, bb = a[i + 2] / 255, hot = Math.max(0, Math.min(1, (r - .55) * 3)) * Math.max(0, Math.min(1, (r - bb - .25) * 3)) * (gg > .18 ? 1 : .4);
+            a[i] = 255 * hot; a[i + 1] = 150 * hot * (.4 + gg); a[i + 2] = 60 * hot * bb; a[i + 3] = 255; } cx.putImageData(d, 0, 0); emi = new THREE.CanvasTexture(cv); emi.flipY = false; emi.colorSpace = THREE.SRGBColorSpace; } catch (e) { } }
+      const mat = new THREE.MeshToonMaterial({ map, gradientMap: grad, emissiveMap: emi, emissive: new THREE.Color(emi ? 2.4 : 0, emi ? 2.4 : 0, emi ? 2.4 : 0) }), m = new THREE.Mesh(g, mat);
+      m.position.set(M.pos[0], M.pos[1], M.pos[2]); m.rotation.y = M.ry || 0; m.scale.setScalar(M.s || 1); m.castShadow = true; m.receiveShadow = true; group.add(m); this.islandModel = m;
+      if (M.glow) { /* 骷髏大嘴的火光與往上飄的火星 */ const pl = new THREE.PointLight(0xff7a2a, 3.2, 140, 1.4); pl.position.set(M.glow[0], M.glow[1], M.glow[2]); group.add(pl);
+        const NE = this.low ? 160 : 420, pos = new Float32Array(NE * 3), sd = new Float32Array(NE); for (let i = 0; i < NE; i++) { pos[i * 3] = M.glow[0] + (Math.random() - .5) * 70; pos[i * 3 + 1] = M.glow[1] - 26 + Math.random() * 10; pos[i * 3 + 2] = M.glow[2] + (Math.random() - .5) * 50; sd[i] = Math.random(); }
+        const eg = new THREE.BufferGeometry(); eg.setAttribute('position', new THREE.BufferAttribute(pos, 3)); eg.setAttribute('sd', new THREE.BufferAttribute(sd, 1));
+        group.add(new THREE.Points(eg, new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { uTime: U.uTime },
+          vertexShader: 'uniform float uTime; attribute float sd; varying float vA; void main(){ vec3 p = position; float t = fract(uTime * (.05 + sd * .05) + sd); p.y += t * 70.; p.x += sin(uTime * .7 + sd * 30.) * 3. * t; vA = sin(t * 3.1416) * (.5 + sd * .5); vec4 mv = modelViewMatrix * vec4(p, 1.); gl_PointSize = (2. + sd * 3.) * 300. / -mv.z; gl_Position = projectionMatrix * mv; }',
+          fragmentShader: 'varying float vA; void main(){ vec2 c = gl_PointCoord - .5; float d = length(c); if (d > .5) discard; gl_FragColor = vec4(vec3(1., .55, .18) * 2., (1. - d * 2.) * vA); }' }))); }
+    } catch (e) { console.warn('島嶼模型載入失敗', e); } }
   setIsland(S, chapter) {
     this.island.clear(); this.water = null; this.ultraFree(); if (S.ultra && this.ultra) this.ultraBuild(S); if (S.cloud) S.cloud.skip = true; /* 舊的方塊雲改由新天空的雲取代 */ const id = chapter.id, E = chapter.env, EK = Math.max(1, (S.ext || 100) / 100), R0 = Math.max(170, (S.ext || 100) * 1.15), N = EK > 1.2 ? 384 : 256;
+    { const D2 = window.ISLE2 && ISLE2[id] && ISLE2[id].D; if (D2 && D2.oniModel) this.loadIslandModel(D2.oniModel, this.island); }
     const hd = new Float32Array(N * N); for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) hd[j * N + i] = (S.Hw || S.H)(-R0 + i / (N - 1) * R0 * 2, -R0 + j / (N - 1) * R0 * 2); /* v154 浮空島底下仍是海 */
     const hTex = new THREE.DataTexture(hd, N, N, THREE.RedFormat, THREE.FloatType); hTex.minFilter = hTex.magFilter = THREE.LinearFilter; hTex.needsUpdate = true;
     const wc = WATERC[id] || ['#145e9e', '#3fd0c4'], cloudSea = id === 'skypiea';
@@ -425,7 +450,7 @@ class R3 {
     for (const [k, m] of G) { const [tx, tz] = k.split(',').map(Number); if (Math.hypot(tx * T + T / 2 - pl.x, tz * T + T / 2 - pl.z) > R + 48) { if (m) { this.island.remove(m); m.dispose(); } G.delete(k); } } }
   _grassTile(x0, z0, T) { const D = this.grassDef, S = D.S, NG = 2400, gm = new THREE.InstancedMesh(D.blade, D.mat, NG); gm.receiveShadow = true; const Mx = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), c = new THREE.Color(), V = new THREE.Vector3(), Sc = new THREE.Vector3();
     let sd = (Math.abs(x0 * 73856093 ^ z0 * 19349663) % 2147483646) + 1; const rnd = () => (sd = sd * 16807 % 2147483647) / 2147483647, vh = (i, j) => { const v = Math.sin(i * 127.1 + j * 311.7) * 43758.5453; return v - Math.floor(v); }, vn = (x, z) => { const i = Math.floor(x), j = Math.floor(z), fx = x - i, fz = z - j, u = fx * fx * (3 - 2 * fx), w = fz * fz * (3 - 2 * fz); return (vh(i, j) * (1 - u) + vh(i + 1, j) * u) * (1 - w) + (vh(i, j + 1) * (1 - u) + vh(i + 1, j + 1) * u) * w; };
-    let n = 0; for (let k = 0; k < NG * 2.2 && n < NG; k++) { const x = x0 + rnd() * T, z = z0 + rnd() * T, h = S.H(x, z); if (h < 1.2) continue; if (Math.abs(S.H(x + .7, z) - h) + Math.abs(S.H(x, z + .7) - h) > .7) continue; if ((S.roadAt && S.roadAt(x, z)) || (S.blocked && S.blocked(x, z))) continue;
+    let n = 0; for (let k = 0; k < NG * 2.2 && n < NG; k++) { const x = x0 + rnd() * T, z = z0 + rnd() * T, h = S.H(x, z); if (h < 1.2) continue; if (Math.abs(S.H(x + .7, z) - h) + Math.abs(S.H(x, z + .7) - h) > .7) continue; if ((S.roadAt && S.roadAt(x, z)) || (S.blocked && S.blocked(x, z)) || (S.noGrass && S.noGrass(x, z))) continue;
       const pt = vn(x * .09, z * .09) * .65 + vn(x * .3, z * .3) * .35; if (pt < .18 && rnd() < .6) continue; e.set(0, rnd() * 6.28, 0); q.setFromEuler(e); Mx.compose(V.set(x, h - .05, z), q, Sc.set(.8 + rnd() * .5, (.5 + rnd() * .75) * (.8 + pt * .5), 1)); gm.setMatrixAt(n, Mx); c.copy(D.base).lerp(D.tip, rnd() * .6 + pt * .4).lerp(D.dry, Math.max(0, .55 - pt) * .5); gm.setColorAt(n, c); n++; }
     if (!n) { gm.dispose(); return null; } gm.count = n; gm.instanceMatrix.needsUpdate = true; if (gm.instanceColor) gm.instanceColor.needsUpdate = true; gm.computeBoundingSphere(); this.island.add(gm); return gm; }
   /* v145 高畫質：每一幀更新後製與互動參數 */
