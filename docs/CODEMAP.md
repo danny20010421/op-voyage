@@ -44,6 +44,7 @@
 - `js/ret_v136.js`: F:一般召喚券 ITEMS.summon_ticket（pull 外層包裝：券夠時先補回寶藏幣再呼叫原本的 pull）、回歸玩家 RETURN_CFG／window.RETURN（check／claim；SAVE.data.lastSeen、SAVE.data.ret）| D:pull、updateGachaBtns、openModes（第一次進大廳時 check） ；v137 領取視窗 RETURN.open（.rt-wrap，每天第一次進大廳自動跳出）、大廳入口 #lbRet（RETURN.rail） | S:樣式在 css/v137.css；視窗沿用 .qo-wrap
 - `js/grow_v157.js`＋`css/grow_v157.css`: F:v157 角色培養視窗（openGrow 取代 grow_v112 的版本；分頁 升級／覺醒／技能／寶物、底部主按鈕、目標等級自動選書）| R:grow_v112（Esc、⬆培養按鈕、背包重畫仍在用）| S:沿用同一個視窗元素與類別名稱
 - `js/gcard_v157.js`＋`css/gcard_v157.css`: F:統一的召喚結果卡片 window.GCARD（app.js showResults、event.js 使用）
+- `js/balance_v161.js`: F:v161 四皇體質與黑鬍子倍率微調；皇帝領海難度在 js/emperor.js 的 EMPEROR_DOMAIN.dmgAdj
 - `js/ext_v160.js`: F:v160 四皇新機制（印記與印記加成、無法解除的靈魂壓制、奪取／反轉能力、傷害轉體力、反彈負面、致命傷保命、護盾轉傷害、龍人型態加成、hpTilt）與 AI 權重 | R:battle_core pickEnemySkill、tests/*-sim
 - `js/balance_v160.js`: F:六位四皇的技能資料、說明、標籤與 statScale
 - `js/balance_v159.js`: F:漢庫克奧義與洛克斯五招加強（rocksKill 可為 {p,cut}、rocksStoreMult，見 ext_v129.js）

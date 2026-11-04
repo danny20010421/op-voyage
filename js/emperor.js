@@ -9,6 +9,8 @@ const EMPEROR_DOMAIN = {
   joinLv: 50,            /* 加入時的等級 */
   captainLv: 86,         /* 第一階段隊長等級 */
   cloneLv: 95,           /* 第二階段分身等級 */
+  /* v161：四皇換成 v160 新技能後，分身與真身造成的傷害倍率（調回 v159 的挑戰難度；分身另外乘原本的 0.85）。量測見 /root/promo/v160/table_v160.md */
+  dmgAdj: { whitebeard: .6, kaido: .78, bigmom: 1.25, luffy_nika: 1.1, shanks: 1, blackbeard: 1 },
   firstReward: { tokens: 30, berry: 30000 }, /* 首次擊敗真身 */
   replayReward: { berry: 8000 },             /* 重複挑戰真身 */
   phaseReward: { tokens: 5, berry: 5000 },   /* 首次通過第一、二階段 */
@@ -35,8 +37,8 @@ const EMPEROR_DOMAIN = {
   function stagesOf(x, phase) {
     const C = CHARACTERS[x.id];
     if (phase === 1) return captainsOf(x).map((id, i) => ({ id, lv: E.captainLv + i, mod: { hp: 1.6, atk: 1, def: 1, title: `${x.crew}・隊長` }, boss: false }));
-    if (phase === 2) return [1, 2].map(k => ({ id: x.id, lv: E.cloneLv, mod: { hp: .7, dmg: .85, infPP: true, ultCap: E.ultCap, name: `${C.name}（分身 ${k}）`, title: '皇帝的分身' }, boss: false }));
-    return [{ id: x.id, lv: MAX_LV, mod: { hpFixed: E.trueHp, allUp: 1, infPP: true, name: C.name, title: `${x.crew}・真身` }, boss: true }];
+    if (phase === 2) return [1, 2].map(k => ({ id: x.id, lv: E.cloneLv, mod: { hp: .7, dmg: .85 * (E.dmgAdj[x.id] || 1), infPP: true, ultCap: E.ultCap, name: `${C.name}（分身 ${k}）`, title: '皇帝的分身' }, boss: false }));
+    return [{ id: x.id, lv: MAX_LV, mod: { hpFixed: E.trueHp, allUp: 1, dmg: E.dmgAdj[x.id] || 1, infPP: true, name: C.name, title: `${x.crew}・真身` }, boss: true }];
   }
   const PHASE_NAME = ['', '第一階段・隊長連戰', '第二階段・皇帝的分身', '第三階段・皇帝真身'];
   const PHASE_DESC = ['', '連續擊敗旗下 8 位隊長。體力與技能次數會延續到下一場，中途撤退或戰敗就要從頭開始。', '連續擊敗兩個分身（體力 70%）：技能次數無限，奧義最多 3 次。中途撤退或戰敗就要從頭開始。', '挑戰四皇真身：體力 12,000、開場全能力 +1、所有技能次數無限，倒下後會復活一次。擊敗後，這位四皇加入你的船隊。'];
