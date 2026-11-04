@@ -44,9 +44,9 @@
   set('blackbeard', '引發震動', { e: { lifesteal: .15, markBonus: Object.assign({ mult: 1.4 }, DARK) },
     desc: '30% → 2.5 倍、30% → 5 倍、20% → 10～20 倍、10% → 20～40 倍，其餘為普通震動傷害；造成傷害的 15% 轉為體力。對「黑暗」中的對手傷害 ×1.4。',
     tags: [['震震', 'red'], ['吸血', 'green'], ['印記加成', 'red']] });
-  set('blackbeard', '闇穴道', { e: { reflectDebuff: { turns: 2 }, reflectTurns: 1, reflectMultiplier: 1.2, healRatio: .1 }, del: ['copyReplace'],
-    desc: '張開黑暗的漩渦：接下來 2 回合，對手施加在自己身上的異常狀態與能力下降全部彈回對手；下一次受到的攻擊以 1.2 倍反彈，並回復 10% 體力。',
-    tags: [['反彈', 'gold'], ['反彈負面', 'blue'], ['回復', 'green']] });
+  set('blackbeard', '闇穴道', { e: { reflectDebuff: { turns: 2 }, reflectTurns: 1, reflectMultiplier: 1.2, healRatio: .1, copyCast: true }, del: ['copyReplace'], /* v162：再加上複製對手技能立刻使用 */
+    desc: '張開黑暗的漩渦：接下來 2 回合，對手施加在自己身上的異常狀態與能力下降全部彈回對手；下一次受到的攻擊以 1.2 倍反彈，並回復 10% 體力。同時把對手的一個技能（第 5 招除外）吸進黑暗，立刻拿來使用一次。',
+    tags: [['反彈', 'gold'], ['反彈負面', 'blue'], ['回復', 'green'], ['複製', 'purple']] });
   set('blackbeard', '解放', { e: { markBonus: Object.assign({ mult: 1, exec: .25, consume: true }, DARK) },
     desc: '解放吸進來的力量：造成對手已損失體力 1～1.5 倍的傷害（最多對手最大體力 35%），並獲得自身目前體力 10% 的護盾，解除自身的異常狀態與負面能力；此回合結束時，對手全能力 -1、隨機一個技能次數 -1。對「黑暗」中的對手 25% 機率直接秒殺（BOSS 改為 3 倍傷害），打完黑暗消失。',
     tags: [['終結', 'gold'], ['護盾', 'green'], ['淨化', 'green'], ['秒殺', 'red']] });

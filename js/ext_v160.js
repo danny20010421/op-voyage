@@ -81,6 +81,17 @@
     if (ef.lastStand) { actor.status.__lastStand = { ratio: ef.lastStand.ratio || .3, charges: Math.max((actor.status.__lastStand || {}).charges || 0, ef.lastStand.charges || 1) }; }
     if (ef.dragonBoost && actor.hp > 0) { const D = ef.dragonBoost; actor.status.__dragon = Object.assign({}, D); if (D.guard) actor.status.__lastStand = { ratio: D.guard, charges: Math.max((actor.status.__lastStand || {}).charges || 0, 1) };
       L(`🐉 龍人型態：其他招式傷害 ×${D.dmg}、受到的傷害 -${Math.round((D.dr || 0) * 100)}%、每回合回復 ${Math.round((D.regen || 0) * 100)}%${D.guard ? `，並能撐住一次致命傷` : ''}！`); }
+    /* v162 闇穴道：保留反彈效果之外，再複製對手一個技能（第 5 招除外）立刻使用一次（使用者 11/04 22:23） */
+    if (ef.copyCast && !skill.__copyCast && target && target !== actor && target.hp > 0 && actor.hp > 0) {
+      const BAD = ['copyReplace', 'copyCast', 'dominate', 'rocksStore', 'rocksSecret', 'restoreAllPP', 'fullRestoreTurns', 'extraLives', 'awaken', 'selfDamageRatio', 'selfHpCost', 'selfDebuff', 'selfFreeze', 'selfPetrify', 'noRestore'];
+      const pool = target.skills.filter(x => x && !x.ultimate && !x.locked && !BAD.some(k => x.effect && x.effect[k]));
+      if (pool.length) { const cs = JSON.parse(JSON.stringify(pool[Math.floor(Math.random() * pool.length)])); cs.__copyCast = true; cs.copiedFrom = { id: target.id };
+        L(`🕳️ ${actor.name} 用闇穴道吸進「${cs.name}」，立刻拿來使用！`);
+        try { const o = computeSkillOutcome(actor, target, cs, false) || { damage: 0, meta: {} };
+          if (o.damage > 0) applyDamage(target, o.damage, target === battle.player ? 'L' : 'R');
+          if (target.hp > 0 || cs.type === 'support') applySkillEffects(actor, target, cs, o); } catch (e) { console.warn('闇穴道複製失敗', e); } }
+      else L(`🕳️ 闇穴道沒有可以複製的技能。`);
+    }
     enforceLock(actor); if (target) enforceLock(target);
     return r;
   };
