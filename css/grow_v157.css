@@ -148,3 +148,58 @@
 .g7 .gr-b{flex-direction:column!important}
 /* 下一顆要覺醒的星：空心金框，不會被看成已經點亮 */
 .g7 .g7-starbig i.next{color:transparent;-webkit-text-stroke:1.5px rgba(255,211,74,.85);animation:none}
+
+/* ===== v158：實際數值組成、寶物預覽、強化到 +N、選擇船員、左右滑動、觸控區 44px ===== */
+.g7 .g7-hero,.g7 .g7-panel{touch-action:pan-y}
+.g7 .g7-nav,.g7 .g7-x{width:44px;height:44px}
+.g7 .g7-head{grid-template-columns:44px minmax(0,1fr) 44px 44px}
+.g7 .g7-title{min-height:44px;padding:0 8px;border:0;border-radius:12px;background:none;color:inherit;cursor:pointer}
+.g7 .g7-title:active{background:rgba(255,255,255,.06)}
+.g7 .g7-dd{font-style:normal;font-size:11px;color:#c9b88c}
+.g7 .g7-tabs button{min-height:44px}
+.g7 .g7-quick button,.g7 .g7-go button,.g7 .gr-tools button,.g7 .gr-b button,.g7 .g7-dupe button,.g7 .g7-pickh button,.g7 .g7-trial button{min-height:44px}
+.g7 .g7-need .g7-go button{min-height:44px;font-size:13px}
+.g7 .g7-need span,.g7 .g7-need small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 戰力列：點一下展開組成 */
+.g7 .g7-pow{width:100%;min-height:32px;padding:0;border:0;background:none;color:inherit;text-align:left;cursor:pointer;display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+.g7 .g7-brkb{margin-left:auto;font-style:normal;font-size:11px;color:#c9b88c;padding:2px 8px;border-radius:999px;border:1px solid rgba(235,199,126,.4)}
+.g7 .g7-stats em.dn,.g7 .g7-pow em.dn{color:#ff8a8a}
+.g7 .g7-brk{position:absolute;left:8px;right:8px;top:calc(64px + var(--safeT,0px));z-index:6;padding:12px;border-radius:12px;background:#0d1730;border:1px solid rgba(235,199,126,.55);box-shadow:0 16px 40px rgba(0,0,0,.6);animation:g7Drop .16s ease-out}
+.g7 .g7-brk[hidden]{display:none}
+@keyframes g7Drop{from{opacity:0;transform:translateY(-6px)}}
+.g7 .g7-brkh{display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:center;column-gap:8px;margin-bottom:8px}.g7 .g7-brkh b{font-size:14px;color:#ffe7a8}.g7 .g7-brkh small{grid-column:1;font-size:11px;color:#9fb0cc}
+.g7 .g7-brkx{grid-column:2;grid-row:1/3;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font-size:20px;cursor:pointer}
+.g7 .g7-brk table{width:100%;border-collapse:collapse;font-family:var(--num,system-ui);font-size:12px;table-layout:fixed}
+.g7 .g7-brk th,.g7 .g7-brk td{padding:6px 2px;text-align:right;border-bottom:1px solid rgba(255,255,255,.06);white-space:nowrap}
+.g7 .g7-brk thead th{font-size:11px;color:#c9b88c;font-weight:700}.g7 .g7-brk thead th small{display:block;font-size:9px;color:#8fa0bd;font-weight:500}
+.g7 .g7-brk tbody th{text-align:left;color:#c8d0e0;font-weight:700}.g7 .g7-brk td em{font-style:normal;color:#7dffa8;font-weight:800}.g7 .g7-brk td i{font-style:normal;color:#5d6a85}.g7 .g7-brk td b{color:#fff}
+.g7 .g7-brk p{margin:8px 0 0;font-size:11px;color:#9fb0cc}
+@media (min-width:1000px) and (min-height:600px){.g7 .g7-brk{left:16px;right:auto;width:min(420px,38%);top:auto;bottom:16px}}
+/* 換頁、換角色的滑入 */
+.g7 .g7-in-r{animation:g7InR .2s ease-out}.g7 .g7-in-l{animation:g7InL .2s ease-out}
+@keyframes g7InR{from{opacity:.3;transform:translateX(24px)}}@keyframes g7InL{from{opacity:.3;transform:translateX(-24px)}}
+/* 主要按鈕按下的回饋 */
+.g7 .g7-goBtn.g7-hit{animation:g7Hit .45s ease-out}
+@keyframes g7Hit{0%{transform:scale(.94)}40%{transform:scale(1.03);box-shadow:0 0 0 4px rgba(255,207,90,.45),0 0 24px rgba(255,207,90,.6)}100%{transform:scale(1)}}
+/* 寶物候選：點一下預覽 */
+.g7 .g7-glist li{cursor:pointer}
+.g7 .g7-glist li.on{border-color:#ffcf5a!important;background:rgba(255,207,90,.1);box-shadow:inset 0 0 0 1px #ffcf5a}
+.g7 .g7-dp{display:grid;place-items:center;min-height:44px;padding:0 8px;font:800 13px/1 var(--num,system-ui);color:#7dffa8;white-space:nowrap}.g7 .g7-dp.dn{color:#ff8a8a}
+.g7 .g7-pickh{flex-wrap:wrap}.g7 .g7-pickh small{flex:1 0 100%;font-size:11px;color:#9fb0cc}
+.g7 .g7-gcard{display:grid;grid-template-columns:48px minmax(0,1fr);align-items:center;gap:12px}.g7 .g7-gcard div{display:flex;flex-direction:column;min-width:0}.g7 .g7-gcard b{display:flex;align-items:center;gap:8px;font-size:15px}.g7 .g7-gcard small{font-size:12px;color:#c8d0e0}
+/* 選擇船員 */
+.g7-picksheet{position:fixed;inset:0;z-index:2050;display:grid;place-items:end center;background:rgba(2,6,16,.72)}
+.g7-psc{width:min(720px,100%);max-height:86dvh;display:flex;flex-direction:column;border-radius:20px 20px 0 0;background:linear-gradient(180deg,#1a2a4c,#0b1428);border:1px solid rgba(235,199,126,.55);border-bottom:0;padding-bottom:var(--safeB,0px);animation:g7Up .2s ease-out}
+@keyframes g7Up{from{transform:translateY(32px);opacity:.4}}
+.g7-psc header{display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:center;column-gap:8px;padding:12px 16px 8px}.g7-psc header b{font-size:17px;color:#ffe7a8}.g7-psc header small{grid-column:1;font-size:12px;color:#9fb0cc}
+.g7-psc .g7-x{grid-column:2;grid-row:1/3;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;border:2px solid #ebc77e;background:#2a1a10;color:#ffe7a8;font-size:22px;cursor:pointer}
+.g7-pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;padding:8px 16px 16px;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.g7-pc{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:44px;padding:4px 4px 8px;border-radius:12px;border:1px solid color-mix(in srgb,var(--rc) 55%,transparent);background:rgba(255,255,255,.04);color:#fff;cursor:pointer;min-width:0}
+.g7-pc.on{box-shadow:0 0 0 2px #ffcf5a}
+.g7-pa{position:relative;width:100%;aspect-ratio:1;border-radius:8px;overflow:hidden;background:rgba(0,0,0,.3)}.g7-pa img{width:100%;height:100%;object-fit:cover;display:block}
+.g7-pt{position:absolute;left:2px;top:2px;padding:0 4px;border-radius:4px;background:#d8423a;font-style:normal;font-size:10px;font-weight:800;line-height:16px}
+.g7-pc .g7-dot{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#ff4a5a;box-shadow:0 0 0 2px rgba(10,20,44,.9)}
+.g7-pc b{width:100%;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}.g7-pc small{font-size:11px;color:#ffe7a8;font-family:var(--num,system-ui)}
+/* 觸控區：戰力列看起來 32px，可按範圍往上下各延伸 6px（不改版面高度）；滑桿 44px */
+.g7 .g7-pow{position:relative}.g7 .g7-pow::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px}
+.g7 .g7-range{height:44px}

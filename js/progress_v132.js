@@ -117,6 +117,6 @@ const GEAR_CFG = {
     if (window.passAddXp) { const pa = window.passAddXp; window.passAddXp = function (n, why) { const r = pa.apply(this, arguments); if (why === '天梯' && n >= 20) drop(.3); return r; }; }
   });
 
-  window.GEAR = { cfg: G, gear, equipped, gearSum, roll, addGear, drop, equip, unequip, enhance, enhCost, salvage, describe, gearIcon, mainVal, RCOL };
+  window.GEAR = { cfg: G, applyExtra, gear, equipped, gearSum, roll, addGear, drop, equip, unequip, enhance, enhCost, salvage, describe, gearIcon, mainVal, RCOL };
   window.PROG2 = { specOf, specOpts, setSpec, SPEC_TXT };
 })();

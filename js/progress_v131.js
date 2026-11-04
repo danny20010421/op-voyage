@@ -163,6 +163,6 @@ const PROG_CFG = {
   if (typeof track === 'function') { const _t = track; track = function () { const r = _t.apply(this, arguments); try { sync(); } catch (e) { } return r; }; }
   window.addEventListener('DOMContentLoaded', () => setTimeout(() => { try { sync(); } catch (e) { } }, 1500));
 
-  window.PROG = { cfg: C, give, rewText, celebrate, starOf, starCost, starUp, dupes, dupeToGem, skLv, skMax, skCost, skEffect, skNext, skUp, rarOf };
+  window.PROG = { cfg: C, applyGrowth, give, rewText, celebrate, starOf, starCost, starUp, dupes, dupeToGem, skLv, skMax, skCost, skEffect, skNext, skUp, rarOf };
   window.ACT = { tasks, points, sync, claimDaily, claimWeek, claimable, week: () => (act(), SAVE.data.actW), today: act };
 })();

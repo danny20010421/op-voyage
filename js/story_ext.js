@@ -100,7 +100,7 @@
     giant: {
       pro: [N('艾爾巴夫，世界上最強的戰士之國。'), N('這裡的巨人相信：在戰鬥中光榮倒下，就能前往英靈的國度。')],
       steps: { 4: [L('dorry', '我和布洛基為了一點小事打了一百年——連為什麼打都忘了。'), L('dorry', '可是我們都沒有逃跑。這就是艾爾巴夫的驕傲！')] },
-      sides: [{ id: 'red_hair_test', npc: 'hajrudin', enemy: 'shanks', title: '支線：紅髮的試探', after: '巨人們的認可', reward: 4, berry: 6000,
+      sides: [{ id: 'red_hair_test', npc: 'hajrudin', enemy: 'shanks', title: '支線：紅髮的試探', after: '巨人們的認可', reward: 4, berry: 6000, foe: { lv: -3, dmg: 0.92 } /* v158 使用者 11/04：勝率約 17% → 約 33%（app.js applySideFoe） */,
         ask: [L('hajrudin', '外海出現了一艘掛著紅髮旗的船……他好像在等誰。')],
         lines: [N('紅髮傑克斯站在海邊，風吹動了他的披風。'), N('「讓我看看——你們是不是那頂草帽選中的人。」'), N('【對決】四皇・紅髮傑克斯！')],
         win: [N('紅髮收起了刀，笑了出來：「……不錯嘛。」'), N('他沒有再多說什麼，轉身回到了船上。')] }]

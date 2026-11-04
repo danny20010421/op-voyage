@@ -43,8 +43,8 @@
     if (e.charSelect) return ['使用', () => { close(); window.openCharSelect && openCharSelect(); }];
     if (e.summonTicket) return ['前往召喚', () => { close(); hub('summon'); }];
     if (e.eventTicket) return ['前往限定召喚', () => { close(); const b = $('lbEvent'); if (b && typeof currentScreen !== 'undefined' && currentScreen === 'modeScreen') b.click(); else hub(); }];
-    if (e.grow) return ['前往角色培養', () => { close(); const id0 = (SAVE.data.lineup || [])[0]; if (window.openGrow && id0) openGrow(id0); }];
-    if (e.exp) return ['前往角色培養', () => { close(); const id0 = (SAVE.data.lineup || [])[0]; if (window.openGrow && id0) openGrow(id0); else if (typeof openCrew === 'function') openCrew('crew'); }];
+    if (e.grow) return ['選擇要培養的船員', () => { close(); if (window.openGrowPick) openGrowPick(); else { const id0 = (SAVE.data.lineup || [])[0]; if (window.openGrow && id0) openGrow(id0); } }]; /* v158：先選要培養誰 */
+    if (e.exp) return ['選擇要培養的船員', () => { close(); if (window.openGrowPick) return openGrowPick(); const id0 = (SAVE.data.lineup || [])[0]; if (window.openGrow && id0) openGrow(id0); else if (typeof openCrew === 'function') openCrew('crew'); }];
     if (id === 'sweep') return ['前往海圖掃蕩', () => { close(); if (typeof openChart === 'function') openChart(); }];
     return null; /* 戰鬥道具：在戰鬥中按「道具」使用 */
   };

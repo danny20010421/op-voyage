@@ -481,6 +481,8 @@ function runChoice(s) {
 }
 /* ===== 支線任務（chapter.sides）：主線走到指定任務之後，找指定 NPC 就能開始；完成一次後獎勵不再重複 ===== */
 let SIDE = null;
+/* v158：支線對決的對手微調 foe { lv（等級增減）, hp（體力倍率）, dmg（傷害倍率） }；bsim 也用這個函式 */
+function applySideFoe(e, foe) { if (!e || !foe) return; if (foe.hp) { e.maxHp = Math.round(e.maxHp * foe.hp); e.hp = e.maxHp; } if (foe.dmg) e.__dmgB = (e.__dmgB || 1) * foe.dmg; }
 function sideFor(npcId) { const st = chState(); return (CH.sides || []).find(S => (!npcId || S.npc === npcId) && !(st.sides || {})[S.id] && (st.cleared || CH.steps.findIndex(x => x.title === S.after) < st.step)); }
 function onInteract(n) {
   if (n.kind === 'chest') { openChest(n); return; }
@@ -510,10 +512,11 @@ function beginFight(n, carryHp) {
   WORLD.paused = true;
   const s = curStep(); if (s && s.type === 'gauntlet' && !n.boss && !CHAIN) CHAIN = { wins: [] };
   startBattle({
-    playerId: SAVE.data.player, team: SAVE.data.lineup.map(id => ({ id, lv: crewLv(id), hp: carryHp ? carryHp[id] : undefined })), enemyId: n.id, chapterId: CH.id, isBoss: n.boss, enemyLv: enemyLvFor(n.boss), bg: (SIDE && SIDE.bg) || undefined,
+    playerId: SAVE.data.player, team: SAVE.data.lineup.map(id => ({ id, lv: crewLv(id), hp: carryHp ? carryHp[id] : undefined })), enemyId: n.id, chapterId: CH.id, isBoss: n.boss, enemyLv: SIDE && SIDE.foe && SIDE.foe.lv ? Math.max(1, Math.min(MAX_LV, enemyLvFor(false) + SIDE.foe.lv)) : enemyLvFor(n.boss), bg: (SIDE && SIDE.bg) || undefined,
     onEnd: (r) => onBattleEnd(r, n),
     onLeave: () => { showScreen('worldScreen'); if (pendingClear) AUDIO.stopSong(); WORLD.paused = false; refreshWorld(); coins(); if (pendingClear) { const pc = pendingClear; pendingClear = null; setTimeout(() => showClear(pc), 350); } }
   });
+  if (SIDE && SIDE.foe && battle && battle.enemy) { applySideFoe(battle.enemy, SIDE.foe); if (typeof renderHUD === 'function') renderHUD(true); }
 }
 let pendingClear = null;
 function onBattleEnd(r) {
