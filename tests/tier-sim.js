@@ -1,4 +1,4 @@
-// v142 稀有度對戰矩陣模擬（平衡調整用）：window.__TIER = { ids, pairs?, n, scale, rs }；對戰規則與 AI 同 duel-sim.js（LV80、無寶物、雙方套用稀有度體質）。
+// v142 稀有度對戰矩陣模擬（平衡調整用）：window.__TIER = { ids, pairs?, n, scale, rs }；對戰規則與 AI 同 duel-sim.js（LV81（v160 起，可傳 lv）、無寶物、雙方套用稀有度體質）。
 async () => {
   const w = ms => new Promise(r => setTimeout(r, ms));
   startBattle({ team: [{ id: 'luffy', lv: 80 }], enemyId: 'crocodile', enemyLv: 80, chapterId: 'east', isBoss: false, revives: 0, onEnd: () => ({ message: '' }), onLeave: () => {} });
@@ -18,7 +18,7 @@ async () => {
     const POL = (window.__DUEL || {}).ultFirst; /* ultFirst：像玩家一樣奧義一能用就先放（'all' 雙方、'me' 只有受測角色） */
     const early = POL === 'all' || (POL === 'me' && A.id === (window.__DUEL || {}).id);
     if (ult && (early || hpB < .6 || hpA < .4)) pick = ult; else if (heal && hpA < .45 && Math.random() < .7) pick = heal; if (!pick) { const nb = av.filter(([s]) => !s.ultimate); const bB = B.buffs.atk > 0 || B.buffs.def > 0 || B.buffs.spd > 0, bA = A.buffs.atk < 0 || A.buffs.def < 0 || A.buffs.spd < 0 || CC_KEYS.some(k => A.status[k] > 0) || A.status.weak > 0 || A.status.burn > 0; const d = bB && nb.find(([s]) => s.effect && s.effect.clearBuffs), c = bA && nb.find(([s]) => s.effect && s.effect.clearSelfDebuffs); if (c && Math.random() < .6) pick = c; else if (d && Math.random() < .6) pick = d; } /* v157：與敵方 AI 相同，對手有強化時驅散、自己有負面狀態時淨化 */
-    if (!pick) { const atk = av.filter(([s]) => !s.ultimate); const w = atk.map(([s]) => (s.type === 'attack' ? (s.power || 60) : 70) + 20); let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < atk.length; i++) { r -= w[i]; if (r < 0) { pick = atk[i]; break; } } pick = pick || av[0]; }
+    if (!pick) { const atk = av.filter(([s]) => !s.ultimate); const w = atk.map(([s]) => ((s.type === 'attack' ? (s.power || 60) : 70) + 20) * (window.__aiW160 ? window.__aiW160(A, B, s) : 1)); /* v160：與敵方 AI 相同的印記／壓制時機 */ let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < atk.length; i++) { r -= w[i]; if (r < 0) { pick = atk[i]; break; } } pick = pick || av[0]; }
     const skill = pick[0]; skill.pp--;
     const sk = JSON.parse(JSON.stringify(skill)); const tok = window.rocksPre ? rocksPre(A, B, sk) : null; try { return act2(A, B, side, sk); } finally { if (tok) rocksPost(tok); }
   }
@@ -34,8 +34,9 @@ async () => {
   }
   /* 與 live.js 的 rise 相同：美音魔王復活、不死鳥、額外生命 */
   function rise(f) { if (f.hp > 0) return; if (window.kaidoDragonOff) kaidoDragonOff(f); if (window.utaRise && utaRise(f)) return; if (f.status.undyingTurns > 0) { f.status.undyingTurns = 0; f.hp = f.maxHp; f.status.dots = []; return; } if (f.status.lives > 0) { f.status.lives--; f.hp = f.maxHp; f.status.dots = []; } }
+  const SIM_LV = (window.__TIER || window.__DUEL || {}).lv || 81; /* v160：LV81（LV80 剛好落在霸王色「LV80 以下直接倒下」的邊界，紅髮／白鬍子會被高估）；要舊結果可傳 lv:80 */
   function fight(a, b) {
-    const A = applyRarityScale(buildFighter(a, 80)), B = applyRarityScale(buildFighter(b, 80)); battle.player = A; battle.enemy = B; battle.team = [A]; battle.isBoss = false; battle.eruption = null;
+    const A = applyRarityScale(buildFighter(a, SIM_LV)), B = applyRarityScale(buildFighter(b, SIM_LV)); battle.player = A; battle.enemy = B; battle.team = [A]; battle.isBoss = false; battle.eruption = null;
     for (let round = 0; round < 40; round++) {
       const first = (A.baseSpeed * (1 + A.buffs.spd * .05)) >= (B.baseSpeed * (1 + B.buffs.spd * .05)) ? [A, B] : [B, A];
       for (const f of first) { const o = f === A ? B : A; if (f.hp <= 0 || o.hp <= 0) continue; act(f, o, f === A ? 'L' : 'R');

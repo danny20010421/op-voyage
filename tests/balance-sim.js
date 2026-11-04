@@ -16,7 +16,7 @@ async () => {
     const hpA = A.hp / A.maxHp, hpB = B.hp / B.maxHp, ult = av.find(([s]) => s.ultimate), heal = av.find(([s]) => s.type === 'support' && s.effect && (s.effect.healRatio || s.effect.fullHeal || s.effect.regenTurns));
     let pick = null;
     if (ult && (hpB < .6 || hpA < .4)) pick = ult; else if (heal && hpA < .45 && Math.random() < .7) pick = heal; if (!pick) { const nb = av.filter(([s]) => !s.ultimate); const bB = B.buffs.atk > 0 || B.buffs.def > 0 || B.buffs.spd > 0, bA = A.buffs.atk < 0 || A.buffs.def < 0 || A.buffs.spd < 0 || CC_KEYS.some(k => A.status[k] > 0) || A.status.weak > 0 || A.status.burn > 0; const d = bB && nb.find(([s]) => s.effect && s.effect.clearBuffs), c = bA && nb.find(([s]) => s.effect && s.effect.clearSelfDebuffs); if (c && Math.random() < .6) pick = c; else if (d && Math.random() < .6) pick = d; } /* v157：與敵方 AI 相同，對手有強化時驅散、自己有負面狀態時淨化 */
-    if (!pick) { const atk = av.filter(([s]) => !s.ultimate); const w = atk.map(([s]) => (s.type === 'attack' ? (s.power || 60) : 70) + 20); let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < atk.length; i++) { r -= w[i]; if (r < 0) { pick = atk[i]; break; } } pick = pick || av[0]; }
+    if (!pick) { const atk = av.filter(([s]) => !s.ultimate); const w = atk.map(([s]) => ((s.type === 'attack' ? (s.power || 60) : 70) + 20) * (window.__aiW160 ? window.__aiW160(A, B, s) : 1)); /* v160：與敵方 AI 相同的印記／壓制時機 */ let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < atk.length; i++) { r -= w[i]; if (r < 0) { pick = atk[i]; break; } } pick = pick || av[0]; }
     const skill = pick[0]; skill.pp--;
     const sk = JSON.parse(JSON.stringify(skill));
     if (A.status.attackFail > 0 && Math.random() < (A.status.attackFailChance || 0)) { A.status.attackFail--; return; } /* 與 battle.js 相同：攻擊失效 */ if (A.status.attackFail > 0) A.status.attackFail--;
@@ -28,8 +28,9 @@ async () => {
     applySkillEffects(A, B, sk, r);
     if (r.damage > 0 && sk.type === 'attack' && B.status.thornTurns > 0) applyDamage(A, Math.round(r.damage * (B.status.thornRatio || .5)), side);
   }
+  const SIM_LV = (window.__TIER || window.__DUEL || {}).lv || 81; /* v160：LV81（LV80 剛好落在霸王色「LV80 以下直接倒下」的邊界，紅髮／白鬍子會被高估）；要舊結果可傳 lv:80 */
   function fight(a, b) {
-    const A = applyRarityScale(buildFighter(a, 80)), B = applyRarityScale(buildFighter(b, 80)); battle.player = A; battle.enemy = B; battle.team = [A]; battle.isBoss = false; battle.eruption = null;
+    const A = applyRarityScale(buildFighter(a, SIM_LV)), B = applyRarityScale(buildFighter(b, SIM_LV)); battle.player = A; battle.enemy = B; battle.team = [A]; battle.isBoss = false; battle.eruption = null;
     for (let round = 0; round < 40; round++) {
       const first = (A.baseSpeed * (1 + A.buffs.spd * .05)) >= (B.baseSpeed * (1 + B.buffs.spd * .05)) ? [A, B] : [B, A];
       for (const f of first) { const o = f === A ? B : A; if (f.hp <= 0 || o.hp <= 0) continue; act(f, o, f === A ? 'L' : 'R');

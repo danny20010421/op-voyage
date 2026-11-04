@@ -71,7 +71,7 @@
   applySkillEffects = function (actor, target, skill, result) {
     _ase(actor, target, skill, result);
     if (skill.__voidFx) return; const ef = skill.effect || {};
-    if (ef.restoreAllPP) { actor.skills.forEach(s => { if (s !== skill && !s.locked) s.pp = s.maxPP; }); log(`🔄 ${actor.name} 的其他技能次數全部恢復！`); if (typeof renderSkills === 'function' && actor === battle.player) renderSkills(); }
+    if (ef.restoreAllPP) { actor.skills.forEach(s => { if (s !== skill && !(skill && s.name === skill.name) && !s.locked) s.pp = s.maxPP; }); /* v160：技能是複本時（即時對戰、模擬）也不能恢復自己 */ log(`🔄 ${actor.name} 的其他技能次數全部恢復！`); if (typeof renderSkills === 'function' && actor === battle.player) renderSkills(); }
     if (ef.immuneTurns && !ef.regenTurns) { actor.status.immune = Math.max(actor.status.immune || 0, ef.immuneTurns); log(`🛡️ ${actor.name} ${ef.immuneTurns} 回合內免疫異常狀態！`); }
     if (ef.stunChance && target.hp > 0 && Math.random() < ef.stunChance) inflict(target, 'stun', ef.stunTurns || 1);
     if (ef.haoshoku) haoshoku(actor, target);
