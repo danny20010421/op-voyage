@@ -45,14 +45,14 @@
   computeSkillOutcome = function (actor, target, skill, blocked) {
     const ef = (skill && skill.effect) || {};
     if (ef.rocksKill && target && !skill.__rk) {
-      const low = rarIdx(target) < ssrIdx(), p = low ? 1 : .5;
+      const RK = typeof ef.rocksKill === 'object' ? ef.rocksKill : {}, low = rarIdx(target) < ssrIdx(), p = low ? 1 : (RK.p || .5); /* v159：秒殺機率、扣血比例可設定 */
       /* 交給基本計算處理「秒殺」：BOSS 3 倍傷害、古代巨人族意志、免疫秒殺等既有規則都會套用 */
       const lg = window.log; window.log = (...a) => { if (!/倍率 x0/.test(String(a[0]))) lg(...a); }; /* 借用的倍率計算會印出「倍率 x0.0」，不顯示 */
       let r; try { r = _cso.call(this, actor, target, { ...skill, __rk: true, effect: { randomMultiplierRange: [.01, .01], executeChance: p } }, false) || { damage: 0, meta: {} }; } finally { window.log = lg; }
       r.meta = r.meta || {};
       if (!r.meta.execute && !r.meta.executeBuff && !r.meta.bossExec && (!low || r.damage < 2)) {
         if (target.voidImmune) { r.damage = 0; log(`👑 ${target.name} 不受比例傷害影響！`); }
-        else { let d = Math.max(1, Math.floor(target.hp / 2)); if (isBossFoe(target)) d = Math.min(d, capOf(target)); r.damage = d; log(`🗡️ 殺：${target.name} 被奪去一半的體力！`); }
+        else { let d = Math.max(1, Math.floor(target.hp * (RK.cut || .5))); if (isBossFoe(target)) d = Math.min(d, capOf(target)); r.damage = d; log(`🗡️ 殺：${target.name} 被奪去${(RK.cut || .5) === .5 ? '一半' : Math.round((RK.cut || .5) * 100) + '%'}的體力！`); }
       }
       if (r.meta.execute || r.meta.executeBuff) actor.__rocksExec = true;
       return r;
@@ -76,7 +76,7 @@
       else {
         actor.status.rocksStore = null;
         if (!storeOn(st)) { log(`🌀 蓄：已經超過 ${st.n || ef.rocksStore} 回合，累積的力量消散了……`); say(scrSide(actor), '失敗', 'miss'); }
-        else if (target && target.hp > 0 && st.dmg > 0) { const d = Math.round(st.dmg); log(`🌀 蓄：把累積的 ${d} 點傷害全數奉還給 ${target.name}！`); applyDamage(target, d, scrSide(target), { ignoreShield: true }); }
+        else if (target && target.hp > 0 && st.dmg > 0) { const d = Math.round(st.dmg * (ef.rocksStoreMult || 1)); /* v159：奉還倍率 */ log(`🌀 蓄：把累積的 ${d} 點傷害全數奉還給 ${target.name}！`); applyDamage(target, d, scrSide(target), { ignoreShield: true }); }
         else log('🌀 蓄：沒有累積到傷害。');
       }
     }

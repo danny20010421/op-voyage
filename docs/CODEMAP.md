@@ -44,6 +44,7 @@
 - `js/ret_v136.js`: F:一般召喚券 ITEMS.summon_ticket（pull 外層包裝：券夠時先補回寶藏幣再呼叫原本的 pull）、回歸玩家 RETURN_CFG／window.RETURN（check／claim；SAVE.data.lastSeen、SAVE.data.ret）| D:pull、updateGachaBtns、openModes（第一次進大廳時 check） ；v137 領取視窗 RETURN.open（.rt-wrap，每天第一次進大廳自動跳出）、大廳入口 #lbRet（RETURN.rail） | S:樣式在 css/v137.css；視窗沿用 .qo-wrap
 - `js/grow_v157.js`＋`css/grow_v157.css`: F:v157 角色培養視窗（openGrow 取代 grow_v112 的版本；分頁 升級／覺醒／技能／寶物、底部主按鈕、目標等級自動選書）| R:grow_v112（Esc、⬆培養按鈕、背包重畫仍在用）| S:沿用同一個視窗元素與類別名稱
 - `js/gcard_v157.js`＋`css/gcard_v157.css`: F:統一的召喚結果卡片 window.GCARD（app.js showResults、event.js 使用）
+- `js/balance_v159.js`: F:漢庫克奧義與洛克斯五招加強（rocksKill 可為 {p,cut}、rocksStoreMult，見 ext_v129.js）
 - `js/balance_v158.js`: F:巴基套用四皇規則（四分五裂清強化、威力 95、statScale 0.86）
 - `js/balance_v157.js`: F:v157 四皇與天花板角色的清強化／淨化／高傷害技、STAT_V157 數值 | R:balance_v156、battle_core pickEnemySkill（清強化、淨化權重 ×1.8）
 - `js/lobby_v156.js`＋`css/lobby_v156.css`: F:v156 大廳版面（主線航程卡 #v6Route、資訊區 #v6Side、左側欄常用 5 個＋「更多」抽屜）；只搬移既有節點，點擊功能沿用原本的；取代 v145 主線橫條與 v118 電腦版兩欄的呈現 | R:lobby_v118/v121/v145 | S:手機橫式不啟用，節點放回原位
