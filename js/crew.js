@@ -20,7 +20,7 @@
   const narrow = () => matchMedia('(max-width:860px)').matches;
 
   /* ---------- 訓練營資料 ---------- */
-  const training = () => { const T = SAVE.data.training = SAVE.data.training || []; for (let i = T.length - 1; i >= 0; i--) if (!T[i] || !CHARACTERS[T[i].id] || !SAVE.data.roster[T[i].id]) T.splice(i, 1); return T; }; /* v156：角色資料不存在的訓練紀錄會讓訓練營整頁壞掉，先清掉 */
+  const training = () => { if (!SAVE.data) return []; /* v157：存檔還沒載入或正在重設時（計時器會呼叫）不要出錯 */ const T = SAVE.data.training = SAVE.data.training || []; for (let i = T.length - 1; i >= 0; i--) if (!T[i] || !CHARACTERS[T[i].id] || !SAVE.data.roster[T[i].id]) T.splice(i, 1); return T; }; /* v156：角色資料不存在的訓練紀錄會讓訓練營整頁壞掉，先清掉 */
   window.isTraining = id => training().some(t => t.id === id);
   const planOf = id => TRAIN_PLANS.find(p => p.id === id);
   const fmt = ms => { ms = Math.max(0, ms); const s = Math.ceil(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h ? `${h} 小時 ${String(m).padStart(2, '0')} 分` : `${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}`; };

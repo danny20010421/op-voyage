@@ -5,7 +5,7 @@
    存檔：SAVE.data.pass＝{ season, xp, prem, free:[已領等級], paid:[已領等級] }。
    入口：大廳左側「通行證」（openPass('daily'|'pass')）；背包道具的獲取方式也會連過來。 */
 const PASS = {
-  levels: 30, xpPer: 100, price: 680,
+  levels: 30, xpPer: 100, price: 280, /* v157：使用者 11/04 回饋偏少，先降價到 280 寶藏幣 */
   /* 每一級的獎勵：免費／進階 */
   reward(lv) {
     const F = [{ berry: 4000 }, { items: { exp_m: 1 } }, { items: { awaken_gem: 8 } }, { items: { skill_book: 1 } }], P = [{ items: { awaken_gem: 12 } }, { items: { skill_book: 2 } }, { items: { exp_l: 1 } }, { berry: 10000 }];

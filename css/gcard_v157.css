@@ -1,0 +1,34 @@
+/* v157 召喚結果統一卡片 .gcd（js/gcard_v157.js）：百連／新手召喚（#gResGrid）與限定池抽獎（.ev-card）共用
+   每張卡：左上稀有度標籤、同高圖片區、名稱最多 2 行、說明最多 2 行（過長省略）；所有內容都在框內。 */
+.gcd{--tc:#9fb3c4;--artH:88px;--nameF:13px;--subF:11px;position:relative;display:grid;grid-template-rows:var(--artH) calc(var(--nameF) * 1.3 * 2) calc(var(--subF) * 1.45 * 2) auto;row-gap:4px;align-content:start;justify-items:center;min-width:0;padding:28px 8px 8px;border-radius:14px;overflow:hidden;text-align:center;
+  background:radial-gradient(120% 70% at 50% 25%,color-mix(in srgb,var(--tc) 22%,transparent),transparent 70%),linear-gradient(180deg,#1c2c48,#0e1828);border:2px solid var(--tc);box-shadow:0 0 16px color-mix(in srgb,var(--tc) 45%,transparent);animation:gcdIn .45s cubic-bezier(.2,.8,.3,1.15) both;animation-delay:var(--d,0ms)}
+@keyframes gcdIn{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:none}}
+.gcd .gcd-rar{position:absolute!important;top:6px!important;left:6px!important;right:auto!important;bottom:auto!important;margin:0!important;z-index:2;font-size:11px;line-height:16px;height:16px;padding:0 6px;min-width:0;display:inline-flex;align-items:center;justify-content:center}
+.gcd .gcd-art{position:relative;width:100%;height:var(--artH);display:flex;align-items:center;justify-content:center;min-width:0}
+.gcd .gcd-art>img,.gcd .gcd-art>svg{max-width:100%;max-height:100%;width:auto;height:100%;object-fit:contain;margin:0;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.gcd .gcd-art>.ico,.gcd .gcd-art>.ico-img{width:calc(var(--artH) * .72);height:calc(var(--artH) * .72)}
+.gcd.is-char .gcd-art>img{width:100%;object-fit:cover;object-position:50% 18%;border-radius:8px}
+.gcd .gcd-tag{position:absolute;right:2px;bottom:2px;font-size:10px;line-height:16px;padding:0 6px;border-radius:8px;background:rgba(10,40,48,.88);color:#8ff0e0;border:1px solid rgba(143,240,224,.45);white-space:nowrap}
+.gcd .gcd-name,.gcd .gcd-sub{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;width:100%;min-width:0;word-break:break-all;align-self:center}
+.gcd .gcd-name{font-size:var(--nameF);line-height:1.3;font-weight:800;color:#fff;align-self:start}
+.gcd .gcd-sub{font-size:var(--subF);line-height:1.45;color:rgba(220,230,245,.72);align-self:start}
+.gcd .btn-gold{margin-top:4px;width:100%;min-height:32px;font-size:12px}
+/* 百連／新手召喚格線 */
+#gResGrid.g-res-grid{align-items:start}
+#gResGrid.one .gcd{--artH:220px;--nameF:16px;--subF:12px}
+@media (min-width:861px){#gResGrid.ten .gcd{--artH:112px;--nameF:14px;--subF:12px}}
+/* 限定池：卡片放進水晶翻開後的框裡，填滿、不超出 */
+.ev-card.has-gcd{padding:0!important;border:0!important;background:none!important;box-shadow:none!important;display:block!important}
+.ev-card.has-gcd .gcd{position:absolute;inset:0;--artH:100%;padding:22px 4px 6px;grid-template-rows:minmax(0,1fr) calc(var(--nameF) * 2.6) calc(var(--subF) * 1.7);row-gap:2px;align-content:stretch;animation:none;--nameF:clamp(10px,1.2vw,13px);--subF:clamp(10px,1.1vw,12px)}
+.ev-card.has-gcd .gcd .gcd-art{height:100%}
+.ev-card.has-gcd .gcd .gcd-name{-webkit-line-clamp:2}
+.ev-card.has-gcd .gcd .gcd-sub{-webkit-line-clamp:1;color:var(--tc);font-weight:800;font-size:calc(var(--subF) + 1px)}
+.ev-card.has-gcd .gcd .gcd-rar{top:4px!important;left:4px!important;font-size:10px;line-height:14px;height:14px;padding:0 4px}
+.ev-foot p{max-width:92vw;margin-left:auto;margin-right:auto}
+.ev-card.has-gcd .gcd .gcd-art>.ico,.ev-card.has-gcd .gcd .gcd-art>.ico-img,.ev-card.has-gcd .gcd .gcd-art>img{height:86%;width:auto;max-width:86%}
+@media (min-width:600px) and (max-width:860px){#gResGrid.g-res-grid.ten{grid-template-columns:repeat(5,minmax(0,1fr))}}
+/* 限定池十連：手機一列 4 張，卡片放大到圖片區夠高（原本 64px 寬，內容擠出框外） */
+.ev-card.has-gcd .gcd{padding-top:20px}
+@media (max-width:600px){.ev-stage.ten .ev-crys{width:calc((96vw - 66px) / 4);aspect-ratio:3/4.2}}
+@media (min-width:601px){.ev-stage.ten .ev-crys{width:clamp(96px,11vw,132px)}}
+@media (max-width:380px){.ev-stage.ten .ev-crys{aspect-ratio:3/4.7}}

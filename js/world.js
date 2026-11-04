@@ -24,7 +24,7 @@
       { /* v154d 使用者 11/04：各篇章預設鏡頭調到最佳視角——拉近一點、角度抬高一點，前景房子比較不會擋住角色 */ const CP = { east: [22, .52], alabasta: [22, .58], skypiea: [24, .52], enies: [22, .52], thriller: [20, .52], marineford: [22, .52], fishman: [22, .5], dressrosa: [22, .54], wholecake: [22, .54], wano: [22, .54], egghead: [22, .52], dark: [22, .52], giant: [28, .52] }, I2 = this.scene.maxStep, cp = I2 ? (CP[chapter.id] || [22, .52]) : null;
         if (cp) { this.cam.dist = cp[0]; this.cam.pitch = cp[1]; } this.cam.base = cp; this.cam.pE = this.cam.eff = this.cam.la = null; this.cam.manT = -1e9;
         const P1 = ((chapter.layout || {}).path || [])[1]; this.cam.yaw = this.cam.tYaw = P1 ? Math.atan2(sx - P1[0], sz - P1[1]) : 0; }
-      this.npcs = chapter.npcs.map(n => { if (!this.npcMeshes[n.look]) this.npcMeshes[n.look] = SCENES.npcMesh(this.r, n.look); return { ...n, x: n.pos[0], z: n.pos[1], face: Math.PI, kind: 'npc' }; });
+      this.npcs = chapter.npcs.map(n => { if (!this.npcMeshes[n.look]) this.npcMeshes[n.look] = SCENES.npcMesh(this.r, n.look); return { ...n, x: n.pos[0], z: n.pos[1], face: Math.PI, kind: 'npc' }; }); this._npcAll = this.npcs;
       this.items = []; this.enemies = [];
       this.barrier = this.barrier || SCENES.barrierMesh(this.r, '#8fd8ff');
       this.setState(state);
@@ -35,6 +35,7 @@
     /* 由 App 傳入目前任務狀態：可撿道具、敵人、BOSS 是否解鎖、任務目標 */
     setState(st) {
       this.st = st;
+      if (this._npcAll) { const hide = st.hideNpcs || []; this.npcs = hide.length ? this._npcAll.filter(n => !hide.includes(n.id)) : this._npcAll; } /* v157：還沒輪到的對決對手先不出現 */
       this.items = (st.items || []).map(it => ({ ...it, y: (this.scene.Ho || this.scene.H)(it.x, it.z) }));
       this.items.forEach(it => { if (!this.itemMeshes[it.icon]) this.itemMeshes[it.icon] = SCENES.itemMesh(this.r, it.icon); });
       this.enemies = (st.enemies || []).map(e => ({ ...e, y: (this.scene.Ho || this.scene.H)(e.x, e.z), kind: 'enemy' }));
@@ -179,6 +180,12 @@
       if (!this.paused) this.update(dt);
       this.render(dt);
     }
+    /* v157：把角色瞬間移到 (x, z)（潛入被發現趕回起點等）：高度重新貼地、速度與自動前往路線清掉、鏡頭平滑值重算 */
+    teleport(x, z) {
+      const p = this.p, S = this.scene; p.x = x; p.z = z; let y = (S.Ho || S.H)(x, z); if (S.G) { const g = S.G(x, z, Number.isFinite(y) ? y + 1 : 0); if (Number.isFinite(g)) y = g; }
+      p.y = Number.isFinite(y) ? y : (Number.isFinite(p.y) ? p.y : 0); p.vx = p.vz = p.vy = 0; p.target = null; p.moving = false; this._path = null; this.autoGo = false; this._navGoal = null;
+      this.cam.pE = this.cam.eff = this.cam.la = null; this._goodP = [p.x, p.y, p.z];
+    }
     update(dt) {
       const p = this.p, k = this.keys, yaw = this.cam.yaw;
       let ix = (k.d || k.arrowright ? 1 : 0) - (k.a || k.arrowleft ? 1 : 0) + this.joy.x;
@@ -209,10 +216,13 @@
           if (Math.hypot(ax - p.x, az - p.z) > 1.5) { const want = Math.atan2(p.x - ax, p.z - az); let d = want - this.cam.tYaw; d = Math.atan2(Math.sin(d), Math.cos(d)); this.cam.tYaw += d * Math.min(1, dt * 1.6); } }
       }
       /* 高度：地形或腳下的平台；跳躍與掉落有重力 */
-      { const S1 = this.scene, g = S1.G ? S1.G(p.x, p.z, p.y) : S1.H(p.x, p.z);
+      { const S1 = this.scene, g0 = S1.G ? S1.G(p.x, p.z, p.y) : S1.H(p.x, p.z), g = Number.isFinite(g0) ? g0 : (Number.isFinite(p.y) ? p.y : 0); /* v157：高度查不到（NaN）時沿用目前高度，避免角色座標變成 NaN 整個畫面變黑 */
         if (this._jumpReq) { this._jumpReq = false; if (Math.abs(p.y - g) < .25 && !p.vy) { p.vy = 10.5; if (window.SFX) try { SFX.play('whoosh'); } catch (e) { } } }
         if (p.vy || p.y > g + .3) { p.vy = (p.vy || 0) - 30 * dt; p.y += p.vy * dt; if (p.y <= g) { p.y = g; p.vy = 0; } }
         else if (g > p.y) p.y = g; /* 上樓梯：立刻貼齊，避免陡的樓梯跟不上而掉下去 */ else p.y += (g - p.y) * Math.min(1, dt * 14); }
+      /* v157 防黑屏：角色座標一旦變成 NaN／Infinity，鏡頭跟著壞掉、3D 畫面全黑而且不會自己恢復。這裡退回上一個正常位置 */
+      if (!Number.isFinite(p.x) || !Number.isFinite(p.y) || !Number.isFinite(p.z)) { const q = this._goodP || [this.chapter && this.chapter.spawn ? this.chapter.spawn[0] : 0, 0, this.chapter && this.chapter.spawn ? this.chapter.spawn[1] : 0]; this.teleport(q[0], q[2]); }
+      else this._goodP = [p.x, p.y, p.z];
       // 轉身翻面：寬度縮放模擬翻牌
       p.face = (p.face == null ? 1 : p.face) + ((p.flip ? -1 : 1) - (p.face == null ? 1 : p.face)) * Math.min(1, dt * 12);
       // 撿道具
@@ -258,6 +268,7 @@
     /* ---------- 繪製 ---------- */
     render(dt) {
       const r = this.r, p = this.p, S = this.scene, t = r.time; r.resize();
+      { const C = this.cam; if (!Number.isFinite(C.yaw)) C.yaw = 0; if (!Number.isFinite(C.tYaw)) C.tYaw = C.yaw; if (!Number.isFinite(C.dist)) C.dist = (C.base && C.base[0]) || 22; if (!Number.isFinite(C.pitch)) C.pitch = (C.base && C.base[1]) || .52; ['pE', 'eff', 'la'].forEach(k => { if (C[k] != null && !Number.isFinite(C[k])) C[k] = null; }); if (!Number.isFinite(dt)) dt = 0; } /* v157 防黑屏 */
       let dy = this.cam.tYaw - this.cam.yaw; this.cam.yaw += dy * Math.min(1, dt * 8);
       // 鏡頭避障：鏡頭與角色之間有障礙物時把鏡頭拉近
       let want = this.cam.dist; const sy = Math.sin(this.cam.yaw), cy = Math.cos(this.cam.yaw), cp0 = Math.cos(this.cam.pitch);

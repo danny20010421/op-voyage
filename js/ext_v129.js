@@ -22,7 +22,7 @@
   const TGT = ['invuln', 'dodge', 'reflect', 'thornTurns', 'damageReductionTurns', 'damageReductionValue', 'shield', 'decoys', 'immune'];
   window.rocksPre = function (actor, target, skill) {
     const ef = (skill && skill.effect) || {}; if (!actor || !target || !(ef.rocksTrue || ef.rocksKill || ef.rocksShun)) return null;
-    const tok = { actor, target, st: {}, buffs: {}, setDR: target.setDR, nul: actor.status.skillNullify };
+    const tok = { actor, target, st: {}, buffs: {}, setDR: target.setDR, nul: actor.status.skillNullify, dispel: !!ef.clearBuffs }; /* v157：蝕帶有驅散時，出招後不還原對手的能力提升 */
     actor.status.skillNullify = 0; /* 無法被無效化（效果也不會被封印） */
     if (ef.rocksTrue || ef.rocksKill) {
       TGT.forEach(k => { tok.st[k] = target.status[k]; if (k !== 'damageReductionValue') target.status[k] = 0; });
@@ -37,7 +37,7 @@
     if (!tok) return; const { actor, target } = tok;
     if (actor.status.skillNullify === 0 && tok.nul) actor.status.skillNullify = tok.nul;
     Object.keys(tok.st).forEach(k => { target.status[k] = tok.st[k]; }); if (tok.setDR !== undefined) target.setDR = tok.setDR;
-    Object.keys(tok.buffs).forEach(k => { if (target.buffs[k] === 0 && tok.buffs[k] > 0) target.buffs[k] = tok.buffs[k]; });
+    if (!tok.dispel) Object.keys(tok.buffs).forEach(k => { if (target.buffs[k] === 0 && tok.buffs[k] > 0) target.buffs[k] = tok.buffs[k]; });
   };
 
   /* ---------- 傷害計算 ---------- */

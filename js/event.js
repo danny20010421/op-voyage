@@ -32,7 +32,7 @@
     const E = d.events[Pp.id] = d.events[Pp.id] || { id: Pp.id, shards: {}, pity: 0, newbie: false, day: '', bountyDay: '', tickets: 0 };
     E.shards = E.shards || {}; Pp.shards.forEach(s => { E.shards[s.char] = E.shards[s.char] || 0; });
     const today = new Date().toDateString();
-    { const g = convertOwned(Pp, E); if (g) E.__msg = `已擁有角色的碎片換成覺醒結晶 ×${g}`; }
+    { const g = convertOwned(Pp, E); if (g) E.__msg = `碎片換成覺醒結晶 ×${g}`; }
     if (phase(Pp.id) === 'soon') return E; /* 預告期間不發抽獎券，開放當天才發新手與每日免費券 */
     if (!E.newbie) { E.newbie = true; E.tickets = (E.tickets || 0) + Pp.newbieFree; E.__msg = `新手福利：活動抽獎券 ×${Pp.newbieFree}`; }
     if (E.day !== today) { E.day = today; E.tickets = (E.tickets || 0) + Pp.dailyFree; E.__msg = (E.__msg ? E.__msg + '・' : '') + `今日免費：活動抽獎券 ×${Pp.dailyFree}`; }
@@ -63,7 +63,7 @@
     const E = st(), pane = $('evPane'); if (!pane) return;
     if (E.__msg) { toast(E.__msg, 'gold'); delete E.__msg; SAVE.save(); }
     const card = s => { const c = CHARACTERS[s.char], n = E.shards[s.char], own = owned(s.char), pct = Math.min(100, n / NEED(P(), s.char) * 100);
-      return `<div class="ev-shard" style="--c:${s.color}"><img src="${s.icon}" alt=""><div class="ev-sh-info"><b><span class="rar c-rar r-${(typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[s.char]) || 'SSR'}">${(typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[s.char]) || 'SSR'}</span> ${c.name}<small>${c.title}</small></b><div class="ev-bar"><i style="width:${pct}%"></i></div><small>${own ? '已擁有・碎片換成覺醒結晶' : `碎片 ${n}/${NEED(P(), s.char)}`}・單抽機率 ${Math.round(s.rate * 1000) / 10}%</small></div>
+      return `<div class="ev-shard" style="--c:${s.color}"><img src="${s.icon}" alt=""><div class="ev-sh-info"><b><span class="rar c-rar r-${(typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[s.char]) || 'SSR'}">${(typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[s.char]) || 'SSR'}</span> ${c.name}<small>${c.title}</small></b><div class="ev-bar"><i style="width:${pct}%"></i></div><small>${own ? '改給覺醒結晶' : `碎片 ${n}/${NEED(P(), s.char)}`}・單抽機率 ${Math.round(s.rate * 1000) / 10}%</small></div>
         ${own ? '<span class="ev-owned">已擁有</span>' : `<button class="btn-gold sm" data-synth="${s.char}" ${n >= NEED(P(), s.char) ? '' : 'disabled'}>合成</button>`}</div>`; };
     const UT = (SAVE.data.inventory || {}).event_ticket || 0, TT = E.tickets + UT; /* v115：限定抽獎券（月費、VIP 禮包）可在任一限定池使用 */
     const cost1 = TT >= 1 ? '1 張抽獎券' : `${P().tokenCost} 枚寶藏幣`, cost10 = TT >= 10 ? '10 張抽獎券' : `${P().tokenCost * 10} 枚寶藏幣`;
@@ -78,7 +78,7 @@
         <div class="ev-pulls">${ph === 'live' ? `<button class="btn-gold" id="evPull1">抽 1 次<small>${cost1}</small></button><button class="btn-primary" id="evPull10">抽 10 次<small>${cost10}</small></button>` : `<button class="btn-ghost ev-wait" disabled>${soon && W ? `${md(W.s)} ${hm(W.s)} 開放抽獎` : '活動休息中'}<small>${soon ? '開放當天發放新手 10 抽＋每日免費 3 抽' : '碎片可在角色背包合成'}</small></button>`}</div>
         <p class="ev-pity">再 <b>${Math.max(1, P().pity - E.pity)}</b> 抽內必定出現角色碎片</p>
         <details class="ev-rates"><summary>出現機率</summary><table>
-          ${P().shards.map(s => `<tr><td>${CHARACTERS[s.char].name}碎片</td><td>${(s.rate * 100).toFixed(1)}%</td><td>每次 ${P().amount.map(a => a[0]).join('／')} 片（${P().amount.map(a => Math.round(a[1] * 100) + '%').join('／')}），集滿 ${NEED(P(), s.char)} 片合成${owned(s.char) ? '；已擁有時換成覺醒結晶' : ''}</td></tr>`).join('')}
+          ${P().shards.map(s => `<tr><td>${CHARACTERS[s.char].name}碎片</td><td>${(s.rate * 100).toFixed(1)}%</td><td>每次 ${P().amount.map(a => a[0]).join('／')} 片（${P().amount.map(a => Math.round(a[1] * 100) + '%').join('／')}），集滿 ${NEED(P(), s.char)} 片合成${owned(s.char) ? '；改給覺醒結晶' : ''}</td></tr>`).join('')}
           <tr><td>各種道具</td><td>${((1 - P().shards.reduce((t, s) => t + s.rate, 0)) * 100).toFixed(1)}%</td><td>${itemMix()}</td></tr>
           <tr><td>保底</td><td colspan="2">連續 ${P().pity - 1} 抽沒有碎片時，第 ${P().pity} 抽必定出現碎片</td></tr></table></details>
       </div>`;
@@ -113,9 +113,13 @@
     let skip = false, skipRes; const skipP = new Promise(r => skipRes = r); ov.querySelector('.ev-skip').onclick = () => { skip = true; skipRes(); };
     const W = ms => skip ? Promise.resolve() : Promise.race([wait(ms), skipP]);
     const stage = ov.querySelector('.ev-stage'); stage.classList.toggle('ten', res.length > 1);
+    /* v157：統一卡片，只顯示最後實際拿到的東西（已擁有角色的碎片直接顯示「覺醒結晶 ×N」） */
+    const cardOf = x => { if (x.shard && x.gem) { const g = ITEMS.awaken_gem; return GCARD.html({ rar: g.rarity, art: itemIcon(g), name: g.name, sub: `×${x.gem}` }); }
+      if (x.shard) { const r = (typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[x.shard]) || 'SSR', sd = P().shards.find(s => s.char === x.shard); return GCARD.html({ rar: r, rarCls: `c-rar r-${r}`, tone: sd.color, art: `<img src="${sd.icon}" alt="" draggable="false">`, name: CHARACTERS[x.shard].name, sub: `碎片 ×${x.n}` }); }
+      const it = ITEMS[x.item]; return GCARD.html({ rar: it.rarity, art: itemIcon(it), name: it.name, sub: '' }); };
     const colorOf = x => x.shard ? P().shards.find(s => s.char === x.shard).color : RCOL[x.rar || ITEMS[x.item].rarity] || '#8fd0ff';
     res.forEach((x, i) => { const el = document.createElement('div'); el.className = 'ev-crys' + (x.shard ? ' hit ' + x.shard : ''); el.style.setProperty('--c', colorOf(x)); el.style.setProperty('--d', (i * 70) + 'ms');
-      el.innerHTML = `<img class="gem ev-gem-img" src="${x.shard ? CRYS_IMG.shard : CRYS_IMG.item}" alt="" draggable="false"><div class="ev-card">${x.shard ? `<img src="${P().shards.find(s => s.char === x.shard).icon}" alt=""><b>${CHARACTERS[x.shard].name}碎片</b><em>×${x.n}</em>${x.gem ? `<small>已擁有→覺醒結晶 ×${x.gem}</small>` : ''}` : `${itemIcon(ITEMS[x.item])}<b>${ITEMS[x.item].name}</b><em class="r-${ITEMS[x.item].rarity}">${ITEMS[x.item].rarity}</em>`}</div>`;
+      el.innerHTML = `<img class="gem ev-gem-img" src="${x.shard ? CRYS_IMG.shard : CRYS_IMG.item}" alt="" draggable="false"><div class="ev-card${window.GCARD ? ' has-gcd' : ''}">${window.GCARD ? cardOf(x) : x.shard ? `<img src="${P().shards.find(s => s.char === x.shard).icon}" alt=""><b>${CHARACTERS[x.shard].name}碎片</b><em>×${x.gem || x.n}</em>` : `${itemIcon(ITEMS[x.item])}<b>${ITEMS[x.item].name}</b><em class="r-${ITEMS[x.item].rarity}">${ITEMS[x.item].rarity}</em>`}</div>`;
       stage.appendChild(el); });
     SFX.play('crank'); requestAnimationFrame(() => ov.classList.add('show'));
     await W(res.length > 1 ? 1200 : 900);
@@ -128,9 +132,9 @@
     els.forEach(e => e.classList.add('open'));
     const got = res.filter(x => x.shard);
     const foot = document.createElement('div'); foot.className = 'ev-foot';
-    const sum = {}; got.forEach(x => { sum[x.shard] = (sum[x.shard] || 0) + x.n; });
+    const sum = {}; got.filter(x => !x.gem).forEach(x => { sum[x.shard] = (sum[x.shard] || 0) + x.n; });
     const gem = got.reduce((t, x) => t + (x.gem || 0), 0);
-    foot.innerHTML = `<p>${got.length ? Object.keys(sum).map(k => `<b style="color:${colorOf({ shard: k })}">${CHARACTERS[k].name}碎片 ×${sum[k]}</b>`).join('・') + (gem ? `<br><small>已擁有角色的碎片換成覺醒結晶 ×${gem}</small>` : '') : '這次沒有抽到角色碎片'}</p><button class="btn-primary" id="evDone">收下</button>`;
+    foot.innerHTML = `<p>${got.length ? [...Object.keys(sum).map(k => `<b style="color:${colorOf({ shard: k })}">${CHARACTERS[k].name}碎片 ×${sum[k]}</b>`), ...(gem ? [`<b style="color:#ff9ad0">覺醒結晶 ×${gem}</b>`] : [])].join('・') : '這次沒有抽到角色碎片'}</p><button class="btn-primary" id="evDone">收下</button>`;
     ov.appendChild(foot); ov.querySelector('.ev-skip').remove();
     await new Promise(r => { foot.querySelector('#evDone').onclick = r; });
     ov.classList.remove('show'); setTimeout(() => ov.remove(), 300);

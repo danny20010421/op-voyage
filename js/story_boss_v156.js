@@ -11,17 +11,17 @@
     skypiea:    [1.30,  0, 14, 1, 1],
     enies:      [1.30,  0, 10, 1, 0.45],
     thriller:   [0.70,  2, 16, 1, 1.2],
-    marineford: [1.00,  3, 17, 1, 1.8],
+    marineford: [1.00,  3, 17, 1, 1.75],  /* v157：加了清強化／淨化後重調；1.65 實測平均 92% 偏簡單，取 1.75 讓頂上戰爭回到約 75～80% */
     fishman:    [1.30,  2, 18, 1, 1],
     dressrosa:  [1.30,  0, 12, 1, 0.6],
-    wholecake:  [0.70, -3, 14, 1, 0.75],
-    wano:       [0.60, -3, 14, 1, 0.38],
+    wholecake:  [0.70, -3, 14, 1, 0.6],   /* v157 */
+    wano:       [0.60, -3, 14, 1, 0.3],   /* v157 */
     dark:       [1.50,  2, 22, 1, 0.9],
     egghead:    [1.40,  0, 23, 1, 0.8],
     giant:      [0.60, -3, 25, 2, 0.5, 1]   /* 復活 2 次維持 v152 的決定（神之騎士團兩場對決＋洛基） */
   };
   /* 巨人篇同一章三位 BOSS：軍子出手太重；洛基是戰力天花板（每回合回滿、秒殺、反彈），另外大幅壓低 */
-  const FIX = { giant: { gunko: { hp: 0.5, dmg: 0.4 }, shamrock: { dmg: 1.3 }, loki: { hp: 0.42, atk: -3, def: 1, spd: 3, dmg: 0.5 } } };
+  const FIX = { giant: { gunko: { hp: 0.5, dmg: 0.4 }, shamrock: { dmg: 1.3 }, loki: { hp: 0.42, atk: -3, def: 1, spd: 3, dmg: 0.42 } /* v157：0.5 → 0.42 */ } };
   Object.entries(T).forEach(([id, [bossHp, bossStages, bossLvUp, revives, bossDmg, bossUltCap]]) => { const d = CHAPTER_DIFFICULTY[id]; if (d) Object.assign(d, { bossHp, bossStages: Math.max(0, bossStages), bossStageAdj: Math.min(0, bossStages), bossLvUp, revives, bossDmg }, bossUltCap ? { bossUltCap } : {}, FIX[id] ? { bossFix: FIX[id] } : {}); });
   /* bossDmg：BOSS 造成的攻擊傷害倍率（新欄位，只作用在劇情／困難模式的篇章 BOSS）。
      用 __dmgB（progress_v131 的傷害加成，計算在 computeSkillOutcome 之後），不改 dmgMul（dmgMul 同時是受傷除數）。 */

@@ -339,9 +339,10 @@ function worldState() {
   if (step && !['defeat', 'gauntlet', 'keys'].includes(step.type) && st.defeated.length) { st.defeated = []; SAVE.save(); }
   if (step && step.type === 'keys' && st.roster.filter(id => !st.defeated.includes(id)).length < step.count - (st.keys || 0)) { st.defeated = []; SAVE.save(); }
   const enemies = st.roster.map((id, i) => ({ id, x: SPOTS()[i][0], z: SPOTS()[i][1], boss: false, lv: enemyLvFor(false) })).filter(e => !st.defeated.includes(e.id));
-  if (step && CH.boss && step.type !== 'stealth') enemies.push({ id: CH.boss, x: CH.bossPos[0], z: CH.bossPos[1], boss: true, lv: enemyLvFor(true) });
+  /* v157 使用者 11/04：最終 BOSS 只在最後一步（BOSS 戰那一步）才出現在島上，之前看不到也不能挑戰 */
+  if (step && CH.boss && step.type === 'boss') enemies.push({ id: CH.boss, x: CH.bossPos[0], z: CH.bossPos[1], boss: true, lv: enemyLvFor(true) });
   const items = step && (step.type === 'collect' || step.type === 'timedCollect') ? step.spots.map((p, i) => ({ idx: i, x: p[0], z: p[1], icon: step.icon, label: step.item })).filter(it => !st.collected.includes(it.idx)) : [];
-  const bossUnlocked = st.cleared || CH.steps.slice(0, st.step).some(s => s.unlockBoss);
+  const bossUnlocked = !!(step && step.type === 'boss');
   let target = null, beacon = null, guards = [], escort = null;
   if (step) {
     if ((step.type === 'talk' || step.type === 'choice' || step.type === 'duel') && step.npc) target = { type: 'npc', ids: [step.npc] };
@@ -356,7 +357,9 @@ function worldState() {
   const clear = [...SPOTS().map(p => [p[0], p[1], 7]), [CH.spawn[0], CH.spawn[1], 12], [CH.bossPos[0], CH.bossPos[1], 16], ...CH.npcs.map(n => [n.pos[0], n.pos[1], 5])];
   CH.steps.forEach(s => { (s.spots || []).forEach(p => clear.push([p[0], p[1], 5])); (s.points || []).forEach(p => clear.push([p[0], p[1], 6])); [s.pos, s.goal, s.to, s.start].forEach(p => { if (p) clear.push([p[0], p[1], 8]); }); (s.guards || []).forEach(g => g.path.forEach(p => clear.push([p[0], p[1], 4]))); });
   const cs = chestState(), chests = cs ? cs.spots.map((q, i) => ({ idx: i, x: q[0], z: q[1], face: q[2] || 0, opened: cs.opened.includes(i) })) : [];
-  return { enemies, items, bossUnlocked, target, beacon, clear, guards, escort, canDig: !!key, digMarks: dg ? dg.marks : [], chests };
+  /* v157：對決的對手（神之騎士團、燼、卡特琳……）只在輪到他們那幾步才站在島上；劇情前後都沒有提到他們的步驟就不出現 */
+  const hideNpcs = CH.npcs.filter(n => { const foe = s => s.type === 'duel' && s.npc === n.id && (n.id === s.enemy + '_n' || (typeof speakerArt === 'function' && speakerArt(n.id, CH.id) === s.enemy)); if (!CH.steps.some(foe)) return false; /* 只限對手本人（瑪琪諾、甚平這類「介紹對決」的 NPC 不受影響） */ const R = []; CH.steps.forEach((s, i) => { if (s.npc === n.id || (s.npcs || []).includes(n.id)) R.push(i); }); return st.step < Math.min(...R) || st.step > Math.max(...R); }).map(n => n.id);
+  return { enemies, items, bossUnlocked, target, beacon, clear, guards, escort, hideNpcs, canDig: !!key, digMarks: dg ? dg.marks : [], chests };
 }
 function enterChapter(id) {
   CH = CHAPTERS.find(c => c.id === id); TIMED = null; CHAIN = null; RACE = null; ESC = false; $('loading').classList.add('show');
@@ -423,7 +426,7 @@ function completeStep() {
   st.step++; st.talked = []; st.keys = 0; st.defeated = []; SAVE.save(); track('steps'); SFX.play('quest'); stepStarted(); CHAIN = null;
   /* v105：所有任務類型完成後都能播放收尾對白（對決與問答原本就會自己播放，避免重複） */
   if (s && s.after && s.after.length && s.type !== 'duel' && !s.questions) playAfterLines(s.after);
-  if (s.unlockBoss) setTimeout(() => toast('BOSS 的屏障解除了', 'gold'), 500);
+  { const nb = CH.steps[st.step]; if (nb && nb.type === 'boss') setTimeout(() => toast(`${CH.bossTitle || 'BOSS'} 現身了！`, 'gold'), 500); } /* v157：BOSS 到最後一步才出現 */
   const nx = CH.steps[st.step];
   if (nx && nx.type === 'defeat' && st.defeated.length >= nx.count) { setTimeout(completeStep, 600); }
   if (WORLD) refreshWorld();
@@ -439,7 +442,7 @@ function onNear(n) {
 function onSpotted() {
   const s = curStep(); if (!s || s.type !== 'stealth' || dialogOpen) return;
   SFX.play('miss'); WORLD.r.flash = .35; setTimeout(() => { if (WORLD) WORLD.r.flash = 0; }, 180);
-  WORLD.p.x = s.start[0]; WORLD.p.z = s.start[1]; WORLD.p.target = null;
+  if (WORLD.teleport) WORLD.teleport(s.start[0], s.start[1]); else { WORLD.p.x = s.start[0]; WORLD.p.z = s.start[1]; WORLD.p.target = null; } /* v157：傳送時高度重新貼地、清掉速度與路線，避免黑屏 */
   toast('被巡邏的人發現了！被趕回起點，重新潛入', 'warn');
 }
 function onEscortDone() { const s = curStep(); if (!s || s.type !== 'escort') return; ESC = false; say(s.lines || [], completeStep); }
@@ -649,7 +652,7 @@ function showResults(res, title) {
   $('gResTitle').textContent = title;
   $('gResGrid').className = 'g-res-grid ' + (res.length > 1 ? 'ten' : 'one');
   setTimeout(() => { if (res.some(r => r.char || ['SSR'].includes(rarOf(r)))) coinBurst($('gResBurst'), 40); }, 400);
-  $('gResGrid').innerHTML = res.map((x, i) => {
+  $('gResGrid').innerHTML = window.GCARD ? res.map((x, i) => GCARD.fromRes(x, i)).join('') : res.map((x, i) => { /* v157：GCARD 統一卡片（js/gcard_v157.js） */
     if (x.char) { const c = CHARACTERS[x.char]; return `<div class="g-cap r-SSR char" style="--d:${i * 90}ms"><span class="rar c-rar r-${CHAR_RARITY[x.char] || 'SSR'}">${CHAR_RARITY[x.char] || 'SSR'}</span><span class="c-tags"><span class="c-badge">${x.dup ? '重複' : '新船員'}</span></span><img src="${c.image}" alt=""><b>${c.name}</b><small>${x.dup ? '已擁有・重複卡可到海軍本部換貝里' : `LV ${x.lv}・${TIERS[tierOf(x.lv)].name}`}</small>${x.setCap ? `<button class="btn-gold sm" data-cap="${x.char}">加入陣容並設為先鋒</button>` : ''}</div>`; }
     const it = ITEMS[x.item]; return `<div class="g-cap r-${it.rarity}" style="--d:${i * 90}ms"><span class="rar r-${it.rarity}">${it.rarity}</span>${itemIcon(it)}<b>${it.name}${x.count > 1 ? ` ×${x.count}` : ''}</b><small>${it.desc}</small></div>`;
   }).join('');
