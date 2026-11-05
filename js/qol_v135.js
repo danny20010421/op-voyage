@@ -19,16 +19,17 @@ const AFK_CFG = { capH: 12, fastH: 2, minClaimMin: 10,
   const head = (sub, title) => `<header class="qo-head"><div><small>${sub}</small><h2>${title}</h2></div><button class="icon-btn qo-x" data-qx aria-label="關閉">×</button></header>`;
 
   /* ---------- ① 掛機寶藏 ---------- */
-  const afk = () => { const d = D(); if (!d.afk) d.afk = { t: Date.now(), fast: '' }; return d.afk; };
+  const NOW = () => (window.TW ? TW.now() : Date.now()); /* v165：用伺服器校正過的時間 */
+  const afk = () => { const d = D(); if (!d.afk) d.afk = { t: NOW(), fast: '' }; return d.afk; };
   const cleared = () => (typeof CHAPTERS !== 'undefined' ? CHAPTERS.filter(c => D().chapters && D().chapters[c.id] && D().chapters[c.id].cleared).length : 0);
-  const hoursNow = () => Math.max(0, Math.min(AFK_CFG.capH, (Date.now() - afk().t) / 3600e3));
+  const hoursNow = () => Math.max(0, Math.min(AFK_CFG.capH, (NOW() - afk().t) / 3600e3));
   function afkReward(h) { const C = AFK_CFG, cl = cleared(), items = {};
     const exS = Math.floor(h * C.expSPerH), exM = Math.floor(h / C.expMEveryH), tk = Math.floor(h / C.ticketEveryH) * C.ticketN;
     if (exS) items.exp_s = exS; if (exM) items.exp_m = exM; if (tk && ITEMS.summon_ticket) items.summon_ticket = tk;
     return { berry: Math.floor(C.berryPerH(cl) * h / 10) * 10, items }; }
   function afkGive(h, why) { return window.PROG ? PROG.give(afkReward(h), why) : []; }
-  function claimAfk() { const h = hoursNow(); if (h * 60 < AFK_CFG.minClaimMin) { toast(`再累積 ${Math.ceil(AFK_CFG.minClaimMin - h * 60)} 分鐘就能領取`); return; } const L = afkGive(h, '掛機寶藏'); afk().t = Date.now(); SAVE.save(); if (window.PROG) PROG.celebrate('掛機寶藏', L, `累積 ${fmtH(h)}`); openAfk(); lobby(); }
-  function fastAfk() { const A = afk(); if (A.fast === todayKey()) { toast('今天的快速領取已經用過了'); return; } A.fast = todayKey(); const L = afkGive(AFK_CFG.fastH, '快速領取'); SAVE.save(); if (window.PROG) PROG.celebrate('快速領取', L, `立即獲得 ${AFK_CFG.fastH} 小時的掛機收益`); openAfk(); lobby(); }
+  function claimAfk() { if (window.timeLocked && timeLocked()) { toast('裝置時間異常，掛機寶藏暫停領取，請把手機設為自動設定時間'); return; } const h = hoursNow(); if (h * 60 < AFK_CFG.minClaimMin) { toast(`再累積 ${Math.ceil(AFK_CFG.minClaimMin - h * 60)} 分鐘就能領取`); return; } const L = afkGive(h, '掛機寶藏'); afk().t = NOW(); SAVE.save(); if (window.PROG) PROG.celebrate('掛機寶藏', L, `累積 ${fmtH(h)}`); openAfk(); lobby(); }
+  function fastAfk() { if (window.timeLocked && timeLocked()) { toast('裝置時間異常，快速領取暫停，請把手機設為自動設定時間'); return; } const A = afk(); if (A.fast === todayKey()) { toast('今天的快速領取已經用過了'); return; } A.fast = todayKey(); const L = afkGive(AFK_CFG.fastH, '快速領取'); SAVE.save(); if (window.PROG) PROG.celebrate('快速領取', L, `立即獲得 ${AFK_CFG.fastH} 小時的掛機收益`); openAfk(); lobby(); }
   const fmtH = h => { const m = Math.floor(h * 60); return m >= 60 ? `${Math.floor(m / 60)} 小時 ${m % 60} 分` : `${m} 分鐘`; };
   function rewRow(R) { const out = []; if (R.berry) out.push(['<img src="assets/ui/coin_berry.webp?v=100" alt="">', fmtN(R.berry), '貝里']); Object.entries(R.items).forEach(([k, n]) => { const it = ITEMS[k]; if (it) out.push([typeof itemIcon === 'function' ? itemIcon(it) : '', '×' + n, it.name]); }); return out.map(([ic, n, name]) => `<li><span class="qo-ric">${ic}</span><b>${n}</b><small>${name}</small></li>`).join(''); }
   function openAfk() { const h = hoursNow(), C = AFK_CFG, R = afkReward(h), full = h >= C.capH, can = h * 60 >= C.minClaimMin, fastOk = afk().fast !== todayKey(), per = afkReward(1);

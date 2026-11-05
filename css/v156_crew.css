@@ -59,11 +59,11 @@
   #cxSlots .tc-left b{display:inline}
 }
 #cxSlots .tc-info .tc-left b{display:inline;margin-left:4px}
-/* v156 主助手：手機圖鑑詳細頁——立繪放上面、資料用整個寬度；頂端加一條遮罩列，× 不再壓在「角色定位」等文字上 */
+/* v156 主助手：手機圖鑑詳細頁——立繪放上面、資料用整個寬度；× 不壓在「角色定位」等文字上 */
 @media (max-width:600px){
   #cxCodexDetail .cx-hero{grid-template-columns:1fr!important}
   #cxCodexDetail .cx-art{width:min(200px,56vw);margin:0 auto}
-  #cxCodexDetail::before{content:'';position:sticky;top:0;display:block;height:56px;margin-bottom:-56px;background:linear-gradient(180deg,rgba(8,16,36,.96) 60%,rgba(8,16,36,0));z-index:2;pointer-events:none}
+  /* v165：頂端漸層遮罩已移除（使用者：圖鑑上方不要黑色漸層）；× 改成獨立的頂端列，見 css/codex_v164.css */
   #cxCodexDetail .cx-close{z-index:4}
   #cxCodexDetail .cx-head h3{padding-right:48px}
 }

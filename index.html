@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b2236">
 <script src="js/compat_v164.js?v=164"></script>
+<script src="js/twtime_v165.js?v=165"></script>
 <link rel="manifest" href="manifest.webmanifest?v=100">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -19,7 +20,7 @@
 <!-- v164：Google 字型改成不擋畫面（字型網站被擋或很慢時，畫面不會整片空白等待；先用系統字，下載完自動換上） -->
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/loader.css?v=139b">
+<link rel="stylesheet" href="css/loader.css?v=165">
 <link rel="preload" as="image" href="assets/ui/loading_bg.webp?v=100">
 <link rel="stylesheet" href="css/style.css?v=164">
 <link rel="stylesheet" href="css/fx.css?v=100">
@@ -66,14 +67,16 @@
 <link rel="stylesheet" href="css/fx3d_v145.css?v=145">
 <link rel="stylesheet" href="css/lobby_v145.css?v=145b">
 <link rel="stylesheet" href="css/v155.css?v=155b">
-<link rel="stylesheet" href="css/v156_crew.css?v=156b">
+<link rel="stylesheet" href="css/v156_crew.css?v=165">
 <link rel="stylesheet" href="css/grow_v157.css?v=164">
 <link rel="stylesheet" href="css/lobby_v156.css?v=156">
 <link rel="stylesheet" href="css/modes_v156.css?v=156">
 <link rel="stylesheet" href="css/gcard_v157.css?v=157">
 <link rel="stylesheet" href="css/newbie_v163.css?v=164">
-<link rel="stylesheet" href="css/codex_v164.css?v=164">
+<link rel="stylesheet" href="css/admin_v165.css?v=165">
+<link rel="stylesheet" href="css/codex_v164.css?v=165">
 <link rel="stylesheet" href="css/compat_v164.css?v=164">
+<link rel="stylesheet" href="css/v165.css?v=165">
 <link rel="stylesheet" href="css/fix_spin_v165.css?v=164c">
 </head>
 <body>
@@ -541,7 +544,7 @@
         <button data-tab="story">劇情與對話</button>
         <button data-tab="gacha">懸賞處</button>
         <button data-tab="news">公告</button>
-        <button data-tab="visual">立繪調整</button>
+        <button data-tab="visual">立繪測試</button>
         <button data-tab="tools">備份與工具</button>
       </nav>
       <main id="adminPane"></main>
@@ -589,8 +592,8 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="loading" id="loading"><div class="ld-wheel"></div><span>載入中</span></div>
 
-<script src="js/data.js?v=164b"></script>
-<script src="js/data_ext.js?v=164"></script>
+<script src="js/data.js?v=165"></script>
+<script src="js/data_ext.js?v=165"></script>
 <script src="js/story_ext.js?v=160"></script>
 <script src="js/story_more.js?v=100"></script>
 <script src="js/story_more2.js?v=100"></script>
@@ -650,14 +653,14 @@
 <script src="js/fx_v142.js?v=142"></script>
 <script src="js/fx_v106.js?v=106"></script>
 <script src="js/fx_v111.js?v=142"></script>
-<script src="js/admin.js?v=115"></script>
-<script src="js/visual_admin.js?v=128"></script>
-<script src="js/app.js?v=164"></script>
+<script src="js/admin.js?v=165"></script>
+<script src="js/visual_admin.js?v=165"></script>
+<script src="js/app.js?v=165"></script>
 <script src="js/hardmode.js?v=100"></script>
 <script src="js/hub.js?v=100"></script>
 <script src="js/seer.js?v=164"></script>
 <script src="js/treasure.js?v=100"></script>
-<script src="js/crew.js?v=164"></script>
+<script src="js/crew.js?v=165"></script>
 <script src="js/grow_v112.js?v=156"></script>
 <script src="js/grow_v157.js?v=158"></script>
 <script src="js/zoom_v113.js?v=117"></script>
@@ -677,7 +680,7 @@
 <script src="js/roster_v142.js?v=143"></script>
 <script src="js/roster_v152.js?v=154"></script>
 <script src="js/roster_v154.js?v=154"></script>
-<script src="js/roster_v154w.js?v=156"></script>
+<script src="js/roster_v154w.js?v=165"></script>
 <script src="js/roster_v164.js?v=164"></script>
 <script src="js/roster_v91.js?v=155"></script>
 <script src="js/balance_v142.js?v=142"></script>
@@ -690,20 +693,23 @@
 <script src="js/balance_v161.js?v=161"></script>
 <script src="js/ext_v164.js?v=164"></script>
 <script src="js/balance_v164.js?v=164"></script>
+<script src="js/balance_v165.js?v=165"></script>
+<script src="js/ext_v165.js?v=165"></script>
+<script src="js/fx_v165.js?v=165"></script>
 <script src="js/icons.js?v=100"></script>
 <script src="js/home.js?v=156"></script>
 <script src="js/modes.js?v=112"></script>
 <script src="js/lobbyicons.js?v=135"></script>
 <script src="js/lobby.js?v=164"></script>
-<script src="js/timeguard.js?v=100"></script>
+<script src="js/timeguard.js?v=165"></script>
 <script src="js/daily.js?v=163"></script>
 <script src="js/achieve.js?v=100"></script>
 <script src="js/exchange_head.js?v=100"></script>
 <script src="js/exchange.js?v=114"></script>
 <script src="js/uiicons.js?v=100"></script>
-<script src="js/runner.js?v=100"></script>
-<script src="js/tower.js?v=130"></script>
-<script src="js/throne.js?v=100"></script>
+<script src="js/runner.js?v=165"></script>
+<script src="js/tower.js?v=165"></script>
+<script src="js/throne.js?v=165"></script>
 <script src="js/emperor.js?v=161"></script>
 <script src="js/emperor_hall.js?v=118"></script>
 <script src="js/rocks_v129.js?v=130"></script>
@@ -716,11 +722,11 @@
 <script src="js/social.js?v=131"></script>
 <script src="js/live.js?v=130"></script>
 <script src="js/guild.js?v=116"></script>
-<script src="js/settings.js?v=164c"></script>
+<script src="js/settings.js?v=165"></script>
 <script src="js/weekly.js?v=142"></script>
-<script src="js/event.js?v=157"></script>
+<script src="js/event.js?v=165"></script>
 <script src="js/music.js?v=164"></script>
-<script src="js/vip_v115.js?v=164"></script>
+<script src="js/vip_v115.js?v=165"></script>
 <script src="js/skins_v143.js?v=144"></script>
 <script src="js/gacha_v144.js?v=164"></script>
 <script src="js/bag_v116.js?v=164"></script>
@@ -732,7 +738,7 @@
 <script src="js/progress_v132.js?v=158"></script>
 <script src="js/trial_v133.js?v=142"></script>
 <script src="js/hint_v134.js?v=134"></script>
-<script src="js/qol_v135.js?v=156"></script>
+<script src="js/qol_v135.js?v=165"></script>
 <script src="js/ret_v136.js?v=137"></script>
 <script src="js/fx_v138.js?v=142"></script>
 <script src="js/fx_v140.js?v=142"></script>
@@ -748,6 +754,6 @@
 <script src="js/modes_v156.js?v=156"></script>
 <script src="js/gcard_v157.js?v=157"></script>
 <script src="js/newbie_v163.js?v=164"></script>
-<script src="js/loader.js?v=134"></script>
+<script src="js/loader.js?v=165"></script>
 </body>
 </html>

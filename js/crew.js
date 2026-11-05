@@ -176,7 +176,9 @@
 function closeCxSheet() { const d = $('cxCodexDetail'); if (d) d.classList.remove('open'); document.body.classList.remove('cx-modal-open'); }
 function openCxSheet() { const d = $('cxCodexDetail'); if (d.parentElement !== document.body) document.body.appendChild(d); /* 移到 body，避免被外層視窗的 transform 影響定位 */ d.classList.add('open'); document.body.classList.add('cx-modal-open'); d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
   if (!d.querySelector('.cx-close')) d.insertAdjacentHTML('afterbegin', '<button class="cx-close" type="button" aria-label="關閉">×</button>'); d.querySelector('.cx-close').onclick = closeCxSheet;
-  const art = d.querySelector('.cx-art'); if (art) { art.style.cursor = 'zoom-out'; art.title = '點一下關閉'; art.onclick = closeCxSheet; } d.scrollTop = 0; }
+  /* v165：× 以外的內容包進 .cx-scroll；手機上 × 自成頂端一列、只有內容區捲動，× 不會壓到文字，也不用頂端漸層遮罩（css/codex_v164.css） */
+  let sc = d.querySelector(':scope > .cx-scroll'); if (!sc) { sc = document.createElement('div'); sc.className = 'cx-scroll'; [...d.children].forEach(n => { if (!n.classList.contains('cx-close')) sc.appendChild(n); }); d.appendChild(sc); }
+  const art = d.querySelector('.cx-art'); if (art) { art.style.cursor = 'zoom-out'; art.title = '點一下關閉'; art.onclick = closeCxSheet; } d.scrollTop = 0; sc.scrollTop = 0; }
 document.addEventListener('pointerdown', e => { const d = $('cxCodexDetail'); if (!d || !d.classList.contains('open')) return; if (d.contains(e.target) || e.target.closest('#cxCodexGrid .char')) return; closeCxSheet(); }, true);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCxSheet(); });
 /* 角色定位：依體質與技能估算生存、輸出、控制、速度（1～5），c.role 可指定名稱 */
@@ -219,9 +221,11 @@ window.roleInfo = roleInfo;
     bar.innerHTML = `<div class="cxb-seg" role="group" aria-label="篩選">${[['all', '全部'], ['own', '已擁有'], ['not', '未擁有'], ['nm', '未實裝']].map(([k, l]) => `<button type="button" data-cf="${k}"><span>${l}</span><em>${cnt[k]}</em></button>`).join('')}</div>
       <div class="cxb-row"><label class="cxb-find"><span aria-hidden="true">🔍</span><input type="search" id="cxCodexFind" placeholder="搜尋名字" autocomplete="off" enterkeyhint="search" value="${codexQuery.replace(/"/g, '&quot;')}"></label>
       <label class="cxb-jump"><select id="cxCodexJump" aria-label="跳到分類"><option value="">跳到分類／篇章</option>${groups.map(g => `<option value="${g}">${window.CODEX ? CODEX.groupName(g) : g}</option>`).join('')}</select></label></div>`;
+    const scroller = h => { let S = h.parentElement; while (S && S !== document.body && !(/(auto|scroll)/.test(getComputedStyle(S).overflowY) && S.scrollHeight > S.clientHeight + 1)) S = S.parentElement; return !S || S === document.body ? document.scrollingElement : S; };
+    const viewTop = S => S === document.scrollingElement ? 0 : S.getBoundingClientRect().top;
     const toEl = h => { let S = h.parentElement; while (S && S !== document.body && !(/(auto|scroll)/.test(getComputedStyle(S).overflowY) && S.scrollHeight > S.clientHeight + 1)) S = S.parentElement; if (!S || S === document.body) S = document.scrollingElement; /* 手機是分頁本身在捲動，桌機是外層視窗 */
-      let k = 0; const go = () => { const top = Math.max(0, h.getBoundingClientRect().top - bar.getBoundingClientRect().bottom + S.scrollTop - 8); if (Math.abs(S.scrollTop - top) > 2) S.scrollTop = top; if (++k < 5) requestAnimationFrame(go); }; go(); }; /* 畫面外的卡片是估計高度，畫出來後再對齊幾次 */
-    const toTop = () => { const G = $('cxCodexGrid'); if (G.getBoundingClientRect().top < bar.getBoundingClientRect().bottom) toEl(G); }; /* 換篩選或搜尋時回到清單開頭 */
+      let k = 0; const go = () => { const top = Math.max(0, h.getBoundingClientRect().top - (S === document.scrollingElement ? 0 : S.getBoundingClientRect().top) + S.scrollTop - 8); if (Math.abs(S.scrollTop - top) > 2) S.scrollTop = top; if (++k < 5) requestAnimationFrame(go); }; go(); }; /* 畫面外的卡片是估計高度，畫出來後再對齊幾次 */
+    const toTop = () => { if (bar.getBoundingClientRect().top < viewTop(scroller(bar)) - 1) toEl(bar); }; /* 換篩選或搜尋時回到工具列與清單開頭 */
     bar.querySelectorAll('[data-cf]').forEach(b => b.onclick = () => { codexFilter = b.dataset.cf; codexFilterApply(); toTop(); });
     const f = $('cxCodexFind'); f.oninput = () => { codexQuery = f.value; codexFilterApply(); toTop(); };
     $('cxCodexJump').onchange = e => { const g = e.target.value; e.target.value = ''; if (!g) return; if (codexQuery) { codexQuery = ''; f.value = ''; } if (codexFilter !== 'all') codexFilter = 'all'; codexFilterApply();

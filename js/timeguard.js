@@ -16,7 +16,7 @@
     if (!navigator.onLine || location.protocol === 'file:') return;
     fetch(location.href.split('#')[0], { method: 'HEAD', cache: 'no-store' }).then(r => { const sd = Date.parse(r.headers.get('Date') || ''); if (!sd) return; const off = Date.now() - sd;
       if (Math.abs(off) > TOL) lock(off > 0 ? 'forward' : 'back', off);
-      else { unlock(); const c = clock(); c.max = Date.now(); SAVE.save(); } /* 伺服器時間正常：以實際時間為準 */ }).catch(() => { });
+      else { unlock(); if (window.TW) TW.setServerOffset(-off); /* v165：誤差在容許範圍內時，日期判斷改用伺服器時間 */ const c = clock(); c.max = Date.now(); SAVE.save(); } /* 伺服器時間正常：以實際時間為準 */ }).catch(() => { });
   }
   /* 遊戲中途：比對系統時間與單調時鐘的差，偵測中途調整時間 */
   let w0 = Date.now(), p0 = performance.now();

@@ -30,7 +30,7 @@
   }
   /* 獎勵：每 200 傷害 1 貝里（上限 30,000）；每 100 萬傷害 1 寶藏幣（單次 5、每日 10）；首次挑戰 +1。伊姆完全體不會被打倒 */
   function reward(dmg, won) {
-    const T = state(), today = new Date().toDateString(); if (!T.tok || T.tok.day !== today) T.tok = { day: today, n: 0 };
+    const T = state(), today = window.today ? window.today() : new Date().toDateString(); /* v165：台灣日期 */ if (!T.tok || T.tok.day !== today) T.tok = { day: today, n: 0 };
     const first = !T.played; T.played = true;
     const berry = Math.min(30000, Math.floor(dmg / 200)); let tok = Math.min(5, Math.floor(dmg / 1000000), Math.max(0, 10 - T.tok.n)); T.tok.n += tok;
     if (first) tok += 1;

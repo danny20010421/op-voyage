@@ -1,5 +1,5 @@
 /* v164 角色圖鑑：全角色收錄（js/codex_order_v164.js、js/crew.js renderCodex）。8px 網格；同一列控制項等高 40px、內容水平垂直置中。 */
-#cxCodexBar{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px;align-items:center;margin:0 0 8px;padding:8px 0;background:linear-gradient(180deg,rgba(10,18,38,.98) 80%,rgba(10,18,38,.9))}
+#cxCodexBar{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px;align-items:center;margin:0 0 8px;padding:0} /* v165：不再固定在頂端、不加深色底（使用者：圖鑑上方不要黑色漸層） */
 #cxCodexBar .cxb-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center}
 #cxCodexBar .cxb-seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));height:40px;border:1px solid rgba(235,199,126,.35);border-radius:8px;overflow:hidden;background:rgba(255,255,255,.04)}
 #cxCodexBar .cxb-seg button{display:flex;align-items:center;justify-content:center;gap:4px;height:100%;min-width:0;margin:0;padding:0 4px;border:0;border-left:1px solid rgba(235,199,126,.2);background:transparent;color:#c8d0e0;font:700 14px/1 var(--sans,system-ui);cursor:pointer;white-space:nowrap}
@@ -38,4 +38,11 @@
 @media (max-width:760px){
   #cxCodexGrid .char.v2.res.nm .c-tag{font-size:8.5px;height:14px;padding:0 3px}
   #cxCodexGrid .cx-gh{font-size:15px}
+}
+/* v165 手機詳細頁：× 自成頂端一列（與面板同底色、沒有漸層），只有下面的內容捲動，× 不會壓到文字 */
+@media (max-width:600px){
+  #cxCodexDetail.open{display:flex!important;flex-direction:column;overflow:hidden!important;padding:0!important}
+  #cxCodexDetail.open>.cx-close{position:static!important;flex:none;align-self:flex-end;margin:calc(8px + var(--safeT,0px)) 12px 8px 0!important}
+  #cxCodexDetail.open>.cx-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 14px calc(20px + var(--safeB,0px))}
+  #cxCodexDetail .cx-head h3{padding-right:0!important}
 }

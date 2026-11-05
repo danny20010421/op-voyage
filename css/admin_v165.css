@@ -1,0 +1,98 @@
+/* v165 管理後台：版面整理（8px 網格、同列等高）、手機分頁改成兩列、立繪測試 */
+
+/* 戰鬥：立繪測試存的位置（dx、dy）用 translate 套用，不影響 transform 的待機動畫 */
+.fighter img{translate:var(--vx,0) var(--vy,0)}
+
+/* ---------- 後台外框 ---------- */
+.modal-card.admin{width:min(1180px,100%)!important}
+.modal-card.admin>header{min-height:48px}
+.modal-card.admin>footer{display:flex!important;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08)}
+.modal-card.admin>footer>div{display:flex;gap:8px;margin-left:auto}
+.modal-card.admin>footer button{min-height:40px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center}
+#adminNav button{min-height:40px;display:flex;align-items:center}
+#adminPane{scrollbar-gutter:stable}
+#adminPane .an{margin:0 0 16px;font-size:13px;line-height:1.6;color:var(--muted)}
+#adminPane fieldset{margin:0 0 16px;padding:8px 16px 16px;border:1px solid rgba(255,255,255,.12);border-radius:12px}
+#adminPane legend{padding:0 8px;font-weight:900;color:var(--brass2)}
+.af input,.af select{min-height:40px;box-sizing:border-box}
+.ahint{font-size:12px;color:var(--muted);margin:-8px 0 16px}
+/* 角色選擇：搜尋＋下拉 */
+.adm-pick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 16px}
+.adm-pick input,.adm-pick select{min-height:40px;padding:0 12px;border-radius:8px;background:rgba(0,0,0,.3);color:var(--foam);border:1px solid rgba(255,255,255,.18);font:inherit;font-size:14px}
+.adm-pick input{flex:1 1 160px;min-width:0}.adm-pick select{flex:2 1 220px;min-width:0}
+.adm-who{display:flex;align-items:center;gap:16px;margin:0 0 16px}
+.adm-who img{width:64px;height:64px;border-radius:12px;object-fit:cover;border:2px solid rgba(201,151,58,.6)}
+.adm-who b{display:block;font-size:18px}.adm-who small{color:var(--muted)}
+.adm-tag{display:inline-flex;align-items:center;height:24px;padding:0 8px;margin-right:8px;border-radius:6px;background:rgba(201,151,58,.2);color:var(--brass2);font-size:12px;font-weight:800}
+#adminPane details.ach{margin:0 0 8px;border:1px solid rgba(255,255,255,.12);border-radius:12px}
+#adminPane details.ach>summary{display:flex;align-items:center;gap:8px;min-height:48px;padding:0 16px;cursor:pointer;font-weight:900;color:var(--brass2);list-style:none}
+#adminPane details.ach>summary::-webkit-details-marker{display:none}
+#adminPane details.ach>summary small{color:var(--muted);font-weight:500}
+#adminPane details.ach>summary::after{content:'▾';margin-left:auto;transition:transform .2s}
+#adminPane details.ach[open]>summary::after{transform:rotate(180deg)}
+#adminPane details.ach>div{padding:0 16px 16px}
+.atools .btn-ghost{min-height:48px;display:flex;align-items:center;justify-content:center}
+
+@media (max-width:860px){
+  .modal-card.admin{height:100dvh!important;max-height:100dvh!important;border-radius:0!important;padding:16px!important}
+  #adminNav{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px!important;overflow:visible!important}
+  #adminNav button{justify-content:center;text-align:center!important;padding:0 4px!important;font-size:13px;white-space:normal!important;line-height:1.2;min-height:40px}
+  .modal-card.admin>footer{flex-wrap:wrap}
+  .modal-card.admin>footer .astatus{flex:1 1 100%}
+  .modal-card.admin>footer>div{flex:1 1 100%}
+  .modal-card.admin>footer>div button{flex:1 1 0}
+}
+
+/* ---------- 立繪測試 ---------- */
+.vz h3{margin:0 0 8px}
+.vz-grid{display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px;align-items:start}
+.vz-pick{display:flex;flex-direction:column;gap:8px;min-width:0}
+.vz-q{min-height:40px;padding:0 12px;border-radius:8px;background:rgba(0,0,0,.3);color:var(--foam);border:1px solid rgba(255,255,255,.18);font:inherit;font-size:14px}
+.vz-kinds{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.vz-kinds button,.vz-seg button{min-height:32px;padding:0 4px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--muted);font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+.vz-kinds button.on,.vz-seg button.on{border-color:var(--brass2);background:rgba(201,151,58,.22);color:var(--brass2)}
+.vz-list{display:flex;flex-direction:column;gap:4px;max-height:560px;overflow:auto;padding-right:4px;overscroll-behavior:contain}
+.vz-it{display:flex;align-items:center;gap:8px;min-height:48px;padding:4px 8px;border-radius:8px;border:1px solid transparent;background:rgba(255,255,255,.03);text-align:left;color:var(--foam)}
+.vz-it:hover{background:rgba(255,255,255,.07)}
+.vz-it.on{border-color:var(--brass2);background:rgba(201,151,58,.16)}
+.vz-it img{flex:0 0 40px;width:40px;height:40px;border-radius:8px;object-fit:cover;object-position:50% 15%}
+.vz-it span{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+.vz-it b{font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.vz-it small{font-size:11px;color:var(--muted)}
+.vz-it em{flex:0 0 auto;font-style:normal;font-size:11px;font-weight:800;color:#9dffb8}
+.vz-main{display:flex;flex-direction:column;gap:8px;min-width:0}
+.vz-bar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+.vz-seg{display:flex;gap:4px}.vz-seg button{padding:0 12px}
+/* 預覽戰場：和戰鬥畫面同樣的立繪框比例（電腦：寬 38%、高 88%、離地 6%；手機：寬 44%、高 96%、貼地） */
+.vz-stage{position:relative;width:100%;overflow:hidden;border-radius:12px;background:#14283e center/cover no-repeat;border:1px solid rgba(255,255,255,.12)}
+.vz-stage.wide{aspect-ratio:16/7}
+.vz-stage.tall{aspect-ratio:9/10;max-width:420px;margin:0 auto}
+.vz-f{position:absolute;bottom:6%;width:38%;height:88%;display:flex;align-items:flex-end;justify-content:center;--sc:.9;--mx:1}
+.vz-stage.tall .vz-f{width:44%;height:96%;bottom:0}
+.vz-f.L{left:6%;z-index:2}.vz-f.R{right:6%;z-index:1}
+.vz-f img{position:relative;max-width:100%;max-height:100%;object-fit:contain;transform-origin:50% 100%;transform:scale(var(--sc)) scaleX(var(--mx));translate:var(--vx,0) var(--vy,0);transition:transform .15s}
+.vz-f.R img{transform:scale(var(--sc)) scaleX(calc(-1 * var(--mx)))}
+.vz-f.dim img{opacity:.55;filter:saturate(.6)}
+.vz-shadow{position:absolute;left:20%;right:20%;bottom:-2%;height:6%;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.55),transparent 70%)}
+.vz-tag{position:absolute;left:8px;top:8px;max-width:calc(100% - 16px);padding:4px 8px;border-radius:6px;background:rgba(0,0,0,.55);font-size:12px;font-weight:800;color:#fff}
+.vz-tag b{color:#ffcf8a}
+.vz-ctl{display:flex;flex-direction:column;gap:8px}
+.vz-row{display:grid;grid-template-columns:72px minmax(0,1fr) 80px;align-items:center;gap:8px;font-size:13px;min-height:40px}
+.vz-row input[type=range]{width:100%;accent-color:#e8b64a}
+.vz-row input[type=number],.vz-row select{min-height:40px;box-sizing:border-box;padding:0 8px;border-radius:8px;background:rgba(0,0,0,.3);color:var(--foam);border:1px solid rgba(255,255,255,.18);font:inherit;font-size:14px;width:100%}
+.vz-opp{grid-template-columns:72px minmax(0,1fr)}
+.vz-chk{display:flex;align-items:center;gap:8px;min-height:40px;font-size:13px}
+.vz-chk input{width:20px;height:20px;flex:0 0 auto;accent-color:#e8b64a}
+.vz-calc{margin:0;font-size:12px;color:var(--muted)}
+.vz-btns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.vz-btns button{min-height:48px;margin:0;display:inline-flex;align-items:center;justify-content:center;padding:0 8px}
+@media (max-width:860px){
+  .vz-grid{grid-template-columns:minmax(0,1fr)}
+  .vz-list{max-height:200px}
+  .vz-stage.tall{max-width:none}
+}
+/* 蓋過舊版 polish.css 的 .vz-ctl label{display:flex}、.vz-stage{height:300px} */
+.vz .vz-ctl .vz-row{display:grid!important}
+.vz .vz-ctl .vz-row input[type=range]{flex:none;min-width:0}
+.vz .vz-ctl .vz-chk{display:flex}
+.vz .vz-stage{height:auto!important}
+.vz-layer{position:absolute;inset:0;transform-origin:50% 94%;transition:transform .2s}

@@ -9,7 +9,7 @@
   const V = 154, img = n => `assets/chars/${n}.webp?v=${V}`;
   const S = (name, type, pp, power, desc, tags, anima, effect, ult) => Object.assign({ name, type, pp, maxPP: pp, power, accuracy: 100, desc, tags, anima, effect: effect || {} }, ult ? { ultimate: true } : {});
   const base = (id, name, title, types, battleScale, extra) => Object.assign({ id, name, title, types, scale: 1, worldScale: 1, battleScale, ai: 'aggressive', image: img(id), avatar: img(id + '_face'), ultimateBg: img(id), cardPos: '50% 8%', cardFocus: '50% 10%' }, extra);
-  CHARACTERS.zoro_wano = base('zoro_wano', '索隆（和之國篇）', '閻魔與霸王色', ['格鬥'], .7, {
+  CHARACTERS.zoro_wano = base('zoro_wano', '索隆（和之國篇）', '閻魔與霸王色', ['格鬥'], .65, {
     maxHp: 1620, baseSpeed: 116, statScale: 1.06, role: '攻擊型',
     desc: '在和之國拿到光月御田的名刀「閻魔」。閻魔會不斷吸走使用者的霸氣，索隆在鬼之島屋頂和凱多交手後，終於駕馭它，覺醒了霸王色的纏繞。',
     skills: [
@@ -39,7 +39,7 @@
       S('橡膠橡膠猿神銃', 'attack', 2, 260, '奧義。把整條手臂灌氣到比凱多還大，纏上霸王色砸下，造成 3～4.5 倍傷害：無視護盾、必中；50% 機率使對手暈眩 1 回合。', [['奧義', 'gold'], ['強力', 'red'], ['必中', 'red'], ['暈眩', 'gold']], 'punch',
         { randomMultiplierRange: [3, 4.5], ignoreShield: true, sureHit: true, stunChance: .5, stunTurns: 1 }, true)
     ] });
-  CHARACTERS.sanji_wano = base('sanji_wano', '香吉士（和之國篇）', '魔神風腳', ['火', '格鬥'], .7, {
+  CHARACTERS.sanji_wano = base('sanji_wano', '香吉士（和之國篇）', '魔神風腳', ['火', '格鬥'], .65, {
     maxHp: 1560, baseSpeed: 124, statScale: 1.05, role: '攻擊型',
     desc: '在和之國化名「三五郎」，以蕎麥麵攤打響名號。鬼之島上穿著傑爾馬的外骨骼戰鬥服對上奎因，覺醒了比惡魔風腳更燙的藍色火焰——魔神風腳。',
     skills: [

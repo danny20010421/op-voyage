@@ -6,14 +6,14 @@
   /* 蒐集資源：角色、篇章、樣式表裡的背景圖、頁面圖片 */
   function collect() {
     const L = [], seen = new Set();
-    const push = (u, group) => { if (!u || u.startsWith('data:')) return; const abs = new URL(u, location.href).href; if (seen.has(abs)) return; seen.add(abs); L.push({ url: abs, group }); };
+    const push = (u, group, defer) => { if (!u || u.startsWith('data:')) return; const abs = new URL(u, location.href).href; if (seen.has(abs)) return; seen.add(abs); L.push({ url: abs, group, defer: !!defer }); };
     /* 效能：只預先下載「已擁有角色」的立繪；其他角色只先下載小頭像，立繪等到需要時才載入 */
     let own = []; try { const d = JSON.parse(localStorage.getItem(SAVE.key) || 'null'); own = Object.keys((d && d.roster) || {}); } catch (e) { }
-    try { Object.values(CHARACTERS).forEach(c => { push(c.avatar, '角色頭像'); if (own.includes(c.id)) { push(c.image, '角色立繪'); if (c.ultimateBg) push(c.ultimateBg, '角色立繪'); } }); } catch (e) { }
+    try { Object.values(CHARACTERS).forEach(c => { push(c.avatar, '角色頭像', !own.includes(c.id)); /* v165：還沒擁有的角色頭像改成進入後再下載 */ if (own.includes(c.id)) { push(c.image, '角色立繪'); if (c.ultimateBg) push(c.ultimateBg, '角色立繪'); } }); } catch (e) { }
     try { CHAPTERS.forEach(c => push(c.art, '篇章封面')); } catch (e) { }
     /* v134：皮膚只預先下載已擁有的立繪，其他只下載頭像 */
     let ownSk = []; try { const d = JSON.parse(localStorage.getItem(SAVE.key) || 'null'); ownSk = ((d && d.skins && d.skins.owned) || []); } catch (e) { }
-    try { Object.entries(SKINS).forEach(([k, s]) => { if (ownSk.includes(k)) push(s.image, '角色皮膚'); push(s.avatar, '角色皮膚'); }); } catch (e) { }
+    try { Object.entries(SKINS).forEach(([k, s]) => { if (ownSk.includes(k)) push(s.image, '角色皮膚'); push(s.avatar, '角色皮膚', !ownSk.includes(k)); }); } catch (e) { }
     for (const sh of document.styleSheets) { let rules; try { rules = sh.cssRules; } catch (e) { continue; } const base = sh.href || location.href;
       const walk = rs => { for (const r of rs) { if (r.cssRules) walk(r.cssRules); const t = r.cssText || ''; for (const m of t.matchAll(/url\(["']?([^"')]+)["']?\)/g)) { if (/\.(webp|png|jpe?g|gif|svg)(\?|$)/i.test(m[1]) && !m[1].startsWith('data:')) { const abs = new URL(m[1], base).href; if (!seen.has(abs)) { seen.add(abs); L.push({ url: abs, group: '介面背景' }); } } } } };
       walk(rules); }
@@ -53,12 +53,15 @@
     await Promise.all(Array.from({ length: CONCURRENCY }, worker));
   }
   async function start() {
-    started = performance.now(); const all = collect(); items = all.filter(x => !LATER(x.url)); later = all.filter(x => LATER(x.url)); total = items.length + 1; doneCount = 0; failed = [];
+    started = performance.now(); const all = collect(); items = all.filter(x => !LATER(x.url) && !x.defer); later = all.filter(x => x.defer && !LATER(x.url)).concat(all.filter(x => LATER(x.url))); total = items.length + 1; doneCount = 0; failed = [];
     el('ldCount').textContent = `共 ${items.length} 個資源`;
     setProgress('正在確認遊戲資源…');
     const fonts = (document.fonts && document.fonts.ready ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 6000))]) : Promise.resolve()).then(() => { doneCount++; setProgress(); });
+    /* v165：網路慢時，10 秒後先讓玩家進入，其餘圖片邊玩邊下載 */
+    const early = setTimeout(() => { const box = el('ldDone'); if (!box || !el('loader') || !box.hidden) return; box.hidden = false;
+      box.innerHTML = `<button class="ld-skip ld-early" id="ldEarly">先進入遊戲（其餘圖片邊玩邊下載）</button><small>網路較慢，已下載 ${Math.max(0, doneCount - 1)}/${items.length}</small>`; el('ldEarly').onclick = () => { setTimeout(background, 3000); enter(); }; }, Math.max(3000, 10000 - performance.now())); /* 從打開網頁起算約 10 秒；程式本身下載很久時，載入畫面出現後至少再等 3 秒 */
     await Promise.all([runQueue(items), fonts]);
-    finish();
+    clearTimeout(early); finish();
     setTimeout(background, 1500);
   }
   function finish() {

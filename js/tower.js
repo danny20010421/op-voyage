@@ -24,7 +24,11 @@
   /* 第 1 層 LV25，每層 +0.75，BOSS 層再 +4，上限 LV100 */
   const lvOf = f => Math.min(MAX_LV, Math.round(25 + (f - 1) * .75 + (isBoss(f) ? 4 : 0)));
   /* 第 100 層以上：每層體力 +1.2%、傷害 +0.4%，每 50 層攻防各 +1（250 層約體力 2.8 倍、傷害 1.6 倍） */
-  const modOf = f => { const k = Math.max(0, f - 100), st = Math.min(3, Math.floor(k / 50)); return { hp: 1 + k * .012, dmg: 1 + k * .004, atk: st, def: st }; };
+  /* v165 伊姆三型態（js/ext_v165.js）：第 200、250 層的伊姆技能數值照使用者規格不動，改調塔的層設定讓強隊打得過（使用者 11/06：「還是要讓人家打得過」）。
+     hp／dmg 取代原本塔頂強化的體力與傷害倍率；imuPace＝伊姆第幾回合起才施放「最初20人」晉升（imuPaceHp 0＝體力再低也不提早）；revives＝BOSS 復活次數。
+     tests/imu-sim.js 量測（LV100 三人隊）：200 層 洛基／洛克斯／尼卡 100%、四皇隊約 70%、SSR 頂尖隊 0～95%（依隊伍爆發力）；250 層更難。 */
+  const FLOOR_FIX = { 200: { hp: .15, dmg: .7, imuPace: 8, imuPaceHp: 0, revives: 1 }, 250: { hp: .2, dmg: .7, imuPace: 6, imuPaceHp: 0, revives: 1 } };
+  const modOf = f => { const k = Math.max(0, f - 100), st = Math.min(3, Math.floor(k / 50)); const m = { hp: 1 + k * .012, dmg: 1 + k * .004, atk: st, def: st }; const X = FLOOR_FIX[f]; if (X) { m.hp = X.hp; m.dmg = X.dmg; m.imuPace = X.imuPace; m.imuPaceHp = X.imuPaceHp; } return m; };
   let sel = null;
   const replayOf = r => ({ berry: Math.round(r.berry * .3), items: {}, tokens: 0 });
   const chapterOf = f => TIER[Math.min(TIER.length - 1, Math.floor((f - 1) / 15))];
@@ -48,7 +52,7 @@
     const rows = [];
     for (let f = Math.min(TOWER.floors, cur + 2); f >= 1; f--) {
       const st = f < s.floor ? 'clear' : f === cur && !done ? 'now' : 'lock', c = { ...CHARACTERS[foeOf(f)], ...(skinOf(f) ? { avatar: SKINS[skinOf(f)].avatar, name: SKINS[skinOf(f)].name } : {}) };
-      rows.push(`<li class="tw-f ${st} ${isBoss(f) ? 'boss' : ''} ${f === sel ? 'sel' : ''}" data-f="${f}" ${st !== 'lock' ? 'role="button" tabindex="0"' : ''}><span class="tw-no">${f}</span><img src="${c.avatar}" alt=""><span class="tw-n"><b>${isBoss(f) ? 'BOSS・' : ''}${c.name}</b><small>LV ${lvOf(f)}${f > 100 ? ` ＋${Math.round((modOf(f).hp - 1) * 100)}%` : ''}</small></span><i class="tw-st">${st === 'clear' ? (f === sel ? '重複挑戰' : '✓ 可重打') : st === 'now' ? '挑戰中' : '🔒'}</i></li>`);
+      rows.push(`<li class="tw-f ${st} ${isBoss(f) ? 'boss' : ''} ${f === sel ? 'sel' : ''}" data-f="${f}" ${st !== 'lock' ? 'role="button" tabindex="0"' : ''}><span class="tw-no">${f}</span><img src="${c.avatar}" alt=""><span class="tw-n"><b>${isBoss(f) ? 'BOSS・' : ''}${c.name}</b><small>LV ${lvOf(f)}${f > 100 && !FLOOR_FIX[f] ? ` ＋${Math.round((modOf(f).hp - 1) * 100)}%` : ''}</small></span><i class="tw-st">${st === 'clear' ? (f === sel ? '重複挑戰' : '✓ 可重打') : st === 'now' ? '挑戰中' : '🔒'}</i></li>`);
     }
     $('twFloors').innerHTML = rows.join('');
     $('twFloors').querySelectorAll('.tw-f.clear,.tw-f.now').forEach(li => { const pick = () => { sel = +li.dataset.f; render(); }; li.onclick = pick; li.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } }; });
@@ -65,7 +69,7 @@
   }
   function fight(f) {
     const s = state();
-    startBattle({ team: SAVE.data.lineup.map(id => ({ id, lv: crewLv(id) })), enemyId: foeOf(f), enemySkin: skinOf(f), enemyLv: lvOf(f), bg: 'assets/ui/tower_bg.webp?v=23', chapterId: chapterOf(f), isBoss: isBoss(f), revives: isBoss(f) ? (f > 150 ? 2 : 1) : 0, enemyMod: f > 100 ? modOf(f) : null,
+    startBattle({ team: SAVE.data.lineup.map(id => ({ id, lv: crewLv(id) })), enemyId: foeOf(f), enemySkin: skinOf(f), enemyLv: lvOf(f), bg: 'assets/ui/tower_bg.webp?v=23', chapterId: chapterOf(f), isBoss: isBoss(f), revives: isBoss(f) ? ((FLOOR_FIX[f] && FLOOR_FIX[f].revives != null) ? FLOOR_FIX[f].revives : (f > 150 ? 2 : 1)) : 0, enemyMod: f > 100 ? modOf(f) : null,
       onEnd: r => {
         if (!r.win) return { message: `第 ${f} 層挑戰失敗。調整陣容、升級船員後再來挑戰吧！` };
         track('wins'); track('towerWins'); if (isBoss(f)) track('bossWins');

@@ -31,7 +31,7 @@
     if (d.event && d.event.id && !d.events[d.event.id]) { d.events[d.event.id] = d.event; delete d.event; }
     const E = d.events[Pp.id] = d.events[Pp.id] || { id: Pp.id, shards: {}, pity: 0, newbie: false, day: '', bountyDay: '', tickets: 0 };
     E.shards = E.shards || {}; Pp.shards.forEach(s => { E.shards[s.char] = E.shards[s.char] || 0; });
-    const today = new Date().toDateString();
+    const today = window.today ? window.today() : new Date().toDateString(); /* v165：台灣日期 */
     { const g = convertOwned(Pp, E); if (g) E.__msg = `碎片換成覺醒結晶 ×${g}`; }
     if (phase(Pp.id) === 'soon') return E; /* 預告期間不發抽獎券，開放當天才發新手與每日免費券 */
     if (!E.newbie) { E.newbie = true; E.tickets = (E.tickets || 0) + Pp.newbieFree; E.__msg = `新手福利：活動抽獎券 ×${Pp.newbieFree}`; }
@@ -40,7 +40,7 @@
   }
   window.eventState = st;
   /* 懸賞任務全部領取後 +2 抽 */
-  window.eventBountyCheck = function () { try { const today = new Date().toDateString(), list = bounties().filter(b => !b.premium); if (!list.length || !list.every(b => b.claimed)) return; let n = 0; POOLS().filter(pl => phase(pl.id) !== 'soon').forEach(pl => { const E = st(pl); if (E.bountyDay !== today) { E.bountyDay = today; E.tickets += pl.bountyBonus; n = pl.bountyBonus; } }); if (n) { SAVE.save(); toast(`完成全部每日懸賞！活動抽獎券 +${n}`, 'gold'); } } catch (e) { } };
+  window.eventBountyCheck = function () { try { const today = window.today ? window.today() : new Date().toDateString(), list = bounties().filter(b => !b.premium); if (!list.length || !list.every(b => b.claimed)) return; let n = 0; POOLS().filter(pl => phase(pl.id) !== 'soon').forEach(pl => { const E = st(pl); if (E.bountyDay !== today) { E.bountyDay = today; E.tickets += pl.bountyBonus; n = pl.bountyBonus; } }); if (n) { SAVE.save(); toast(`完成全部每日懸賞！活動抽獎券 +${n}`, 'gold'); } } catch (e) { } };
 
   function rollItem() { const order = ['N', 'R', 'SR', 'SSR'], tot = order.reduce((t, k) => t + RARITY[k].rate, 0); let r = Math.random() * tot, rar = 'N'; for (const k of order) { r -= RARITY[k].rate; if (r < 0) { rar = k; break; } } const pool = Object.keys(ITEMS).filter(k => ITEMS[k].rarity === rar && !ITEMS[k].noPool); return { item: pool[Math.floor(Math.random() * pool.length)] || 'potion_s', rar }; }
   /* 道具的稀有度比例（道具之中各佔多少） */

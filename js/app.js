@@ -19,6 +19,8 @@ const SAVE = {
     d.berry = d.berry || 0; d.roster = d.roster || {}; if (!Array.isArray(d.lineup)) d.lineup = d.player && d.roster[d.player] ? [d.player] : []; d.lineup = d.lineup.filter(id => d.roster[id]).slice(0, GAME_SETTINGS.lineupMax); if (d.lineup.length) d.player = d.lineup[0]; d.inventory = d.inventory || {};
     if (!d.roster) { d.roster = {}; if (CHAPTERS.some(c => d.chapters[c.id].step > 0 || d.chapters[c.id].cleared) && CHARACTERS[d.player]) d.roster[d.player] = { lv: 40, exp: 0 }; }
     if (d.player && !d.roster[d.player]) d.player = Object.keys(d.roster)[0] || 'luffy';
+    /* v165：舊版用裝置時區記錄的今天日期，第一次載入時換成台灣日期（只做一次） */
+    try { if (window.TW && TW.migrate(d)) setTimeout(() => this.save(), 0); } catch (e) { }
     this.data = d; return d;
   },
   save() {
@@ -36,7 +38,8 @@ function adminGate() {
   const v = prompt('請輸入管理後台密碼'); if (v === null) return;
   if (v.trim() === ['0', '4', '2', '1'].join('')) { adminOk = true; openAdmin(); } else toast('密碼錯誤');
 }
-function today() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+/* v165：「今天」一律用台灣時間（UTC+8，js/twtime_v165.js），和裝置時區無關；格式仍是 YYYY-MM-DD，舊存檔相容 */
+function today() { if (window.TW) return TW.today(); const d = new Date(Date.now() + 8 * 3600e3); return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`; }
 
 /* ---------- 共用 UI ---------- */
 let toastT = null;

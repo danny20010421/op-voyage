@@ -8,8 +8,9 @@
   const fmt = n => Number(n || 0).toLocaleString();
   const COIN = 'assets/ui/coin_token.webp?v=115';
   const badge = l => `assets/ui/vip${l}.webp?v=115`, badgeS = l => `assets/ui/vip${l}_s.webp?v=115`;
-  const dayStr = d => { d = d || new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
-  const dayNum = s => { const [y, m, d] = s.split('-').map(Number); return Math.round(new Date(y, m - 1, d).getTime() / 864e5); };
+  /* v165：日期一律用台灣時間（js/twtime_v165.js） */
+  const dayStr = d => TW.dateKey(d ? +d : undefined);
+  const dayNum = s => TW.dayNum(s);
   const VIP0 = '<svg class="vip0" viewBox="0 0 44 20" role="img" aria-label="VIP0"><defs><linearGradient id="v0g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a6478"/><stop offset="1" stop-color="#2e3446"/></linearGradient></defs><rect x=".5" y=".5" width="43" height="19" rx="6" fill="url(#v0g)" stroke="#8a93a6"/><text x="22" y="10.5" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,Arial,sans-serif" font-style="italic" font-weight="900" font-size="11" fill="#dfe5ef">VIP0</text></svg>';
   const locked = () => typeof timeLocked === 'function' && timeLocked();
 
@@ -80,7 +81,7 @@
      每期的價格、天數、每日寶藏幣、限定抽獎券、SSR 角色選擇卡都沿用 10 月的規則。
      chars＝購買就送的角色（已擁有改發覺醒結晶，數量同分解一位重複角色）；pick＝購買就送的角色隨機卡道具；skins＝購買就送的皮膚（已擁有不重複發放）。
      買過舊月費的玩家，每日寶藏幣照樣領到該期的第 30 天（mcClaim 會檢查每一期）。 */
-  const D_ = (y, m, d) => +new Date(y, m - 1, d);
+  const D_ = (y, m, d) => TW.midnight(y, m, d); /* v165：檔期以台灣時間 00:00 為準 */
   const MCS = [
     { id: '2026-10', name: '萬聖火龍燼', label: '2026 年 10 月限時月費', start: D_(2026, 10, 1), end: D_(2026, 11, 1) - 1000, price: 300, /* v127：1200 → 300（使用者指定） */ days: 30, daily: 10, tickets: 10, select: 1,
       chars: ['king'], skins: ['king_halloween', 'nami_witch'] /* v143：娜美萬聖節皮膚「月下魔法師」也包含在本期月費 */, banner: 'assets/ui/monthcard_2610.webp?v=115', ratio: '1100/712', theme: 'oct', face: ['king'], short: 'SSR 燼＋萬聖皮膚',
@@ -101,7 +102,7 @@
   const onSale = m => { m = m || MC; return Date.now() >= m.start && Date.now() <= m.end; };
   const mcDay = m => { const s = mcSt(m); return s ? dayNum(dayStr()) - dayNum(s.buy) + 1 : 0; }; /* 第幾天（購買當天是第 1 天） */
   const mcActive = m => { m = m || MC; const s = mcSt(m), d = mcDay(m); return !!s && d >= 1 && d <= m.days; };
-  const md = t => { const d = new Date(t); return `${d.getMonth() + 1}/${String(d.getDate()).padStart(2, '0')}`; };
+  const md = t => TW.fmtMD(t);
   const rarOf_ = id => (typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[id]) || 'SSR';
   const dupGem = id => { const c = (window.PROG && PROG.cfg && PROG.cfg.dupeGem) || { SR: 10, SSR: 20, UR: 35 }; return c[rarOf_(id)] || 20; };
   const skinBox = () => { const S = SAVE.data.skins = SAVE.data.skins || { owned: [], equip: {} }; S.owned = S.owned || []; S.equip = S.equip || {}; return S; };
