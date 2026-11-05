@@ -10,7 +10,9 @@ const MUSIC_BY_SCREEN = { loginScreen: 'title', modeScreen: 'lobby', exchangeScr
   let cur = null, token = 0, fadeT = 0, held = false; /* v120：held＝其他模式（歌姬劇場）自己播音樂，背景音樂完全停止且不自動補播 */
   /* v107：只有「確定檔案不存在」（404、拿到網頁）才判定沒有音樂；網路慢或暫時連不上時仍然嘗試播放，不會整場遊戲都沒聲音 */
   function check(key) { if (key in exists) return exists[key]; exists[key] = fetch(MUSIC_TRACKS[key], { method: 'HEAD', cache: 'no-store' }).then(r => (r.status === 404 || (r.headers.get('content-type') || '').includes('text/html')) ? false : true).catch(() => { delete exists[key]; return true; }); return exists[key]; }
-  function vol() { const a = A_(), p = (a && a.pref) || {}; return p.muted ? 0 : (p.music ?? .55); }
+  /* v164：iPhone／iPad 的 Safari 不允許網頁改音量（audio.volume 永遠是 1），只能用 muted 靜音；
+     所以每次取音量時同步設定 muted，關掉音樂在 iOS 上才真的會安靜 */
+  function vol() { const a = A_(), p = (a && a.pref) || {}, v = p.muted ? 0 : (p.music ?? .55); try { audio.muted = v <= 0; } catch (e) { } return v; }
   function fadeTo(target, ms) { clearInterval(fadeT); return new Promise(res => { const start = audio.volume, t0 = performance.now(); fadeT = setInterval(() => { const k = Math.min(1, (performance.now() - t0) / ms); audio.volume = Math.max(0, Math.min(1, start + (target - start) * k)); if (k >= 1) { clearInterval(fadeT); fadeT = 0; res(); } }, 30); }); }
   async function stopTrack() { if (!cur) return; cur = null; if (!audio.paused) { await fadeTo(0, 300); audio.pause(); } }
   async function onScreen(id) {
@@ -21,7 +23,7 @@ const MUSIC_BY_SCREEN = { loginScreen: 'title', modeScreen: 'lobby', exchangeScr
     if (!ok) { await stopTrack(); const a2 = A_(); if (a2 && a2.playSong && my === token) a2.playSong(FALLBACK[key] || 'map'); return; } /* v107：MP3 不能用時改播內建合成音樂，不會整個畫面沒有背景音樂 */
     if (cur === key && !audio.paused) { audio.volume = vol(); return; }
     if (cur && !audio.paused) { await fadeTo(0, 300); if (my !== token) return; audio.pause(); }
-    cur = key; audio.src = MUSIC_TRACKS[key]; audio.currentTime = 0; audio.volume = 0;
+    cur = key; audio.src = MUSIC_TRACKS[key]; audio.currentTime = 0; audio.volume = 0; vol();
     try { await audio.play(); } catch (e) { return; }
     if (my === token) fadeTo(vol(), 600);
   }

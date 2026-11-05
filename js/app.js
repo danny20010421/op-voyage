@@ -7,10 +7,14 @@ const SAVE = {
   key: 'op_voyage_save_v2',
   data: null,
   load() {
+    /* v164：存檔必須是物件；內容被截斷或格式不對（陣列、字串、缺欄位）時視為損毀，避免整個遊戲打不開 */
+    const okObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
     let d = null; try { d = JSON.parse(localStorage.getItem(this.key) || 'null'); } catch (e) { }
+    if (!okObj(d)) d = null;
     /* 主存檔讀不出來時，改用自動備份 */
-    if (!d) { try { d = JSON.parse(localStorage.getItem(this.key + '_backup') || 'null'); if (d) setTimeout(() => { if (typeof toast === 'function') toast('主存檔損毀，已從自動備份還原', 'gold'); }, 1500); } catch (e) { } }
+    if (!d) { try { d = JSON.parse(localStorage.getItem(this.key + '_backup') || 'null'); if (!okObj(d)) d = null; if (d) setTimeout(() => { if (typeof toast === 'function') toast('主存檔損毀，已從自動備份還原', 'gold'); }, 1500); } catch (e) { } }
     if (!d) d = { tokens: GAME_SETTINGS.startTokens, inventory: { potion_s: 2, pp_s: 1 }, chapters: {}, player: 'luffy', pulls: 0, pity: 0 };
+    if (!okObj(d.chapters)) d.chapters = {}; if (!okObj(d.roster)) d.roster = {}; if (!okObj(d.inventory)) d.inventory = {}; if (typeof d.tokens !== 'number' || !isFinite(d.tokens)) d.tokens = 0;
     CHAPTERS.forEach(c => { d.chapters[c.id] = Object.assign({ step: 0, collected: [], defeated: [], talked: [], roster: null, cleared: false, rewarded: [] }, d.chapters[c.id] || {}); if (d.chapters[c.id].step > c.steps.length) d.chapters[c.id].step = c.steps.length; });
     d.berry = d.berry || 0; d.roster = d.roster || {}; if (!Array.isArray(d.lineup)) d.lineup = d.player && d.roster[d.player] ? [d.player] : []; d.lineup = d.lineup.filter(id => d.roster[id]).slice(0, GAME_SETTINGS.lineupMax); if (d.lineup.length) d.player = d.lineup[0]; d.inventory = d.inventory || {};
     if (!d.roster) { d.roster = {}; if (CHAPTERS.some(c => d.chapters[c.id].step > 0 || d.chapters[c.id].cleared) && CHARACTERS[d.player]) d.roster[d.player] = { lv: 40, exp: 0 }; }
@@ -259,7 +263,7 @@ function selectChapter(id) {
       <p class="arc-sub">${c.subtitle}</p>
       <p class="arc-blurb">${c.blurb}</p>
       ${c.rhythm ? `<p class="arc-rhythm">${c.rhythm}</p>` : ''}
-      <div class="arc-boss">${boss ? `<img src="${boss.avatar}" alt="">` : '<span class="boss-unk" aria-hidden="true">?</span>'}<div><small>篇章 BOSS・LV ${ENEMY_LEVEL[id] + BOSS_LEVEL_BONUS}</small><b>${c.bossTitle}</b></div><span class="arc-lv">敵人 LV ${ENEMY_LEVEL[id]}</span></div>
+      <div class="arc-boss">${boss ? `<img src="${boss.avatar}" alt="">` : '<span class="boss-unk" aria-hidden="true">?</span>'}<div><small>篇章 BOSS・LV ${chapterEnemyLv(id, true)}</small><b>${c.bossTitle}</b></div><span class="arc-lv">敵人 LV ${chapterEnemyLv(id, false)}${chapterEnemyLv(id, false, true).synced ? '<small class="arc-sync">依陣容同步</small>' : ''}</span></div>
       <div class="arc-prog"><div class="bar"><i style="width:${done / total * 100}%"></i></div><span>${un ? (st.cleared ? '已完成' : `任務 ${done}/${total}：${next}`) : `完成「${CHAPTERS[i - 1].name}」後解鎖`}</span></div>
       <div class="arc-actions">${un ? `<button class="btn-primary big" id="sailBtn">${st.cleared ? '再次登島' : st.step ? '繼續冒險' : '出航'}</button>${st.cleared ? '<button class="btn-ghost" id="replayBtn">重玩劇情</button>' : ''}${st.cleared ? (() => { const n = typeof sweepCost === 'function' ? sweepCost(id) : 1, h = (SAVE.data.inventory || {}).sweep || 0; return `<div class="arc-sweep"><img src="${ITEMS.sweep.img}" alt="" class="sw-ico"><span>掃蕩卷 <b>${h}</b><small>本篇 ${n} 場戰鬥，掃蕩一次需要 ${n} 張</small></span><button class="btn-gold sm" data-sweep="1" ${h < n ? 'disabled' : ''}>掃蕩 1 次</button><button class="btn-ghost sm" data-sweep="3" ${h < n * 3 ? 'disabled' : ''}>掃蕩 3 次</button></div>`; })() : ''}` : '<button class="btn-primary big" disabled>尚未解鎖</button>'}</div>
     </div>`;
@@ -290,7 +294,9 @@ function chState() { const st = SAVE.data.chapters[CH.id], m = STEP_INSERTS[CH.i
   return st; }
 function curStep() { const st = chState(); return st.cleared && st.step >= CH.steps.length ? null : CH.steps[Math.min(st.step, CH.steps.length - 1)]; }
 /* 敵人等級：開啟等級同步時，陣容太強會讓敵人跟著變強 */
-function enemyLvFor(boss) { const up = boss ? ((CHAPTER_DIFFICULTY[CH.id] || {}).bossLvUp || 0) : 0, base = Math.min(MAX_LV, (ENEMY_LEVEL[CH.id] || 1) + (boss ? BOSS_LEVEL_BONUS + up : 0)); if (!GAME_SETTINGS.levelSync) return base; const top = Math.max(1, ...SAVE.data.lineup.map(crewLv)); return Math.min(MAX_LV, Math.max(base, top + (boss ? 5 : -(GAME_SETTINGS.syncGap || 6)))); }
+/* v164：所有顯示與實際戰鬥都用同一個函式算敵人等級（航路畫面、篇章介紹、電話蟲提示、地圖名牌、戰鬥）；synced＝是否被等級同步拉高 */
+function chapterEnemyLv(chId, boss, info) { const up = boss ? ((CHAPTER_DIFFICULTY[chId] || {}).bossLvUp || 0) : 0, base = Math.min(MAX_LV, (ENEMY_LEVEL[chId] || 1) + (boss ? BOSS_LEVEL_BONUS + up : 0)); let lv = base; if (GAME_SETTINGS.levelSync) { const top = Math.max(1, ...(SAVE.data.lineup || []).map(crewLv)); lv = Math.min(MAX_LV, Math.max(base, top + (boss ? 5 : -(GAME_SETTINGS.syncGap || 6)))); } return info ? { lv, base, synced: lv > base } : lv; }
+function enemyLvFor(boss) { return chapterEnemyLv(CH.id, boss); }
 let RACE = null, ESC = false;
 function treasurePiece() { return (typeof TREASURE !== 'undefined') ? TREASURE.pieces.find(p => p.chapter === CH.id) : null; }
 function treasureFound() { SAVE.data.treasure = SAVE.data.treasure || { found: [], done: false }; return SAVE.data.treasure.found; }
@@ -367,7 +373,7 @@ function enterChapter(id) {
     try {
       if (!WORLD) WORLD = new World({ canvas: $('worldCanvas'), labels: $('worldLabels'), minimap: $('minimap'), callbacks: { onInteract, onPickup, onNear, onReach, onSpotted, onEscortDone, onDig } });
       WORLD.load(CH, SAVE.data.player, worldState());
-    } catch (err) { $('loading').classList.remove('show'); console.error(err); toast('這台裝置無法開啟 3D 場景（WebGL 不可用）', 'warn'); return; }
+    } catch (err) { $('loading').classList.remove('show'); console.error(err); /* v164：提示改成對話框（原本 2 秒就消失），並告訴玩家怎麼處理 */ confirmBox('無法開啟 3D 島嶼', '這台裝置或瀏覽器目前不能顯示 3D 畫面（WebGL 無法使用）。請確認瀏覽器設定裡的「硬體加速」已開啟，或改用最新版 Chrome／Safari 開啟遊戲。戰鬥、抽獎與其他模式仍然可以遊玩。', '我知道了', () => { }); return; }
     $('wChapter').textContent = CH.name; $('wChapterSub').textContent = CH.subtitle; coins();
     stepStarted(); refreshWorld(); onNear(null); hideDialog(); $('clearOverlay').classList.remove('show');
     showScreen('worldScreen'); $('loading').classList.remove('show'); if (window.prewarmPortraits) prewarmPortraits(CH.npcs.map(n => n.look));

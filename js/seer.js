@@ -69,7 +69,7 @@
   function hintText() {
     const s = curStep(), st = chState(); if (!s) return st.cleared ? ['噗嚕嚕……這座島的事件已經解決了。可以回海圖前往下一座島，或留下來打小兵練等級喔。'] : ['噗嚕嚕……'];
     const tip = { talk: '找頭上有「!」的人說話。', talkAll: '把名單上的人都問過一遍。', goto: '跟著地圖上的★和光柱走就到了。', collect: `還差 ${s.count - (st.collected || []).length} 個，地上會發光的就是。`, timedCollect: '要在時間內撿完！撿第一個時開始計時。', defeat: `還要打倒 ${Math.max(0, s.count - (st.defeated || []).length)} 名敵人。`, duel: '走到對手面前按下對話，就會開始對決。', keys: `打倒島上的敵人搶鑰匙，還差 ${Math.max(0, s.count - (st.keys || 0))} 把。`, gauntlet: '連戰中體力不會回復，先補好再開打。', choice: '仔細想想對方真正想聽的是什麼。', boss: 'BOSS 在島的最北邊。陣容排好、道具帶足再挑戰！' }[s.type] || '';
-    const lv = crewLv(SAVE.data.lineup[0] || SAVE.data.player), elv = ENEMY_LEVEL[CH.id] || 1;
+    const lv = crewLv(SAVE.data.lineup[0] || SAVE.data.player), elv = typeof enemyLvFor === 'function' ? enemyLvFor(false) : (ENEMY_LEVEL[CH.id] || 1); /* v164：和實際戰鬥同一個算法 */
     const warn = lv < elv - 3 ? `對了，這座島的敵人大約 LV ${elv}，你的先鋒才 LV ${lv}，先去練一下等級比較安全。` : '';
     return [`噗嚕嚕……這裡是航海電話蟲。目前的任務是「${s.title}」：${s.desc}`, tip, warn].filter(Boolean);
   }

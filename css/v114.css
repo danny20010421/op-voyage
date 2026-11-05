@@ -70,7 +70,7 @@
 /* 長按彈出的技能說明卡 */
 .gw-pop{position:fixed;inset:0;z-index:2100;display:grid;place-items:center;padding:16px;background:rgba(2,6,16,.6);opacity:0;transition:opacity .15s}
 .gw-pop.show{opacity:1}
-.gw-popc{width:min(440px,100%);max-height:calc(100dvh - 32px);overflow:auto;padding:0 16px 16px;border-radius:16px;background:linear-gradient(180deg,#1f3156,#0d172e);border:1px solid rgba(235,199,126,.6);box-shadow:0 20px 50px rgba(0,0,0,.6);transform:scale(.96);transition:transform .15s}
+.gw-popc{width:min(440px,100%);max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;padding:0 16px 16px;border-radius:16px;background:linear-gradient(180deg,#1f3156,#0d172e);border:1px solid rgba(235,199,126,.6);box-shadow:0 20px 50px rgba(0,0,0,.6);transform:scale(.96);transition:transform .15s}
 .gw-pop.show .gw-popc{transform:none}
 .gw-popc.ult{border-color:#ffd34a}
 .gw-popc header{display:flex;align-items:center;gap:10px;min-height:56px}

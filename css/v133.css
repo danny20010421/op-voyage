@@ -19,9 +19,9 @@
 @media (max-width:400px){.gw-bond{grid-template-columns:40px minmax(0,1fr)}.gw-trial{grid-template-columns:40px minmax(0,1fr);grid-template-areas:'a t' 'b b';row-gap:8px}.gw-trial img{width:40px;height:40px;grid-area:a}.gw-trial span{grid-area:t}.gw-trial button{grid-area:b}}
 
 /* 試煉視窗 */
-.tr-wrap{position:fixed;inset:0;z-index:2100;display:grid;place-items:center;padding:16px;background:rgba(4,10,20,.78);backdrop-filter:blur(4px);animation:trIn .25s ease-out}
+.tr-wrap{position:fixed;inset:0;z-index:2100;display:grid;place-items:center;padding:16px;background:rgba(4,10,20,.78);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);animation:trIn .25s ease-out}
 @keyframes trIn{from{opacity:0}to{opacity:1}}
-.tr-card{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;display:flex;flex-direction:column;gap:16px;padding:16px;border-radius:16px;background:linear-gradient(180deg,#1a2740,#0f1828);border:1px solid rgba(255,207,90,.45);box-shadow:0 16px 48px rgba(0,0,0,.6)}
+.tr-card{width:min(560px,100%);max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;display:flex;flex-direction:column;gap:16px;padding:16px;border-radius:16px;background:linear-gradient(180deg,#1a2740,#0f1828);border:1px solid rgba(255,207,90,.45);box-shadow:0 16px 48px rgba(0,0,0,.6)}
 .tr-head{display:grid;grid-template-columns:minmax(0,1fr) 40px;align-items:center;gap:8px}
 .tr-head small{display:block;font-size:12px;line-height:16px;color:#ffb27a;font-weight:800;letter-spacing:.1em}
 .tr-head h2{margin:0;font-size:20px;line-height:28px;color:#ffe6a8}
@@ -49,7 +49,7 @@
 @media (max-width:400px){.tr-vs figcaption{padding:0 8px;font-size:12px}.tr-vs img{height:136px}.tr-info{grid-template-columns:1fr}.tr-info div{min-height:48px}.tr-card{padding:12px;gap:12px}}
 @media (max-height:500px) and (orientation:landscape){
   .tr-wrap{padding:8px 16px}
-  .tr-card{width:min(800px,100%);max-height:calc(100dvh - 16px);display:grid;grid-template-columns:264px minmax(0,1fr);grid-template-rows:auto auto auto 1fr;column-gap:16px;row-gap:8px;padding:12px 16px}
+  .tr-card{width:min(800px,100%);max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);display:grid;grid-template-columns:264px minmax(0,1fr);grid-template-rows:auto auto auto 1fr;column-gap:16px;row-gap:8px;padding:12px 16px}
   .tr-head{grid-column:1/-1}.tr-head h2{font-size:18px;line-height:24px}
   .tr-vs figcaption{padding:0 8px;font-size:12px}.tr-vs{grid-column:1;grid-row:2/5;align-self:center;grid-template-columns:minmax(0,1fr) 40px minmax(0,1fr)}.tr-vs img{height:136px}.tr-vsb{width:40px;height:40px;font-size:14px}
   .tr-lines,.tr-info,.tr-btns{grid-column:2}.tr-info{grid-template-columns:repeat(3,minmax(0,1fr))}.tr-info div{min-height:48px;padding:4px 8px}

@@ -11,13 +11,13 @@
 .btn-gold:not(:disabled):hover::after,.btn-primary:not(:disabled):hover::after{left:130%}
 .btn-gold:not(:disabled):hover,.btn-primary:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.06)}
 .btn-gold:disabled,.btn-primary:disabled{filter:grayscale(.7) brightness(.7);cursor:not-allowed}
-.btn-ghost{border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(6px)}
+.btn-ghost{border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .btn-ghost:hover{background:rgba(255,255,255,.14)}
 .modal-card{border:1px solid rgba(243,201,105,.28)!important;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.4) inset!important;background:radial-gradient(120% 60% at 50% 0%,rgba(243,201,105,.08),transparent 60%),linear-gradient(180deg,#132a44,#0c1c30)!important}
 .modal-card>header h2{font-family:var(--serif);letter-spacing:.08em;background:linear-gradient(180deg,#fffbe8,#f3c969);-webkit-background-clip:text;background-clip:text;color:transparent}
 
 /* ---------- 首頁：導覽列 ---------- */
-.home-nav{position:absolute;left:0;right:0;top:0;z-index:6;display:flex;align-items:center;gap:16px;height:68px;padding:calc(var(--safeT,0px)) clamp(16px,3vw,40px) 0;background:linear-gradient(180deg,rgba(6,14,26,.75),rgba(6,14,26,.35) 70%,transparent);backdrop-filter:blur(4px)}
+.home-nav{position:absolute;left:0;right:0;top:0;z-index:6;display:flex;align-items:center;gap:16px;height:68px;padding:calc(var(--safeT,0px)) clamp(16px,3vw,40px) 0;background:linear-gradient(180deg,rgba(6,14,26,.75),rgba(6,14,26,.35) 70%,transparent);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .hn-logo{display:none;font-family:var(--serif);font-weight:900;font-size:26px;letter-spacing:.06em;background:linear-gradient(180deg,#fffbe8,#f3c969 60%,#c9973a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
 .hn-menu{display:none;width:42px;height:42px;border-radius:10px;border:0;background:none;color:#fff;font-size:24px;cursor:pointer}
 .hn-links{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:clamp(12px,3vw,46px)}
@@ -37,9 +37,9 @@
 .start-btn{min-width:200px;min-height:58px;font-size:22px!important;letter-spacing:.2em!important;border-radius:14px!important;animation:startGlow 2.4s ease-in-out infinite}
 @keyframes startGlow{50%{box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 -3px 0 rgba(90,10,6,.5) inset,0 0 28px rgba(255,90,60,.65)}}
 .login-sub{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:rgba(8,18,32,.55);backdrop-filter:blur(6px);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:rgba(8,18,32,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
 .pill svg{width:16px;height:16px}.pill:hover{background:rgba(8,18,32,.75);border-color:rgba(255,255,255,.5)}
-#loginScreen .news-board{position:absolute;right:clamp(16px,3vw,40px);top:92px;left:auto;bottom:auto;width:min(380px,32vw);z-index:4;padding:14px 16px;border-radius:16px;background:var(--glass)!important;border:1px solid var(--glass-b)!important;backdrop-filter:blur(14px) saturate(1.2);box-shadow:0 20px 50px rgba(0,0,0,.4);color:#fff}
+#loginScreen .news-board{position:absolute;right:clamp(16px,3vw,40px);top:92px;left:auto;bottom:auto;width:min(380px,32vw);z-index:4;padding:14px 16px;border-radius:16px;background:var(--glass)!important;border:1px solid var(--glass-b)!important;-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);box-shadow:0 20px 50px rgba(0,0,0,.4);color:#fff}
 #loginScreen .news-board header{display:flex;align-items:center;gap:10px}
 #loginScreen .news-board h2{font-family:var(--serif);font-size:20px;color:#fff;letter-spacing:.08em}
 #loginScreen .nt-count{background:none;color:rgba(255,255,255,.7);padding:0 0 0 10px;border-left:1px solid rgba(255,255,255,.3);border-radius:0}
@@ -148,7 +148,7 @@
 .g-spot{position:absolute;top:-6%;left:50%;width:70%;height:95%;transform:translateX(-50%);background:conic-gradient(from 180deg at 50% 0%,transparent 160deg,rgba(255,236,190,.22) 175deg,rgba(255,236,190,.3) 180deg,rgba(255,236,190,.22) 185deg,transparent 200deg);filter:blur(6px);pointer-events:none}
 .g-stage .machine{position:relative;z-index:2;transform:scale(1.18);transform-origin:50% 100%;margin-bottom:26px}
 .g-pedestal{position:relative;z-index:1;width:min(420px,80%);height:54px;margin-top:-30px;border-radius:50%;background:radial-gradient(ellipse at 50% 30%,#2a5a8a,#0c2440 70%);box-shadow:0 0 0 4px #c9973a,0 0 0 7px #3a2206,0 20px 40px rgba(0,0,0,.6),0 0 60px rgba(100,180,255,.25)}
-#gachaScreen .g-panel{padding:22px;border-radius:18px;background:var(--glass);border:1px solid var(--glass-b);backdrop-filter:blur(12px);box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#gachaScreen .g-panel{padding:22px;border-radius:18px;background:var(--glass);border:1px solid var(--glass-b);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 20px 50px rgba(0,0,0,.4)}
 #gachaScreen .g-lead{font-size:14.5px;line-height:1.8;color:#e0e8f0}
 #gachaScreen .g-pulls{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 18px}
 #gachaScreen .g-pulls button{min-height:72px;font-size:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
@@ -208,7 +208,7 @@
 #gachaScreen .g-main.hidden{display:none!important}
 .g-stage .machine{transform:none!important;margin-bottom:22px}
 #gachaScreen .g-main{padding-top:calc(90px + var(--safeT,0px))!important;min-height:100%;box-sizing:border-box}
-.slot-card{max-height:94dvh;overflow-y:auto}
+.slot-card{max-height:94vh;max-height:94dvh;overflow-y:auto}
 .slot-card:has(.sr-card) .slot-deco .chest{display:none}
 @media (max-height:860px){.slot-card{--cell:92px}.slot-note{margin-bottom:12px}.slot-foot{margin-top:12px}}
 @media (max-height:720px){.slot-card{--cell:78px}.slot-title{font-size:24px}}
@@ -225,7 +225,7 @@
 #gachaScreen .g-main.tavern.hidden{display:none!important}
 .g-scene-wrap{position:absolute;inset:0;overflow:hidden}
 .g-scene{position:absolute;left:50%;top:50%;width:max(100vw,calc(100vh * 2.2917));aspect-ratio:1485/648;transform:translate(-50%,-50%)}
-.g-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;user-select:none;pointer-events:none}
+.g-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;-webkit-user-select:none;user-select:none;pointer-events:none}
 .g-scene::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(10,6,2,.55),transparent 16%,transparent 80%,rgba(10,6,2,.5)),linear-gradient(90deg,transparent 60%,rgba(12,6,2,.35))}
 /* 燈火閃爍 */
 .g-lamp{position:absolute;left:var(--x);top:var(--y);width:9%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,200,110,.45),rgba(255,160,60,.12) 45%,transparent 70%);mix-blend-mode:screen;animation:lampFlick 2.6s ease-in-out infinite;animation-delay:var(--d,0s);pointer-events:none}
@@ -239,7 +239,7 @@
 .g-globe .m-caps{position:absolute;inset:6%;opacity:0;transition:opacity .25s}
 .g-globe .m-caps>*{width:16%!important;height:16%!important}
 .g-globe .g-glass{position:absolute;inset:0;border-radius:50%;opacity:0;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),transparent 30%),radial-gradient(circle at 50% 55%,rgba(255,220,150,.18),transparent 70%);transition:opacity .25s}
-#machine.spin .g-globe{backdrop-filter:blur(5px) brightness(.95)}
+#machine.spin .g-globe{-webkit-backdrop-filter:blur(5px) brightness(.95);backdrop-filter:blur(5px) brightness(.95)}
 #machine.spin .g-globe .m-caps,#machine.spin .g-globe .g-glass{opacity:1}
 #machine.spin .g-globe{animation:globeWobble .18s ease-in-out infinite alternate}
 @keyframes globeWobble{from{transform:translate(-50%,-50%) rotate(-1.2deg)}to{transform:translate(-50%,-50%) rotate(1.2deg)}}
@@ -258,7 +258,7 @@
 .g-hit{position:absolute;left:36.4%;top:52%;width:22%;height:80%;transform:translate(-50%,-50%);border:0;background:none;border-radius:40% 40% 12px 12px;cursor:pointer}
 .g-hit:focus-visible{outline:3px solid #ffd26c}
 /* 右側：琥珀色毛玻璃資訊卡 */
-#gachaScreen .tavern .g-panel{position:absolute;right:clamp(16px,4vw,70px);top:50%;transform:translateY(-44%);width:min(440px,34vw);z-index:3;padding:22px 22px 18px;border-radius:18px;background:linear-gradient(180deg,rgba(40,22,8,.78),rgba(22,12,4,.82))!important;border:1px solid rgba(243,201,105,.35)!important;backdrop-filter:blur(10px);box-shadow:0 24px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,220,150,.15)}
+#gachaScreen .tavern .g-panel{position:absolute;right:clamp(16px,4vw,70px);top:50%;transform:translateY(-44%);width:min(440px,34vw);z-index:3;padding:22px 22px 18px;border-radius:18px;background:linear-gradient(180deg,rgba(40,22,8,.78),rgba(22,12,4,.82))!important;border:1px solid rgba(243,201,105,.35)!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 24px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,220,150,.15)}
 #gachaScreen .tavern .g-lead{color:#f4e6cc;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 #gachaScreen .tavern #pull10{background:linear-gradient(180deg,#5a2e10,#3a1a06)!important;color:#ffe2a0!important;border:2px solid #f3c969!important;box-shadow:0 0 0 1px #3a2206,0 0 18px rgba(255,200,90,.55),inset 0 0 12px rgba(255,200,90,.25);animation:tenGlow 1.8s ease-in-out infinite}
 @keyframes tenGlow{50%{box-shadow:0 0 0 1px #3a2206,0 0 32px rgba(255,210,108,.9),inset 0 0 18px rgba(255,200,90,.4)}}
@@ -333,7 +333,7 @@
 .g-globe{--gx:36.36;--gy:41.05;--gw:20.2}
 .g-tumble{position:absolute;inset:0;border-radius:50%;overflow:hidden;opacity:0;clip-path:circle(42% at 50% 54%);transition:opacity .2s}
 .g-tumble img{position:absolute;max-width:none;width:calc(100% * 100 / var(--gw));height:calc(100% * 100 / (var(--gw) * 2.2917));left:calc(-100% * (var(--gx) - var(--gw) / 2) / var(--gw));top:calc(-100% * (var(--gy) - var(--gw) * 2.2917 / 2) / (var(--gw) * 2.2917))}
-#machine.spin .g-globe{backdrop-filter:none!important;animation:globeShake .09s linear infinite alternate!important}
+#machine.spin .g-globe{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;animation:globeShake .09s linear infinite alternate!important}
 #machine.spin .g-globe .m-caps,#machine .g-globe .m-caps{opacity:0!important}
 #machine.spin .g-tumble{opacity:1;animation:tumble .42s cubic-bezier(.45,0,.55,1) infinite alternate;filter:blur(.8px) saturate(1.15)}
 @keyframes tumble{0%{transform:rotate(-38deg) scale(1.04)}100%{transform:rotate(38deg) scale(1.04)}}
@@ -410,7 +410,7 @@
 
 /* ===== v19：海軍本部背景 ===== */
 #gachaScreen[data-tab=navy]{background:linear-gradient(180deg,rgba(8,20,36,.55) 0%,rgba(8,20,36,.15) 30%,rgba(8,20,36,.55) 75%,rgba(8,20,36,.85) 100%),url('../assets/ui/navy_hq.webp?v=19') center 30%/cover no-repeat,#1a2a3e!important}
-#gachaScreen[data-tab=navy] .hub-inner{padding:18px 20px;border-radius:18px;background:rgba(10,24,42,.72);border:1px solid rgba(160,200,255,.25);backdrop-filter:blur(10px);box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#gachaScreen[data-tab=navy] .hub-inner{padding:18px 20px;border-radius:18px;background:rgba(10,24,42,.72);border:1px solid rgba(160,200,255,.25);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 20px 50px rgba(0,0,0,.4)}
 #gachaScreen[data-tab=navy] .hub-inner h3{color:#fff;display:flex;align-items:center;gap:10px}
 #gachaScreen[data-tab=navy] .hub-inner h3::before{content:'';width:34px;height:22px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 36'%3E%3Cpath d='M2 22C10 8 20 4 30 16 40 4 50 8 58 22 48 14 40 16 30 28 20 16 12 14 2 22z' fill='%238fc4ff'/%3E%3C/svg%3E") center/contain no-repeat}
 #gachaScreen[data-tab=navy] .hub-pane{padding-top:calc(110px + var(--safeT,0px))}
@@ -457,7 +457,7 @@
 .guide-arrow i svg{width:26px;height:26px;display:block;transform:translateX(-1px)}
 
 /* ===== v20：首頁設定按鈕 ===== */
-.hn-set{gap:8px!important;padding:8px 16px 8px 12px!important;border-radius:99px!important;border:1px solid rgba(255,255,255,.35)!important;background:rgba(8,18,32,.5)!important;backdrop-filter:blur(8px);font-weight:700;transition:background .2s,transform .2s}
+.hn-set{gap:8px!important;padding:8px 16px 8px 12px!important;border-radius:99px!important;border:1px solid rgba(255,255,255,.35)!important;background:rgba(8,18,32,.5)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-weight:700;transition:background .2s,transform .2s}
 .hn-set:hover{background:rgba(8,18,32,.75)!important}
 .hn-set svg{width:22px!important;height:22px!important;transition:transform .5s}
 .hn-set:hover svg{transform:rotate(90deg)}

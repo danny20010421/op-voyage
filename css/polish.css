@@ -78,7 +78,7 @@
 .cx-setbox[open]>summary::after{transform:rotate(-135deg)}
 
 /* 8. 解讀石碑 */
-.tr-puzzle{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:14px;background:rgba(3,8,20,.75);backdrop-filter:blur(3px)}
+.tr-puzzle{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:14px;background:rgba(3,8,20,.75);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .trp-card{width:min(460px,100%);max-height:100%;overflow:auto;padding:16px 18px 18px;border-radius:18px;background:linear-gradient(180deg,#1b2a44,#0c1628);border:1px solid rgba(232,193,112,.5);text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.6)}
 .trp-card header{display:flex;align-items:center;justify-content:space-between;gap:8px}.trp-card h3{margin:0;font:900 18px var(--serif);text-align:left}
 .trp-tip{font-size:13px;color:#cbd6e6;margin:8px 0 12px}
@@ -110,7 +110,7 @@
 .lb-login i{font-style:normal;font-size:22px}.lb-login span{display:flex;flex-direction:column}.lb-login small{font-size:12px;color:#ffe7a8}
 .lb-backup{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;background:rgba(120,30,30,.75);border:1px solid #ff8a7a;font-size:12.5px;line-height:1.5}
 .lb-backup[hidden]{display:none}
-.dl-wrap{position:fixed;inset:0;z-index:96;display:grid;place-items:center;padding:14px;background:rgba(3,8,20,.72);backdrop-filter:blur(3px)}
+.dl-wrap{position:fixed;inset:0;z-index:96;display:grid;place-items:center;padding:14px;background:rgba(3,8,20,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .dl-card{width:min(560px,100%);max-height:100%;overflow:auto;padding:16px 18px 18px;border-radius:18px;background:linear-gradient(180deg,#1b2a4a,#0c1628);border:1px solid rgba(232,193,112,.55);text-align:center}
 .dl-card header{display:flex;align-items:center;justify-content:space-between}.dl-card h3{margin:0;font:900 20px var(--serif)}
 .dl-sub{font-size:13px;color:#cbd6e6;margin:6px 0 12px}
@@ -146,7 +146,7 @@ img.ico-img{object-fit:contain;display:block;filter:drop-shadow(0 2px 3px rgba(0
 /* 12. 大廳主按鈕：一整條金框（左深藍＝模式選擇、右金色＝關卡挑戰），點擊區域依斜邊切齊 */
 .lb-play{align-items:flex-end}
 .lbp-bar{position:relative;width:clamp(340px,34vw,520px);aspect-ratio:2118/395;filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
-.lbp-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
+.lbp-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;-webkit-user-select:none;user-select:none}
 .lbp-bar .lb-modes,.lbp-bar .lb-go{position:absolute;top:6%;bottom:6%;margin:0;padding:0;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;min-width:0;display:flex;flex-direction:column;justify-content:center;transition:filter .15s,transform .15s;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .lbp-bar .lb-modes{left:4%;width:33.5%;clip-path:polygon(0 0,100% 0,80% 100%,0 100%);align-items:center;text-align:center;color:#f5f0e0;padding-right:5%}
 .lbp-bar .lb-go{left:31%;right:3.5%;clip-path:polygon(10% 0,100% 0,100% 100%,0 100%);align-items:center;text-align:center;color:#2a1600;padding-left:6%;overflow:visible}
@@ -290,7 +290,7 @@ button,a,[role=button],.char,.mode-card{touch-action:manipulation;-webkit-tap-hi
 .ach-tabs button small{font-size:10.5px;font-weight:600;color:#cbd6e6}
 .ach-tabs button.on{border-color:var(--lc);box-shadow:inset 0 -3px 0 var(--lc);background:rgba(255,255,255,.1)}
 .ach-tabs i{position:absolute;right:6px;top:4px;min-width:18px;height:18px;border-radius:99px;background:#e0304a;font:800 11px/18px system-ui;font-style:normal}
-.ach-list{display:flex;flex-direction:column;gap:8px;max-height:min(60dvh,520px);overflow-y:auto;text-align:left}
+.ach-list{display:flex;flex-direction:column;gap:8px;max-height:min(60vh,520px);max-height:min(60dvh,520px);overflow-y:auto;text-align:left}
 .ach-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}
 .ach-row>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .ach-row b{font-size:14.5px}.ach-row small{font-size:12px;color:#cbd6e6}.ach-row em{font-style:normal;font-size:11px;color:#9fb0c8}

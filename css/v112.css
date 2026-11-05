@@ -1,5 +1,5 @@
 /* v112：角色培養視窗（手機：上下；電腦：左立繪、右數值） */
-.gw-wrap{position:fixed;inset:0;z-index:2000;display:none;place-items:center;background:rgba(2,6,16,.72);backdrop-filter:blur(3px);padding:max(12px,var(--safeT,0px)) 12px max(12px,var(--safeB,0px))}
+.gw-wrap{position:fixed;inset:0;z-index:2000;display:none;place-items:center;background:rgba(2,6,16,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);padding:max(12px,var(--safeT,0px)) 12px max(12px,var(--safeB,0px))}
 .gw-wrap.show{display:grid}
 @keyframes gwIn{from{opacity:0}to{opacity:1}}
 .gw{position:relative;width:min(1000px,100%);max-height:100%;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#1a2a4c,#0b1428);border:1px solid rgba(235,199,126,.55);box-shadow:0 24px 60px rgba(0,0,0,.6)}
@@ -66,7 +66,7 @@
 /* v113：各裝置通用性 */
 .gw-lv{position:relative;z-index:1}
 .gw-name{flex-wrap:wrap;row-gap:2px;padding:0 44px;text-align:center}
-@media (max-width:760px){.gw{height:100dvh}.gw-head h3{font-size:19px}.gw-pow b{font-size:24px}.gw-stats div{min-height:42px;padding:0 10px}.gw-stats dd{font-size:16px}.gw-acts button{min-height:48px;font-size:16px}}
+@media (max-width:760px){.gw{height:100vh;height:100dvh}.gw-head h3{font-size:19px}.gw-pow b{font-size:24px}.gw-stats div{min-height:42px;padding:0 10px}.gw-stats dd{font-size:16px}.gw-acts button{min-height:48px;font-size:16px}}
 @media (max-width:380px){.gw-books{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.gw-book b{font-size:11.5px}.gw-step{gap:3px}.gw-step button{width:28px;height:28px;font-size:16px}.gw-stats dt{font-size:12px}}
 /* 橫向手機：左右排版、立繪縮小 */
-@media (max-height:500px) and (orientation:landscape){.gw{height:100dvh;border-radius:0}.gw-wrap{padding:0}.gw-body{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}.gw-art img{height:clamp(140px,48vh,260px)}.gw-head{min-height:44px}.gw-tabs{padding-bottom:6px}.gw-tabs button{min-height:32px}}
+@media (max-height:500px) and (orientation:landscape){.gw{height:100vh;height:100dvh;border-radius:0}.gw-wrap{padding:0}.gw-body{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}.gw-art img{height:clamp(140px,48vh,260px)}.gw-head{min-height:44px}.gw-tabs{padding-bottom:6px}.gw-tabs button{min-height:32px}}

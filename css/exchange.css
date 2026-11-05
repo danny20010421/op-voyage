@@ -17,7 +17,7 @@
 .mk-tabs button.on{background:#e8b64a;color:#2a1600;border-color:#e8b64a}
 .mk-grid{display:grid;grid-template-columns:minmax(250px,320px) minmax(0,1fr) minmax(260px,330px);gap:10px;align-items:start}
 .mk-list,.mk-main,.mk-side>div{border-radius:14px;background:rgba(10,20,40,.72);border:1px solid rgba(255,255,255,.1)}
-.mk-list{padding:4px;max-height:calc(100dvh - 190px);overflow-y:auto}
+.mk-list{padding:4px;max-height:calc(100vh - 190px);max-height:calc(100dvh - 190px);overflow-y:auto}
 .mk-row{display:grid;grid-template-columns:34px minmax(0,1fr) 64px 76px;gap:8px;align-items:center;width:100%;padding:7px 8px;border:0;border-radius:10px;background:none;color:#f0f4fa;text-align:left}
 .mk-row+.mk-row{border-top:1px solid rgba(255,255,255,.05)}
 .mk-row:hover{background:rgba(255,255,255,.05)}.mk-row.on{background:rgba(232,182,74,.14);box-shadow:inset 3px 0 0 #e8b64a}
@@ -76,7 +76,7 @@
   .mk-news{max-height:none}
   .mk-top{display:grid;grid-template-columns:1fr 1fr}.mk-st{grid-column:1/-1;order:-1}
   .mk-ohlc{margin:0;grid-template-columns:repeat(4,1fr);width:100%}
-  .mk-cv{height:min(300px,42dvh)}
+  .mk-cv{height:min(300px,42vh);height:min(300px,42dvh)}
 }
 /* v59：標誌、類股分類、手機操作 */
 .m-xc .mc-art{background:radial-gradient(circle at 50% 45%,rgba(255,220,140,.35),transparent 60%),url('../assets/ui/exchange_logo.webp?v=59') center 42%/58% no-repeat,linear-gradient(160deg,#1d3460,#0b1426)!important}

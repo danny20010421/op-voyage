@@ -10,7 +10,7 @@
 #modeScreen .topbar .lb-top .l2-svg{width:22px;height:22px}
 
 /* 左側：2×3 圖示面板 */
-.l2-rail{position:absolute;z-index:4;left:clamp(10px,1.6vw,22px);top:calc(88px + var(--safeT,0px));display:grid;grid-template-columns:repeat(2,74px);gap:4px;padding:10px 8px;border-radius:18px;background:linear-gradient(180deg,rgba(16,28,58,.78),rgba(8,14,32,.78));border:1px solid rgba(235,199,126,.32);box-shadow:0 10px 26px rgba(0,0,0,.4);backdrop-filter:blur(6px)}
+.l2-rail{position:absolute;z-index:4;left:clamp(10px,1.6vw,22px);top:calc(88px + var(--safeT,0px));display:grid;grid-template-columns:repeat(2,74px);gap:4px;padding:10px 8px;border-radius:18px;background:linear-gradient(180deg,rgba(16,28,58,.78),rgba(8,14,32,.78));border:1px solid rgba(235,199,126,.32);box-shadow:0 10px 26px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .l2-ic{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 2px;border:0;border-radius:12px;background:none;color:#f2ead8;cursor:pointer;text-align:center;transition:background .15s}
 .l2-ic:hover{background:rgba(235,199,126,.1)}
 .l2-ic>.l2-svg{width:46px;height:46px;padding:10px;border-radius:14px;background:radial-gradient(circle at 50% 30%,rgba(60,90,150,.55),rgba(10,18,40,.95));box-shadow:inset 0 0 0 1px rgba(235,199,126,.65),inset 0 -6px 12px rgba(0,0,0,.35),0 4px 10px rgba(0,0,0,.4)}
@@ -134,8 +134,8 @@
 /* ===== 恭喜獲得（獲得儀式） ===== */
 .cer-wrap{position:fixed;inset:0;z-index:9800;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 45%,rgba(60,40,10,.75),rgba(0,0,0,.88));animation:cerIn .3s both;padding:16px}
 .cer-wrap.out{animation:cerOut .25s both}
-.cer-card{position:relative;width:min(760px,96vw);max-height:calc(100dvh - 32px);overflow:auto;display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px 16px 18px;text-align:center}
-.cer-burst{position:absolute;left:50%;top:40px;width:min(640px,120vw);aspect-ratio:1;transform:translateX(-50%);background:conic-gradient(from 0deg,transparent 0 6%,rgba(255,220,120,.18) 8%,transparent 10% 16%,rgba(255,220,120,.14) 18%,transparent 20% 26%,rgba(255,220,120,.18) 28%,transparent 30% 36%,rgba(255,220,120,.14) 38%,transparent 40% 46%,rgba(255,220,120,.18) 48%,transparent 50% 56%,rgba(255,220,120,.14) 58%,transparent 60% 66%,rgba(255,220,120,.18) 68%,transparent 70% 76%,rgba(255,220,120,.14) 78%,transparent 80% 86%,rgba(255,220,120,.18) 88%,transparent 90%);border-radius:50%;animation:cerSpin 18s linear infinite;pointer-events:none;mask:radial-gradient(circle,#000 30%,transparent 70%)}
+.cer-card{position:relative;width:min(760px,96vw);max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px 16px 18px;text-align:center}
+.cer-burst{position:absolute;left:50%;top:40px;width:min(640px,120vw);aspect-ratio:1;transform:translateX(-50%);background:conic-gradient(from 0deg,transparent 0 6%,rgba(255,220,120,.18) 8%,transparent 10% 16%,rgba(255,220,120,.14) 18%,transparent 20% 26%,rgba(255,220,120,.18) 28%,transparent 30% 36%,rgba(255,220,120,.14) 38%,transparent 40% 46%,rgba(255,220,120,.18) 48%,transparent 50% 56%,rgba(255,220,120,.14) 58%,transparent 60% 66%,rgba(255,220,120,.18) 68%,transparent 70% 76%,rgba(255,220,120,.14) 78%,transparent 80% 86%,rgba(255,220,120,.18) 88%,transparent 90%);border-radius:50%;animation:cerSpin 18s linear infinite;pointer-events:none;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
 .cer-title{position:relative;margin:0;font:900 clamp(30px,6vw,46px) var(--serif);letter-spacing:.18em;background:linear-gradient(180deg,#fffbe0,#ffd34a 55%,#c8801e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 12px rgba(0,0,0,.6));animation:cerPop .6s cubic-bezier(.2,1.6,.4,1) both}
 .cer-sub{position:relative;margin:-6px 0 0;color:#f0e2c0;font-size:14px}
 .cer-chars{position:relative;display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
@@ -156,7 +156,7 @@
 
 /* ===== 七日登入（七日之約） ===== */
 .lg7-wrap{padding:12px}
-.lg7{position:relative;width:min(900px,96vw);max-height:calc(100dvh - 24px);overflow:auto;padding:18px clamp(12px,3vw,26px) 18px;border-radius:18px;background:linear-gradient(160deg,#1c2a52,#0c1430 60%,#1a1236);border:1px solid rgba(232,193,112,.55);box-shadow:0 20px 50px rgba(0,0,0,.6);color:#fff}
+.lg7{position:relative;width:min(900px,96vw);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto;padding:18px clamp(12px,3vw,26px) 18px;border-radius:18px;background:linear-gradient(160deg,#1c2a52,#0c1430 60%,#1a1236);border:1px solid rgba(232,193,112,.55);box-shadow:0 20px 50px rgba(0,0,0,.6);color:#fff}
 .lg7-x{position:absolute;right:10px;top:10px;z-index:2}
 .lg7-head{display:flex;align-items:center;gap:14px;margin-bottom:14px}
 .lg7-head img{width:clamp(70px,12vw,110px);height:auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
@@ -207,7 +207,7 @@
 .l2-emperor b,.l2-emperor small{white-space:nowrap}
 /* 大廳船長：所有尺寸都用絕對定位（覆蓋舊版手機的排版規則） */
 #lobby.l2 .lb-hero{position:absolute!important;left:50%!important;transform:translateX(-50%)!important;top:auto!important;margin:0!important;width:auto!important;aspect-ratio:3/4!important;flex:none!important}
-@media (max-width:900px) and (orientation:portrait){#lobby.l2 .lb-hero{height:52dvh!important;bottom:calc(236px + var(--safeB,0px))!important}}
+@media (max-width:900px) and (orientation:portrait){#lobby.l2 .lb-hero{height:52vh!important;height:52dvh!important;bottom:calc(236px + var(--safeB,0px))!important}}
 @media (min-width:761px),(orientation:landscape){#lobby.l2 .lb-hero{height:min(88%,calc(100% - 96px))!important}}
 @media (max-height:520px) and (orientation:landscape){#lobby.l2 .lb-hero{height:calc(100% - 62px)!important;bottom:52px!important}}
 #lobby.l2 .lb-plate{bottom:calc(156px + var(--safeB,0px))!important}
@@ -226,8 +226,8 @@
   .l2-pick:hover{transform:none!important}
   .l2-rail,.l2-side{top:calc(var(--l2eb,300px) + 10px)!important;max-height:calc(100% - var(--l2eb,300px) - 96px - var(--safeB,0px));overflow-y:auto;scrollbar-width:none}
   .l2-rail::-webkit-scrollbar,.l2-side::-webkit-scrollbar{display:none}
-  .l2-ic>.l2-svg{width:min(40px,5.4dvh);height:min(40px,5.4dvh);padding:min(8px,1.1dvh)}
-  .l2-ic{padding:min(6px,.8dvh) 2px}
+  .l2-ic>.l2-svg{width:min(40px,5.4vh);width:min(40px,5.4dvh);height:min(40px,5.4vh);height:min(40px,5.4dvh);padding:min(8px,1.1vh);padding:min(8px,1.1dvh)}
+  .l2-ic{padding:min(6px,.8vh) 2px;padding:min(6px,.8dvh) 2px}
   .l2-backup{top:calc(var(--l2eb,300px) + 10px)!important}
   #lobby.l2 .lb-hero{top:calc(var(--l2eb,300px) + 4px)!important;bottom:calc(76px + var(--safeB,0px))!important;height:auto!important;width:100%!important;aspect-ratio:auto!important}
 }
@@ -328,7 +328,7 @@
 @media (max-width:760px) and (orientation:portrait){.l2-go-badge{bottom:10px}}
 @media (max-height:520px) and (orientation:landscape){.l2-go-badge{bottom:6px}}
 /* v83：出航按鍵改用專屬圖（assets/ui/sail_btn.webp） */
-.l2-go-img{position:absolute;left:50%;bottom:-2px;width:132px;height:auto;transform:translateX(-50%);filter:drop-shadow(0 8px 14px rgba(0,0,0,.6)) drop-shadow(0 0 12px rgba(255,200,90,.3));transition:transform .2s,filter .2s;pointer-events:none;user-select:none}
+.l2-go-img{position:absolute;left:50%;bottom:-2px;width:132px;height:auto;transform:translateX(-50%);filter:drop-shadow(0 8px 14px rgba(0,0,0,.6)) drop-shadow(0 0 12px rgba(255,200,90,.3));transition:transform .2s,filter .2s;pointer-events:none;-webkit-user-select:none;user-select:none}
 .l2-go:hover .l2-go-img,.l2-go:focus-visible .l2-go-img{transform:translateX(-50%) translateY(-4px) scale(1.04);filter:drop-shadow(0 10px 16px rgba(0,0,0,.6)) drop-shadow(0 0 20px rgba(255,200,90,.6))}
 .l2-go:active .l2-go-img{transform:translateX(-50%) scale(.97)}
 .l2-go::before{bottom:6px!important;width:132px!important;height:132px!important}
@@ -365,7 +365,7 @@
 @keyframes vnShake{20%{transform:translate(-8px,3px)}40%{transform:translate(7px,-4px)}60%{transform:translate(-5px,2px)}80%{transform:translate(4px,-2px)}}
 /* 手機直式：只顯示正在說話的人，置中 */
 @media (max-width:760px) and (orientation:portrait){
-  .vn-slot{width:92vw;height:52dvh;bottom:calc(150px + var(--safeB,0px));left:4vw!important;right:auto!important}
+  .vn-slot{width:92vw;height:52vh;height:52dvh;bottom:calc(150px + var(--safeB,0px));left:4vw!important;right:auto!important}
   .vn-slot.on:not(.talk){opacity:0}
   .vn-emo{right:12%}
 }
@@ -408,7 +408,7 @@
 /* v90：劇情立繪不佔滿畫面——限制在畫面左右兩側的區塊內 */
 .vn-slot{width:min(34vw,440px)!important;height:min(62vh,560px)!important;bottom:calc(150px + var(--safeB,0px))!important}
 .vn-slot.l{left:max(8px,calc(50% - min(34vw,440px) - 10vw))!important}.vn-slot.r{right:max(8px,calc(50% - min(34vw,440px) - 10vw))!important}
-@media (max-width:760px) and (orientation:portrait){.vn-slot{width:78vw!important;height:40dvh!important;left:11vw!important;right:auto!important;bottom:calc(190px + var(--safeB,0px))!important}}
+@media (max-width:760px) and (orientation:portrait){.vn-slot{width:78vw!important;height:40vh!important;height:40dvh!important;left:11vw!important;right:auto!important;bottom:calc(190px + var(--safeB,0px))!important}}
 @media (max-height:520px) and (orientation:landscape){.vn-slot{height:58vh!important;bottom:calc(110px + var(--safeB,0px))!important;width:min(30vw,300px)!important}}
 /* 劇情演出時：隱藏對話框裡的小頭像（舞台上已有立繪），淡出島上的介面 */
 body.vn-on .dlg-face{display:none!important}
@@ -426,7 +426,7 @@ body.vn-on #worldScreen>*:not(.dialog):not(.vn-stage):not(canvas):not(#worldCanv
 .sk-card.own small{color:#ffd98a}
 /* ===== 手機直式的劇情立繪：一樣左右各一位，不硬塞在中間 ===== */
 @media (max-width:760px) and (orientation:portrait){
-  .vn-slot{width:49vw!important;height:36dvh!important;bottom:calc(190px + var(--safeB,0px))!important}
+  .vn-slot{width:49vw!important;height:36vh!important;height:36dvh!important;bottom:calc(190px + var(--safeB,0px))!important}
   .vn-slot.l{left:0!important;right:auto!important}.vn-slot.r{right:0!important;left:auto!important}
   .vn-slot.on:not(.talk){opacity:1!important}
 }
@@ -478,7 +478,7 @@ body.vn-on #worldScreen>*:not(.dialog):not(.vn-stage):not(canvas):not(#worldCanv
 .sb-tile.v2 .t-art img{position:absolute!important;inset:0;width:100%!important;height:100%!important;object-fit:cover}
 .sb-tile.v2 .t-name{position:static!important;flex:0 0 20px;height:20px;line-height:20px;font-size:11px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px;background:rgba(6,12,26,.88)}
 /* ===== 遊戲說明 ===== */
-.hp-card{width:min(760px,96vw);max-height:min(86dvh,820px);display:flex;flex-direction:column;padding:0!important;overflow:hidden}
+.hp-card{width:min(760px,96vw);max-height:min(86vh,820px);max-height:min(86dvh,820px);display:flex;flex-direction:column;padding:0!important;overflow:hidden}
 .hp-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 6px}.hp-head h3{margin:0;font-size:20px;color:#ffd98a}
 .hp-tabs{display:flex;gap:6px;padding:4px 18px 10px;border-bottom:1px solid rgba(255,255,255,.1)}
 .hp-tabs button{flex:1;min-height:40px;border-radius:10px;border:1px solid rgba(235,199,126,.35);background:rgba(255,255,255,.04);color:#e8e2d4;font-weight:700}

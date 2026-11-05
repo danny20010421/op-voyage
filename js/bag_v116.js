@@ -20,7 +20,7 @@
   /* ---------- 分類與獲取方式 ---------- */
   const CATS = [['all', '全部'], ['battle', '戰鬥'], ['grow', '培養'], ['ticket', '票券']];
   const CAT_OF = { potion_s: 'battle', herb: 'battle', potion_l: 'battle', pp_s: 'battle', haki: 'battle', shield: 'battle', tome: 'battle', meat: 'battle', feather: 'battle',
-    exp_s: 'grow', exp_m: 'grow', exp_l: 'grow', sweep: 'grow', skin_ticket: 'ticket', event_ticket: 'ticket', char_select: 'ticket', awaken_gem: 'grow', skill_book: 'grow', summon_ticket: 'ticket' };
+    exp_s: 'grow', exp_m: 'grow', exp_l: 'grow', sweep: 'grow', skin_ticket: 'ticket', event_ticket: 'ticket', char_select: 'ticket', mc_pick_2611: 'ticket', awaken_gem: 'grow', skill_book: 'grow', summon_ticket: 'ticket' };
   const hub = t => { if (typeof openGacha === 'function') openGacha(typeof currentScreen !== 'undefined' ? currentScreen : 'modeScreen'); if (t && typeof switchHub === 'function') setTimeout(() => switchHub(t), 0); };
   const GO = {
     afk: ['掛機寶藏（大廳左側）', () => window.QOL && QOL.openAfk()], ret: ['回歸玩家七日禮', () => window.RETURN && RETURN.open()],
@@ -34,13 +34,14 @@
     potion_s: ['shop', 'summon', 'chest', 'login'], herb: ['shop', 'summon', 'login'], potion_l: ['shop', 'summon', 'login'], pp_s: ['shop', 'summon', 'login'], haki: ['shop', 'summon'],
     shield: ['summon', 'login'], tome: ['summon', 'login'], meat: ['summon', 'login'], feather: ['summon', 'login'],
     exp_s: ['shop', 'tower', 'chest', 'vip'], exp_m: ['shop', 'tower', 'vip'], exp_l: ['tower', 'summon', 'vip'], sweep: ['supply', 'vip'],
-    skin_ticket: ['ach', 'vip'], event_ticket: ['card', 'vip', 'login'], char_select: ['card', 'vip'],
+    skin_ticket: ['ach', 'vip'], event_ticket: ['card', 'vip', 'login'], char_select: ['card', 'vip'], mc_pick_2611: ['card'],
     awaken_gem: ['activity', 'pass', 'ladder', 'dupe'], skill_book: ['activity', 'pass', 'ladder'], summon_ticket: ['afk', 'ret']
   };
   const USE = id => {
     const it = ITEMS[id] || {}, e = it.effect || {};
     if (e.skinTicket) return ['使用', () => { close(); openSkinTicket(); }];
     if (e.charSelect) return ['使用', () => { close(); window.openCharSelect && openCharSelect(); }];
+    if (e.mcPick) return ['使用', () => { close(); window.openMcPick && openMcPick(id); }]; /* v164：月費角色隨機卡（vip_v115.js） */
     if (e.summonTicket) return ['前往召喚', () => { close(); hub('summon'); }];
     if (e.eventTicket) return ['前往限定召喚', () => { close(); const b = $('lbEvent'); if (b && typeof currentScreen !== 'undefined' && currentScreen === 'modeScreen') b.click(); else hub(); }];
     if (e.grow) return ['選擇要培養的船員', () => { close(); if (window.openGrowPick) openGrowPick(); else { const id0 = (SAVE.data.lineup || [])[0]; if (window.openGrow && id0) openGrow(id0); } }]; /* v158：先選要培養誰 */

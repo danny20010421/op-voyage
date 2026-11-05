@@ -9,69 +9,102 @@
 #charModal.nb-starter #charConfirm{min-width:240px;min-height:48px}
 @media (max-width:860px){#charModal.nb-starter #charConfirm{width:100%}}
 
-/* ---------- 新手 SR 拉霸 ---------- */
-#slotModal.nb-modal{padding:16px}
-#slotModal .nb-card{position:relative;width:min(560px,100%)!important;max-width:100%!important;max-height:calc(100dvh - 32px)!important;margin:auto!important;overflow:auto;display:flex;flex-direction:column;gap:16px;padding:16px 16px 24px!important;text-align:center;
-  background:radial-gradient(120% 70% at 50% 0%,#2a3d78 0%,#101a3a 55%,#0a1128 100%)!important;border:1px solid rgba(243,201,105,.55)!important;border-radius:16px!important}
-#slotModal .nb-head{display:flex!important;align-items:center;justify-content:space-between;gap:8px;margin:0!important;min-height:48px}
+/* ---------- 新手 SSR 拉霸（v164：木頭＋黃銅的海賊風，轉輪對齊外框圖開口） ---------- */
+#slotModal.nb-modal{padding:16px;--brass1:#fbe7a6;--brass2:#e0b45a;--brass3:#a8742a;--brass4:#5e3d12;--wood1:#6b3f1f;--wood2:#4a2a14;--wood3:#2e1a0c;--ink:#2a1606;--paper:#f3e2b5}
+#slotModal .nb-card{position:relative;width:min(560px,100%)!important;max-width:100%!important;max-height:calc(100vh - 32px)!important;max-height:calc(100dvh - 32px)!important;margin:auto!important;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:16px 16px 24px!important;text-align:center;
+  background:radial-gradient(120% 60% at 50% 0%,rgba(255,200,120,.18),transparent 60%),linear-gradient(180deg,rgba(20,10,4,.25),rgba(20,10,4,.6)),repeating-linear-gradient(90deg,var(--wood1) 0 22px,#5c3519 22px 23px,var(--wood2) 23px 46px,#3d2210 46px 47px)!important;
+  border:3px solid var(--brass3)!important;border-radius:16px!important;box-shadow:inset 0 0 0 2px rgba(251,231,166,.35),inset 0 0 40px rgba(0,0,0,.55),0 24px 60px rgba(0,0,0,.6)!important;color:var(--paper)}
+/* 四角鉚釘 */
+#slotModal .nb-card::before{content:'';position:absolute;inset:8px;pointer-events:none;border-radius:10px;
+  background:radial-gradient(circle at 0 0,var(--brass2) 0 4px,transparent 5px) top left/16px 16px no-repeat,radial-gradient(circle at 100% 0,var(--brass2) 0 4px,transparent 5px) top right/16px 16px no-repeat,radial-gradient(circle at 0 100%,var(--brass2) 0 4px,transparent 5px) bottom left/16px 16px no-repeat,radial-gradient(circle at 100% 100%,var(--brass2) 0 4px,transparent 5px) bottom right/16px 16px no-repeat}
+#slotModal .nb-head{display:flex!important;align-items:center;justify-content:space-between;gap:8px;margin:0!important;min-height:48px;position:relative;z-index:2}
 #slotModal .nb-ttl{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left}
-#slotModal .nb-ttl small{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:99px;background:rgba(255,90,90,.9);color:#fff;font-size:12px;font-weight:900;letter-spacing:.04em}
-#slotModal .nb-ttl h2{margin:0;font:900 26px/1.2 var(--serif);letter-spacing:.08em;background:linear-gradient(180deg,#fff7d6,#f3c969 60%,#c98a1e);-webkit-background-clip:text;background-clip:text;color:transparent}
-#slotModal .nb-x{flex:0 0 auto;width:40px;height:40px}
-#slotModal .nb-stage{display:flex;flex-direction:column;gap:16px}
-#slotModal .nb-stage[hidden]{display:none}
-#slotModal .nb-lead{margin:0;font-size:15px;line-height:1.6;color:#e6edf7}
-#slotModal .nb-lead b{color:#ffd26c}
+#slotModal .nb-ttl small{display:inline-flex;align-items:center;height:24px;padding:0 12px 0 8px;background:linear-gradient(180deg,#b3271f,#7d1611);color:#ffe9c2;font-size:12px;font-weight:900;letter-spacing:.04em;clip-path:polygon(0 0,100% 0,calc(100% - 8px) 50%,100% 100%,0 100%);box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}
+#slotModal .nb-ttl h2{margin:0;font:900 28px/1.2 "Noto Serif TC",var(--serif),serif;letter-spacing:.08em;background:linear-gradient(180deg,var(--brass1) 0%,var(--brass2) 55%,var(--brass3) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 var(--wood3)) drop-shadow(0 0 1px #000)}
+#slotModal .nb-x{flex:0 0 auto;width:40px!important;height:40px!important;display:inline-flex!important;align-items:center;justify-content:center;border-radius:50%!important;border:2px solid var(--brass2)!important;background:radial-gradient(circle at 35% 30%,#7a4a22,var(--wood3))!important;color:var(--brass1)!important;font-size:20px;padding:0!important}
+#slotModal .nb-lead{margin:0;font-size:15px;line-height:1.6;color:var(--paper);text-shadow:0 1px 2px #000;position:relative;z-index:2}
+#slotModal .nb-lead b{color:#ffd56a}
+#slotModal [hidden]{display:none!important}
 
-#slotModal{--nbc:96px}
-#slotModal .nb-machine{align-self:center;display:flex;justify-content:center;padding:8px;border-radius:16px;background:linear-gradient(180deg,#c99a46,#7a5418);box-shadow:0 8px 24px rgba(0,0,0,.45),inset 0 0 0 2px rgba(255,240,200,.5)}
-#slotModal .nb-reels{position:relative;display:flex;gap:8px;padding:8px;border-radius:10px;background:#081224;box-shadow:inset 0 4px 16px rgba(0,0,0,.8)}
-#slotModal .nb-reel{position:relative;width:var(--nbc);height:calc(var(--nbc) * 3);overflow:hidden;border-radius:8px;
-  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 28%,#000 72%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0,#000 28%,#000 72%,transparent 100%)}
+/* 拉霸機：外框圖 1312×1199，所有位置用外框的百分比 */
+#slotModal .nb-mach{position:relative;width:min(100%,520px,calc((100vh - 360px) * 1.094));width:min(100%,520px,calc((100dvh - 360px) * 1.094));aspect-ratio:1312/1199;margin:0 auto;flex:0 0 auto;--cell:0px}
+#slotModal .nb-frame{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;filter:drop-shadow(0 10px 18px rgba(0,0,0,.55))}
+/* 開口 287,426～967,741：左右剛好貼齊開口，上下多 0.5% 藏在黃銅框後面 */
+#slotModal .nb-win{position:absolute;z-index:1;left:21.875%;top:35%;width:51.83%;height:27.2%;display:flex;gap:1.2%;padding:0;box-sizing:border-box;overflow:hidden;
+  background:linear-gradient(180deg,#120904,#2a170a 50%,#120904)}
+#slotModal .nb-reel{position:relative;flex:1 1 0;height:100%;overflow:hidden;background:linear-gradient(180deg,#d9c08a,#f3e2b5 50%,#d9c08a);box-shadow:inset 0 10px 14px rgba(0,0,0,.55),inset 0 -10px 14px rgba(0,0,0,.55)}
 #slotModal .nb-strip{will-change:transform}
-#slotModal .nb-cell{width:var(--nbc);height:var(--nbc);padding:4px;box-sizing:border-box}
-#slotModal .nb-cell img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 15%;border-radius:8px;border:2px solid rgba(201,151,58,.8)}
-#slotModal .nb-cell.hit img{border-color:#fff3c4;box-shadow:0 0 0 2px #ffd26c,0 0 16px rgba(255,210,108,.8)}
-#slotModal .nb-line{position:absolute;left:4px;right:4px;top:calc(8px + var(--nbc));height:var(--nbc);border:3px solid #ffd26c;border-radius:12px;pointer-events:none;box-shadow:0 0 16px rgba(255,210,108,.55)}
-#slotModal.nb-spin .nb-strip{filter:blur(1.5px)}
-#slotModal.nb-hit .nb-line{animation:nbLine .25s ease-in-out 2 alternate}
-@keyframes nbLine{to{border-color:#fff;box-shadow:0 0 32px rgba(255,240,200,1)}}
+#slotModal .nb-cell{width:100%;height:var(--cellh,80px);padding:6%;box-sizing:border-box} /* --cellh 由 JS 量轉輪實際高度設定 */
+#slotModal .nb-cell img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 12%;border-radius:4px;border:2px solid var(--brass3)}
+#slotModal .nb-cell.hit img{border-color:var(--brass1);box-shadow:0 0 0 2px var(--brass2),0 0 14px rgba(255,214,110,.9)}
+#slotModal .nb-line{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.12),transparent 30%,transparent 70%,rgba(0,0,0,.25))}
+#slotModal.nb-spin .nb-strip{filter:blur(1.2px)}
+#slotModal.nb-hit .nb-win{animation:nbFlash .25s ease-in-out 2 alternate}
+@keyframes nbFlash{to{box-shadow:inset 0 0 0 3px #fff3c4,inset 0 0 30px rgba(255,214,110,.9)}}
+/* 角色從開口升起 */
+#slotModal .nb-emerge{position:absolute;left:50%;bottom:0;width:66%;height:auto;max-width:none;transform:translate(-50%,100%);z-index:3;filter:drop-shadow(0 0 12px rgba(255,214,110,.9));transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+#slotModal.nb-rise .nb-emerge{transform:translate(-50%,38%)}
+#slotModal.nb-rise .nb-reel{filter:brightness(.4)}
+/* 出獎口發光 535,975～850,1090 */
+#slotModal .nb-mouth{position:absolute;z-index:3;left:41%;top:81.6%;width:23.6%;height:9.2%;border-radius:6px;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 60%,rgba(255,222,140,.95),rgba(255,170,60,.4) 55%,transparent 75%);mix-blend-mode:screen;transition:opacity .3s}
+#slotModal.nb-hit .nb-mouth,#slotModal.nb-rise .nb-mouth{opacity:1}
+/* 拉桿 1128,355～1312,656，轉軸在底部、距左 24% */
+#slotModal .nb-lever{position:absolute;z-index:4;left:86%;top:29.6%;width:14%;height:25.1%;padding:0;border:0;background:none;cursor:pointer;transform-origin:24% 100%;-webkit-tap-highlight-color:transparent}
+#slotModal .nb-lever img{display:block;width:100%;height:100%;pointer-events:none}
+#slotModal .nb-lever:focus-visible{outline:2px solid var(--brass1);outline-offset:2px;border-radius:8px}
+#slotModal .nb-lever:not(:disabled):hover{filter:brightness(1.12)}
+#slotModal .nb-lever.pull{animation:nbPull .7s cubic-bezier(.3,.7,.3,1)}
+@keyframes nbPull{0%{transform:none}35%{transform:scaleY(.42) translateY(2%)}55%{transform:scaleY(.48)}100%{transform:none}}
+#slotModal .nb-lever:disabled{cursor:default}
+/* 提示拉桿可以拉 */
+#slotModal:not(.nb-spin):not(.nb-done) .nb-lever:not(:disabled){animation:nbHint 2.4s ease-in-out 1s infinite}
+@keyframes nbHint{0%,70%,100%{transform:none}80%{transform:scaleY(.85)}90%{transform:none}}
 
+#slotModal .nb-stage{display:flex;flex-direction:column;gap:12px;position:relative;z-index:2}
 #slotModal .nb-pool{display:flex;flex-direction:column;align-items:center;gap:8px}
-#slotModal .nb-pool>small{font-size:12px;color:#a9b6cc;letter-spacing:.08em}
-#slotModal .nb-pool-row{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
-#slotModal .nb-pc{display:flex;flex-direction:column;align-items:center;gap:4px;width:56px}
-#slotModal .nb-pc img{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:2px solid #c58bff}
-#slotModal .nb-pc b{max-width:56px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px;font-weight:700;color:#d6def0}
+#slotModal .nb-pool>small{font-size:12px;color:#e8cf95;letter-spacing:.08em}
+#slotModal .nb-pool-row{display:flex;justify-content:center;flex-wrap:nowrap;gap:4px;max-width:100%;overflow:hidden}
+#slotModal .nb-pc{display:flex;flex-direction:column;align-items:center;gap:4px;flex:0 1 48px;min-width:0}
+#slotModal .nb-pc img{width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:2px solid var(--brass2);background:var(--wood3)}
+#slotModal .nb-pc b{display:none}
 
+/* 黃銅按鈕 */
 #slotModal .nb-foot{display:flex!important;justify-content:center;margin:0!important}
-#slotModal .nb-go{min-width:min(320px,100%);min-height:56px;font-size:18px;display:inline-flex;align-items:center;justify-content:center}
-#slotModal .nb-go:disabled{opacity:.7}
+#slotModal .nb-go,#slotModal .nb-btn{display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:0 24px;border-radius:12px;border:2px solid var(--brass4);cursor:pointer;
+  font:900 18px/1 "Noto Serif TC",var(--serif),serif;letter-spacing:.06em;color:var(--ink);background:linear-gradient(180deg,var(--brass1) 0%,var(--brass2) 45%,var(--brass3) 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.6),inset 0 -3px 0 rgba(0,0,0,.25),0 4px 0 var(--brass4),0 8px 16px rgba(0,0,0,.45);text-shadow:0 1px 0 rgba(255,255,255,.5);transition:transform .1s,filter .15s}
+#slotModal .nb-go{min-width:min(320px,100%)}
+#slotModal .nb-go:not(:disabled):active,#slotModal .nb-btn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 1px 0 var(--brass4),0 4px 8px rgba(0,0,0,.4)}
+#slotModal .nb-go:disabled{filter:saturate(.5) brightness(.8);cursor:default}
+#slotModal .nb-btn.alt{color:var(--paper);background:linear-gradient(180deg,#6b3f1f,#3d2210);border-color:var(--brass3);text-shadow:0 1px 2px #000;box-shadow:inset 0 0 0 1px rgba(251,231,166,.25),0 4px 0 var(--wood3),0 8px 16px rgba(0,0,0,.45)}
 
 /* 揭曉 */
 #slotModal .nb-reveal:empty{display:none}
-#slotModal .nb-rv{display:flex;flex-direction:column;align-items:center;gap:8px;animation:nbIn .45s cubic-bezier(.2,.8,.2,1) both}
-@keyframes nbIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
-#slotModal .nb-rv-k{font-size:13px;font-weight:900;letter-spacing:.3em;text-indent:.3em;color:#ffd26c}
-#slotModal .nb-rv-art{position:relative;width:100%;height:min(48dvh,400px);display:flex;align-items:flex-start;justify-content:center}
-#slotModal .nb-rv-glow{position:absolute;left:50%;top:50%;width:min(360px,90%);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--tc) 55%,transparent) 0%,transparent 68%);animation:nbGlow 2.4s ease-in-out infinite alternate}
+#slotModal .nb-rv{display:flex;flex-direction:column;align-items:center;gap:8px;animation:nbIn .45s cubic-bezier(.2,.8,.2,1) both;position:relative;z-index:2}
+@keyframes nbIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+#slotModal .nb-rv-k{font:900 14px/1 "Noto Serif TC",serif;letter-spacing:.3em;text-indent:.3em;color:#ffd56a;text-shadow:0 1px 2px #000}
+#slotModal .nb-rv-art{position:relative;width:100%;height:min(46vh,400px);height:min(46dvh,400px);display:flex;align-items:flex-start;justify-content:center}
+#slotModal .nb-rv-glow{position:absolute;left:50%;top:50%;width:min(360px,90%);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,214,110,.55) 0%,rgba(255,170,60,.18) 40%,transparent 68%);animation:nbGlow 2.4s ease-in-out infinite alternate}
 @keyframes nbGlow{to{transform:translate(-50%,-50%) scale(1.08);opacity:.8}}
-#slotModal .nb-rv-art img{position:relative;max-width:100%;max-height:100%;object-fit:contain;object-position:50% 0;filter:drop-shadow(0 8px 24px rgba(0,0,0,.6));animation:nbArt .6s cubic-bezier(.2,.8,.2,1) both}
-@keyframes nbArt{from{opacity:0;transform:translateY(16px) scale(1.06)}to{opacity:1;transform:none}}
-#slotModal .nb-rv-name{display:flex;align-items:center;justify-content:center;gap:8px}
-#slotModal .nb-rv-name .rar{display:inline-flex;align-items:center;justify-content:center;height:24px;min-width:40px;padding:0 8px;border-radius:6px;background:var(--tc);color:#1a0d2a;font-size:13px;font-weight:900}
-#slotModal .nb-rv-name h3{margin:0;font:900 28px/1.2 var(--serif);color:#fff}
-#slotModal .nb-rv-sub{margin:0;font-size:14px;color:#c9d4e6}
-#slotModal .nb-rv-tip{margin:0;max-width:420px;font-size:13px;line-height:1.6;color:#a9b6cc}
+#slotModal .nb-rv-art img{position:relative;max-width:100%;max-height:100%;object-fit:contain;object-position:50% 0;filter:drop-shadow(0 8px 24px rgba(0,0,0,.7));animation:nbArt .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes nbArt{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
+/* 名牌：黃銅板 */
+#slotModal .nb-rv-name{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 16px;border-radius:10px;border:2px solid var(--brass4);background:linear-gradient(180deg,var(--brass1),var(--brass2) 50%,var(--brass3));box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 4px 12px rgba(0,0,0,.5)}
+#slotModal .nb-rv-name .rar{display:inline-flex;align-items:center;justify-content:center;height:24px;min-width:48px;padding:0 8px;border-radius:6px;background:linear-gradient(180deg,#ffe58a,#e0a52a);border:1px solid var(--brass4);color:var(--ink);font-size:13px;font-weight:900}
+#slotModal .nb-rv-name h3{margin:0;font:900 24px/1.2 "Noto Serif TC",var(--serif),serif;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.5)}
+#slotModal .nb-rv-sub{margin:0;font-size:14px;color:var(--paper);text-shadow:0 1px 2px #000}
+#slotModal .nb-rv-tip{margin:0;max-width:420px;font-size:13px;line-height:1.6;color:#e8cf95}
 #slotModal .nb-rv-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:440px;margin-top:8px}
-#slotModal .nb-rv-btns button{min-height:48px;margin:0;display:inline-flex;align-items:center;justify-content:center;padding:0 12px}
-#slotModal .nb-coins{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:16px}
+#slotModal .nb-rv-btns .nb-btn{min-height:48px;padding:0 8px;font-size:16px}
+#slotModal .nb-coins{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:16px;z-index:5}
 
-@media (max-width:420px){#slotModal{--nbc:80px}#slotModal .nb-ttl h2{font-size:22px}}
-@media (max-width:360px){#slotModal{--nbc:76px}}
-@media (max-height:760px){#slotModal{--nbc:76px}#slotModal .nb-card{gap:8px}#slotModal .nb-stage{gap:12px}#slotModal .nb-rv-art{height:min(42dvh,360px)}}
-@media (max-height:680px){#slotModal .nb-pool{display:none}}
-.reduce-motion #slotModal *{animation:none!important}
+@media (max-width:420px){#slotModal .nb-card{padding:16px 8px 16px!important}#slotModal .nb-head,#slotModal .nb-lead,#slotModal .nb-stage{padding:0 8px}#slotModal .nb-ttl h2{font-size:24px}}
+@media (max-height:760px){#slotModal .nb-card{gap:8px}#slotModal .nb-stage{gap:8px}#slotModal .nb-rv-art{height:min(42vh,360px);height:min(42dvh,360px)}#slotModal .nb-go{min-height:48px}}
+@media (max-height:680px){#slotModal .nb-pool{display:none}#slotModal .nb-mach{width:min(100%,520px,calc((100vh - 300px) * 1.094));width:min(100%,520px,calc((100dvh - 300px) * 1.094))}}
+.reduce-motion #slotModal *{animation:none!important;transition:none!important}
+
+/* 航路畫面：敵人等級被等級同步拉高時的小字 */
+.arc-lv .arc-sync{display:block;font-size:11px;font-weight:700;opacity:.75;margin-top:2px}
 
 /* ---------- 七日之約：手機上 3 欄，6 格排滿兩列 ---------- */
 @media (max-width:640px){
@@ -84,5 +117,3 @@
 /* 拉霸、七日之約、入門船員開著時，提示訊息改到畫面底部，不壓住標題 */
 body:has(#slotModal.show) .toast,body:has(.lg7-wrap) .toast,body:has(#charModal.nb-starter.show) .toast{top:auto!important;bottom:calc(24px + var(--safeB,0px))!important;transform:translate(-50%,30px);pointer-events:none}
 body:has(#slotModal.show) .toast.show,body:has(.lg7-wrap) .toast.show,body:has(#charModal.nb-starter.show) .toast.show{transform:translate(-50%,0)}
-#slotModal .nb-pool-row{flex-wrap:nowrap}
-#slotModal .nb-pc{flex:0 1 56px;min-width:0}

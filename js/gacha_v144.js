@@ -57,7 +57,7 @@
   function mount() {
     if (host) return; host = document.createElement('div'); host.className = 'gfx-host'; host.setAttribute('role', 'dialog'); host.setAttribute('aria-modal', 'true'); host.setAttribute('aria-label', '懸賞召喚');
     R = host.attachShadow({ mode: 'open' });
-    R.innerHTML = `<link rel="stylesheet" href="${abs('css/gacha_v144.css?v=' + V)}"><style>:host{position:fixed;inset:0;z-index:9800;display:block;background:#05080f;color:#ece5d6;font:15px/1.7 var(--body);-webkit-tap-highlight-color:transparent}.phone{position:absolute;inset:0;width:auto;aspect-ratio:auto;border-radius:0;box-shadow:none}.phone>.skip{top:calc(12px + env(safe-area-inset-top,0px))}</style>` + STAGE;
+    R.innerHTML = `<link rel="stylesheet" href="${abs('css/gacha_v144.css?v=164')}"><style>:host{position:fixed;inset:0;z-index:9800;display:block;background:#05080f;color:#ece5d6;font:15px/1.7 var(--body);-webkit-tap-highlight-color:transparent}.phone{position:absolute;inset:0;width:auto;aspect-ratio:auto;border-radius:0;box-shadow:none}.phone>.skip{top:calc(12px + env(safe-area-inset-top,0px))}</style>` + STAGE;
   }
   function boot() {
     const $ = id => R.getElementById(id);

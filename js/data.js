@@ -1,5 +1,5 @@
 /* 資料版本：每次改動角色或劇情資料時加一。後台設定若來自舊版本會自動停用，避免舊劇情覆蓋新內容。 */
-const DATA_VERSION = 67;
+const DATA_VERSION = 68;
 /* 七日登入獎勵：第 7 天領完後從第 1 天重新開始 */
 const LOGIN_REWARDS = [
  {day:1, label:'貝里 5,000', berry:5000},
@@ -292,7 +292,9 @@ const EVENT_CALENDAR = [
  { id:'cross_guild',   every:'year', start:'07-01 00:00', end:'10-01 00:00', label:'七武海系列・7～9 月', previewDays:31 },
  { id:'moria_hancock', every:'year', start:'10-01 00:00', end:'01-01 00:00', label:'七武海系列・10～12 月', previewDays:31 },
  { id:'shichi_dq',     every:'year', start:'01-01 00:00', end:'03-31 00:00', label:'七武海系列・1～3 月', previewDays:31 },
- { id:'elbaf_01',      start:'2026-11-01 00:00', end:'2026-12-01 00:00', label:'11 月限定', preview:'2026-10-05 00:00' }
+ { id:'elbaf_01',      start:'2026-11-01 00:00', end:'2026-12-01 00:00', label:'11 月限定', preview:'2026-10-05 00:00' },
+ { id:'roger_hands',   start:'2026-11-06 00:00', end:'2026-12-01 00:00', label:'11 月限定・海賊王左右手' }, /* v164：雷利、賈巴 */
+ { id:'barto_fan',     start:'2026-12-01 00:00', end:'2027-01-01 00:00', label:'12 月限定・魯夫迷弟', preview:'2026-11-24 00:00' } /* v164：巴托洛米奧 */
 ];
 const twTime = s => { const [d, t = '00:00'] = s.split(' '), [y, m, dd] = d.split('-').map(Number), [h, mi] = t.split(':').map(Number); return Date.UTC(y, m - 1, dd, h, mi) - 8 * 3600e3; };
 /* 把檔期展開成實際時間區間（每年的檔期展開前後各一年） */

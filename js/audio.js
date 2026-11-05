@@ -23,8 +23,10 @@ const AUDIO = (() => {
     verb.buffer = ir; const vg = ctx.createGain(); vg.gain.value = .22; verb.connect(vg); vg.connect(musicBus);
     return true;
   }
-  function unlock() { if (!init()) return; if (ctx.state === 'suspended') ctx.resume(); if (pending) { const p = pending; pending = null; playSong(p.name); } if (ambPending) { const a = ambPending; ambPending = null; ambient(a); } }
-  ['pointerdown', 'keydown', 'touchstart'].forEach(ev => window.addEventListener(ev, unlock, { capture: true }));
+  /* v164：iPhone／iPad 來電或切到背景後狀態會變成 interrupted（不是 suspended），也要恢復；
+     iOS 只認「手指放開」（touchend／click）為使用者操作，按下時無法解鎖聲音，所以兩種都監聽 */
+  function unlock() { if (!init()) return; if (ctx.state !== 'running' && ctx.state !== 'closed') { try { const r = ctx.resume(); if (r && r.catch) r.catch(() => { }); } catch (e) { } } if (pending) { const p = pending; pending = null; playSong(p.name); } if (ambPending) { const a = ambPending; ambPending = null; ambient(a); } }
+  ['pointerdown', 'keydown', 'touchstart', 'touchend', 'click'].forEach(ev => window.addEventListener(ev, unlock, { capture: true, passive: true }));
   const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
   const NOTE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
   const n2m = s => { const m = /^([A-G][#b]?)(-?\d)$/.exec(s); return m ? NOTE[m[1]] + (+m[2] + 1) * 12 : null; };
@@ -260,7 +262,7 @@ const AUDIO = (() => {
     sfx(name) { if (!ctx || ctx.state !== 'running' || pref.muted || !FX[name]) return; try { FX[name](); } catch (e) { } },
     jingle(name, after) { return; if (!ctx || ctx.state !== 'running') return; stopTimer(); songName = name; const base = getSong(name); song = { ...base, after, byStep: {} }; base.events.forEach(e => (song.byStep[e.s] = song.byStep[e.s] || []).push(e)); musicBus.gain.cancelScheduledValues(ctx.currentTime); musicBus.gain.setValueAtTime(pref.muted ? 0 : pref.music * .5, ctx.currentTime); step = 0; nextTime = ctx.currentTime + .05; startTimer(); tick(); },
     suspend() { if (ctx && ctx.state === 'running') ctx.suspend(); },
-    resume() { if (ctx && ctx.state === 'suspended') ctx.resume(); },
+    resume() { if (ctx && ctx.state !== 'running' && ctx.state !== 'closed') { try { const r = ctx.resume(); if (r && r.catch) r.catch(() => { }); } catch (e) { } } },
     get pref() { return pref; },
     setPref(p) { Object.assign(pref, p); try { localStorage.setItem(PREF_KEY, JSON.stringify(pref)); } catch (e) { } if (ctx) { master.gain.value = pref.muted ? 0 : 1; musicBus.gain.value = pref.music * .5; ambBus.gain.value = pref.music * .5; sfxBus.gain.value = pref.sfx; } }
   };

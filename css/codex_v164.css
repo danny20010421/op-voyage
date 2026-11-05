@@ -1,0 +1,41 @@
+/* v164 角色圖鑑：全角色收錄（js/codex_order_v164.js、js/crew.js renderCodex）。8px 網格；同一列控制項等高 40px、內容水平垂直置中。 */
+#cxCodexBar{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px;align-items:center;margin:0 0 8px;padding:8px 0;background:linear-gradient(180deg,rgba(10,18,38,.98) 80%,rgba(10,18,38,.9))}
+#cxCodexBar .cxb-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center}
+#cxCodexBar .cxb-seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));height:40px;border:1px solid rgba(235,199,126,.35);border-radius:8px;overflow:hidden;background:rgba(255,255,255,.04)}
+#cxCodexBar .cxb-seg button{display:flex;align-items:center;justify-content:center;gap:4px;height:100%;min-width:0;margin:0;padding:0 4px;border:0;border-left:1px solid rgba(235,199,126,.2);background:transparent;color:#c8d0e0;font:700 14px/1 var(--sans,system-ui);cursor:pointer;white-space:nowrap}
+#cxCodexBar .cxb-seg button:first-child{border-left:0}
+#cxCodexBar .cxb-seg button em{font:700 11px/1 var(--num,system-ui);font-style:normal;color:#8a96aa}
+#cxCodexBar .cxb-seg button.on{background:linear-gradient(180deg,#f3d27a,#c9973a);color:#1a1206}
+#cxCodexBar .cxb-seg button.on em{color:#3a2a0c}
+#cxCodexBar label{display:flex;align-items:center;height:40px;min-width:0;margin:0;border:1px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(255,255,255,.06);box-sizing:border-box}
+#cxCodexBar .cxb-find span{display:flex;align-items:center;justify-content:center;width:32px;height:100%;font-size:14px;opacity:.7;flex:none}
+#cxCodexBar input,#cxCodexBar select{flex:1;min-width:0;height:100%;margin:0;padding:0 8px 0 0;border:0;outline:0;background:transparent;color:#eef2f8;font:500 16px/1 var(--sans,system-ui);-webkit-appearance:none;appearance:none} /* 16px：iOS 點輸入框不會自動放大 */
+#cxCodexBar select{padding:0 32px 0 12px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23ebc77e' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;font-size:15px;cursor:pointer}
+#cxCodexBar select option{color:#111;background:#fff}
+#cxCodexBar label:focus-within{border-color:#ebc77e}
+/* 分組標題：整列 */
+#cxCodexGrid .cx-gh{grid-column:1/-1;display:flex;align-items:center;gap:8px;min-height:40px;margin:8px 0 0;padding:0 8px;border-left:4px solid #c9973a;border-radius:4px;background:linear-gradient(90deg,rgba(201,151,58,.18),transparent 70%);font:900 16px/1.2 var(--serif,serif);color:#ffe7a8}
+#cxCodexGrid .cx-gh:first-child{margin-top:0}
+#cxCodexGrid .cx-gh small{font:500 12px/1.2 var(--sans,system-ui);color:#8a96aa;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cxCodexGrid .cx-gh em{margin-left:auto;font:700 12px/1 var(--num,system-ui);font-style:normal;color:#c8d0e0;flex:none}
+/* 篩選：只切換顯示 */
+#cxCodexGrid [hidden]{display:none!important}
+#cxCodexGrid[data-f="own"]>.char:not([data-f="own"]),#cxCodexGrid[data-f="not"]>.char:not([data-f="not"]),#cxCodexGrid[data-f="nm"]>.char:not([data-f="nm"]){display:none!important}
+#cxCodexGrid .cx-none{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:120px;margin:0;color:#8a96aa;font-size:14px}
+/* 數百張卡：畫面外的卡片不排版、不繪製（不支援的瀏覽器會照常顯示） */
+#cxCodexGrid>.char{content-visibility:auto;contain-intrinsic-size:auto var(--cxh,200px)}
+/* 未實裝名字卡：實線淡框，與預留的虛線框區分；名字與一般卡一樣一行（完整名字在點開的詳細資料） */
+#cxCodexGrid .char.v2.res.nm{border:2px solid rgba(255,255,255,.14)!important;background:linear-gradient(180deg,#18213a,#0e1529)!important}
+#cxCodexGrid .char.v2.res.nm .c-art img{opacity:.55}
+#cxCodexGrid .char.v2.res.nm .c-tag{display:flex;align-items:center;justify-content:center;height:16px;padding:0 4px;border-radius:4px;background:rgba(138,150,170,.3);color:#c8d0e0;font:700 10px/1 var(--sans,system-ui);white-space:nowrap}
+#cxCodexGrid .char.v2.res.nm .c-name{color:#dfe5ef}
+#cxCodexGrid .char.v2.res.rsv .c-name{color:#6d7890}
+.cx-note .cx-total{color:#8a96aa;font-size:12px}
+@media (max-width:860px){
+  #cxCodexBar{grid-template-columns:1fr}
+  #cxCodexBar .cxb-seg button{font-size:13px;flex-direction:row}
+}
+@media (max-width:760px){
+  #cxCodexGrid .char.v2.res.nm .c-tag{font-size:8.5px;height:14px;padding:0 3px}
+  #cxCodexGrid .cx-gh{font-size:15px}
+}

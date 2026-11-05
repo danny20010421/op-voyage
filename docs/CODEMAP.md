@@ -42,6 +42,12 @@
 - `css/v135.css`: .qo-*（掛機寶藏、召喚紀錄視窗）、.tp-*、#dlgSkip、.ps-claimall
 - **3D 分段下載（v135）**: index.html 不再直接載入 e3three.js；js/engine3d.js 的 window.ensure3D() 用 import() 載入（importmap 仍在 index.html），app.js enterChapter 先 await ensure3D() 再建立 World；進入遊戲 15 秒後背景預先下載
 - `js/ret_v136.js`: F:一般召喚券 ITEMS.summon_ticket（pull 外層包裝：券夠時先補回寶藏幣再呼叫原本的 pull）、回歸玩家 RETURN_CFG／window.RETURN（check／claim；SAVE.data.lastSeen、SAVE.data.ret）| D:pull、updateGachaBtns、openModes（第一次進大廳時 check） ；v137 領取視窗 RETURN.open（.rt-wrap，每天第一次進大廳自動跳出）、大廳入口 #lbRet（RETURN.rail） | S:樣式在 css/v137.css；視窗沿用 .qo-wrap
+- `js/roster_v164.js`＋`js/ext_v164.js`: F:賈巴、雷利、巴托洛米奧（eventOnly）、三款皮膚、限定池 roger_hands／barto_fan、巨人篇 NPC gaban_n；ext_v164 的 bartoBarrier（絕對防禦期間還原對手造成的一切變化）、皮膚 bonus 在 buildFighter 套用
+- `js/balance_v164.js`: F:娜美、羅賓→SR，亞爾麗塔→R，近海之王→RR 與 statScale
+- `js/codex_order_v164.js`＋`css/codex_v164.css`: F:圖鑑全角色順序表（id|名字|篇章），載入後重給 no、重排 CHARACTER_ORDER、每 30 號留 5 格、最後 imu/rocks/joyboy；未實裝名字卡 | S:no 只用於顯示，存檔用 id
+- `js/compat_v164.js`＋`css/compat_v164.css`: F:儲存空間封鎖時的記憶體存檔與提示、多分頁保護（最後開的分頁才能存）、is-ios/is-inapp class；舊瀏覽器 color-mix 等後備 | S:必須在所有程式之前載入
+- 月費檔期表：js/vip_v115.js 的 MCS（10/11/12 月），pickMC() 依時間挑當月；登入廣告只在大廳（onLobbyScreen、otherDialog）
+- `chapterEnemyLv(chId, boss, info)`（js/app.js）：篇章敵人等級的唯一算法（基本→BOSS 加成→篇章 BOSS 加成→等級同步），enemyLvFor 與航路卡、電話蟲提示都用它
 - `js/newbie_v163.js`＋`css/newbie_v163.css`: F:新手流程（入門船員 → 回大廳 → 新手 SR 拉霸 → 七日之約 → 導覽，一次一個視窗）；新手拉霸只抽未擁有的 SR、LV 100；沿用 #slotModal、slotSpin、slotResult、reel0～2
 - `js/grow_v157.js`＋`css/grow_v157.css`: F:v157 角色培養視窗（openGrow 取代 grow_v112 的版本；分頁 升級／覺醒／技能／寶物、底部主按鈕、目標等級自動選書）| R:grow_v112（Esc、⬆培養按鈕、背包重畫仍在用）| S:沿用同一個視窗元素與類別名稱
 - `js/gcard_v157.js`＋`css/gcard_v157.css`: F:統一的召喚結果卡片 window.GCARD（app.js showResults、event.js 使用）

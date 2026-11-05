@@ -49,7 +49,7 @@
 @media (max-width:560px){.pf-top{flex-direction:column;text-align:center}.pf-grid{grid-template-columns:repeat(2,1fr)}.pf-av img{width:88px;height:88px}}
 
 /* ================= 奪寶大冒險 ================= */
-#runnerScreen{background:#0a1a2e;touch-action:none;user-select:none}
+#runnerScreen{background:#0a1a2e;touch-action:none;-webkit-user-select:none;user-select:none}
 .rn-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
 .rn-hud{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;gap:10px;padding:calc(10px + var(--safeT,0px)) 12px 8px;background:linear-gradient(180deg,rgba(6,18,30,.7),transparent)}
 .rn-stat{display:flex;flex-direction:column;align-items:center;padding:4px 14px;border-radius:12px;background:rgba(6,18,30,.6);min-width:74px}.rn-stat small{font-size:11px;color:#cfd9e3}.rn-stat b{font-family:var(--num);font-size:20px;color:#fff}
@@ -61,7 +61,7 @@
 .rn-oar{position:absolute;bottom:calc(18px + var(--safeB,0px));z-index:3;width:clamp(92px,24vw,150px);height:clamp(92px,24vw,150px);border-radius:50%;border:3px solid #fff3c4;color:#3a2206;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 40% 35%,#fff0b8,#f3c969 55%,#b8801a);box-shadow:0 8px 20px rgba(0,0,0,.45);touch-action:manipulation;cursor:pointer}
 .rn-oar b{font-size:clamp(18px,4.5vw,24px)}.rn-oar small{font-size:11px;opacity:.75}.rn-oar:active{transform:scale(.93)}
 .rn-oar.l{left:clamp(10px,3vw,40px)}.rn-oar.r{right:clamp(10px,3vw,40px)}
-.rn-panel{position:absolute;inset:0;z-index:5;display:none;place-items:center;background:rgba(6,18,30,.55);backdrop-filter:blur(3px);padding:16px}
+.rn-panel{position:absolute;inset:0;z-index:5;display:none;place-items:center;background:rgba(6,18,30,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);padding:16px}
 .rn-panel.show{display:grid}
 .rn-card{width:min(460px,92vw);padding:24px;border-radius:20px;text-align:center;background:linear-gradient(180deg,#153050,#0c1c30);border:1px solid rgba(243,201,105,.4);box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .rn-card h2{margin:0 0 10px;font-family:var(--serif);font-size:28px;letter-spacing:.15em;background:linear-gradient(180deg,#fffbe8,#f3c969);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -149,11 +149,11 @@
 .m-tower .mc-art{background:url('../assets/ui/mode_tower.webp?v=23') center 35%/cover!important}
 .m-run .mc-art::after,.m-tower .mc-art::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(8,18,32,.55))}
 #towerScreen{background:linear-gradient(180deg,rgba(6,12,10,.55),rgba(6,12,10,.35) 40%,rgba(6,12,10,.75)),url('../assets/ui/tower_bg.webp?v=23') center/cover no-repeat,#0c0a1c!important}
-.tw-floors,.tw-panel{background:rgba(12,18,16,.72)!important;backdrop-filter:blur(8px);border:1px solid rgba(90,220,160,.25)!important}
+.tw-floors,.tw-panel{background:rgba(12,18,16,.72)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(90,220,160,.25)!important}
 .tw-f.now{box-shadow:0 0 0 2px #7fe0b0!important;background:linear-gradient(90deg,rgba(90,220,160,.28),rgba(90,220,160,.06))!important}
 .tw-f.now .tw-st,.tw-info small{color:#9dffcf!important}
 #gachaScreen[data-tab=shop]{background:linear-gradient(180deg,rgba(20,10,4,.55),rgba(20,10,4,.25) 35%,rgba(20,10,4,.7)),url('../assets/ui/shop_bg.webp?v=23') center/cover no-repeat,#2a1a0a!important}
-#gachaScreen[data-tab=shop] .hub-inner{padding:18px 20px;border-radius:18px;background:rgba(24,14,6,.72);border:1px solid rgba(243,201,105,.35);backdrop-filter:blur(8px)}
+#gachaScreen[data-tab=shop] .hub-inner{padding:18px 20px;border-radius:18px;background:rgba(24,14,6,.72);border:1px solid rgba(243,201,105,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .tc-btns{display:flex;flex-direction:column;gap:6px;align-items:stretch}
 /* 長按技能說明 */
 .sk-tip{position:fixed;z-index:200;max-width:min(320px,92vw);padding:12px 14px;border-radius:14px;background:rgba(8,18,32,.96);border:1px solid rgba(243,201,105,.55);box-shadow:0 12px 30px rgba(0,0,0,.55);color:#fff;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity .15s,transform .15s}
@@ -177,7 +177,7 @@
 #modeScreen{background:linear-gradient(180deg,rgba(6,18,34,.55),rgba(6,18,34,.25) 40%,rgba(6,18,34,.7)),url('../assets/ui/mode_bg.webp?v=24') center/cover no-repeat,#0c2440!important}
 .mode-head{filter:drop-shadow(0 2px 6px rgba(0,0,0,.7))}
 #gachaScreen[data-tab=bounty]{background:linear-gradient(180deg,rgba(20,6,6,.55),rgba(20,6,6,.2) 35%,rgba(20,6,6,.72)),url('../assets/ui/bounty_bg.webp?v=24') center/cover no-repeat,#1a0c0c!important}
-#gachaScreen[data-tab=bounty] .hub-inner{padding:18px 20px;border-radius:18px;background:rgba(20,10,8,.66);border:1px solid rgba(255,120,100,.3);backdrop-filter:blur(6px)}
+#gachaScreen[data-tab=bounty] .hub-inner{padding:18px 20px;border-radius:18px;background:rgba(20,10,8,.66);border:1px solid rgba(255,120,100,.3);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 /* 懸賞單：使用 WANTED 海報圖，進度放在照片欄 */
 .bt-poster{width:78px!important;height:114px!important;padding:0!important;border-radius:2px!important;clip-path:none!important;transform:rotate(-3deg);background:url('../assets/ui/wanted.webp?v=24') center/100% 100% no-repeat!important;box-shadow:0 6px 12px rgba(0,0,0,.5)!important;position:relative;display:block!important}
 .bt-poster span,.bt-poster .bt-face{display:none!important}
@@ -219,7 +219,7 @@
 @media (min-width:861px) and (max-width:1199px){.mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mode-card{min-height:300px}}
 #throneScreen{background:linear-gradient(180deg,rgba(20,4,8,.55),rgba(20,4,8,.2) 40%,rgba(20,4,8,.8)),url('../assets/ui/throne_bg.webp?v=28') center/cover no-repeat,#1a0a0e!important}
 .th-wrap{position:absolute;inset:calc(76px + var(--safeT,0px)) 0 0;display:grid;grid-template-columns:minmax(240px,300px) minmax(0,1fr) minmax(260px,340px);gap:16px;padding:10px clamp(12px,3vw,36px) calc(20px + var(--safeB,0px));overflow:auto;align-items:start}
-.th-boss,.th-pick,.th-rank{border-radius:18px;background:rgba(18,8,14,.74);border:1px solid rgba(243,201,105,.35);backdrop-filter:blur(8px);padding:16px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.th-boss,.th-pick,.th-rank{border-radius:18px;background:rgba(18,8,14,.74);border:1px solid rgba(243,201,105,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:16px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
 .th-art{border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 70%,rgba(200,40,40,.5),transparent 70%);aspect-ratio:3/4;display:grid;place-items:end center}
 .th-art img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,.6))}
 .th-boss h3{margin:10px 0 6px;font-family:var(--serif);font-size:22px}.th-boss h3 small{display:block;font-family:var(--sans);font-size:12px;color:#ffb3a0;font-weight:700;letter-spacing:.2em}
@@ -250,7 +250,7 @@
 @media (max-width:1100px){.th-wrap{grid-template-columns:minmax(220px,280px) minmax(0,1fr)}.th-rank{grid-column:1/-1}}
 @media (max-width:760px){.th-wrap{grid-template-columns:1fr}.th-boss{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:start}.th-boss .th-art{grid-row:span 3}.th-boss h3{margin-top:0}.th-note{grid-column:1/-1}.th-grid{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));max-height:none}.void-dmg{top:calc(150px + var(--safeT,0px))}.void-dmg b{font-size:20px}}
 /* 勇者之塔：完整樓層列表、可選擇重複挑戰 */
-.tw-floors{max-height:calc(100dvh - 130px);overflow-y:auto;scrollbar-width:thin}
+.tw-floors{max-height:calc(100vh - 130px);max-height:calc(100dvh - 130px);overflow-y:auto;scrollbar-width:thin}
 .tw-f.clear{cursor:pointer;opacity:.78}.tw-f.clear:hover{opacity:1;background:rgba(90,220,160,.12)}
 .tw-f.clear .tw-st{color:#9dffcf}
 .tw-f.sel{box-shadow:0 0 0 2px #ffd26c!important;opacity:1!important;background:linear-gradient(90deg,rgba(255,210,108,.25),rgba(255,210,108,.05))!important}
@@ -264,12 +264,12 @@
 @media (max-width:860px){#battleScreen .void-dmg{right:8px!important;padding:4px 10px!important}#battleScreen .void-dmg b{font-size:20px!important}}
 
 /* ===== 召喚池切換、跳過按鈕 ===== */
-.pool-tabs{position:absolute;left:50%;top:calc(76px + var(--safeT,0px));transform:translateX(-50%);z-index:7;display:flex;gap:4px;padding:4px;border-radius:99px;background:rgba(10,20,34,.75);border:1px solid rgba(243,201,105,.35);backdrop-filter:blur(8px)}
+.pool-tabs{position:absolute;left:50%;top:calc(76px + var(--safeT,0px));transform:translateX(-50%);z-index:7;display:flex;gap:4px;padding:4px;border-radius:99px;background:rgba(10,20,34,.75);border:1px solid rgba(243,201,105,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .pool-tabs.hidden{display:none}
 .pool-tabs button{position:relative;border:0;border-radius:99px;padding:8px 18px;background:none;color:#e0e8f0;font-weight:800;cursor:pointer}
 .pool-tabs button.on{background:linear-gradient(180deg,#ffe9a8,#c9973a);color:#3a2206}
 .pool-hot{font-style:normal;margin-left:6px;padding:1px 6px;border-radius:99px;background:#e0402f;color:#fff;font-size:10px;animation:dotPulse 1.4s infinite}
-.g-skip{position:fixed;right:clamp(12px,3vw,32px);top:calc(84px + var(--safeT,0px));z-index:260;padding:8px 18px;border-radius:99px;border:1px solid rgba(255,255,255,.5);background:rgba(8,18,32,.7);color:#fff;font-weight:800;letter-spacing:.1em;cursor:pointer;backdrop-filter:blur(6px)}
+.g-skip{position:fixed;right:clamp(12px,3vw,32px);top:calc(84px + var(--safeT,0px));z-index:260;padding:8px 18px;border-radius:99px;border:1px solid rgba(255,255,255,.5);background:rgba(8,18,32,.7);color:#fff;font-weight:800;letter-spacing:.1em;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .g-skip[hidden]{display:none}.g-skip:hover{background:rgba(8,18,32,.9)}
 #gachaScreen .g-main.tavern,#gachaScreen .ev-main{padding-top:calc(128px + var(--safeT,0px))!important}
 /* ===== 限定活動池 ===== */
@@ -277,7 +277,7 @@
 .ev-main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.9fr);gap:20px;align-items:start;max-width:1280px;margin:0 auto;padding-left:clamp(12px,3vw,40px);padding-right:clamp(12px,3vw,40px);padding-bottom:24px;box-sizing:border-box}
 .ev-main.hidden{display:none}
 .ev-banner{border-radius:18px;overflow:hidden;box-shadow:0 0 0 2px rgba(255,210,108,.55),0 20px 50px rgba(0,0,0,.5)}.ev-banner img{display:block;width:100%;height:auto}
-.ev-side{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:18px;background:rgba(14,8,26,.78);border:1px solid rgba(200,140,255,.3);backdrop-filter:blur(10px)}
+.ev-side{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:18px;background:rgba(14,8,26,.78);border:1px solid rgba(200,140,255,.3);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .ev-tickets{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:rgba(255,210,108,.12)}.ev-tickets span{font-weight:800}.ev-tickets b{font-family:var(--num);font-size:22px;color:#ffd26c}.ev-tickets small{color:var(--muted);font-size:12px}
 .ev-shard{display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid color-mix(in srgb,var(--c) 45%,transparent)}
 .ev-shard img{width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 0 8px var(--c))}
@@ -376,7 +376,7 @@
 }
 
 /* ===== v37 限定活動抽獎：先出現水晶（碎片＝彩虹水晶、道具＝銀色水晶），打開後才顯示獎品 ===== */
-.ev-crys .gem.ev-gem-img{inset:-4% -8%!important;width:116%;height:108%;object-fit:contain;clip-path:none!important;background:none!important;box-shadow:none!important;animation:crysFloat 1.8s ease-in-out infinite!important;filter:drop-shadow(0 0 10px rgba(220,230,255,.55));pointer-events:none;user-select:none}
+.ev-crys .gem.ev-gem-img{inset:-4% -8%!important;width:116%;height:108%;object-fit:contain;clip-path:none!important;background:none!important;box-shadow:none!important;animation:crysFloat 1.8s ease-in-out infinite!important;filter:drop-shadow(0 0 10px rgba(220,230,255,.55));pointer-events:none;-webkit-user-select:none;user-select:none}
 .ev-crys.hit .gem.ev-gem-img{filter:drop-shadow(0 0 14px rgba(255,200,255,.8)) drop-shadow(0 0 26px rgba(255,220,120,.55));animation:crysFloat 1.2s ease-in-out infinite,crysRainbow 1.6s linear infinite!important}
 .ev-crys.open .gem.ev-gem-img{animation:gemBreak .38s forwards!important}
 @keyframes crysFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6%) scale(1.04)}}
