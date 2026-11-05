@@ -78,7 +78,7 @@
     try { grantCombos(); } catch (e) { }
     try { grantSkins().forEach(k => setTimeout(() => toast(`獲得皮膚「${SKINS[k].name}」！可在角色背包裝備`, 'gold'), 1400)); } catch (e) { }
     const n = dailySweep(); if (n) setTimeout(() => toast(`每日補給：掃蕩卷 ×${n}`, 'gold'), 600);
-    if (canClaim() && !openLogin._shownDay) { openLogin._shownDay = today(); setTimeout(() => { if (currentScreen === 'modeScreen' && !document.querySelector('.dl-wrap')) openLogin(true); }, 900); }
+    if (canClaim() && !openLogin._shownDay) { openLogin._shownDay = today(); /* v163：新手拉霸等視窗開著時先等它關掉，一次只出現一個視窗 */ let n = 0; const t = setInterval(() => { n++; if (currentScreen !== 'modeScreen' || n > 600) { clearInterval(t); return; } if (document.querySelector('.dl-wrap, .modal.show, .gd-wrap')) return; clearInterval(t); openLogin(true); }, 900); }
     const d = SAVE.data, last = d.lastExport || 0, played = (d.pulls || 0) + CHAPTERS.filter(c => d.chapters[c.id].step > 0).length;
     const bar = $('lbBackup'); if (bar) bar.hidden = !(played > 2 && Date.now() - last > 7 * 864e5);
   }

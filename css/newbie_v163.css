@@ -1,0 +1,88 @@
+/* v163 新手流程：入門船員、新手 SR 拉霸、七日之約（8px 網格；框內置中；同列等高） */
+
+/* ---------- 入門船員：內容在中間捲動，確認鈕固定在底部 ---------- */
+#charModal.nb-starter .modal-card{display:flex!important;flex-direction:column;overflow:hidden!important}
+#charModal.nb-starter .modal-card>header,#charModal.nb-starter .modal-note{flex:0 0 auto}
+#charModal.nb-starter .modal-note{margin:0 0 8px;line-height:1.6}
+#charModal.nb-starter .crew-body{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+#charModal.nb-starter .modal-card>footer{flex:0 0 auto;display:flex;justify-content:center;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08)}
+#charModal.nb-starter #charConfirm{min-width:240px;min-height:48px}
+@media (max-width:860px){#charModal.nb-starter #charConfirm{width:100%}}
+
+/* ---------- 新手 SR 拉霸 ---------- */
+#slotModal.nb-modal{padding:16px}
+#slotModal .nb-card{position:relative;width:min(560px,100%)!important;max-width:100%!important;max-height:calc(100dvh - 32px)!important;margin:auto!important;overflow:auto;display:flex;flex-direction:column;gap:16px;padding:16px 16px 24px!important;text-align:center;
+  background:radial-gradient(120% 70% at 50% 0%,#2a3d78 0%,#101a3a 55%,#0a1128 100%)!important;border:1px solid rgba(243,201,105,.55)!important;border-radius:16px!important}
+#slotModal .nb-head{display:flex!important;align-items:center;justify-content:space-between;gap:8px;margin:0!important;min-height:48px}
+#slotModal .nb-ttl{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left}
+#slotModal .nb-ttl small{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:99px;background:rgba(255,90,90,.9);color:#fff;font-size:12px;font-weight:900;letter-spacing:.04em}
+#slotModal .nb-ttl h2{margin:0;font:900 26px/1.2 var(--serif);letter-spacing:.08em;background:linear-gradient(180deg,#fff7d6,#f3c969 60%,#c98a1e);-webkit-background-clip:text;background-clip:text;color:transparent}
+#slotModal .nb-x{flex:0 0 auto;width:40px;height:40px}
+#slotModal .nb-stage{display:flex;flex-direction:column;gap:16px}
+#slotModal .nb-stage[hidden]{display:none}
+#slotModal .nb-lead{margin:0;font-size:15px;line-height:1.6;color:#e6edf7}
+#slotModal .nb-lead b{color:#ffd26c}
+
+#slotModal{--nbc:96px}
+#slotModal .nb-machine{align-self:center;display:flex;justify-content:center;padding:8px;border-radius:16px;background:linear-gradient(180deg,#c99a46,#7a5418);box-shadow:0 8px 24px rgba(0,0,0,.45),inset 0 0 0 2px rgba(255,240,200,.5)}
+#slotModal .nb-reels{position:relative;display:flex;gap:8px;padding:8px;border-radius:10px;background:#081224;box-shadow:inset 0 4px 16px rgba(0,0,0,.8)}
+#slotModal .nb-reel{position:relative;width:var(--nbc);height:calc(var(--nbc) * 3);overflow:hidden;border-radius:8px;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 28%,#000 72%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0,#000 28%,#000 72%,transparent 100%)}
+#slotModal .nb-strip{will-change:transform}
+#slotModal .nb-cell{width:var(--nbc);height:var(--nbc);padding:4px;box-sizing:border-box}
+#slotModal .nb-cell img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 15%;border-radius:8px;border:2px solid rgba(201,151,58,.8)}
+#slotModal .nb-cell.hit img{border-color:#fff3c4;box-shadow:0 0 0 2px #ffd26c,0 0 16px rgba(255,210,108,.8)}
+#slotModal .nb-line{position:absolute;left:4px;right:4px;top:calc(8px + var(--nbc));height:var(--nbc);border:3px solid #ffd26c;border-radius:12px;pointer-events:none;box-shadow:0 0 16px rgba(255,210,108,.55)}
+#slotModal.nb-spin .nb-strip{filter:blur(1.5px)}
+#slotModal.nb-hit .nb-line{animation:nbLine .25s ease-in-out 2 alternate}
+@keyframes nbLine{to{border-color:#fff;box-shadow:0 0 32px rgba(255,240,200,1)}}
+
+#slotModal .nb-pool{display:flex;flex-direction:column;align-items:center;gap:8px}
+#slotModal .nb-pool>small{font-size:12px;color:#a9b6cc;letter-spacing:.08em}
+#slotModal .nb-pool-row{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
+#slotModal .nb-pc{display:flex;flex-direction:column;align-items:center;gap:4px;width:56px}
+#slotModal .nb-pc img{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:50% 15%;border:2px solid #c58bff}
+#slotModal .nb-pc b{max-width:56px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px;font-weight:700;color:#d6def0}
+
+#slotModal .nb-foot{display:flex!important;justify-content:center;margin:0!important}
+#slotModal .nb-go{min-width:min(320px,100%);min-height:56px;font-size:18px;display:inline-flex;align-items:center;justify-content:center}
+#slotModal .nb-go:disabled{opacity:.7}
+
+/* 揭曉 */
+#slotModal .nb-reveal:empty{display:none}
+#slotModal .nb-rv{display:flex;flex-direction:column;align-items:center;gap:8px;animation:nbIn .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes nbIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+#slotModal .nb-rv-k{font-size:13px;font-weight:900;letter-spacing:.3em;text-indent:.3em;color:#ffd26c}
+#slotModal .nb-rv-art{position:relative;width:100%;height:min(48dvh,400px);display:flex;align-items:flex-start;justify-content:center}
+#slotModal .nb-rv-glow{position:absolute;left:50%;top:50%;width:min(360px,90%);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--tc) 55%,transparent) 0%,transparent 68%);animation:nbGlow 2.4s ease-in-out infinite alternate}
+@keyframes nbGlow{to{transform:translate(-50%,-50%) scale(1.08);opacity:.8}}
+#slotModal .nb-rv-art img{position:relative;max-width:100%;max-height:100%;object-fit:contain;object-position:50% 0;filter:drop-shadow(0 8px 24px rgba(0,0,0,.6));animation:nbArt .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes nbArt{from{opacity:0;transform:translateY(16px) scale(1.06)}to{opacity:1;transform:none}}
+#slotModal .nb-rv-name{display:flex;align-items:center;justify-content:center;gap:8px}
+#slotModal .nb-rv-name .rar{display:inline-flex;align-items:center;justify-content:center;height:24px;min-width:40px;padding:0 8px;border-radius:6px;background:var(--tc);color:#1a0d2a;font-size:13px;font-weight:900}
+#slotModal .nb-rv-name h3{margin:0;font:900 28px/1.2 var(--serif);color:#fff}
+#slotModal .nb-rv-sub{margin:0;font-size:14px;color:#c9d4e6}
+#slotModal .nb-rv-tip{margin:0;max-width:420px;font-size:13px;line-height:1.6;color:#a9b6cc}
+#slotModal .nb-rv-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:440px;margin-top:8px}
+#slotModal .nb-rv-btns button{min-height:48px;margin:0;display:inline-flex;align-items:center;justify-content:center;padding:0 12px}
+#slotModal .nb-coins{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:16px}
+
+@media (max-width:420px){#slotModal{--nbc:80px}#slotModal .nb-ttl h2{font-size:22px}}
+@media (max-width:360px){#slotModal{--nbc:76px}}
+@media (max-height:760px){#slotModal{--nbc:76px}#slotModal .nb-card{gap:8px}#slotModal .nb-stage{gap:12px}#slotModal .nb-rv-art{height:min(42dvh,360px)}}
+@media (max-height:680px){#slotModal .nb-pool{display:none}}
+.reduce-motion #slotModal *{animation:none!important}
+
+/* ---------- 七日之約：手機上 3 欄，6 格排滿兩列 ---------- */
+@media (max-width:640px){
+  .lg7-row{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;row-gap:16px!important}
+  .lg7-day.big{grid-column:1/-1!important}
+  .lg7-head p{font-size:13px;text-wrap:balance}
+  .lg7-foot{gap:8px!important}
+  .lg7-foot .btn-gold{width:100%;min-height:48px;white-space:nowrap}
+}
+/* 拉霸、七日之約、入門船員開著時，提示訊息改到畫面底部，不壓住標題 */
+body:has(#slotModal.show) .toast,body:has(.lg7-wrap) .toast,body:has(#charModal.nb-starter.show) .toast{top:auto!important;bottom:calc(24px + var(--safeB,0px))!important;transform:translate(-50%,30px);pointer-events:none}
+body:has(#slotModal.show) .toast.show,body:has(.lg7-wrap) .toast.show,body:has(#charModal.nb-starter.show) .toast.show{transform:translate(-50%,0)}
+#slotModal .nb-pool-row{flex-wrap:nowrap}
+#slotModal .nb-pc{flex:0 1 56px;min-width:0}

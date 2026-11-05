@@ -42,6 +42,7 @@
 - `css/v135.css`: .qo-*（掛機寶藏、召喚紀錄視窗）、.tp-*、#dlgSkip、.ps-claimall
 - **3D 分段下載（v135）**: index.html 不再直接載入 e3three.js；js/engine3d.js 的 window.ensure3D() 用 import() 載入（importmap 仍在 index.html），app.js enterChapter 先 await ensure3D() 再建立 World；進入遊戲 15 秒後背景預先下載
 - `js/ret_v136.js`: F:一般召喚券 ITEMS.summon_ticket（pull 外層包裝：券夠時先補回寶藏幣再呼叫原本的 pull）、回歸玩家 RETURN_CFG／window.RETURN（check／claim；SAVE.data.lastSeen、SAVE.data.ret）| D:pull、updateGachaBtns、openModes（第一次進大廳時 check） ；v137 領取視窗 RETURN.open（.rt-wrap，每天第一次進大廳自動跳出）、大廳入口 #lbRet（RETURN.rail） | S:樣式在 css/v137.css；視窗沿用 .qo-wrap
+- `js/newbie_v163.js`＋`css/newbie_v163.css`: F:新手流程（入門船員 → 回大廳 → 新手 SR 拉霸 → 七日之約 → 導覽，一次一個視窗）；新手拉霸只抽未擁有的 SR、LV 100；沿用 #slotModal、slotSpin、slotResult、reel0～2
 - `js/grow_v157.js`＋`css/grow_v157.css`: F:v157 角色培養視窗（openGrow 取代 grow_v112 的版本；分頁 升級／覺醒／技能／寶物、底部主按鈕、目標等級自動選書）| R:grow_v112（Esc、⬆培養按鈕、背包重畫仍在用）| S:沿用同一個視窗元素與類別名稱
 - `js/gcard_v157.js`＋`css/gcard_v157.css`: F:統一的召喚結果卡片 window.GCARD（app.js showResults、event.js 使用）
 - `js/balance_v161.js`: F:v161 四皇體質與黑鬍子倍率微調；皇帝領海難度在 js/emperor.js 的 EMPEROR_DOMAIN.dmgAdj
