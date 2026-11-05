@@ -1,0 +1,15 @@
+/* v164c 使用者 11/06「馬爾科第五技能變身後的立繪會一直旋轉」：
+   變身後立繪會鏡射（scaleX 為負），待機上下浮動與變身演出原本用 transform 關鍵影格，
+   和基本的 scale(var(--sc)) scaleX(var(--mx)) 函式數量不同時，部分瀏覽器會改用矩陣插值，負的鏡射被拆成 180° 旋轉而一直轉。
+   改成用獨立的 translate／scale 屬性做動畫，transform 本身不再被動畫改動，任何鏡射狀態都不會旋轉。 */
+.fighter img,.fighter.R img{animation-name:idleSafe}
+@keyframes idleSafe{50%{translate:var(--vx,0px) calc(var(--vy,0px) - 10px * var(--sc,1))}} /* 保留後台立繪測試的位置偏移 --vx/--vy */
+.fighter.down img{animation:none}
+.morph-out img{animation:morphOutSafe .5s ease-in}
+.morph-in img{animation:morphInSafe .75s cubic-bezier(.2,.8,.2,1)}
+@keyframes morphOutSafe{0%{filter:none;scale:1}100%{filter:brightness(3.2) saturate(.2) drop-shadow(0 0 24px #fff);scale:.97}}
+@keyframes morphInSafe{0%{filter:brightness(4) saturate(0) drop-shadow(0 0 36px #fff);scale:1.08}60%{filter:brightness(1.3) drop-shadow(0 0 12px rgba(255,255,255,.6))}100%{filter:none;scale:1}}
+@media (prefers-reduced-motion:reduce){.fighter img,.fighter.R img,.morph-out img,.morph-in img{animation:none}}
+/* 換立繪時 refreshFighterImage 會在 img 加上 .morph（原本的 morphIn 用 transform，會蓋掉鏡射又跳回），改成 scale 屬性，演出完接回待機浮動 */
+.fighter img.morph{animation:morphInSafe .6s ease-out,idleSafe 3.2s ease-in-out .6s infinite}
+.fighter.down img.morph{animation:morphInSafe .6s ease-out}
