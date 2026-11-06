@@ -45,6 +45,7 @@
 - `js/ext_v167.js`＋`js/balance_v167.js`: F:trueBurst（真實傷害追加最大體力 N%，對 BOSS 減半）、shadowAdd/shadowBonus（莫莉亞影子疊層，最多 5 層，4 回合消散）；七位角色數值
 - `js/ext_v168.js`: 皇帝領海第二、三階段 noExec（攔截所有秒殺路徑→傷害 0、回滿體力）；loader.js 之前載入
 - `js/ext_v169.js`: 通用效果 foresight（看穿：每回合第一次受到的攻擊必定迴避，破無敵／必中／自由不受影響）、imuPact.chain（契約連鎖後排扣血）、splash（後排波及）。ext_v165 新增 maxForm（伊姆晉升上限，塔 imuMaxForm）、paceNext、天罰 judge
+- `js/fx_imu_v170.js`、`css/fx_imu_v170.css`：伊姆全技能特效（14 招專屬編排、晉升 imuFormFx 覆寫 fx_v165 版、天罰、看穿／後排波及提示、領域氛圍）。包住 playChoreo、triggerImpact、log、IMU165.preAct/postAct、onEvaded、applySkillEffects、endTurnStatus、renderHUD、startBattle、finishBattle；用 FXE 畫布＋立繪後方 DOM（王座、雙翼）＋VFX00.fx（fx_vfx_v155 新開放）。降級：減少動態／技能特效低／省電／手機
 - `css/align_v168.css`: 全畫面對齊修正（text-box 裁切置中、同列等高、省略號）；最後載入的 css。量測工具在 /root/promo/v168/align/
 - `js/rocks_v166.js`＋`css/rocks_v166.css`: F:洛克斯新立繪（battleScale .85）、舊立繪皮膚 rocks_classic（擁有洛克斯自動獲得）、原造型戰鬥中的閃電環繞 .rocks-aura（包住 applyVisual）
 - `js/ext_v165.js`＋`js/balance_v165.js`＋`js/fx_v165.js`＋`css/v165.css`: F:伊姆三型態（__imu.form 0/1/2、晉升、各種契約／領域／抹除狀態）與洛基、尼卡、洛克斯、黑鬍子的通用克制效果；IMU165.preAct/postAct 給 battle.js 與 tests/*-sim 共用 | A:assets/chars/imu_form1、imu_form2 | T:tests/imu-sim.js

@@ -113,7 +113,13 @@
   function hook() {
     if (typeof window.playChoreo === 'function' && !window.playChoreo.__vfx) { const _p = window.playChoreo; window.playChoreo = function (side, actor, idx, skill) { if (!V) load(); else try { cast(side === 'P' ? 'L' : 'R', skill); } catch (e) { } return _p.apply(this, arguments); }; window.playChoreo.__vfx = true; }
   }
-  window.VFX00 = { load, hit, cast, get ready() { return !!(V && rd); }, live: () => live.length };
+  /* v170：指定素材放在某個角色身上（伊姆專屬特效 js/fx_imu_v170.js 用）；ox／oy 以「公尺」為單位偏移，回傳是否有放出來 */
+  function fx(id, opt, mode, side, life, ox, oy) {
+    if (!V || !rd || !enabled() || !V.PRESETS[id]) return false;
+    try { const [x, y] = FX3D.pt(side), U = unit(side), g = FX3D.geo(); if (!cam.userData.W) { setCam(Math.round(g.SW), Math.round(g.SH), U); cam.userData.W = Math.round(g.SW); } if (!cam.userData.U) cam.userData.U = U;
+      spawn(id, opt || {}, mode || 'c', x + (ox || 0) * U, y + (oy || 0) * U, U, life); return true; } catch (e) { return false; }
+  }
+  window.VFX00 = { load, hit, cast, fx, get ready() { return !!(V && rd); }, live: () => live.length };
   window.addEventListener('load', () => setTimeout(hook, 30));
   if (typeof window.startBattle === 'function') { const _sb = window.startBattle; window.startBattle = function () { load(); if (live.length) { live.splice(0).forEach(o => { try { sc.remove(o.fx.group); o.fx.dispose(); } catch (e) { } }); if (rd) rd.clear(); } return _sb.apply(this, arguments); }; /* 新的一場戰鬥：清掉殘留特效 */ }
 })();

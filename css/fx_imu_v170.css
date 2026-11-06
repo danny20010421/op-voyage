@@ -1,0 +1,57 @@
+/* v170 伊姆特效（js/fx_imu_v170.js）：立繪後方的王座／雙翼、狀態持續中的場上氛圍、後排頭像受擊提示。
+   全部 pointer-events:none，不擋血條、技能欄、戰鬥紀錄；只動 opacity／transform（不動含鏡射的立繪本身）。
+   「減少動態效果」（.reduce-motion，v63.css）與系統減少動態時動畫自動停用；技能特效低／省電（#battleScreen.imu-lo）不放飄羽、紋章不旋轉。 */
+.imu-bkwrap{position:absolute;inset:0;z-index:0;pointer-events:none;overflow-x:clip;clip-path:inset(-400% 0 -100% 0)} /* 左右裁在戰場內，不造成水平捲動；上下可以超出 */
+.imu-bk{position:absolute;z-index:0;pointer-events:none;opacity:0;will-change:transform,opacity}
+.imu-bk svg{display:block;width:100%;height:100%;overflow:visible}
+.imu-throne::before{content:'';position:absolute;left:-12%;right:-12%;top:8%;bottom:-6%;border-radius:50%;background:radial-gradient(ellipse at 50% 55%,rgba(200,0,58,.42),rgba(200,0,58,0) 68%)}
+.imu-throne svg{position:relative}
+
+/* 領域：世界之王（深紅）／虛空王座・天翼（紫粉＋飄落黑羽） */
+#battleScreen .imu-amb{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;overflow:hidden;transition:opacity .8s ease;contain:strict}
+#battleScreen .imu-amb.on{opacity:1}
+.imu-amb::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 42% at var(--ox,74%) 94%,rgba(200,0,58,.42),rgba(200,0,58,0) 70%),radial-gradient(ellipse 50% 30% at var(--ox,74%) 30%,rgba(120,0,30,.2),rgba(120,0,30,0) 70%),linear-gradient(180deg,rgba(10,0,8,.6),rgba(10,0,8,0) 38%,rgba(10,0,8,0) 66%,rgba(30,0,14,.55));animation:imuAmb 4.8s ease-in-out infinite}
+.imu-amb.f3::before{background:radial-gradient(ellipse 75% 46% at var(--ox,74%) 94%,rgba(176,74,255,.45),rgba(176,74,255,0) 70%),radial-gradient(ellipse 60% 32% at var(--ox,74%) 22%,rgba(255,58,138,.24),rgba(255,58,138,0) 70%),linear-gradient(180deg,rgba(12,0,20,.65),rgba(12,0,20,0) 38%,rgba(12,0,20,0) 66%,rgba(26,0,34,.6))}
+@keyframes imuAmb{50%{opacity:.62}}
+.imu-amb i{display:none;position:absolute;top:-10%;width:16px;height:40px;opacity:.75;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -24 20 48'%3E%3Cpath d='M0-22Q8-6 2 20L-2 20Q-8-6 0-22Z' fill='%2314020e' stroke='%23d04aff' stroke-width='1.2'/%3E%3Cpath d='M0-18V22' stroke='%23ff5ab4' stroke-width='.8'/%3E%3C/svg%3E") center/contain no-repeat;animation:imuFeather 9s linear infinite}
+.imu-amb.f3 i{display:block}
+.imu-amb i:nth-child(1){left:8%;animation-duration:9.5s;animation-delay:-1s}
+.imu-amb i:nth-child(2){left:24%;animation-duration:11s;animation-delay:-6s;--r:-300deg}
+.imu-amb i:nth-child(3){left:41%;animation-duration:8.5s;animation-delay:-3s}
+.imu-amb i:nth-child(4){left:58%;animation-duration:10.5s;animation-delay:-8s;--r:-260deg}
+.imu-amb i:nth-child(5){left:74%;animation-duration:9s;animation-delay:-4.5s}
+.imu-amb i:nth-child(6){left:90%;animation-duration:12s;animation-delay:-2s;--r:-320deg}
+@keyframes imuFeather{0%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(28px,60vh) rotate(calc(var(--r,280deg) / 2))}100%{transform:translate(-12px,120vh) rotate(var(--r,280deg))}}
+#battleScreen.imu-lo .imu-amb i{display:none}
+
+/* 看穿：伊姆頭上的八隻紅眼（本回合已看穿過一次時變暗） */
+.imu-eyes{position:absolute;z-index:3;pointer-events:none}
+.imu-eyes b{position:absolute;width:13%;aspect-ratio:40/18;transform:translate(-50%,-50%);filter:drop-shadow(0 0 4px rgba(255,30,70,.9));animation:imuBlink 3.6s ease-in-out infinite;transform-origin:50% 50%}
+.imu-eyes b svg{display:block;width:100%;height:100%}
+.imu-eyes.used b{opacity:.35;filter:none}
+@keyframes imuBlink{0%,86%,100%{transform:translate(-50%,-50%) scaleY(1)}92%{transform:translate(-50%,-50%) scaleY(.1)}}
+
+/* 不滅光環（不死之身、永劫不滅、千眼天啟）：在立繪後方 */
+.imu-halo{position:absolute;z-index:0;pointer-events:none;border-radius:50%;background:radial-gradient(circle,rgba(255,42,90,0) 50%,rgba(255,42,90,.5) 58%,rgba(255,120,150,.25) 62%,rgba(255,42,90,0) 72%);animation:imuHalo 2.8s ease-in-out infinite}
+.imu-halo.f3{background:radial-gradient(circle,rgba(208,74,255,0) 50%,rgba(208,74,255,.5) 58%,rgba(255,90,180,.28) 62%,rgba(208,74,255,0) 72%)}
+@keyframes imuHalo{50%{transform:scale(1.08);opacity:.7}}
+
+/* 對手腳下的契約紋（惡魔契約＝粉、完全支配＝深紅）與存在抹除（紫白閃爍） */
+.imu-mark{position:absolute;z-index:0;pointer-events:none;transform:scaleY(.3);opacity:.9}
+.imu-mark svg{display:block;width:100%;height:100%;stroke:#ff5ab4;filter:drop-shadow(0 0 6px rgba(255,90,180,.8));animation:imuSpin 12s linear infinite}
+.imu-mark.full svg{stroke:#ff2a5a;filter:drop-shadow(0 0 6px rgba(255,42,90,.85))}
+.imu-mark.erase:not(.pact) svg{stroke:#c8a0ff;filter:drop-shadow(0 0 6px rgba(200,160,255,.8))}
+.imu-mark.erase{animation:imuErase 1.6s steps(4) infinite}
+@keyframes imuSpin{to{transform:rotate(360deg)}}
+@keyframes imuErase{0%,100%{opacity:.9}50%{opacity:.45}}
+#battleScreen.imu-lo .imu-mark svg{animation:none}
+
+/* 後排頭像：契約連鎖（鎖鏈紋）、翅膀掃擊（斜向羽痕） */
+#bTeam .tm.imu-bh{animation:imuBench .9s ease-out}
+#bTeam .tm.imu-bh::after{content:'';position:absolute;inset:0;pointer-events:none;animation:imuBenchO .9s ease-out forwards}
+#bTeam .tm.imu-bh-c::after{background:radial-gradient(circle at 50% 50%,rgba(255,90,180,0) 40%,rgba(255,90,180,.75) 46%,rgba(255,90,180,0) 52%),repeating-linear-gradient(45deg,rgba(40,20,48,.0) 0 6px,rgba(255,90,180,.45) 6px 8px)}
+#bTeam .tm.imu-bh-w::after{background:repeating-linear-gradient(-35deg,rgba(20,2,14,0) 0 9px,rgba(208,74,255,.7) 9px 11px,rgba(20,2,14,.55) 11px 15px)}
+@keyframes imuBench{0%{border-color:#ff2a5a;filter:brightness(1.7)}100%{filter:none}}
+@keyframes imuBenchO{0%{opacity:1}100%{opacity:0}}
+
+@media (prefers-reduced-motion:reduce){.imu-amb::before,.imu-amb i,.imu-eyes b,.imu-halo,.imu-mark,.imu-mark svg,#bTeam .tm.imu-bh,#bTeam .tm.imu-bh::after{animation:none!important}.imu-amb i{display:none!important}}
