@@ -1,6 +1,6 @@
-/* v165 伊姆型態切換列（js/fx_v165.js）：三個等寬按鈕，頭像＋文字水平垂直置中，8px 網格 */
+/* v165 伊姆型態切換列（js/fx_v165.js）：四個等寬按鈕（v169），頭像＋文字水平垂直置中，8px 網格 */
 .imu-forms-host{margin:8px 0}
-.imu-forms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.imu-forms{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px} /* v169：四種型態 */
 .imu-forms button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:8px;border-radius:8px;border:1px solid rgba(255,90,120,.35);background:linear-gradient(180deg,rgba(60,10,30,.7),rgba(20,4,14,.75));color:#f4e6ea;cursor:pointer;font:inherit;line-height:1.2;text-align:center}
 .imu-forms button img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex:none;border:1px solid rgba(255,255,255,.25)}
 .imu-forms button span{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0}

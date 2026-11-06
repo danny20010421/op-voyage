@@ -1,5 +1,5 @@
 /* 後台「立繪測試」（v165 重做）：
-   - 可以選任何角色（含 NPC）、任何皮膚（含尚未上架）、任何型態（技能變身 formImage／phoenixForm／kaidoDragon，伊姆的 forms[1..2]）。
+   - 可以選任何角色（含 NPC）、任何皮膚（含尚未上架）、任何型態（技能變身 formImage／phoenixForm／kaidoDragon，伊姆的 forms[1..3]）。
    - 即時調整：對戰大小 battleScale、鏡像 faceLeft、左右／上下位置（dx、dy，單位是立繪框的 %）。
      預覽和戰鬥用同一個算法（battle.js applyVisual）：--sc＝角色 scale × battleScale ×（型態倍率 visMul），
      --mx＝(faceLeft?-1:1)×(型態 mirror?-1:1)，敵方（右）再水平翻轉一次。
@@ -28,7 +28,7 @@
       (c.skills || []).forEach(s => Object.entries((s && s.effect) || {}).forEach(([k, v]) => { if (!FORM_KEYS[k] || !v || !v.image) return;
         L.push({ key: 'form:' + id, kind: 'form', id, label: `${c.name}（${k === 'formImage' ? s.name : FORM_KEYS[k]}）`, sub: '型態', img: v.image, avatar: c.avatar, bs: c.battleScale || 1, face: !!c.faceLeft, mul: v.scale || 1, mirror: !!v.mirror, skin: null }); }));
       (c.forms || []).forEach((F, i) => { if (!i || !F || !F.image) return;
-        L.push({ key: 'form:' + id + '_form' + i, kind: 'form', id, label: `${F.name || c.name}（第 ${i + 1} 型態）`, sub: '型態', img: F.image, avatar: F.avatar || c.avatar, bs: c.battleScale || 1, face: !!c.faceLeft, mul: F.scale || 1, mirror: false, skin: null }); });
+        L.push({ key: 'form:' + id + '_form' + i, kind: 'form', id, label: `${F.name || c.name}（${F.label || `第 ${i} 型態`}）`, sub: '型態', img: F.image, avatar: F.avatar || c.avatar, bs: c.battleScale || 1, face: !!c.faceLeft, mul: F.scale || 1, mirror: false, skin: null }); });
     });
     return L;
   }

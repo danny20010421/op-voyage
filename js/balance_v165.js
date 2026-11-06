@@ -1,7 +1,7 @@
 /* v165 伊姆重做（使用者 11/06 指定規格 /root/promo/v165/src/imu_skills.txt，逐條照做；強度不壓回平衡區間）。
-   三種型態：初始型態「伊姆」（原立繪）→ 第一型態「伊姆聖」（imu_form1）→ 第二型態「世界之王・伊姆聖」（imu_form2）。
+   四種型態：初始型態「伊姆」（原立繪）→ 第一型態「伊姆聖」（imu_form1）→ 第二型態「世界之王・伊姆聖」（imu_form2）→ 第三型態「深淵聖靈・伊姆」（imu_form3，v169）。
    - CHARACTERS.imu.skills：初始／第一型態的五招（①不死之身 ②黑轉支配 ③虛空威壓 ④黑焰・凶兆 ⑤最初20人）；初始型態只能用①⑤
-   - CHARACTERS.imu.form2Skills：第二型態的①～④（⑤沿用同一招）
+   - CHARACTERS.imu.form2Skills／form3Skills：第二、第三型態的①～④（⑤沿用同一招；第三型態再施放為「天罰」）
    - CHARACTERS.imu.forms：三種型態的名字、立繪、頭像、對戰大小（皮膚只換初始型態的樣子，晉升後一律用型態立繪）
    效果欄位（imuUndying、imuPact、imuVoid、imuSealAtk、imuPactChase、imuDefIgnore、imuAscend、imuEternal、imuDomain、imuRuin）的處理都在 js/ext_v165.js。
    不再用皮膚鎖招（拿掉 skinSkills）；角色特性（免疫異常、免秒殺、免能力下降，v110）保留。
@@ -12,10 +12,11 @@
   C.forms = [
     { key: 'base', label: '初始型態', name: C.name || '伊姆', title: C.title || '世界之王', image: C.image, avatar: C.avatar },
     { key: 'form1', label: '第一型態', name: '伊姆聖', title: '第一型態', image: img('imu_form1'), avatar: img('imu_form1_face'), scale: 1.25 },
-    { key: 'form2', label: '第二型態', name: '世界之王・伊姆聖', title: '第二型態', image: img('imu_form2'), avatar: img('imu_form2_face'), scale: 1.8 } /* v167：使用者 11/06 08:26 第二型態放大到約 1.8 */
+    { key: 'form2', label: '第二型態', name: '世界之王・伊姆聖', title: '第二型態', image: img('imu_form2'), avatar: img('imu_form2_face'), scale: 1.8 }, /* v167：使用者 11/06 08:26 第二型態放大到約 1.8 */
+    { key: 'form3', label: '第三型態', name: '深淵聖靈・伊姆', title: '第三型態', image: `assets/chars/imu_form3.webp?v=169`, avatar: `assets/chars/imu_form3_face.webp?v=169`, scale: 1.6 } /* v169：使用者 11/07 00:36 新增第三型態（橫幅雙翼立繪，對戰大小約 1.6） */
   ];
   delete C.skinSkills; /* v165：型態取代皮膚鎖招 */
-  C.desc = '坐在瑪莉喬亞「空白王座」上的世界之王，真實身分籠罩在黑影之中。初始型態只能使用「不死之身」與「最初20人」；施放「最初20人」晉升為第一型態「伊姆聖」、再次施放晉升為第二型態「世界之王・伊姆聖」，立繪與技能都會改變。【角色特性】免疫異常、免秒殺、免能力下降。';
+  C.desc = '坐在瑪莉喬亞「空白王座」上的世界之王，真實身分籠罩在黑影之中。初始型態只能使用「不死之身」與「最初20人」；施放「最初20人」晉升為第一型態「伊姆聖」、第二次晉升為第二型態「世界之王・伊姆聖」、第三次晉升為第三型態「深淵聖靈・伊姆」，立繪與技能都會改變；第四次施放降下「天罰」。【角色特性】免疫異常、免秒殺、免能力下降。';
   const sk = (o) => Object.assign({ power: 0, accuracy: 100 }, o, { maxPP: o.pp });
   C.skills = [
     sk({ name: '不死之身', type: 'support', pp: 2, anima: 'cook',
@@ -35,9 +36,9 @@
       tags: [['爆發', 'red'], ['破防', 'red'], ['黑焰侵蝕', 'red'], ['封招', 'gold'], ['追擊', 'gold']],
       effect: { randomMultiplierRange: [5, 30], ignoreShield: true, imuDefIgnore: .5, dotSequence: [[.03, .08], [.03, .08], [.03, .08]], dotLabel: '黑焰侵蝕', imuSealAtk: .3, imuPactChase: .5 } }),
     sk({ name: '最初20人', type: 'support', pp: 4, anima: 'awaken', ultimate: true,
-      desc: '奧義（4 次）。第一次施放晉升為第一型態「伊姆聖」，開啟第 2～4 招；第二次施放晉升為第二型態「世界之王・伊姆聖」，技能欄換成第二型態的技能，第 1～4 招次數全部恢復（本招不恢復，最多 4 次），並繼承全部累積效果。每次施放：全能力 +3、無敵 5 回合、連續 3 回合奪走對手目前體力的 30%、自身負面狀態與能力下降全部反彈給對手（之後對手施加的也會反彈）、全部技能威力 +20～50% 且都改為真實傷害；並開始每回合判定秒殺對手（從 20% 起每回合 +5%，秒殺後重新累加）；體力低於 10% 時恢復全部體力（每次施放 +2 次）。最多晉升兩次，之後立繪維持最新型態，但仍能施放技能效果。',
-      tags: [['奧義', 'gold'], ['變身', 'gold'], ['無敵', 'green'], ['真實傷害', 'red'], ['秒殺', 'red']],
-      effect: { imuAscend: { stat: 3, inv: 5, steal: [3, .3], pow: [.2, .5], exec: [.2, .05], clutch: 2, clutchAt: .1 }, noRestore: true } })
+      desc: '奧義（4 次）。第一次施放晉升為第一型態「伊姆聖」，開啟第 2～4 招；第二次施放晉升為第二型態「世界之王・伊姆聖」、第三次施放晉升為第三型態「深淵聖靈・伊姆」，每次晉升技能欄都換成新型態的技能，第 1～4 招次數全部恢復（本招不恢復，最多 4 次），並繼承全部累積效果。每次施放：全能力 +3、無敵 5 回合、連續 3 回合奪走對手目前體力的 30%、自身負面狀態與能力下降全部反彈給對手（之後對手施加的也會反彈）、全部技能威力 +20～50% 且都改為真實傷害；並開始每回合判定秒殺對手（從 20% 起每回合 +5%，秒殺後重新累加）；體力低於 10% 時恢復全部體力（每次施放 +2 次）。第三型態時再次施放改為降下「天罰」：無敵改為 3 回合，清除對手全部強化（能力提升、護盾、減傷、無敵、閃避），對手失去最大體力 30% 的體力（BOSS 為 10%），且 3 回合內無法獲得強化。',
+      tags: [['奧義', 'gold'], ['變身', 'gold'], ['無敵', 'green'], ['真實傷害', 'red'], ['秒殺', 'red'], ['天罰', 'red']],
+      effect: { imuAscend: { stat: 3, inv: 5, steal: [3, .3], pow: [.2, .5], exec: [.2, .05], clutch: 2, clutchAt: .1, judge: { inv: 3, strike: .3, bossStrike: .1, block: 3 } }, noRestore: true } })
   ];
   C.form2Skills = [
     sk({ name: '永劫不滅', type: 'support', pp: 5, anima: 'cook',
@@ -56,6 +57,27 @@
       desc: '把黑焰凝聚成巨大的毀滅之刃，以霸王色霸氣纏繞刀身：造成 15～30 倍傷害，無視防禦與護盾，追加對手最大體力 20% 的傷害。清除對手全部能力提升並奪為己有。使對手陷入「存在抹除」3 回合：受到的治療 -90%、無法復活、無法發動一般保命效果。若對手體力低於 30%，再觸發一次 100% 威力的黑焰追擊，並有 50% 機率隨機擊殺對手一位未出戰的角色（對手沒有其他角色時改為 500 點傷害）。',
       tags: [['爆發', 'red'], ['無視防禦', 'red'], ['奪取強化', 'gold'], ['存在抹除', 'red'], ['追擊', 'gold']],
       effect: { randomMultiplierRange: [15, 30], ignoreShield: true, imuDefIgnore: 1, imuRuin: { extra: .2, erase: 3, healCut: .9, low: .3, chase: 1, kill: .5, flat: 500 } } })
+  ];
+  /* v169 第三型態「深淵聖靈・伊姆」的①～④（⑤沿用「最初20人」）：使用者 11/07 選「再更強」——比第二型態再強一階，作為戰力天花板。
+     沿用 ext_v165 的 imuEternal／imuPact／imuDomain／imuRuin；新欄位 foresight（看穿）、imuPact.chain（契約連鎖）、splash（波及後排）在 js/ext_v169.js；
+     bossRegen／bossRatio／bossShockDmg／bossExtra：對手是 BOSS 時改用的比例（比照不死之身的 bossRegen 慣例）。 */
+  C.form3Skills = [
+    sk({ name: '千眼天啟', type: 'support', pp: 5, anima: 'cook',
+      desc: '八隻紅眼睜開，看穿一切：獲得「千眼天啟」5 回合，每回合恢復最大體力的 70%（對手是 BOSS 時為 20%）；受到致命傷害時保留 1 點體力並立即恢復全部體力（每次施放最多觸發 1 次）；免疫所有異常狀態、控制、秒殺與能力下降；受到的傷害 -65%，並把實際受到傷害的 70% 反彈給對手。期間每回合全部攻擊技能威力 +15%，最多累積 6 次。「看穿」：每回合第一次受到的攻擊必定迴避（能打破無敵的攻擊、自由狀態下的攻擊無法被看穿）。',
+      tags: [['看穿', 'blue'], ['不滅', 'green'], ['回復', 'green'], ['免疫', 'green'], ['減傷', 'blue'], ['反彈', 'gold']],
+      effect: { imuEternal: { turns: 5, regen: .7, bossRegen: .2, dr: .65, reflect: .7, stack: .15, stackMax: 6 }, foresight: 5 } }),
+    sk({ name: '黑轉支配・終焉契約', type: 'support', pp: 3, anima: 'naraku',
+      desc: '與對手全隊締結終焉的契約：對手陷入「完全支配」4 回合，每回合失去最大體力的 20%（BOSS 為 6%）；「契約連鎖」：對手後排還沒上場的角色每回合也失去最大體力的 12%。立即奪走對手目前的能力提升轉到自己身上，並使對手全能力 -2；90% 機率封印對手下一次主動技能。契約期間對手無法獲得新的能力提升，受到的治療效果 -90%。契約中的對手受到致命傷害時，伊姆吸收其剩餘生命，立即恢復全部體力並獲得 1 回合無敵。',
+      tags: [['完全支配', 'red'], ['契約連鎖', 'red'], ['奪取強化', 'gold'], ['封招', 'gold'], ['封強化', 'red'], ['減療', 'red']],
+      effect: { imuPact: { full: true, turns: 4, ratio: .2, bossRatio: .06, healCut: .9, noBuff: true, steal: true, allDown: 2, sealChance: .9, reward: 'full', chain: .12 } } }),
+    sk({ name: '虛空王座・天翼', type: 'support', pp: 5, anima: 'darkpull',
+      desc: '張開遮天的雙翼，展開虛空王座的領域 6 回合，對手換人後依然有效：自身迴避率 +80%、受到的傷害 -45%；對手命中率與速度 -60%。每回合發動一次「霸王色震懾」：60% 機率使對手無法行動 1 回合，並受到對手最大體力 95% 的真實傷害（BOSS 為 12%）。只要對手一次對我方造成超過 20% 體力的傷害，下回合對手直接損失目前體力的 35%。',
+      tags: [['領域', 'gold'], ['迴避', 'blue'], ['減傷', 'blue'], ['降命中', 'red'], ['震懾', 'red']],
+      effect: { imuDomain: { turns: 6, evade: .8, dr: .45, acc: .6, spd: .6, shock: .6, shockDmg: .95, bossShockDmg: .12, punishAt: .2, punish: .35 } } }),
+    sk({ name: '終焉之翼', type: 'attack', power: 240, pp: 5, anima: 'naraku',
+      desc: '雙翼化為黑焰之刃橫掃戰場：造成 20～40 倍傷害，無視防禦與護盾，追加對手最大體力 25% 的傷害（BOSS 為 8%）。「翅膀掃擊」：對手後排還沒上場的角色受到這次傷害 30% 的波及。清除對手全部能力提升並奪為己有。使對手陷入「存在抹除」4 回合：受到的治療 -95%、無法復活、無法發動一般保命效果。若對手體力低於 35%，再觸發一次 100% 威力的黑焰追擊，並有 60% 機率隨機擊殺對手一位未出戰的角色（對手沒有其他角色時改為 800 點傷害）。',
+      tags: [['爆發', 'red'], ['無視防禦', 'red'], ['波及後排', 'red'], ['奪取強化', 'gold'], ['存在抹除', 'red'], ['追擊', 'gold']],
+      effect: { randomMultiplierRange: [20, 40], ignoreShield: true, imuDefIgnore: 1, splash: .3, imuRuin: { extra: .25, bossExtra: .08, erase: 4, healCut: .95, low: .35, chase: 1, kill: .6, flat: 800 } } })
   ];
   /* 取得方式（v165 確認）：目前仍是 npcOnly，玩家無法取得；只出現在勇者之塔第 200／250 層 BOSS（250 層穿皮膚「真實型態」）與虛空王座 */
   if (typeof CHAR_OBTAIN !== 'undefined' && CHAR_OBTAIN.imu) CHAR_OBTAIN.imu.npc = '暫時無法獲得（勇者之塔第 200、250 層 BOSS，以及虛空王座）'; /* 原本寫 100、120 層，v128 起塔改成 250 層後沒有更新 */

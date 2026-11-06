@@ -45,8 +45,9 @@
   /* v165 伊姆三型態（js/ext_v165.js）：第 200、250 層的伊姆技能數值照使用者規格不動，改調塔的層設定讓強隊打得過（使用者 11/06：「還是要讓人家打得過」）。
      hp／dmg 取代原本塔頂強化的體力與傷害倍率；imuPace＝伊姆第幾回合起才施放「最初20人」晉升（imuPaceHp 0＝體力再低也不提早）；revives＝BOSS 復活次數。
      tests/imu-sim.js 量測（LV100 三人隊）：200 層 洛基／洛克斯／尼卡 100%、四皇隊約 70%、SSR 頂尖隊 0～95%（依隊伍爆發力）；250 層更難。 */
-  const FLOOR_FIX = { 200: { hp: .15, dmg: .7, imuPace: 8, imuPaceHp: 0, revives: 1 }, 250: { hp: .2, dmg: .7, imuPace: 6, imuPaceHp: 0, revives: 1 } };
-  const modOf = f => { const k = Math.max(0, f - 100), st = Math.min(3, Math.floor(k / 50)); const m = { hp: 1 + k * .012, dmg: 1 + k * .004, atk: st, def: st }; const X = FLOOR_FIX[f]; if (X) { m.hp = X.hp; m.dmg = X.dmg; m.imuPace = X.imuPace; m.imuPaceHp = X.imuPaceHp; } const b = boostOf(f); if (b !== 1) { m.hp *= b; m.dmg *= b; } return m; };
+  /* v169 使用者 11/07：第 200 層的伊姆停在第二型態（imuMaxForm 2），第 250 層會晉升到第三型態「深淵聖靈・伊姆」 */
+  const FLOOR_FIX = { 200: { hp: .15, dmg: .7, imuPace: 8, imuPaceHp: 0, imuMaxForm: 2, revives: 1 }, 250: { hp: .2, dmg: .7, imuPace: 6, imuPaceNext: 3, imuPaceHp: 0, imuMaxForm: 3, revives: 1 } }; /* imuPaceNext：第一次晉升後每 3 回合可再晉升 */
+  const modOf = f => { const k = Math.max(0, f - 100), st = Math.min(3, Math.floor(k / 50)); const m = { hp: 1 + k * .012, dmg: 1 + k * .004, atk: st, def: st }; const X = FLOOR_FIX[f]; if (X) { m.hp = X.hp; m.dmg = X.dmg; m.imuPace = X.imuPace; m.imuPaceHp = X.imuPaceHp; if (X.imuMaxForm != null) m.imuMaxForm = X.imuMaxForm; if (X.imuPaceNext) m.imuPaceNext = X.imuPaceNext; } const b = boostOf(f); if (b !== 1) { m.hp *= b; m.dmg *= b; } return m; };
   const hasMod = f => f > 100 || boostOf(f) !== 1; /* v168：換人的樓層在 100 層以內也有強敵加成 */
   window.towerSpec = f => ({ foe: foeOf(f), raw: rawFoe(f), lv: lvOf(f), mod: hasMod(f) ? modOf(f) : null, boss: isBoss(f), revives: isBoss(f) ? ((FLOOR_FIX[f] && FLOOR_FIX[f].revives != null) ? FLOOR_FIX[f].revives : (f > 150 ? 2 : 1)) : 0, ch: chapterOf(f) }); /* 測試用（v168 難度量測） */
   let sel = null;

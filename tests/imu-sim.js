@@ -54,6 +54,8 @@ async () => {
     if (C.mod) { const M = C.mod; if (M.hp) { E.maxHp = Math.round(E.maxHp * M.hp); E.hp = E.maxHp; } if (M.dmg) E.dmgMul *= M.dmg; ['atk', 'def'].forEach(k => { if (M[k]) E.buffs[k] = clamp(E.buffs[k] + M[k], -6, 6); }); }
     battle.team = team; battle.pi = 0; battle.player = team[0]; battle.enemy = E; battle.isBoss = !!C.boss; battle.__imuDom = null; battle.eruption = null; battle.iceAge = null; battle.round = 1; battle.opts = { revives: C.revives || 0 }; battle.difficulty = CHAPTER_DIFFICULTY[C.chapter || 'giant'];
     if (E.__imu && C.pace) { E.__imu.pace = C.pace; if (C.paceHp != null) E.__imu.paceHp = C.paceHp; }
+    if (E.__imu && C.paceNext) E.__imu.paceNext = C.paceNext;
+    if (E.__imu && C.maxForm != null) E.__imu.maxForm = C.maxForm; /* v169：塔 200 層停在第二型態 */
     if (C.throne && E.__imu) { E.maxHp = E.hp = 99999999; E.voidImmune = true; E.skills.forEach(s => { s.pp = s.maxPP = 9999; s.locked = 0; }); E.name = '伊姆（完全體）'; I.throneInit(E); battle.voidDamage = 0; }
     const st = { rev: C.boss ? (C.revives || 0) : 0 }; let rounds = 0;
     for (rounds = 1; rounds <= (CFG.maxRounds || 80); rounds++) {
@@ -72,7 +74,7 @@ async () => {
   }
   const out = [], errs = new Set();
   for (const C of (CFG.cases || [])) {
-    let wins = 0, rs = 0, to = 0, dm = 0; const forms = [0, 0, 0];
+    let wins = 0, rs = 0, to = 0, dm = 0; const forms = [0, 0, 0, 0];
     for (let k = 0; k < (C.n || CFG.n || 20); k++) { try { const r = fight(C); if (r.win) wins++; rs += r.rounds; dm += r.dmg || 0; if (r.timeout) to++; if (r.form >= 0) forms[r.form]++; } catch (e) { errs.add(C.name + ':' + e.message + ' ' + (e.stack || '').split('\n')[1]); } }
     const n = C.n || CFG.n || 20; out.push({ name: C.name, win: Math.round(wins / n * 100), rounds: +(rs / n).toFixed(1), timeouts: to, forms, ...(C.throne ? { avgDmg: Math.round(dm / n) } : {}) });
   }

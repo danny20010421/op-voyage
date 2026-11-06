@@ -1,6 +1,6 @@
 /* v165 伊姆型態：① 晉升演出 imuFormFx（ext_v165.js 在「最初20人」演出結束後呼叫，swap() 才真正換立繪／名牌／頭像）
    畫面壓暗 → 深紅與紫色的黑雷劈在伊姆身上 → 最後一道巨雷落下的瞬間換成新型態 → 深淵光環擴散、顯示型態名稱。
-   ② 角色背包「我的船員」與圖鑑詳細頁：伊姆加上「初始型態／第一型態／第二型態」切換，換立繪與該型態的技能一覽（樣式見 css/v165.css）。
+   ② 角色背包「我的船員」與圖鑑詳細頁：伊姆加上「初始型態／第一～第三型態」切換（v169 起 4 個），換立繪與該型態的技能一覽（樣式見 css/v165.css）。
    不改 crew.js：以 MutationObserver 在畫面更新後補上切換列。 */
 (function () {
   const wait = ms => new Promise(r => setTimeout(r, ms)), R = (a, b) => a + Math.random() * (b - a);
@@ -25,7 +25,8 @@
       if (typeof SFX !== 'undefined') SFX.play('thunder');
       X.bolt(p.x, -20, p.x, p.y, { color: '#ffffff', w: 16, life: .4, amp: 24 });
       X.bolt(p.x + 30, -20, p.x - 10, p.y - 40, { color: '#ff2a5a', w: 10, life: .4 });
-      flash(.4, .35, form === 2 ? '#ffd0e0' : '#ffffff');
+      flash(.4, .35, form >= 2 ? (form === 3 ? '#f0d0ff' : '#ffd0e0') : '#ffffff');
+      if (form === 3) { X.ring(p.x, p.y - 60, { r1: 560, color: '#b04aff', w: 14, life: .9 }); X.glow(p.x, p.y - 80, { color: '#ff2a5a', r: 320, life: 1.2 }); } /* v169：第三型態展翼的大光環 */
       if (typeof shake === 'function') shake();
       doSwap();
       if (el) { el.classList.remove('morph-out'); el.classList.add('morph-in'); setTimeout(() => el.classList.remove('morph-in'), 800); }
@@ -43,7 +44,7 @@
   let pick = 0;
   const esc2 = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const kindOf = s => s.ultimate ? '奧義' : s.type === 'attack' ? '攻擊' : '輔助';
-  function formSkills(form) { const C = CHARACTERS.imu; if (form < 2) return C.skills.map((s, i) => ({ s, i, lock: form === 0 && s.formNeed })); return C.form2Skills.concat([C.skills[4]]).map((s, i) => ({ s, i, lock: false })); }
+  function formSkills(form) { const C = CHARACTERS.imu; if (form < 2) return C.skills.map((s, i) => ({ s, i, lock: form === 0 && s.formNeed })); return (C['form' + form + 'Skills'] || C.form2Skills).concat([C.skills[4]]).map((s, i) => ({ s, i, lock: false })); } /* v169：第三型態 form3Skills */
   function bar(cur) { const F = CHARACTERS.imu.forms; return `<div class="imu-forms" role="tablist" aria-label="伊姆的型態">${F.map((f, i) => `<button type="button" role="tab" data-imuf="${i}" aria-selected="${i === cur}" class="${i === cur ? 'on' : ''}"><img src="${f.avatar}" alt=""><span><b>${f.label}</b><small>${f.name}</small></span></button>`).join('')}</div>`; }
   function cxList(form) {
     return `<ol class="cx-skills imu-fsk">${formSkills(form).map(({ s, i, lock }) => `<li class="sk ${lock ? 'lock' : ''} ${s.ultimate ? 'ult' : ''}"><div class="sk-top"><span class="sk-no">${i + 1}</span><b>${s.name}</b><em class="sk-type ${s.type}">${kindOf(s)}</em></div>

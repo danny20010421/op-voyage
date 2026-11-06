@@ -1,6 +1,8 @@
 /* v165 伊姆三型態機制（使用者 11/06 規格 /root/promo/v165/src/imu_skills.txt；技能資料在 js/balance_v165.js）。
    型態：f.__imu.form 0 初始（只能用①⑤）→ 1 第一型態「伊姆聖」（開啟②③④）→ 2 第二型態「世界之王・伊姆聖」（①～④換成 form2Skills、次數全部恢復）。
-   最多晉升兩次；之後⑤仍有晉升效果，但立繪不再改變、也不會變回去（倒下、復活、霸王色解除變身都不影響）。
+   v169：再施放一次晉升為 3 第三型態「深淵聖靈・伊姆」（①～④換成 form3Skills）；第三型態再施放⑤為「天罰」（imuAscend.judge）。
+   f.__imu.maxForm：最高能晉升到第幾型態（預設 3；勇者之塔第 200 層由 enemyMod.imuMaxForm 設成 2）。
+   最多晉升三次；之後⑤仍有晉升效果，但立繪不再改變、也不會變回去（倒下、復活、霸王色解除變身都不影響）。
    效果欄位：
    imuUndying { turns, regen, bossRegen, guard, thorn }：不死之身（每回合回復、致命保命 1 次、反彈受到傷害、淨化並把能力下降轉成提升）
    imuPact { turns, ratio, healCut, bossHealExempt, allDown, domChance, domRecoil, reward, full, noBuff, steal, sealChance }：惡魔契約／完全支配
@@ -74,11 +76,12 @@
     f.skills.forEach((s, i) => { if (s && s.locked === 'form') { const n = s.__inf ? 9999 : ppFor(f, s, i); if (n < 0) { s.locked = -n; s.pp = s.maxPP = 0; } else { s.locked = 0; s.pp = s.maxPP = n; } } });
     L(`👁 ${f.name} 開啟了「黑轉支配」「虛空威壓」「黑焰・凶兆」！`);
   }
-  function swapForm2(f) {
-    const K = (CHARACTERS.imu && CHARACTERS.imu.form2Skills) || []; if (!K.length) return;
+  const maxFormOf = f => { const n = (((CHARACTERS.imu && CHARACTERS.imu.forms) || []).length || 3) - 1; return Math.min(n, f.__imu.maxForm != null ? f.__imu.maxForm : n); };
+  function swapForm(f, form) {
+    const K = (CHARACTERS.imu && CHARACTERS.imu['form' + form + 'Skills']) || []; if (!K.length) return;
     K.forEach((src, i) => { const s = JSON.parse(JSON.stringify(src)); const n = ppFor(f, s, i); if (n < 0) { s.locked = -n; s.pp = s.maxPP = 0; } else { s.pp = s.maxPP = n; } f.skills[i] = s; });
     /* 所有技能次數恢復＝第 1～4 招（換成第二型態的新技能，次數全滿）；第 5 招「最初20人」不恢復，最多 4 次（使用者 11/06 確認） */
-    L(`👑 技能欄換成第二型態：「永劫不滅」「黑轉支配・萬物逆轉」「世界之王」「毀滅之力」，第 1～4 招次數全滿！`);
+    L(`👑 技能欄換成${form === 3 ? '第三' : '第二'}型態：${K.map(x => `「${x.name}」`).join('')}，第 1～4 招次數全滿！`);
   }
   function setForm(f, form) {
     if (!isImu(f)) return; const F = ((CHARACTERS.imu && CHARACTERS.imu.forms) || [])[form] || null;
@@ -105,23 +108,41 @@
   }
   function ascend(f, t, A) {
     const I = f.__imu, S = f.status; I.asc++; I.ascSeq++;
-    if (I.form < 2) {
+    const judge = I.form >= 3 && A.judge ? A.judge : null; /* v169：第三型態再施放＝天罰 */
+    if (I.form < maxFormOf(f)) {
       I.form++; I.formTurns = 0;
       { const F = ((CHARACTERS.imu && CHARACTERS.imu.forms) || [])[I.form]; if (F) L(`👑 ${f.name} 晉升為${F.label}「${F.name}」！`); }
-      if (I.form === 1) unlockForm1(f); else swapForm2(f);
+      if (I.form === 1) unlockForm1(f); else swapForm(f, I.form);
       if (inAction) I.pend = I.form; else setForm(f, I.form);
-    } else L(`👑 ${f.name} 已是最終型態，最初20人的力量再次湧現！`);
+    } else if (judge) L(`⚡ ${f.name} 降下「天罰」！`);
+    else L(`👑 ${f.name} 已是最終型態，最初20人的力量再次湧現！`);
     STAGES.forEach(k => { f.buffs[k] = clamp(f.buffs[k] + A.stat, -6, 6); });
-    S.__imuInv = Math.max(S.__imuInv || 0, A.inv); S.invuln = Math.max(S.invuln || 0, A.inv);
+    const inv = judge ? judge.inv : A.inv; S.__imuInv = Math.max(S.__imuInv || 0, inv); S.invuln = Math.max(S.invuln || 0, inv);
+    if (judge && t && t.hp > 0) heavenly(f, t, judge);
     const ts = I.tScale || 1; S.__imuSteal = Math.max(S.__imuSteal || 0, A.steal[0]); I.stealR = A.steal[1] * ts;
     const moved = transferNegatives(f, t && t.hp > 0 ? t : null); S.__reflectDebuff = 99999;
     const up = R(A.pow[0], A.pow[1]); I.pow = Math.round(I.pow * (1 + up) * 100) / 100;
     if (!I.exec) I.exec = A.exec[0] * ts; I.execBase = A.exec[0] * ts; I.execStep = A.exec[1] * ts;
     I.clutch += A.clutch; I.clutchAt = A.clutchAt;
-    L(`👑 最初20人！${f.name} 全能力 +${A.stat}、無敵 ${A.inv} 回合、接下來 ${A.steal[0]} 回合每回合奪走對手 ${pct(A.steal[1])}% 體力`);
+    L(`👑 最初20人！${f.name} 全能力 +${A.stat}、無敵 ${inv} 回合、接下來 ${A.steal[0]} 回合每回合奪走對手 ${pct(A.steal[1])}% 體力`);
     L(`👑 全部技能威力 +${pct(up)}%（累計 ×${I.pow}），伊姆的傷害全部改為真實傷害；${moved ? '身上的負面效果全部反彈給對手，' : ''}之後對手施加的負面效果也會反彈`);
     L(`👑 每回合秒殺判定 ${pct(I.exec)}%（每回合 +${pct(I.execStep)}%）；瀕死時恢復全部體力（剩 ${I.clutch} 次）`);
     if (onScreen(f) && f === B().player && typeof renderSkills === 'function') try { renderSkills(); } catch (e) { }
+  }
+
+  /* v169 天罰：清除對手全部強化、比例體力損失（BOSS 改用 bossStrike）、幾回合內無法獲得強化 */
+  function heavenly(f, t, J) {
+    if (t.voidImmune) { L(`👑 ${t.name} 不受天罰的比例效果影響！`); return; }
+    const T = t.status, gone = []; let n = 0;
+    STAGES.forEach(k => { if (t.buffs[k] > 0) { n += t.buffs[k]; t.buffs[k] = 0; } }); if (n) gone.push(`能力提升 ${n} 階`);
+    if (T.shield > 0) { T.shield = 0; gone.push('護盾'); } if (T.damageReductionTurns > 0) { T.damageReductionTurns = 0; gone.push('減傷'); }
+    if (T.invuln > 0 || T.__imuInv > 0) { T.invuln = 0; T.__imuInv = 0; gone.push('無敵'); } if (T.dodge > 0) { T.dodge = 0; gone.push('閃避'); }
+    if (T.reflect > 0) { T.reflect = 0; gone.push('反彈'); } if (T.thornTurns > 0) { T.thornTurns = 0; gone.push('荊棘'); }
+    L(gone.length ? `⚡ 天罰清除了 ${t.name} 的${gone.join('、')}！` : `⚡ ${t.name} 身上沒有可以清除的強化。`);
+    const r = (isBossUnit(t) ? J.bossStrike : J.strike) * (f.__imu.tScale || 1), d = Math.max(1, Math.floor(t.maxHp * r));
+    t.hp = Math.max(0, t.hp - d); dmgFx(t, d, '#ffe066'); L(`⚡ 天罰之雷：${t.name} 失去最大體力 ${pct(r)}% 的體力（${d}）！`);
+    if (free(t)) freeMsg(t); else { T.buffBlock = Math.max(T.buffBlock || 0, J.block); L(`⚡ ${t.name} ${J.block} 回合內無法獲得強化！`); }
+    hud();
   }
 
   /* ---------- 共用：狀態查詢 ---------- */
@@ -168,11 +189,11 @@
       if (ef.imuVoid && target.hp > 0 && !target.voidImmune) { const d = Math.max(1, Math.floor(target.maxHp * (ef.imuVoid.strike || .1))); r.damage = (r.damage || 0) + d; L(`🌑 深淵攻擊：造成 ${target.name} 最大體力 ${pct(ef.imuVoid.strike || .1)}% 的傷害！`); }
       if (r.damage > 0 && !r.meta.execute && !r.meta.executeBuff) {
         let m = I.pow; const atk = skill.type === 'attack';
-        if (atk && I.etStacks > 0) m *= 1 + I.etStacks * .1;
+        if (atk && I.etStacks > 0) m *= 1 + I.etStacks * (I.etStep || .1);
         if (atk && I.evStacks > 0) { m *= 1 + .2 * I.evStacks; L(`🌑 迴避累積：這次攻擊威力 +${I.evStacks * 20}%！`); I.evStacks = 0; }
         if (m !== 1) r.damage = Math.floor(r.damage * m);
         if (ef.imuPactChase && act(target.status.__pact)) { const add = Math.floor(r.damage * ef.imuPactChase); r.damage += add; L(`🔥 ${target.name} 身上有惡魔契約，黑焰追擊 ${add} 點傷害！`); }
-        if (ef.imuRuin && !target.voidImmune) { const add = Math.floor(target.maxHp * ef.imuRuin.extra * ((actor.__imu && actor.__imu.tScale) || 1)); r.damage += add; L(`🔥 毀滅之刃追加對手最大體力 ${pct(ef.imuRuin.extra)}% 的傷害（${add}）！`); }
+        if (ef.imuRuin && !target.voidImmune) { const ex = isBossUnit(target) && ef.imuRuin.bossExtra != null ? ef.imuRuin.bossExtra : ef.imuRuin.extra, add = Math.floor(target.maxHp * ex * ((actor.__imu && actor.__imu.tScale) || 1)); r.damage += add; L(`🔥 ${skill.name}追加對手最大體力 ${pct(ex)}% 的傷害（${add}）！`); }
       }
       if (I.asc > 0 && r.damage > 0) r.meta.imuTrue = true;
     }
@@ -215,7 +236,7 @@
       [['__erase', '存在抹除'], ['__imuDomd', '支配'], ['__sealAtk', '攻擊封印'], ['__sealNext', '技能封印'], ['__awe', '震懾'], ['__nullNext', '技能失效'], ['__ultSeal', '奧義壓制'], ['__healSeal', '回復壓制']].forEach(([k, n]) => { if (S[k] && (S[k] > 0 || S[k].t > 0)) { S[k] = typeof S[k] === 'object' ? null : 0; done.push(n); } });
       if (done.length) L(`🥁 解放！${f.name} 解除了：${done.join('、')}`); }
     if (ef.breakField) { const b = B(), o = foeOf(f), n = ef.breakField; const cut = (F, name) => { F.t != null ? (F.t = Math.max(0, F.t - n)) : (F.left = Math.max(0, F.left - n)); L(`🥁 ${f.name} 的自由打破了「${name}」：持續時間 -${n} 回合${(F.t ?? F.left) <= 0 ? '，效果消失了' : ''}`); };
-      if (b && b.__imuDom && domOwner(b.__imuDom) === o) { cut(b.__imuDom, '世界之王'); if (b.__imuDom.t <= 0) b.__imuDom = null; }
+      if (b && b.__imuDom && domOwner(b.__imuDom) === o) { cut(b.__imuDom, b.__imuDom.name || '世界之王'); if (b.__imuDom.t <= 0) b.__imuDom = null; }
       if (b && b.eruption && b.eruption.owner === o) { cut(b.eruption, '火山噴發'); if (b.eruption.left <= 0) b.eruption = null; }
       if (b && b.iceAge && b.iceAge.owner === o) { cut(b.iceAge, '冰河時期'); if (b.iceAge.left <= 0) b.iceAge = null; } }
   }
@@ -227,8 +248,9 @@
       L(`✨ 不死之身！${U.turns} 回合內每回合恢復 ${pct(boss ? U.bossRegen : U.regen)}% 體力${boss ? '（對手是 BOSS）' : ''}、能撐住一次致命傷，受到傷害的 ${pct(U.thorn)}% 會反彈；異常狀態全部解除${n ? '，能力下降轉成了提升' : ''}！`); }
     if (tOk && free(t) && (ef.imuPact || ef.imuSealAtk)) freeMsg(t);
     else if (ef.imuPact && tOk) { const P = ef.imuPact, T = t.status, cut = P.bossHealExempt && isBossUnit(t) ? 0 : P.healCut;
-      T.__pact = { t: P.turns, ratio: P.ratio * ((f.__imu && f.__imu.tScale) || 1), healCut: cut, noBuff: !!P.noBuff, full: !!P.full, reward: P.reward, owner: sideKey(f), paid: false };
-      L(P.full ? `👁 黑轉支配・萬物逆轉！${t.name} 陷入「完全支配」${P.turns} 回合：每回合失去最大體力 ${pct(P.ratio)}%，治療 -${pct(cut)}%，無法獲得新的能力提升` : `👁 黑轉支配！${t.name} 被刻上「惡魔契約」${P.turns} 回合：每回合失去最大體力 ${pct(P.ratio)}%${cut ? `，治療 -${pct(cut)}%` : '（BOSS 不受減療影響）'}`);
+      const ratio = (isBossUnit(t) && P.bossRatio != null ? P.bossRatio : P.ratio) * ((f.__imu && f.__imu.tScale) || 1);
+      T.__pact = { t: P.turns, ratio, healCut: cut, noBuff: !!P.noBuff, full: !!P.full, reward: P.reward, owner: sideKey(f), paid: false, chain: (P.chain || 0) * ((f.__imu && f.__imu.tScale) || 1) };
+      L(P.full ? `👁 ${skill.name}！${t.name} 陷入「完全支配」${P.turns} 回合：每回合失去最大體力 ${pct(ratio)}%，治療 -${pct(cut)}%，無法獲得新的能力提升` : `👁 黑轉支配！${t.name} 被刻上「惡魔契約」${P.turns} 回合：每回合失去最大體力 ${pct(P.ratio)}%${cut ? `，治療 -${pct(cut)}%` : '（BOSS 不受減療影響）'}`);
       if (P.noBuff) T.buffBlock = Math.max(T.buffBlock || 0, P.turns);
       if (P.allDown) { if (immune(t) || hasTrait(t, 'immuneDown')) L(`🛡️ ${t.name} 不受能力下降影響！`); else { STAGES.forEach(k => { t.buffs[k] = clamp(t.buffs[k] - P.allDown, -6, 6); }); L(`👁 ${t.name} 全能力 -${P.allDown}！`); } }
       if (P.steal) { let n = 0; STAGES.forEach(k => { if (t.buffs[k] > 0) { f.buffs[k] = clamp(f.buffs[k] + t.buffs[k], -6, 6); n += t.buffs[k]; t.buffs[k] = 0; } }); L(n ? `👁 ${f.name} 奪走了 ${t.name} 的能力提升（共 ${n} 階）！` : `👁 ${t.name} 沒有能力提升可以奪取。`); }
@@ -239,11 +261,11 @@
       L(`🌑 虛空威壓！${V.turns} 回合內迴避率 +${pct(V.evade)}%，受到攻擊時 ${pct(V.abyss)}% 透過深淵轉移給${allies ? `我方其他 ${allies} 位角色` : '其他角色（目前沒有可以承擔的角色，不會轉移）'}`); }
     if (ef.imuSealAtk && tOk && !free(t) && Math.random() < ef.imuSealAtk) { if (immune(t)) L(`🛡️ ${t.name} 抵抗了封印！`); else { t.status.__sealAtk = 1; L(`🔒 黑焰封印了 ${t.name} 下一回合的攻擊技能！`); } }
     if (ef.imuAscend && isImu(f)) ascend(f, t, ef.imuAscend);
-    if (ef.imuEternal) { const E = ef.imuEternal; S.__imuEt = { t: E.turns, regen: E.regen, dr: E.dr, reflect: E.reflect, guard: true }; if (f.__imu) f.__imu.etMax = E.stackMax || 5; S.immune = Math.max(S.immune || 0, E.turns);
+    if (ef.imuEternal) { const E = ef.imuEternal; S.__imuEt = { t: E.turns, regen: E.regen, bossRegen: E.bossRegen, dr: E.dr, reflect: E.reflect, guard: true, name: skill.name }; if (f.__imu) { f.__imu.etMax = E.stackMax || 5; f.__imu.etStep = E.stack || .1; } S.immune = Math.max(S.immune || 0, E.turns);
       if (typeof clearAbnormal === 'function') clearAbnormal(f); STAGES.forEach(k => { if (f.buffs[k] < 0) f.buffs[k] = 0; });
-      L(`♾️ 永劫不滅！${E.turns} 回合內每回合恢復 ${pct(E.regen)}% 體力、能撐住一次致命傷並回滿、免疫異常／控制／秒殺／能力下降、受到傷害 -${pct(E.dr)}% 並反彈 ${pct(E.reflect)}%`); }
-    if (ef.imuDomain) { const D = ef.imuDomain, b = B(); if (b) { b.__imuDom = { t: D.turns, side: sideKey(f), evade: D.evade, dr: D.dr, acc: D.acc, spd: D.spd, shock: D.shock, shockDmg: D.shockDmg * ((f.__imu && f.__imu.tScale) || 1), punishAt: D.punishAt, punish: D.punish, pend: false }; Object.defineProperty(b.__imuDom, 'owner', { value: f, enumerable: false });
-      L(`👑 世界之王！虛空王座展開深淵 ${D.turns} 回合（對手換人也持續）：${f.name} 迴避 +${pct(D.evade)}%、受到傷害 -${pct(D.dr)}%；對手命中與速度 -${pct(D.acc)}%，每回合承受霸王色震懾`); } }
+      L(`♾️ ${skill.name}！${E.turns} 回合內每回合恢復 ${pct(isBossUnit(foeOf(f)) && E.bossRegen != null ? E.bossRegen : E.regen)}% 體力、能撐住一次致命傷並回滿、免疫異常／控制／秒殺／能力下降、受到傷害 -${pct(E.dr)}% 並反彈 ${pct(E.reflect)}%`); }
+    if (ef.imuDomain) { const D = ef.imuDomain, b = B(); if (b) { b.__imuDom = { t: D.turns, name: skill.name, side: sideKey(f), evade: D.evade, dr: D.dr, acc: D.acc, spd: D.spd, shock: D.shock, shockDmg: D.shockDmg * ((f.__imu && f.__imu.tScale) || 1), bossShockDmg: D.bossShockDmg, punishAt: D.punishAt, punish: D.punish, pend: false }; Object.defineProperty(b.__imuDom, 'owner', { value: f, enumerable: false });
+      L(`👑 ${skill.name}！虛空王座展開深淵 ${D.turns} 回合（對手換人也持續）：${f.name} 迴避 +${pct(D.evade)}%、受到傷害 -${pct(D.dr)}%；對手命中與速度 -${pct(D.acc)}%，每回合承受霸王色震懾`); } }
     if (ef.imuRuin && t && t !== f) { const X = ef.imuRuin;
       if (!t.voidImmune) { let n = 0; STAGES.forEach(k => { if (t.buffs[k] > 0) { f.buffs[k] = clamp(f.buffs[k] + t.buffs[k], -6, 6); n += t.buffs[k]; t.buffs[k] = 0; } }); if (n) L(`🔥 毀滅之力清除了 ${t.name} 的能力提升，並奪為己有（${n} 階）！`);
         t.status.__erase = { t: X.erase, healCut: X.healCut }; L(`🔥 ${t.name} 陷入「存在抹除」${X.erase} 回合：治療 -${pct(X.healCut)}%、無法復活、無法發動保命效果！`); }
@@ -295,13 +317,13 @@
   function imuGuard(f, before, lost, atk, noGuard) {
     const S = f.status, I = f.__imu || {}, hs = healScale(f);
     if (f.hp <= 0 && !noGuard) {
-      if (etOn(f) && S.__imuEt.guard) { S.__imuEt.guard = false; f.hp = Math.max(1, Math.floor(f.maxHp * hs)); healFx(f, f.hp); L(`♾️ 永劫不滅！${f.name} 保住 1 點體力，立即恢復全部體力！`); say(f, '不滅'); }
+      if (etOn(f) && S.__imuEt.guard) { S.__imuEt.guard = false; f.hp = Math.max(1, Math.floor(f.maxHp * hs)); healFx(f, f.hp); L(`♾️ ${S.__imuEt.name || '永劫不滅'}！${f.name} 保住 1 點體力，立即恢復全部體力！`); say(f, '不滅'); }
       else if (act(S.__imuUnd) && S.__imuUnd.guard) { S.__imuUnd.guard = false; f.hp = Math.min(f.maxHp, 1 + Math.floor(f.maxHp * S.__imuUnd.guardHeal * hs)); healFx(f, f.hp); L(`✨ 不死之身！${f.name} 保住 1 點體力，立即恢復 ${pct(S.__imuUnd.guardHeal)}% 體力！`); say(f, '不死'); }
     }
     if (I.clutch > 0 && f.hp < f.maxHp * I.clutchAt && !(noGuard && f.hp <= 0)) { I.clutch--; const h0 = Math.max(0, f.hp), h = Math.floor((f.maxHp - h0) * hs); f.hp = Math.max(1, h0 + h); if (hs < 1) L(`🩸 回復受到壓制，只回復 ${h}`); healFx(f, h); L(`👑 ${f.name} 瀕死時被最初20人的力量拉回，體力全滿！（剩 ${I.clutch} 次）`); say(f, '回滿'); }
     if (atk && lost > 0 && atk.hp > 0) { let rr = 0; if (act(S.__imuUnd)) rr += S.__imuUnd.thorn || 0; if (etOn(f)) rr += S.__imuEt.reflect || 0;
       if (rr > 0) { const d = Math.max(1, Math.floor(lost * rr)); L(`↩️ ${f.name} 把受到傷害的 ${pct(rr)}%（${d}）反彈給 ${atk.name}！`); bounce(atk, f, d); } }
-    const D = domain(); if (D && domainOwner() === f && atk && lost > f.maxHp * D.punishAt && !D.pend) { D.pend = true; L(`👑 ${atk.name} 對世界之王造成超過 ${pct(D.punishAt)}% 的傷害，下回合將直接損失目前體力的 ${pct(D.punish)}%！`); }
+    const D = domain(); if (D && domainOwner() === f && atk && lost > f.maxHp * D.punishAt && !D.pend) { D.pend = true; L(`👑 ${atk.name} 對${D.name || '世界之王'}造成超過 ${pct(D.punishAt)}% 的傷害，下回合將直接損失目前體力的 ${pct(D.punish)}%！`); }
     hud();
   }
 
@@ -331,8 +353,8 @@
     if (S.__imuInv > 0) S.__imuInv--;
     if (c.hp <= 0) return;
     const U = S.__imuUnd; if (act(U)) { const rg = isBossUnit(o) ? U.bossRegen : U.regen; if (canHeal(c)) { const h = Math.min(c.maxHp - c.hp, Math.floor(c.maxHp * rg * hs)); c.hp += h; healFx(c, h); if (h > 0) L(`✨ 不死之身：${c.name} 恢復 ${h} 體力`); } U.t--; if (U.t <= 0) L(`✨ ${c.name} 的不死之身結束了。`); }
-    const E = S.__imuEt; if (act(E)) { if (canHeal(c)) { const h = Math.min(c.maxHp - c.hp, Math.floor(c.maxHp * E.regen * hs)); c.hp += h; healFx(c, h); }
-      if (c.__imu && I.etStacks < (I.etMax || 5)) { I.etStacks++; L(`♾️ 永劫不滅：${c.name} 回復體力，攻擊技能威力 +${I.etStacks * 10}%`); } E.t--; if (E.t <= 0) { L(`♾️ ${c.name} 的永劫不滅結束了。`); } }
+    const E = S.__imuEt; if (act(E)) { const rgE = isBossUnit(o) && E.bossRegen != null ? E.bossRegen : E.regen; if (canHeal(c)) { const h = Math.min(c.maxHp - c.hp, Math.floor(c.maxHp * rgE * hs)); c.hp += h; healFx(c, h); }
+      if (c.__imu && I.etStacks < (I.etMax || 5)) { I.etStacks++; L(`♾️ ${E.name || '永劫不滅'}：${c.name} 回復體力，攻擊技能威力 +${pct(I.etStacks * (I.etStep || .1))}%`); } E.t--; if (E.t <= 0) { L(`♾️ ${c.name} 的${E.name || '永劫不滅'}結束了。`); } }
     if (act(S.__imuEv)) S.__imuEv.t--;
     if (S.__imuSteal > 0 && oOk && free(o)) { S.__imuSteal--; L(`🥁 ${o.name} 是自由的，體力沒有被奪走！`); }
     else if (S.__imuSteal > 0 && oOk) { const d = Math.max(1, Math.floor(o.hp * I.stealR)); o.hp = Math.max(0, o.hp - d); dmgFx(o, d, '#ff2a5a'); const h = canHeal(c) ? Math.min(c.maxHp - c.hp, Math.floor(d * hs)) : 0; c.hp += h; healFx(c, h); S.__imuSteal--; L(`👑 最初20人奪走 ${o.name} ${d} 點體力${h ? `，${c.name} 回復 ${h}` : ''}（還剩 ${S.__imuSteal} 回合）`); }
@@ -348,15 +370,15 @@
     }
     const b = B(), D = b && b.__imuDom; if (D && D.t > 0 && domOwner(D) === c) {
       if (oOk && free(o) && Math.random() < D.shock) L(`🥁 ${o.name} 是自由的，霸王色震懾對他無效！`);
-      else if (oOk && Math.random() < D.shock) { const d = Math.max(1, Math.floor(o.maxHp * D.shockDmg)); o.hp = Math.max(0, o.hp - d); dmgFx(o, d, '#ff2a5a');
-        if (immune(o) || free(o)) L(`👑 霸王色震懾！${o.name} 受到最大體力 ${pct(D.shockDmg)}% 的真實傷害（${d}），但免疫了無法行動`);
-        else { o.status.__awe = Math.max(o.status.__awe || 0, 1); L(`👑 霸王色震懾！${o.name} 受到最大體力 ${pct(D.shockDmg)}% 的真實傷害（${d}），下回合無法行動！`); } }
-      D.t--; if (D.t <= 0) { b.__imuDom = null; L(`👑 世界之王的深淵消散了。`); }
+      else if (oOk && Math.random() < D.shock) { const sR = isBossUnit(o) && D.bossShockDmg != null ? D.bossShockDmg : D.shockDmg, d = Math.max(1, Math.floor(o.maxHp * sR)); o.hp = Math.max(0, o.hp - d); dmgFx(o, d, '#ff2a5a');
+        if (immune(o) || free(o)) L(`👑 霸王色震懾！${o.name} 受到最大體力 ${pct(sR)}% 的真實傷害（${d}），但免疫了無法行動`);
+        else { o.status.__awe = Math.max(o.status.__awe || 0, 1); L(`👑 霸王色震懾！${o.name} 受到最大體力 ${pct(sR)}% 的真實傷害（${d}），下回合無法行動！`); } }
+      D.t--; if (D.t <= 0) { b.__imuDom = null; L(`👑 ${D.name || '世界之王'}的深淵消散了。`); }
     }
   }
   function punishNow() {
     const D = domain(); if (!D || !D.pend) return; D.pend = false; const o = foeOf(domainOwner()); if (!o || o.hp <= 0) return;
-    const d = Math.floor(o.hp * D.punish); if (d <= 0) return; o.hp -= d; dmgFx(o, d, '#ff2a5a'); L(`👑 世界之王的懲罰：${o.name} 直接損失目前體力的 ${pct(D.punish)}%（${d}）！`); hud();
+    const d = Math.floor(o.hp * D.punish); if (d <= 0) return; o.hp -= d; dmgFx(o, d, '#ff2a5a'); L(`👑 ${D.name || '世界之王'}的懲罰：${o.name} 直接損失目前體力的 ${pct(D.punish)}%（${d}）！`); hud();
   }
   if (typeof beginTurn === 'function') { const _bt = beginTurn; beginTurn = function () { try { punishNow(); } catch (e) { } return _bt.apply(this, arguments); }; }
 
@@ -390,12 +412,12 @@
       const b = B(); if (!b) return _ea.apply(this, arguments);
       const actor = side === 'P' ? b.player : b.enemy, target = side === 'P' ? b.enemy : b.player;
       if (!actor || actor.hp <= 0) return _ea.apply(this, arguments);
-      const pre = preAct(actor, target, idx);
+      const pre = window.IMU165.preAct(actor, target, idx); /* v169：經過 window.IMU165，讓 ext_v169 的包裝（看穿）也套用到實戰 */
       if (pre.skip) { hud(); try { renderSkills(); } catch (e) { } await wait(650); return; }
       idx = pre.idx; const skill = idx >= 0 ? actor.skills[idx] : null, pp0 = skill ? skill.pp : 0, seq0 = isImu(actor) ? actor.__imu.ascSeq : 0;
       inAction++; curActor = actor; let r;
       try { r = await _ea.call(this, side, idx); }
-      finally { inAction--; postAct(actor, target, skill, pre); curActor = null; }
+      finally { inAction--; window.IMU165.postAct(actor, target, skill, pre); curActor = null; }
       if (isImu(actor) && skill && skill.effect && skill.effect.imuAscend && skill.pp < pp0 && actor.__imu.ascSeq === seq0 && actor.hp > 0) ascend(actor, target, skill.effect.imuAscend); /* 附加效果被封印時，晉升本身仍然發生 */
       if (isImu(actor) && actor.__imu.pend != null) { const form = actor.__imu.pend; actor.__imu.pend = null;
         if (onScreen(actor) && typeof imuFormFx === 'function') { try { await imuFormFx(side === 'P' ? 'L' : 'R', actor, form, () => setForm(actor, form)); } catch (e) { console.warn(e); setForm(actor, form); } } else setForm(actor, form);
@@ -409,10 +431,12 @@
     if (!isImu(f) || !o) return -1;
     const s = f.skills, ok = i => !!(s[i] && !s[i].locked && s[i].pp > 0 && !(s[i].ultimate && f.status.__ultSeal > 0)), I = f.__imu, S = f.status, hp = f.hp / f.maxHp, OS = o.status || {};
     if (S.__sealAtk > 0) { for (const i of [0, 1, 2, 4]) if (ok(i) && s[i].type !== 'attack') return i; }
-    if (I.throne && I.form === 2) { for (const i of (Math.random() < .5 ? [3, 2, 1, 0] : [2, 1, 3, 0])) if (ok(i) && !(i === 2 && domain()) && !(i === 0 && act(S.__imuEt))) return i; return ok(3) ? 3 : -1; }
+    const top = I.form >= maxFormOf(f);
+    if (I.throne && I.form >= 2 && !top && ok(4) && I.formTurns >= (I.pace || 6)) return 4; /* v169：王座的伊姆第二型態也會再晉升到第三型態（不放天罰） */
+    if (I.throne && I.form >= 2) { for (const i of (Math.random() < .5 ? [3, 2, 1, 0] : [2, 1, 3, 0])) if (ok(i) && !(i === 2 && domain()) && !(i === 0 && act(S.__imuEt))) return i; return ok(3) ? 3 : -1; }
     /* pace：勇者之塔的伊姆不會一開場就晉升（tower.js 的 enemyMod.imuPace＝第幾回合起才放⑤；體力低於 50% 時提早） */
-    const b0 = B(), rd = (b0 && b0.round) || 1, wait5 = I.pace && hp >= (I.paceHp ?? .5) && (I.form === 0 ? rd < I.pace : I.formTurns < I.pace);
-    if (wait5 && I.form < 2) { if (I.form === 0) { if (ok(0) && !act(S.__imuUnd) && hp < .9) return 0; return -2; } }
+    const b0 = B(), rd = (b0 && b0.round) || 1, wait5 = I.pace && hp >= (I.paceHp ?? .5) && (I.form === 0 ? rd < I.pace : I.formTurns < (I.paceNext || I.pace)); /* v169 paceNext：第一次晉升之後，每次再晉升至少隔幾回合（tower.js enemyMod.imuPaceNext） */
+    if (wait5 && !top) { if (I.form === 0) { if (ok(0) && !act(S.__imuUnd) && hp < .9) return 0; return -2; } }
     if (I.form === 0) { if (ok(4)) return 4; if (ok(0)) return 0; return -1; }
     if (I.form === 1) {
       if (hp < .35 && ok(0) && !act(S.__imuUnd)) return 0;
@@ -422,9 +446,10 @@
       for (const i of [3, 2, 4, 0, 1]) if (ok(i)) return i; return -1;
     }
     if (hp < .45 && ok(0) && !act(S.__imuEt)) return 0;
+    if (!top && ok(4) && !wait5 && (I.formTurns >= 3 || hp < .5)) return 4; /* v169：第二型態會再晉升到第三型態（不等無敵結束） */
     if (!domain() && ok(2)) return 2;
     if (!act(OS.__pact) && ok(1)) return 1;
-    if (ok(4) && !(S.__imuInv > 0) && hp < .5 && Math.random() < .5) return 4;
+    if (ok(4) && !(S.__imuInv > 0) && (hp < .5 || (I.form >= 3 && I.formTurns >= 4)) && Math.random() < .5) return 4;
     for (const i of [3, 1, 2, 0, 4]) if (ok(i)) return i; return -1;
   }
   if (typeof pickEnemySkill === 'function') {
@@ -467,7 +492,8 @@
     startBattle = function () {
       const r = _sb.apply(this, arguments); const b = B();
       if (b) { b.__imuDom = null; [b.enemy, ...teamOf()].forEach(f => { if (f && f.id === 'imu') { init(f); lockForm(f); } });
-        if (isImu(b.enemy) && b.opts && b.opts.enemyMod && b.opts.enemyMod.imuPace) { b.enemy.__imu.pace = b.opts.enemyMod.imuPace; if (b.opts.enemyMod.imuPaceHp != null) b.enemy.__imu.paceHp = b.opts.enemyMod.imuPaceHp; }
+        if (isImu(b.enemy) && b.opts && b.opts.enemyMod && b.opts.enemyMod.imuPace) { b.enemy.__imu.pace = b.opts.enemyMod.imuPace; if (b.opts.enemyMod.imuPaceHp != null) b.enemy.__imu.paceHp = b.opts.enemyMod.imuPaceHp; if (b.opts.enemyMod.imuPaceNext) b.enemy.__imu.paceNext = b.opts.enemyMod.imuPaceNext; }
+        if (isImu(b.enemy) && b.opts && b.opts.enemyMod && b.opts.enemyMod.imuMaxForm != null) b.enemy.__imu.maxForm = b.opts.enemyMod.imuMaxForm; /* v169：勇者之塔第 200 層停在第二型態 */
         /* 虛空王座：伊姆完全體直接以第二型態登場（不經過晉升，所以沒有晉升的無敵、奪血、秒殺判定），也不施放「最初20人」，
            否則開場連續 10 回合無敵、累積傷害永遠是 0，挑戰失去意義（v165 待使用者確認） */
         const e = b.enemy; if (b.opts && b.opts.throne && isImu(e) && e.__imu.form === 0) throneInit(e);
@@ -495,18 +521,18 @@
       const h0 = _sc.apply(this, arguments); const S = c && c.status; if (!S) return h0; let h = ''; /* v165 標籤放在最前面：手機只顯示前 3 個 */
       const chip = (t, k, tip) => { h += `<span class="chip ${k}"${tip ? ` title="${tip}"` : ''}>${t}</span>`; };
       if (isImu(c)) { const I = c.__imu;
-        if (I.form > 0) chip(I.form === 1 ? '第一型態' : '第二型態', 'up', '最初20人晉升的型態');
+        if (I.form > 0) chip((((CHARACTERS.imu && CHARACTERS.imu.forms) || [])[I.form] || {}).label || '型態', 'up', '最初20人晉升的型態');
         if (S.__imuInv > 0) chip('無敵 ' + S.__imuInv, 'good', '不受任何傷害');
         if (act(S.__imuUnd)) chip('不死 ' + S.__imuUnd.t, 'good', `每回合回復、${S.__imuUnd.guard ? '可撐住一次致命傷、' : ''}反彈 ${pct(S.__imuUnd.thorn)}% 傷害`);
-        if (act(S.__imuEt)) chip('永劫不滅 ' + S.__imuEt.t, 'good', `每回合回復 ${pct(S.__imuEt.regen)}%、減傷 ${pct(S.__imuEt.dr)}%、反彈 ${pct(S.__imuEt.reflect)}%`);
+        if (act(S.__imuEt)) chip((S.__imuEt.name || '永劫不滅') + ' ' + S.__imuEt.t, 'good', `每回合回復 ${pct(S.__imuEt.regen)}%、減傷 ${pct(S.__imuEt.dr)}%、反彈 ${pct(S.__imuEt.reflect)}%`);
         if (act(S.__imuEv)) chip(`迴避 +${pct(S.__imuEv.evade)}% ` + S.__imuEv.t, 'good', '受到攻擊時有機率迴避或深淵轉移');
         if (I.evStacks > 0) chip(`下擊 +${I.evStacks * 20}%`, 'up', '迴避成功的累積加成');
-        if (I.etStacks > 0) chip(`攻擊威力 +${I.etStacks * 10}%`, 'up', '永劫不滅的累積加成');
+        if (I.etStacks > 0) chip(`攻擊威力 +${pct(I.etStacks * (I.etStep || .1))}%`, 'up', '永劫不滅的累積加成');
         if (I.pow > 1) chip('威力 ×' + I.pow, 'up', '最初20人：全部技能威力提升，傷害改為真實傷害');
         if (S.__imuSteal > 0) chip('奪血 ' + S.__imuSteal, 'up', `每回合奪走對手目前體力 ${pct(I.stealR)}%`);
         if (I.exec > 0) chip('秒殺 ' + pct(I.exec) + '%', 'up', '每回合判定秒殺對手，失敗則 +5%');
         if (I.clutch > 0) chip('瀕死回滿 ×' + I.clutch, 'good', `體力低於 ${pct(I.clutchAt)}% 時恢復全部體力`);
-        const D = domain(); if (D && domainOwner() === c) chip('世界之王 ' + D.t, 'good', `迴避 +${pct(D.evade)}%、減傷 ${pct(D.dr)}%、每回合霸王色震懾`);
+        const D = domain(); if (D && domainOwner() === c) chip((D.name || '世界之王') + ' ' + D.t, 'good', `迴避 +${pct(D.evade)}%、減傷 ${pct(D.dr)}%、每回合霸王色震懾`);
       }
       if (act(S.__pact)) chip(`${S.__pact.full ? '完全支配' : '惡魔契約'} ${S.__pact.t}`, 'bad', `每回合失去最大體力 ${pct(S.__pact.ratio)}%${S.__pact.healCut ? `、治療 -${pct(S.__pact.healCut)}%` : ''}${S.__pact.noBuff ? '、無法獲得能力提升' : ''}`);
       if (S.__imuDomd > 0) chip('支配', 'bad', '下一次行動無法自己選擇技能');
@@ -519,7 +545,7 @@
       if (S.__nullNext > 0) chip('下一招失效', 'bad', '下一招會被黑暗吞噬');
       if (S.__mirror > 0) chip('反彈反轉 ' + S.__mirror, 'good', '反彈到自己身上的傷害會轉回去');
       if (S.__free > 0) chip('自由 ' + S.__free, 'good', '不受契約、支配、封印、壓制與秒殺');
-      const Dv = domainVs(c); if (Dv) chip(`命中・速度 -${pct(Dv.acc)}%`, 'bad', '世界之王的深淵壓制（換人也持續）');
+      const Dv = domainVs(c); if (Dv) chip(`命中・速度 -${pct(Dv.acc)}%`, 'bad', `${Dv.name || '世界之王'}的深淵壓制（換人也持續）`);
       return h + h0;
     };
   }
@@ -530,5 +556,5 @@
   /* 虛空王座的伊姆（v167：從初始型態開始，第 THRONE_PACE 回合起才施放「最初20人」，晉升後每次至少隔 THRONE_PACE 回合）：比例類效果（契約、霸王色震懾、毀滅之力追加、擊殺未出戰角色的機率、晉升的奪血與秒殺判定）×THRONE_SCALE，傷害倍率 ×THRONE_DMG。
      王座比的是累積傷害，伊姆照原規格出手時三人隊 4～5 回合全滅、累積傷害幾乎是 0；調整後回到與 v164 王座相近的挑戰長度（v165 待使用者確認） */
   const THRONE_SCALE = .2, THRONE_DMG = .35, THRONE_PACE = 6;
-  window.IMU165 = { throneInit, preAct, postAct, ai, setForm, init, lockForm, ascend, punishNow, pactReward };
+  window.IMU165 = { throneInit, preAct, postAct, ai, setForm, init, lockForm, ascend, punishNow, pactReward, maxFormOf, isPlayerSide, teamOf, free };
 })();

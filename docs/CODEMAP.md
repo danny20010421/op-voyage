@@ -44,6 +44,7 @@
 - `js/ret_v136.js`: F:一般召喚券 ITEMS.summon_ticket（pull 外層包裝：券夠時先補回寶藏幣再呼叫原本的 pull）、回歸玩家 RETURN_CFG／window.RETURN（check／claim；SAVE.data.lastSeen、SAVE.data.ret）| D:pull、updateGachaBtns、openModes（第一次進大廳時 check） ；v137 領取視窗 RETURN.open（.rt-wrap，每天第一次進大廳自動跳出）、大廳入口 #lbRet（RETURN.rail） | S:樣式在 css/v137.css；視窗沿用 .qo-wrap
 - `js/ext_v167.js`＋`js/balance_v167.js`: F:trueBurst（真實傷害追加最大體力 N%，對 BOSS 減半）、shadowAdd/shadowBonus（莫莉亞影子疊層，最多 5 層，4 回合消散）；七位角色數值
 - `js/ext_v168.js`: 皇帝領海第二、三階段 noExec（攔截所有秒殺路徑→傷害 0、回滿體力）；loader.js 之前載入
+- `js/ext_v169.js`: 通用效果 foresight（看穿：每回合第一次受到的攻擊必定迴避，破無敵／必中／自由不受影響）、imuPact.chain（契約連鎖後排扣血）、splash（後排波及）。ext_v165 新增 maxForm（伊姆晉升上限，塔 imuMaxForm）、paceNext、天罰 judge
 - `css/align_v168.css`: 全畫面對齊修正（text-box 裁切置中、同列等高、省略號）；最後載入的 css。量測工具在 /root/promo/v168/align/
 - `js/rocks_v166.js`＋`css/rocks_v166.css`: F:洛克斯新立繪（battleScale .85）、舊立繪皮膚 rocks_classic（擁有洛克斯自動獲得）、原造型戰鬥中的閃電環繞 .rocks-aura（包住 applyVisual）
 - `js/ext_v165.js`＋`js/balance_v165.js`＋`js/fx_v165.js`＋`css/v165.css`: F:伊姆三型態（__imu.form 0/1/2、晉升、各種契約／領域／抹除狀態）與洛基、尼卡、洛克斯、黑鬍子的通用克制效果；IMU165.preAct/postAct 給 battle.js 與 tests/*-sim 共用 | A:assets/chars/imu_form1、imu_form2 | T:tests/imu-sim.js
