@@ -88,6 +88,36 @@
 .ach-tabs > button { justify-content: center; }
 .ach-tabs > button > small { text-wrap: balance; word-break: keep-all; overflow-wrap: anywhere; }
 
+/* ---------- 四、上方列：圓形按鈕與資源膠囊同高（使用者選定方案 B：圓鈕縮成膠囊的高度） ---------- */
+/* 懸賞處、勇者之塔等有資源膠囊（32px）的上方列：返回、音樂等圓鈕 40px → 32px，圖示 20／22px 等比例縮成 16px。
+   外觀變小但手指點擊範圍用透明 ::before 往外延伸 4px（仍是 40px），旁邊的膠囊不是按鈕，不會誤觸。 */
+.screen:not(#modeScreen) .topbar:has(.coin) :is(.icon-btn, .ico-btn),
+.ps-top:has(.ps-coins) > :is(.icon-btn, .ico-btn) {
+  width: 32px !important; height: 32px !important; min-width: 32px !important; min-height: 32px !important; flex: 0 0 32px; position: relative;
+}
+.screen:not(#modeScreen) .topbar:has(.coin) :is(.icon-btn, .ico-btn) .ico-svg,
+.ps-top:has(.ps-coins) > :is(.icon-btn, .ico-btn) .ico-svg { width: 16px !important; height: 16px !important; }
+.screen:not(#modeScreen) .topbar:has(.coin) :is(.icon-btn, .ico-btn)::before,
+.ps-top:has(.ps-coins) > :is(.icon-btn, .ico-btn)::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; }
+.screen:not(#modeScreen) .topbar:has(.coin) :is(.icon-btn, .ico-btn).has-dot::after { top: 0 !important; right: 0 !important; width: 8px; height: 8px; }
+/* 電腦版（寬 ≥1000）膠囊是 37px、圓鈕 42px：兩者都改成 40px（8px 格線） */
+@media (min-width: 1000px) and (min-height: 600px) and (orientation: landscape) {
+  .screen:not(#modeScreen) .topbar:has(.coin) :is(.icon-btn, .ico-btn),
+  .ps-top:has(.ps-coins) > :is(.icon-btn, .ico-btn) { width: 40px !important; height: 40px !important; min-width: 40px !important; min-height: 40px !important; flex-basis: 40px; }
+  .screen:not(#modeScreen) .topbar:has(.coin) :is(.icon-btn, .ico-btn) .ico-svg,
+  .ps-top:has(.ps-coins) > :is(.icon-btn, .ico-btn) .ico-svg { width: 20px !important; height: 20px !important; }
+  .screen:not(#modeScreen) .topbar:has(.coin) :is(.icon-btn, .ico-btn)::before { inset: 0; }
+  .screen:not(#modeScreen) .topbar .coin, .ps-top .ps-coins { box-sizing: border-box; height: 40px !important; min-height: 40px; }
+}
+/* 大廳（手機直式）：膠囊 36px，圓鈕原本被最小寬度 40px 撐成 40×36 的橢圓：改成 36×36 正圓，圖示 20px → 18px */
+@media (max-width: 760px) {
+  #modeScreen .topbar :is(.icon-btn, .lb-top) { min-width: 0 !important; width: var(--ctl) !important; height: var(--ctl) !important; aspect-ratio: 1; }
+  #modeScreen .topbar :is(.icon-btn, .lb-top) :is(.ico-svg, .l2-svg) { width: 18px !important; height: 18px !important; }
+}
+
+/* 大廳平板／電腦版：上方圓鈕裡的圖示有 22px 也有 20px，統一 20px */
+@media (min-width: 761px) { #modeScreen .topbar :is(.icon-btn, .lb-top) :is(.ico-svg, .l2-svg) { width: 20px !important; height: 20px !important; } }
+
 /* ---------- 一、字型無關的垂直置中（漸進增強） ---------- */
 @supports (text-box: trim-both cap alphabetic) {
   /* 只有文字（或文字＋小字）的大按鈕：保留原本高度，內容以大寫字高～基線置中 */
