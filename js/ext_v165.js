@@ -54,7 +54,7 @@
   function ppFor(f, s, i) {
     const lv = f.level || MAX_LV, need = (typeof SKILL_UNLOCK !== 'undefined' && SKILL_UNLOCK[i]) || 1;
     if (lv < need) return -need;
-    if (f.skills[4] && f.skills[4].maxPP >= 999) return 9999; /* 虛空王座：次數無限 */
+    if ((f.__imu && f.__imu.throne) || (f.skills[4] && f.skills[4].maxPP >= 999)) return 9999; /* 虛空王座：次數無限 */
     const src = s.maxPP > 0 ? s : ((CHARACTERS.imu.skills || [])[i] || s); /* 鎖住的技能 maxPP 是 0，改用原始資料 */
     let n = skillPP(src, lv, lvStats(CHARACTERS.imu, lv).ppAdj);
     if (f.difficulty && f.difficulty.order >= 3) n += 1;
@@ -113,10 +113,10 @@
     } else L(`👑 ${f.name} 已是最終型態，最初20人的力量再次湧現！`);
     STAGES.forEach(k => { f.buffs[k] = clamp(f.buffs[k] + A.stat, -6, 6); });
     S.__imuInv = Math.max(S.__imuInv || 0, A.inv); S.invuln = Math.max(S.invuln || 0, A.inv);
-    S.__imuSteal = Math.max(S.__imuSteal || 0, A.steal[0]); I.stealR = A.steal[1];
+    const ts = I.tScale || 1; S.__imuSteal = Math.max(S.__imuSteal || 0, A.steal[0]); I.stealR = A.steal[1] * ts;
     const moved = transferNegatives(f, t && t.hp > 0 ? t : null); S.__reflectDebuff = 99999;
     const up = R(A.pow[0], A.pow[1]); I.pow = Math.round(I.pow * (1 + up) * 100) / 100;
-    if (!I.exec) I.exec = A.exec[0]; I.execBase = A.exec[0]; I.execStep = A.exec[1];
+    if (!I.exec) I.exec = A.exec[0] * ts; I.execBase = A.exec[0] * ts; I.execStep = A.exec[1] * ts;
     I.clutch += A.clutch; I.clutchAt = A.clutchAt;
     L(`👑 最初20人！${f.name} 全能力 +${A.stat}、無敵 ${A.inv} 回合、接下來 ${A.steal[0]} 回合每回合奪走對手 ${pct(A.steal[1])}% 體力`);
     L(`👑 全部技能威力 +${pct(up)}%（累計 ×${I.pow}），伊姆的傷害全部改為真實傷害；${moved ? '身上的負面效果全部反彈給對手，' : ''}之後對手施加的負面效果也會反彈`);
@@ -409,7 +409,7 @@
     if (!isImu(f) || !o) return -1;
     const s = f.skills, ok = i => !!(s[i] && !s[i].locked && s[i].pp > 0 && !(s[i].ultimate && f.status.__ultSeal > 0)), I = f.__imu, S = f.status, hp = f.hp / f.maxHp, OS = o.status || {};
     if (S.__sealAtk > 0) { for (const i of [0, 1, 2, 4]) if (ok(i) && s[i].type !== 'attack') return i; }
-    if (I.throne) { for (const i of (Math.random() < .5 ? [3, 2, 1, 0] : [2, 1, 3, 0])) if (ok(i) && !(i === 2 && domain()) && !(i === 0 && act(S.__imuEt))) return i; return ok(3) ? 3 : -1; }
+    if (I.throne && I.form === 2) { for (const i of (Math.random() < .5 ? [3, 2, 1, 0] : [2, 1, 3, 0])) if (ok(i) && !(i === 2 && domain()) && !(i === 0 && act(S.__imuEt))) return i; return ok(3) ? 3 : -1; }
     /* pace：勇者之塔的伊姆不會一開場就晉升（tower.js 的 enemyMod.imuPace＝第幾回合起才放⑤；體力低於 50% 時提早） */
     const b0 = B(), rd = (b0 && b0.round) || 1, wait5 = I.pace && hp >= (I.paceHp ?? .5) && (I.form === 0 ? rd < I.pace : I.formTurns < I.pace);
     if (wait5 && I.form < 2) { if (I.form === 0) { if (ok(0) && !act(S.__imuUnd) && hp < .9) return 0; return -2; } }
@@ -524,9 +524,11 @@
     };
   }
 
-  function throneInit(e) { e.__imu.form = 2; e.__imu.throne = true; e.__imu.tScale = THRONE_SCALE; e.dmgMul = (e.dmgMul || 1) * THRONE_DMG; swapForm2(e); e.skills.forEach(k => { if (k.maxPP > 0) k.pp = k.maxPP = 9999; k.locked = 0; }); setForm(e, 2); e.name = CHARACTERS.imu.forms[2].name + '（完全體）'; try { const n = document.getElementById('bNameR'); if (n && onScreen(e)) n.textContent = e.name; } catch (x) { } L(`👑 虛空王座上的伊姆以第二型態「世界之王・伊姆聖」降臨！`); }
-  /* 虛空王座的伊姆完全體：比例類傷害（契約每回合扣血、霸王色震懾、毀滅之力追加、擊殺未出戰角色的機率）×THRONE_SCALE，傷害倍率 ×THRONE_DMG。
+  function throneInit(e) { const I = e.__imu; I.throne = true; I.tScale = THRONE_SCALE; I.pace = THRONE_PACE; I.paceHp = 0; e.dmgMul = (e.dmgMul || 1) * THRONE_DMG;
+    lockForm(e); const U = e.skills[4]; if (U) { const n = ((CHARACTERS.imu.skills || [])[4] || {}).maxPP || 4; U.pp = U.maxPP = n; } /* 第 5 招維持規格的 4 次；其他技能次數無限 */
+    L(`👑 虛空王座上的伊姆從初始型態開始，施放「最初20人」後才會一步步晉升！`); }
+  /* 虛空王座的伊姆（v167：從初始型態開始，第 THRONE_PACE 回合起才施放「最初20人」，晉升後每次至少隔 THRONE_PACE 回合）：比例類效果（契約、霸王色震懾、毀滅之力追加、擊殺未出戰角色的機率、晉升的奪血與秒殺判定）×THRONE_SCALE，傷害倍率 ×THRONE_DMG。
      王座比的是累積傷害，伊姆照原規格出手時三人隊 4～5 回合全滅、累積傷害幾乎是 0；調整後回到與 v164 王座相近的挑戰長度（v165 待使用者確認） */
-  const THRONE_SCALE = .2, THRONE_DMG = .35;
+  const THRONE_SCALE = .2, THRONE_DMG = .35, THRONE_PACE = 6;
   window.IMU165 = { throneInit, preAct, postAct, ai, setForm, init, lockForm, ascend, punishNow, pactReward };
 })();

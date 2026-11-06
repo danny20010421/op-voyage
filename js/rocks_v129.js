@@ -13,8 +13,8 @@ const ROCKS_TRIAL = {
     { name: '第二關・羅傑與卡普', desc: '神之谷的兩位傳說：海賊王哥爾·D·羅傑、海軍英雄卡普。', stages: () => [
       { id: 'roger', lv: 95, mod: { hp: 1.1, title: '神之谷・海賊王' } },
       { id: 'garp_hc', lv: 95, mod: { hp: 1.5, dmg: 1.15, allUp: 1, name: '卡普', title: '神之谷・海軍英雄' } }] },
-    { name: '第三關・洛克斯的分身', desc: '強攻分身（傷害 ×1.25、攻擊 +2）與強守分身（體力 ×1.15、防禦 +3）。', stages: () => [
-      { id: 'rocks', lv: 95, mod: { hp: .75, dmg: 1.25, atk: 2, name: '洛克斯（強攻分身）', title: '戴維的分身', image: 'assets/chars/rocks_atk.webp?v=130', avatar: 'assets/chars/rocks_atk_face.webp?v=129' } },
+    { name: '第三關・洛克斯的分身', desc: '強攻分身（傷害 ×1.1、攻擊 +2）與強守分身（體力 ×1.15、防禦 +3）。', stages: () => [
+      { id: 'rocks', lv: 95, mod: { hp: .75, dmg: 1.1, /* v167：洛克斯傷害提高後 1.25 → 1.1 */ atk: 2, name: '洛克斯（強攻分身）', title: '戴維的分身', image: 'assets/chars/rocks_atk.webp?v=130', avatar: 'assets/chars/rocks_atk_face.webp?v=129' } },
       { id: 'rocks', lv: 95, mod: { hp: 1.15, dmg: .75, def: 3, name: '洛克斯（強守分身）', title: '戴維的分身', image: 'assets/chars/rocks_def.webp?v=130', avatar: 'assets/chars/rocks_def_face.webp?v=129' } }] },
     { name: '第四關・洛克斯真身', desc: '體力 14,000、開場全能力 +1，倒下後會復活一次。擊敗後洛克斯直接加入船隊。', stages: () => [
       { id: 'rocks', lv: 100, boss: true, mod: { hpFixed: 14000, allUp: 1, name: '洛克斯', title: '戴維・真身' } }] }

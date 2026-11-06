@@ -12,7 +12,7 @@
   C.forms = [
     { key: 'base', label: '初始型態', name: C.name || '伊姆', title: C.title || '世界之王', image: C.image, avatar: C.avatar },
     { key: 'form1', label: '第一型態', name: '伊姆聖', title: '第一型態', image: img('imu_form1'), avatar: img('imu_form1_face'), scale: 1.25 },
-    { key: 'form2', label: '第二型態', name: '世界之王・伊姆聖', title: '第二型態', image: img('imu_form2'), avatar: img('imu_form2_face'), scale: 1.45 }
+    { key: 'form2', label: '第二型態', name: '世界之王・伊姆聖', title: '第二型態', image: img('imu_form2'), avatar: img('imu_form2_face'), scale: 1.8 } /* v167：使用者 11/06 08:26 第二型態放大到約 1.8 */
   ];
   delete C.skinSkills; /* v165：型態取代皮膚鎖招 */
   C.desc = '坐在瑪莉喬亞「空白王座」上的世界之王，真實身分籠罩在黑影之中。初始型態只能使用「不死之身」與「最初20人」；施放「最初20人」晉升為第一型態「伊姆聖」、再次施放晉升為第二型態「世界之王・伊姆聖」，立繪與技能都會改變。【角色特性】免疫異常、免秒殺、免能力下降。';

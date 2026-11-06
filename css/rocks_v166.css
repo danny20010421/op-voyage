@@ -5,3 +5,5 @@
 .fighter.rocks-aura img{filter:drop-shadow(0 0 14px rgba(40,60,200,.55)) drop-shadow(0 0 28px rgba(10,0,30,.8))}
 @keyframes rkBolt{0%{opacity:0}6%{opacity:1}12%{opacity:.35}18%{opacity:1}34%{opacity:.6}40%{opacity:0}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.fighter.rocks-aura .rk-bolts path{animation:none;opacity:.5}}
+/* v167：技能標籤紫色（影子疊層、複製等） */
+.tag.purple{background:rgba(168,110,255,.34)}

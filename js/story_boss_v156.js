@@ -10,10 +10,10 @@
     /*            bossHp  bossStages  bossLvUp  revives  bossDmg  bossUltCap */
     skypiea:    [1.30,  0, 14, 1, 1],
     enies:      [1.30,  0, 10, 1, 0.45],
-    thriller:   [0.70,  2, 16, 1, 1.2],
+    thriller:   [0.50,  2, 16, 1, 0.92],  /* v167：莫莉亞輸出提高＋影子疊層後 0.70／1.2 → 0.50／0.92，玩家勝率回到調整前（bsim） */
     marineford: [1.00,  3, 17, 1, 1.75],  /* v157：加了清強化／淨化後重調；1.65 實測平均 92% 偏簡單，取 1.75 讓頂上戰爭回到約 75～80% */
     fishman:    [1.30,  2, 18, 1, 1],
-    dressrosa:  [1.30,  0, 12, 1, 0.6],
+    dressrosa:  [1.30,  0, 12, 1, 0.55],  /* v167：明哥寄生線加了控制後 bossDmg 0.6 → 0.55（bsim） */
     wholecake:  [0.45, -3, 14, 1, 0.6],   /* v160：BIG MOM 新技能（靈魂壓制）後 bossHp 0.70 → 0.45，玩家勝率回到約 64%（bsim） */
     wano:       [0.35, -3, 14, 1, 0.22],  /* v160：凱多龍人型態加成後 bossHp 0.60 → 0.35、bossDmg 0.3 → 0.22，玩家勝率約 57%（bsim） */
     dark:       [1.50,  2, 22, 1, 0.9],
@@ -21,7 +21,9 @@
     giant:      [0.60, -3, 25, 2, 0.5, 1]   /* 復活 2 次維持 v152 的決定（神之騎士團兩場對決＋洛基） */
   };
   /* 巨人篇同一章三位 BOSS：軍子出手太重；洛基是戰力天花板（每回合回滿、秒殺、反彈），另外大幅壓低 */
-  const FIX = { giant: { gunko: { hp: 0.5, dmg: 0.4 }, shamrock: { dmg: 1.3 }, loki: { hp: 0.42, atk: -3, def: 1, spd: 3, dmg: 0.42 } /* v157：0.5 → 0.42 */ } };
+  const FIX = { giant: { gunko: { hp: 0.5, dmg: 0.4 }, shamrock: { dmg: 1.3 }, loki: { hp: 0.3, atk: -4, def: 0, spd: 3, dmg: 0.33 } /* v157：0.5 → 0.42；v167：洛基加上真實傷害、護盾、回復、控制後 hp 0.42→0.3、atk -3→-4、def 1→0、dmg 0.42→0.33，玩家勝率回到調整前（bsim） */ } };
+  /* v167 支線對決：大和（和之國「想成為御田的人」）輸出提高後，對決的大和體力、傷害 ×0.75，玩家勝率回到調整前（bsim） */
+  { const W = typeof CHAPTERS !== 'undefined' && CHAPTERS.find(c => c.id === 'wano'), S = W && (W.sides || []).find(x => x.id === 'yamato_oden'); if (S && !S.foe) S.foe = { hp: 0.75, dmg: 0.75 }; }
   Object.entries(T).forEach(([id, [bossHp, bossStages, bossLvUp, revives, bossDmg, bossUltCap]]) => { const d = CHAPTER_DIFFICULTY[id]; if (d) Object.assign(d, { bossHp, bossStages: Math.max(0, bossStages), bossStageAdj: Math.min(0, bossStages), bossLvUp, revives, bossDmg }, bossUltCap ? { bossUltCap } : {}, FIX[id] ? { bossFix: FIX[id] } : {}); });
   /* bossDmg：BOSS 造成的攻擊傷害倍率（新欄位，只作用在劇情／困難模式的篇章 BOSS）。
      用 __dmgB（progress_v131 的傷害加成，計算在 computeSkillOutcome 之後），不改 dmgMul（dmgMul 同時是受傷除數）。 */

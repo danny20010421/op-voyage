@@ -2,7 +2,7 @@
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__installPrompt = e; });
 /* 設定頁（大廳「設定」與首頁「設定」共用）＋ 新手教學（大廳聚光燈導覽）。
    設定存在 localStorage：op_gfx（畫質）、op_motion（減少動態）、op_bspeed（預設戰鬥速度）、op_vibe（震動回饋）、op_live_pop（即時對戰邀請通知）、op_text（文字大小）、op_fxpro（技能特效高／低，v138）。 */
-const GAME_VERSION = 'v166';
+const GAME_VERSION = 'v167';
 /* v148：目前的畫質（沒選過時：電腦＝極致、手機平板＝高畫質，和 e3three.js 的 E3_ULTRA 規則相同） */
 function gfxNow() { try { const g = localStorage.getItem('op_gfx'); if (g) return g; return !matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) >= 700 && (navigator.deviceMemory || 8) >= 6 ? 'ultra' : 'high'; } catch (e) { return 'high'; } }
 (function () {

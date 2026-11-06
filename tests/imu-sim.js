@@ -54,7 +54,7 @@ async () => {
     if (C.mod) { const M = C.mod; if (M.hp) { E.maxHp = Math.round(E.maxHp * M.hp); E.hp = E.maxHp; } if (M.dmg) E.dmgMul *= M.dmg; ['atk', 'def'].forEach(k => { if (M[k]) E.buffs[k] = clamp(E.buffs[k] + M[k], -6, 6); }); }
     battle.team = team; battle.pi = 0; battle.player = team[0]; battle.enemy = E; battle.isBoss = !!C.boss; battle.__imuDom = null; battle.eruption = null; battle.iceAge = null; battle.round = 1; battle.opts = { revives: C.revives || 0 }; battle.difficulty = CHAPTER_DIFFICULTY[C.chapter || 'giant'];
     if (E.__imu && C.pace) { E.__imu.pace = C.pace; if (C.paceHp != null) E.__imu.paceHp = C.paceHp; }
-    if (C.throne && E.__imu) { E.maxHp = E.hp = 99999999; E.voidImmune = true; E.skills.forEach(s => { s.pp = s.maxPP = 9999; s.locked = 0; }); I.throneInit(E); battle.voidDamage = 0; }
+    if (C.throne && E.__imu) { E.maxHp = E.hp = 99999999; E.voidImmune = true; E.skills.forEach(s => { s.pp = s.maxPP = 9999; s.locked = 0; }); E.name = '伊姆（完全體）'; I.throneInit(E); battle.voidDamage = 0; }
     const st = { rev: C.boss ? (C.revives || 0) : 0 }; let rounds = 0;
     for (rounds = 1; rounds <= (CFG.maxRounds || 80); rounds++) {
       battle.round = rounds; I.punishNow();

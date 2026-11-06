@@ -171,7 +171,8 @@
   window.openCharSelect = function () {
     const inv = SAVE.data.inventory || {}, n = inv.char_select || 0; if (!n) return toast('沒有 SSR 角色選擇卡');
     const NG = typeof NOT_IN_GACHA === 'function' ? NOT_IN_GACHA : () => false;
-    const list = CHARACTER_ORDER.filter(id => CHAR_RARITY[id] === 'SSR' && !NG(id) && !(CHAR_OBTAIN[id] || {}).npcOnly && !(CHARACTERS[id] || {}).mystery);
+    const EXCL = ['aokiji', 'kizaru']; /* v167 使用者 11/06：選擇卡不能選青雉、黃猿 */
+    const list = CHARACTER_ORDER.filter(id => CHAR_RARITY[id] === 'SSR' && !EXCL.includes(id) && !NG(id) && !(CHAR_OBTAIN[id] || {}).npcOnly && !(CHARACTERS[id] || {}).mystery);
     const box = document.createElement('div'); box.className = 'dl-wrap'; box.innerHTML = `<div class="dl-card st-card cs-card"><header><h3>SSR 角色選擇卡</h3><button class="icon-btn sm" data-x aria-label="關閉">×</button></header><p class="dl-sub">從一般召喚池的 SSR 角色中任選一位（擁有 ${n} 張）。已擁有的角色不能選。</p><div class="st-grid">${list.map(id => { const c = CHARACTERS[id], own = owned(id); return `<button class="st-opt ${own ? 'own' : ''}" data-id="${id}" ${own ? 'disabled' : ''}><img src="${c.avatar}" alt=""><b>${esc(c.name)}</b><small>${own ? '已擁有' : esc(c.title || '')}</small></button>`; }).join('')}</div></div>`;
     document.body.appendChild(box); const close = () => box.remove(); box.querySelector('[data-x]').onclick = close; box.onclick = e => { if (e.target === box) close(); };
     box.querySelectorAll('.st-opt[data-id]:not([disabled])').forEach(b => b.onclick = () => { const id = b.dataset.id, c = CHARACTERS[id];
