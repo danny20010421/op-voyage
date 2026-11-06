@@ -66,6 +66,18 @@
 /* 「更換船長 ›」箭頭比文字高 1px */
 #lbSwap > svg.arw { position: relative; top: .5px; }
 
+/* 通行證：「大獎」等級列（li.big）被通用的 .big 按鈕樣式（左右內距 28px、圓角）套到，等級格、免費、進階三欄整列往右縮：取消 */
+.ps-lvls li.big { padding: 0; font-size: inherit; border-radius: 0; }
+
+/* 虛空王座選人卡的編號圓圈：格線列高（字高 1.45 倍＝24px）比圓圈（22px）高，數字往下掉 2.5px */
+.th-c > i { line-height: 1; }
+
+/* 培養視窗能力格（體力 1,680 → 1,764）：數字較寬時超出格子 2.9px，縮小左右內距與間距 */
+.g7 .g7-stats > div { padding-left: 4px !important; padding-right: 4px !important; gap: 2px !important; }
+
+/* 大廳資源列的「＋」用的是系統字型（iOS／Android 不同），改用遊戲字型 */
+.coin > .lb-plus { font-family: var(--sans); font-weight: 700; }
+
 /* 大廳出戰陣容頭像：圖片是行內元素，下方多出字元空隙，頭像在圓框裡偏上 */
 #lobby .lbt-av > img { display: block; }
 
@@ -74,7 +86,7 @@
 
 /* 成就分頁：內容貼在上緣、下方空一截（三個分頁因其中一個換行而等高）：改成垂直置中；說明小字換行時兩行平均分配，不會只剩一個字 */
 .ach-tabs > button { justify-content: center; }
-.ach-tabs > button > small { text-wrap: balance; }
+.ach-tabs > button > small { text-wrap: balance; word-break: keep-all; overflow-wrap: anywhere; }
 
 /* ---------- 一、字型無關的垂直置中（漸進增強） ---------- */
 @supports (text-box: trim-both cap alphabetic) {
@@ -104,15 +116,28 @@
   .plate .pl-lv { box-sizing: border-box; height: 19px; padding-top: 0; padding-bottom: 0; align-content: center; text-box: trim-both cap alphabetic; }
   .char > .c-name { box-sizing: border-box; height: 28px; padding-top: 0; padding-bottom: 0; align-content: center; text-box: trim-both cap alphabetic; }
   /* 下方導覽列文字：裁掉上下留白後補回相同間距，圖示＋文字整組置中 */
-  .l2-nav-in > .l2-tab > b { text-box: trim-both cap alphabetic; padding-top: 4px; padding-bottom: 4px; }
+  .l2-nav-in > .l2-tab > b { text-box: trim-both cap alphabetic; padding-top: 4px; padding-bottom: 0; }
   /* 其他固定高度的小標籤、小按鈕（＋、⤢、×3、公告分類） */
   .g7 .g7-zoom { display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
-  /* ＋號的中心在 x 字高附近，用 x 字高～基線裁切 */
-  .coin > .lb-plus { display: block; align-content: center; text-align: center; text-box: trim-both ex alphabetic; }
+  .coin > .lb-plus { display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
   .st-body .seg button { align-content: center; text-box: trim-both cap alphabetic; }
   .node > .node-name { box-sizing: border-box; min-height: calc(4px + 1.44em); align-content: center; text-box: trim-both cap alphabetic; }
   .nb-tag { display: inline-block; box-sizing: border-box; min-height: calc(4px + 1.45em); align-content: center; text-box: trim-both cap alphabetic; }
   #newsTabs > button { box-sizing: border-box; min-height: 25px; align-content: center; text-box: trim-both cap alphabetic; }
+  /* 多行文字卡片（每週活動、成就分頁）：第一行上方、最後一行下方的字型留白不一樣，整段偏下 2～2.5px：上下都裁到字高 */
+  .wk-list > li > span > b, .wk-list > li > span > small { text-box: trim-both cap alphabetic; }
+  .wk-list > li > span { gap: 8px; }
+  .wk-list > li { padding-top: 16px; padding-bottom: 16px; } /* 裁掉的留白補回到上下內距，卡片高度不變 */
+  .ach-tabs > button:not(#_) { display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
+  .ach-tabs > button > small { display: block; margin-top: 4px; }
+  .ach-tabs > button { padding-top: 12px; padding-bottom: 12px; }
+  .th-c > i { display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
+  /* 抽 100 次（手機橫排：大字＋小字同一行） */
+  #pull100:not(#_) { display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic; }
+  @media (max-width: 860px) { #pull100 > small { display: inline; margin: 0 0 0 8px; } #pull100 { min-height: calc(30px + 1.15em) !important; } }
+  @media (min-width: 861px) { #pull100 > small { display: block; } #pull100 { min-height: calc(34px + 1.15em + 13.8px) !important; } }
+  /* 碎片檔期標籤（開放中／休息中） */
+  .sd-ph { display: inline-block; box-sizing: border-box; min-height: calc(4px + 1.4em); vertical-align: middle; align-content: center; text-box: trim-both cap alphabetic; }
   /* 圓形關閉鈕（×）：固定尺寸，同樣以大寫字高～基線置中（實測 × 落在正中央，兩種字型都只差 0.2px） */
   .g7 .g7-x, .bg2-head > .bg2-x, .vp-head > .vp-x, .gl-head > .gl-x {
     display: block; align-content: center; text-align: center; text-box: trim-both cap alphabetic;

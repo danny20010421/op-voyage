@@ -65,7 +65,7 @@ const PASS = {
         <div class="ps-hr">${P.prem ? '<span class="ps-prem on">進階通行證　已解鎖</span>' : `<button class="btn-gold ps-buy"><span>解鎖進階通行證</span><small><img src="assets/ui/coin_token.webp?v=115" alt="">${fmt(PASS.price)} 寶藏幣</small></button>`}
           <button class="btn-ghost ps-all" ${n ? '' : 'disabled'}>全部領取${n ? `（${n}）` : ''}</button></div></section>
       <section class="ps-card ps-tl"><div class="ps-th"><span>等級</span><span>免費</span><span>進階</span></div><ol class="ps-lvls">${rows.join('')}</ol>
-        <p class="ps-note">進階通行證目前用寶藏幣解鎖（測試期間）；30 級可領「限定皮膚選擇卷」。</p></section>`;
+        <p class="ps-note">進階通行證目前用寶藏幣解鎖（測試期間）；30 級可領「限定皮膚選擇券」。</p></section>`;
   }
   function render() {
     if (!el) return; if (window.ACT) ACT.sync();

@@ -142,7 +142,7 @@
     monet: { boss: 0, reward: '_side', npc: '德雷斯羅薩篇支線「SMILE 工廠的源頭」：對決勝利後加入' },
     vergo: { boss: 0, reward: '_side', npc: '德雷斯羅薩篇支線「G-5 的叛徒」：對決勝利後加入' }
   });
-  SKINS.york_greed = { char: 'york', name: '貪欲的提線者', image: img('york_skin1'), avatar: face('york_skin1'), ticket: true, battleScale: .85, how: '限定皮膚選擇卷（奪寶大冒險首次突破 2000／3000／5000 公尺）' };
+  SKINS.york_greed = { char: 'york', name: '貪欲的提線者', image: img('york_skin1'), avatar: face('york_skin1'), ticket: true, battleScale: .85, how: '限定皮膚選擇券（奪寶大冒險首次突破 2000／3000／5000 公尺）' };
 
   /* 羈絆 */
   const set = id => COLLECTION_SETS.find(s => s.id === id);

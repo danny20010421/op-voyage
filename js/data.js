@@ -3,7 +3,7 @@ const DATA_VERSION = 71;
 /* 七日登入獎勵：第 7 天領完後從第 1 天重新開始 */
 const LOGIN_REWARDS = [
  {day:1, label:'貝里 5,000', berry:5000},
- {day:2, label:'掃蕩卷 ×3', items:{sweep:3}},
+ {day:2, label:'掃蕩券 ×3', items:{sweep:3}},
  {day:3, label:'寶藏幣 ×3', tokens:3},
  {day:4, label:'航海日誌 ×3', items:{exp_m:3}},
  {day:5, label:'活動抽獎券 ×3', tickets:3},
@@ -166,8 +166,8 @@ const ITEMS = {
  exp_s:{name:'小經驗書', rarity:'N', icon:'book', color:'#9fd6f5', desc:'在船員畫面使用，角色經驗 +300。', effect:{exp:300}},
  exp_m:{name:'航海日誌', rarity:'R', icon:'book', color:'#5fb8ff', desc:'在船員畫面使用，角色經驗 +1500。', effect:{exp:1500}},
  exp_l:{name:'羅格鎮的傳說', rarity:'SSR', icon:'book', color:'#c58bff', desc:'在船員畫面使用，角色經驗 +6000。', effect:{exp:6000}},
- skin_ticket:{name:'限定皮膚選擇卷', rarity:'SSR', icon:'scroll', color:'#ff7ad9', desc:'從限定皮膚中任選一款（已擁有的不能選）。在背包裡使用。', effect:{skinTicket:true}},
- sweep:{name:'掃蕩卷', rarity:'R', icon:'scroll', img:'assets/ui/item_sweep.webp?v=48', color:'#6fb8ff', desc:'在海圖選擇已通關的篇章進行掃蕩：篇章裡有幾場戰鬥（含 BOSS），掃蕩一次就需要幾張。每天自動補給 5 張。', effect:{sweep:true}},
+ skin_ticket:{name:'限定皮膚選擇券', rarity:'SSR', icon:'scroll', color:'#ff7ad9', desc:'從限定皮膚中任選一款（已擁有的不能選）。在背包裡使用。', effect:{skinTicket:true}},
+ sweep:{name:'掃蕩券', rarity:'R', icon:'scroll', img:'assets/ui/item_sweep.webp?v=48', color:'#6fb8ff', desc:'在海圖選擇已通關的篇章進行掃蕩：篇章裡有幾場戰鬥（含 BOSS），掃蕩一次就需要幾張。每天自動補給 5 張。', effect:{sweep:true}},
  feather:{name:'不死鳥之羽', rarity:'SSR', icon:'feather', color:'#ffd26c', desc:'本場戰鬥倒下時，以 50% 體力復活一次。', effect:{revive:0.5}}
 };
 const RARITY = {
@@ -179,7 +179,7 @@ const RARITY = {
 const GACHA_COST = {single:1, ten:9, hundred:90};
 
 /* 公告：以天為單位整理更新內容（詳細紀錄見 README） */
-const DEFAULT_NEWS = [ { "id": "d1001", "date": "2026-10-01", "tag": "更新", "title": "10/01 更新整理", "body": "・新角色：薇薇（SR，完成阿拉巴斯坦篇加入）、佩羅娜（SR，同時擁有鷹眼與莫莉亞後加入）\n・皮膚：漢庫克、大和、羅賓、薇薇各一款新皮膚（獲得角色時免費贈送），更多皮膚陸續推出\n・對戰演出：變身立繪（洛基巨龍、馬爾科不死鳥、莫莉亞巨大化）、自動鏡頭拉遠與站位拉開、立繪面向對手、我方立繪在前\n・平衡：漢庫克回復能力強化；稀有度強度框架（同階約五五波、相鄰階些微差距）\n・新羈絆「恐怖三桅帆船」：莫莉亞＋佩羅娜同時出戰，出場攻擊＋1、防禦＋1\n・技能補充劑改為智慧補充 2 次（用完的優先），所有技能次數不會超過上限\n・限定活動池保底改為 120 抽\n・篇章小兵只在戰鬥任務中被打倒才會消失，避免任務卡住\n・登入頁新背景音樂與遊戲介紹文案\n・懸賞金交易所改版：即時看盤，37 檔海賊團、海軍、國家、ETF 與期貨，台灣時間 05:00 開盤\n・奪寶大冒險新增最低速度紅線；大廳、海圖、勇者之塔、決鬥換上新背景音樂" }, { "id": "d0930", "date": "2026-09-30", "tag": "更新", "title": "09/30 更新整理", "body": "・遊戲大廳全新改版：船長立繪、限定活動、七日登入、模式選擇與關卡挑戰主按鈕\n・新篇章：頂上戰爭篇（含卡普對決、麥哲倫支線）、蛋糕島篇；東海篇補上近海之王與斧手摩根\n・新角色：艾斯、馬爾科、兩位卡普、BIG MOM、麥哲倫、卡特琳·蝶美、卡塔庫栗、近海之王、斧手摩根、佛朗基、摩甘茲（NPC）\n・新系統：七日登入、掃蕩與掃蕩卷、一般池 150 抽保底、重複船員可到海軍本部換貝里、羈絆加成（陣容內有指定角色才生效）、支線任務\n・寶藏日誌改為「解讀石碑」取得歷史本文\n・存檔保護（自動備份、匯出提醒）、可加入主畫面（PWA）、載入加速\n・跨裝置：手機圖鑑重新設計、iOS 防誤觸縮放、圓形按鈕圖示置中" }, { "id": "d0929", "date": "2026-09-29", "tag": "更新", "title": "09/29 更新整理", "body": "・新角色：鷹眼、小丑巴基（十字公會限定活動池）\n・屬性系統精簡為 12 種、角色編號分段與圖鑑「？？？」剪影、稀有度 UR／SSR／SR／R\n・強度平衡大調整：BOSS 不再被秒殺、比例傷害上限；虛空王座伊姆不受比例傷害\n・篇章依原作時間線重新排序；司法島「奪鑰」、和之國「找出內奸」新任務\n・限定活動抽獎新增水晶開獎動畫；奪寶大冒險新寶箱（發光＋1命）\n・女帝＆莫莉亞限定活動、勇者之塔可重複挑戰、篇章新封面" }, { "id": "d0928", "date": "2026-09-28", "tag": "更新", "title": "09/28 更新整理", "body": "・三大模式登場：奪寶大冒險、關卡挑戰、勇者之塔；新模式「登上虛空王座」\n・介面全面改版：航海介面、角色背包（圖鑑、訓練營）、懸賞召喚搬進海賊酒館、海軍本部\n・新角色：凱多、基德、羅、伊姆等；皮膚系統上線\n・主線「拉夫德魯之路」開放；司法島、魚人島篇改版；島嶼任務指引與寶箱探索\n・奧義卡與奧義徽章、異常狀態與能力階級規則、各裝置排版修正" }, { "id": "d0927", "date": "2026-09-27", "tag": "更新", "title": "09/27 更新整理", "body": "・新篇章：司法島、魚人島、和之國\n・遊戲上線：東海、阿拉巴斯坦、空島等篇章與回合制對戰" } ];
+const DEFAULT_NEWS = [ { "id": "d1001", "date": "2026-10-01", "tag": "更新", "title": "10/01 更新整理", "body": "・新角色：薇薇（SR，完成阿拉巴斯坦篇加入）、佩羅娜（SR，同時擁有鷹眼與莫莉亞後加入）\n・皮膚：漢庫克、大和、羅賓、薇薇各一款新皮膚（獲得角色時免費贈送），更多皮膚陸續推出\n・對戰演出：變身立繪（洛基巨龍、馬爾科不死鳥、莫莉亞巨大化）、自動鏡頭拉遠與站位拉開、立繪面向對手、我方立繪在前\n・平衡：漢庫克回復能力強化；稀有度強度框架（同階約五五波、相鄰階些微差距）\n・新羈絆「恐怖三桅帆船」：莫莉亞＋佩羅娜同時出戰，出場攻擊＋1、防禦＋1\n・技能補充劑改為智慧補充 2 次（用完的優先），所有技能次數不會超過上限\n・限定活動池保底改為 120 抽\n・篇章小兵只在戰鬥任務中被打倒才會消失，避免任務卡住\n・登入頁新背景音樂與遊戲介紹文案\n・懸賞金交易所改版：即時看盤，37 檔海賊團、海軍、國家、ETF 與期貨，台灣時間 05:00 開盤\n・奪寶大冒險新增最低速度紅線；大廳、海圖、勇者之塔、決鬥換上新背景音樂" }, { "id": "d0930", "date": "2026-09-30", "tag": "更新", "title": "09/30 更新整理", "body": "・遊戲大廳全新改版：船長立繪、限定活動、七日登入、模式選擇與關卡挑戰主按鈕\n・新篇章：頂上戰爭篇（含卡普對決、麥哲倫支線）、蛋糕島篇；東海篇補上近海之王與斧手摩根\n・新角色：艾斯、馬爾科、兩位卡普、BIG MOM、麥哲倫、卡特琳·蝶美、卡塔庫栗、近海之王、斧手摩根、佛朗基、摩甘茲（NPC）\n・新系統：七日登入、掃蕩與掃蕩券、一般池 150 抽保底、重複船員可到海軍本部換貝里、羈絆加成（陣容內有指定角色才生效）、支線任務\n・寶藏日誌改為「解讀石碑」取得歷史本文\n・存檔保護（自動備份、匯出提醒）、可加入主畫面（PWA）、載入加速\n・跨裝置：手機圖鑑重新設計、iOS 防誤觸縮放、圓形按鈕圖示置中" }, { "id": "d0929", "date": "2026-09-29", "tag": "更新", "title": "09/29 更新整理", "body": "・新角色：鷹眼、小丑巴基（十字公會限定活動池）\n・屬性系統精簡為 12 種、角色編號分段與圖鑑「？？？」剪影、稀有度 UR／SSR／SR／R\n・強度平衡大調整：BOSS 不再被秒殺、比例傷害上限；虛空王座伊姆不受比例傷害\n・篇章依原作時間線重新排序；司法島「奪鑰」、和之國「找出內奸」新任務\n・限定活動抽獎新增水晶開獎動畫；奪寶大冒險新寶箱（發光＋1命）\n・女帝＆莫莉亞限定活動、勇者之塔可重複挑戰、篇章新封面" }, { "id": "d0928", "date": "2026-09-28", "tag": "更新", "title": "09/28 更新整理", "body": "・三大模式登場：奪寶大冒險、關卡挑戰、勇者之塔；新模式「登上虛空王座」\n・介面全面改版：航海介面、角色背包（圖鑑、訓練營）、懸賞召喚搬進海賊酒館、海軍本部\n・新角色：凱多、基德、羅、伊姆等；皮膚系統上線\n・主線「拉夫德魯之路」開放；司法島、魚人島篇改版；島嶼任務指引與寶箱探索\n・奧義卡與奧義徽章、異常狀態與能力階級規則、各裝置排版修正" }, { "id": "d0927", "date": "2026-09-27", "tag": "更新", "title": "09/27 更新整理", "body": "・新篇章：司法島、魚人島、和之國\n・遊戲上線：東海、阿拉巴斯坦、空島等篇章與回合制對戰" } ];
 
 /* ---------- 主線：拉夫德魯之路 ---------- */
 const TREASURE = {
@@ -323,9 +323,9 @@ const SKINS = { imu_true:{char:"imu", name:"伊姆（真實型態）", image:"as
  vivi_water:{char:"vivi", name:"水之都的祈禱", image:"assets/chars/vivi_skin1.webp?v=53", avatar:"assets/chars/vivi_skin1_face.webp?v=53", grantWith:"vivi", how:"獲得薇薇時免費贈送"},
  vivi_s2:{char:"vivi", name:"？？？", soon:true, how:"敬請期待"}, vivi_s3:{char:"vivi", name:"？？？", soon:true, how:"敬請期待"},
  perona_lace:{char:"perona", name:"蕾絲巫女", image:"assets/chars/perona_skin1.webp?v=57", avatar:"assets/chars/perona_skin1_face.webp?v=57", grantWith:"perona", how:"獲得佩羅娜時免費贈送"},
- perona_swim:{char:"perona", name:"泳裝佩羅娜", image:"assets/chars/perona_skin2.webp?v=57", avatar:"assets/chars/perona_skin2_face.webp?v=57", ticket:true, how:"限定皮膚選擇卷（奪寶大冒險首次突破 2000／3000／5000 公尺）"},
+ perona_swim:{char:"perona", name:"泳裝佩羅娜", image:"assets/chars/perona_skin2.webp?v=57", avatar:"assets/chars/perona_skin2_face.webp?v=57", ticket:true, how:"限定皮膚選擇券（奪寶大冒險首次突破 2000／3000／5000 公尺）"},
  perona_s3:{char:"perona", name:"？？？", soon:true, how:"敬請期待"},
- robin_swim:{char:"robin", name:"泳裝羅賓", image:"assets/chars/robin_skin2.webp?v=57", avatar:"assets/chars/robin_skin2_face.webp?v=57", ticket:true, how:"限定皮膚選擇卷（奪寶大冒險首次突破 2000／3000／5000 公尺）"} };
+ robin_swim:{char:"robin", name:"泳裝羅賓", image:"assets/chars/robin_skin2.webp?v=57", avatar:"assets/chars/robin_skin2_face.webp?v=57", ticket:true, how:"限定皮膚選擇券（奪寶大冒險首次突破 2000／3000／5000 公尺）"} };
 /* 角色目前使用的立繪（有裝備皮膚就用皮膚） */
 function charArt(id, kind) { const eq = (((typeof SAVE !== 'undefined' && SAVE.data && SAVE.data.skins) || {}).equip || {})[id], S = eq && SKINS[eq] && !SKINS[eq].soon ? SKINS[eq] : null; return S ? (kind === 'avatar' ? S.avatar : S.image) : CHARACTERS[id][kind === 'avatar' ? 'avatar' : 'image']; }
 /* 組合獎勵：同時擁有 needs 裡的角色就免費加入（例如鷹眼＋莫莉亞 → 佩羅娜） */

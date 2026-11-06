@@ -1,4 +1,4 @@
-/* 每日系統：七日登入獎勵、每天補給掃蕩卷、通關掃蕩、定期提醒匯出存檔 */
+/* 每日系統：七日登入獎勵、每天補給掃蕩券、通關掃蕩、定期提醒匯出存檔 */
 (function () {
   const inv = () => (SAVE.data.inventory = SAVE.data.inventory || {});
 
@@ -10,7 +10,7 @@
   }
   window.exportSave = exportSave;
 
-  /* ---------- 每天補給掃蕩卷 ---------- */
+  /* ---------- 每天補給掃蕩券 ---------- */
   function dailySweep() {
     if (window.timeLocked && timeLocked()) return 0;
     const d = SAVE.data, day = today(); if (d.sweepDay === day) return 0;
@@ -54,7 +54,7 @@
   function sweepChapter(id, runs) {
     const c = CHAPTERS.find(x => x.id === id), st = SAVE.data.chapters[id]; if (!c || !st.cleared) return;
     const B = sweepBattles(c), need = B.total * runs, have = inv().sweep || 0;
-    if (have < need) { toast(`掃蕩卷不足：需要 ${need} 張，目前 ${have} 張（每天 00:00 補給 5 張，懸賞召喚也抽得到）`); return; }
+    if (have < need) { toast(`掃蕩券不足：需要 ${need} 張，目前 ${have} 張（每天 00:00 補給 5 張，懸賞召喚也抽得到）`); return; }
     inv().sweep = have - need;
     const elv = ENEMY_LEVEL[id] || 1, lineup = SAVE.data.lineup || [], lead = lineup[0] || SAVE.data.player;
     let berry = 0, exp = 0; const drops = {};
@@ -66,7 +66,7 @@
     addBerry(berry); if (lead) gainExp(lead, exp, true); lineup.filter(x => x !== lead).forEach(x => gainExp(x, Math.round(exp * (1 - GAME_SETTINGS.shareExp)), true));
     Object.entries(drops).forEach(([k, n]) => { inv()[k] = (inv()[k] || 0) + n; });
     track('wins', B.total * runs); track('sweeps', B.total * runs); SAVE.save(); coins();
-    const lines = [`掃蕩「${c.name}」×${runs}（共 ${B.total * runs} 場戰鬥，其中 BOSS ${B.bosses * runs} 場），使用掃蕩卷 ${need} 張`, `貝里 +${berry.toLocaleString()}`, `出戰陣容經驗 +${exp.toLocaleString()}（先鋒全額，其他人 ${Math.round((1 - GAME_SETTINGS.shareExp) * 100)}%）`, Object.keys(drops).length ? '掉落：' + Object.entries(drops).map(([k, n]) => `${ITEMS[k].name} ×${n}`).join('、') : '這次沒有掉落道具', `剩餘掃蕩卷：${inv().sweep}`];
+    const lines = [`掃蕩「${c.name}」×${runs}（共 ${B.total * runs} 場戰鬥，其中 BOSS ${B.bosses * runs} 場），使用掃蕩券 ${need} 張`, `貝里 +${berry.toLocaleString()}`, `出戰陣容經驗 +${exp.toLocaleString()}（先鋒全額，其他人 ${Math.round((1 - GAME_SETTINGS.shareExp) * 100)}%）`, Object.keys(drops).length ? '掉落：' + Object.entries(drops).map(([k, n]) => `${ITEMS[k].name} ×${n}`).join('、') : '這次沒有掉落道具', `剩餘掃蕩券：${inv().sweep}`];
     SFX.play('quest'); storyCard('掃蕩完成', lines, '好', () => { if (typeof selectChapter === 'function') selectChapter(id); });
   }
   window.sweepChapter = sweepChapter;
@@ -77,7 +77,7 @@
     try { Object.entries(CHAR_OBTAIN).forEach(([cid, o]) => { if (o.reward && SAVE.data.chapters[o.reward] && SAVE.data.chapters[o.reward].cleared && !owned(cid)) { addCrew(cid, 10); setTimeout(() => toast(`通關獎勵補發：${CHARACTERS[cid].name} 加入了你的船隊！`, 'gold'), 1200); } }); } catch (e) { }
     try { grantCombos(); } catch (e) { }
     try { grantSkins().forEach(k => setTimeout(() => toast(`獲得皮膚「${SKINS[k].name}」！可在角色背包裝備`, 'gold'), 1400)); } catch (e) { }
-    const n = dailySweep(); if (n) setTimeout(() => toast(`每日補給：掃蕩卷 ×${n}`, 'gold'), 600);
+    const n = dailySweep(); if (n) setTimeout(() => toast(`每日補給：掃蕩券 ×${n}`, 'gold'), 600);
     if (canClaim() && !openLogin._shownDay) { openLogin._shownDay = today(); /* v163：新手拉霸等視窗開著時先等它關掉，一次只出現一個視窗 */ let n = 0; const t = setInterval(() => { n++; if (currentScreen !== 'modeScreen' || n > 600) { clearInterval(t); return; } if (document.querySelector('.dl-wrap, .modal.show, .gd-wrap')) return; clearInterval(t); openLogin(true); }, 900); }
     const d = SAVE.data, last = d.lastExport || 0, played = (d.pulls || 0) + CHAPTERS.filter(c => d.chapters[c.id].step > 0).length;
     const bar = $('lbBackup'); if (bar) bar.hidden = !(played > 2 && Date.now() - last > 7 * 864e5);

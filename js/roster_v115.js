@@ -18,7 +18,7 @@
   CHAR_RARITY.king = 'SSR';
   CHAR_OBTAIN.king = { boss: 0, eventOnly: true, monthCard: '2026-10', npc: '2026 年 10 月月費限定・和之國篇 小 BOSS' };
   if (typeof COLLECTION_SETS !== 'undefined') { const b = COLLECTION_SETS.find(s => s.id === 'beasts' || /百獸/.test(s.name || '')); if (b && !b.members.includes('king')) b.members.push('king'); }
-  /* 限定皮膚：萬聖之燼（只能從 2026 年 10 月月費取得，不能用寶藏幣購買、不在皮膚選擇卷內） */
+  /* 限定皮膚：萬聖之燼（只能從 2026 年 10 月月費取得，不能用寶藏幣購買、不在皮膚選擇券內） */
   if (typeof SKINS !== 'undefined') SKINS.king_halloween = { char: 'king', name: '萬聖之燼', image: `assets/chars/king_skin1.webp?v=${V}`, avatar: `assets/chars/king_skin1_face.webp?v=${V}`, battleScale: 1.1, monthCard: '2026-10', how: '2026 年 10 月月費限定（購買月費即可獲得）' };
   /* 和之國篇：鬼之島屋頂的決戰之前，新增小 BOSS「炎災」燼（第 11 步；舊存檔由 app.js chState 的 v115 轉換往後移） */
   const W = typeof CHAPTERS !== 'undefined' && CHAPTERS.find(c => c.id === 'wano');
