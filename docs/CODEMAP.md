@@ -42,6 +42,7 @@
 - `css/v135.css`: .qo-*（掛機寶藏、召喚紀錄視窗）、.tp-*、#dlgSkip、.ps-claimall
 - **3D 分段下載（v135）**: index.html 不再直接載入 e3three.js；js/engine3d.js 的 window.ensure3D() 用 import() 載入（importmap 仍在 index.html），app.js enterChapter 先 await ensure3D() 再建立 World；進入遊戲 15 秒後背景預先下載
 - `js/ret_v136.js`: F:一般召喚券 ITEMS.summon_ticket（pull 外層包裝：券夠時先補回寶藏幣再呼叫原本的 pull）、回歸玩家 RETURN_CFG／window.RETURN（check／claim；SAVE.data.lastSeen、SAVE.data.ret）| D:pull、updateGachaBtns、openModes（第一次進大廳時 check） ；v137 領取視窗 RETURN.open（.rt-wrap，每天第一次進大廳自動跳出）、大廳入口 #lbRet（RETURN.rail） | S:樣式在 css/v137.css；視窗沿用 .qo-wrap
+- `js/rocks_v166.js`＋`css/rocks_v166.css`: F:洛克斯新立繪（battleScale .85）、舊立繪皮膚 rocks_classic（擁有洛克斯自動獲得）、原造型戰鬥中的閃電環繞 .rocks-aura（包住 applyVisual）
 - `js/ext_v165.js`＋`js/balance_v165.js`＋`js/fx_v165.js`＋`css/v165.css`: F:伊姆三型態（__imu.form 0/1/2、晉升、各種契約／領域／抹除狀態）與洛基、尼卡、洛克斯、黑鬍子的通用克制效果；IMU165.preAct/postAct 給 battle.js 與 tests/*-sim 共用 | A:assets/chars/imu_form1、imu_form2 | T:tests/imu-sim.js
 - `js/twtime_v165.js`: F:window.TW（台灣時間 today/now/伺服器誤差校正），today() 都走這裡 | S:必須在 head 最前面載入
 - `js/admin.js`: F:管理後台；DOMContentLoaded 套用、直接覆寫並記住原值、只存改過的欄位；DATA_VERSION 不同時備份停用

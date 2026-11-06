@@ -1,0 +1,7 @@
+/* v166 洛克斯新立繪的藍黑色閃電環繞（js/rocks_v166.js） */
+.fighter .rk-bolts{display:none}
+.fighter.rocks-aura .rk-bolts{display:block;position:absolute;left:50%;bottom:0;width:100%;height:100%;translate:-50% 0;transform-origin:50% 100%;transform:scale(var(--sc));pointer-events:none;z-index:2;overflow:visible;mix-blend-mode:screen}
+.fighter.rocks-aura .rk-bolts path{fill:none;stroke:#7fa8ff;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 2px #3a5cff) drop-shadow(0 0 6px #1a0a40);opacity:0;animation:rkBolt 1.6s steps(1,end) infinite;animation-delay:calc(var(--i) * .27s)}
+.fighter.rocks-aura img{filter:drop-shadow(0 0 14px rgba(40,60,200,.55)) drop-shadow(0 0 28px rgba(10,0,30,.8))}
+@keyframes rkBolt{0%{opacity:0}6%{opacity:1}12%{opacity:.35}18%{opacity:1}34%{opacity:.6}40%{opacity:0}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.fighter.rocks-aura .rk-bolts path{animation:none;opacity:.5}}
