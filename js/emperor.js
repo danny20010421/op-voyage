@@ -41,7 +41,7 @@ const EMPEROR_DOMAIN = {
     return [{ id: x.id, lv: MAX_LV, mod: { hpFixed: E.trueHp, allUp: 1, dmg: E.dmgAdj[x.id] || 1, infPP: true, name: C.name, title: `${x.crew}・真身` }, boss: true }];
   }
   const PHASE_NAME = ['', '第一階段・隊長連戰', '第二階段・皇帝的分身', '第三階段・皇帝真身'];
-  const PHASE_DESC = ['', '連續擊敗旗下 8 位隊長。體力與技能次數會延續到下一場，中途撤退或戰敗就要從頭開始。', '連續擊敗兩個分身（體力 70%）：技能次數無限，奧義最多 3 次。中途撤退或戰敗就要從頭開始。', '挑戰四皇真身：體力 12,000、開場全能力 +1、所有技能次數無限，倒下後會復活一次。擊敗後，這位四皇加入你的船隊。'];
+  const PHASE_DESC = ['', '連續擊敗旗下 8 位隊長。體力與技能次數會延續到下一場，中途撤退或戰敗就要從頭開始。', '連續擊敗兩個分身（體力 70%）：技能次數無限，奧義最多 3 次；秒殺無效（觸發時分身會恢復全部體力）。中途撤退或戰敗就要從頭開始。', '挑戰四皇真身：體力 12,000、開場全能力 +1、所有技能次數無限，倒下後會復活一次；秒殺無效（觸發時真身會恢復全部體力）。擊敗後，這位四皇加入你的船隊。'];
 
   const team = () => { const d = SAVE.data; let t = (d.emperorTeam || []).filter(id => owned(id)); if (!t.length) t = (d.lineup || []).slice(); return t.slice(0, E.teamSize); };
   let picking = null;
@@ -71,7 +71,7 @@ const EMPEROR_DOMAIN = {
   }
   function fight() {
     const R = RUN, s = R.stages[R.i];
-    startBattle({ team: R.team, enemyId: s.id, enemyLv: s.lv, enemyMod: s.mod, bg: BG, chapterId: 'emperor', isBoss: s.boss, revives: s.boss ? 1 : 0,
+    startBattle({ team: R.team, enemyId: s.id, enemyLv: s.lv, enemyMod: s.mod, bg: BG, chapterId: 'emperor', isBoss: s.boss, revives: s.boss ? 1 : 0, noExec: R.ph >= 2 /* v168：第二、三階段秒殺無效（觸發時對手回滿體力），見 js/ext_v168.js */,
       onEnd: r => end(r), onLeave: () => openEmperor() });
     if (R.stages.length > 1) log(`皇帝領海：${PHASE_NAME[R.ph]} 第 ${R.i + 1}/${R.stages.length} 場`);
   }

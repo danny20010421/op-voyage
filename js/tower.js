@@ -12,14 +12,32 @@
     const seq = []; while (seq.length < TOWER.floors) { const a = pool.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } if (seq.length && a[0] === seq[seq.length - 1]) a.push(a.shift()); seq.push(...a); }
     return seq;
   }
+  /* v168 使用者 11/06：勇者之塔不出現四皇（白鬍子、BIG MOM、凱多、紅髮、黑鬍子、尼卡魯夫、巴基）、洛克斯（含分身）、洛基。
+     出場順序照舊（同一個亂數表），輪到這些角色的樓層改成下面的強敵，並乘上 k 倍體力與傷害，讓那一層的難度跟原本差不多。
+     七武海版黑鬍子（blackbeard_w）不是四皇，照常出現；伊姆照舊在 200／250 層。
+     k 用 /root/promo/v168/emp 的 tsim.js 量測（LV 同樓層的和之國三人隊、三大將隊，各 20 場）：換人前後平均勝率差在 5 個百分點內。 */
+  const NO_TOWER = { whitebeard: ['garp_hc', 1.5], shanks: ['mihawk', 1.4], kaido: ['yamato', 1.9], bigmom: ['rayleigh', 1.15], luffy_nika: ['kuma_eh', 1.5],
+    blackbeard: ['blackbeard_w', 1.5], buggy: ['mihawk_w', .85], loki: ['gaban', 2.2], rocks: ['roger', 1] };
+  /* BOSS 層：230 層洛基 → 鷹眼、240 層黑鬍子 → 賈巴（四皇隊、三大將隊、洛克斯隊勝率都在 0～15%，和原本相同） */
+  const BOSS_SUB = { loki: ['mihawk', 1.6], blackbeard: ['gaban', 1.5] };
+  const RAW_BOSSES = TOWER.bosses.slice();
+  for (let i = 0; i < TOWER.bosses.length; i++) { const X = BOSS_SUB[TOWER.bosses[i]] || NO_TOWER[TOWER.bosses[i]]; if (X) TOWER.bosses[i] = X[0]; }
   window.towerFoe = f => foeOf(f); /* 測試用 */
-  function foeOf(f) {
-    if (isBoss(f)) return TOWER.bosses[(f / 10 - 1) % TOWER.bosses.length];
+  /* 原本的出場角色（換人之前） */
+  function rawFoe(f) {
+    if (isBoss(f)) return RAW_BOSSES[(f / 10 - 1) % RAW_BOSSES.length];
     SEQ = SEQ || buildSeq(); let k = 0; for (let x = 1; x < f; x++) if (!isBoss(x)) k++;
-    let id = SEQ[k % SEQ.length]; const prevBoss = isBoss(f - 1) ? TOWER.bosses[(f - 1) / 10 - 1] : null, nextBoss = isBoss(f + 1) ? TOWER.bosses[(f + 1) / 10 - 1] : null;
+    let id = SEQ[k % SEQ.length]; const prevBoss = isBoss(f - 1) ? RAW_BOSSES[(f - 1) / 10 - 1] : null, nextBoss = isBoss(f + 1) ? RAW_BOSSES[(f + 1) / 10 - 1] : null;
     if (id === prevBoss || id === nextBoss) id = SEQ[(k + 1) % SEQ.length];
     return id;
   }
+  /* 換上的角色跟上一層／下一層撞名時，改用備選（ALT，同樣量過倍率） */
+  const ALT = { whitebeard: ['mihawk', 1.4], kaido: ['kuma_eh', 1.5], shanks: ['garp_hc', 1.5], bigmom: ['kuma_eh', 1.5], luffy_nika: ['garp_hc', 1.5], blackbeard: ['garp_hc', 1.5], buggy: ['blackbeard_w', 1.5], loki: ['yamato', 1.9], rocks: ['mihawk', 1.4] };
+  const sub0 = f => { const id = rawFoe(f); return (isBoss(f) && BOSS_SUB[id]) || NO_TOWER[id] || null; };
+  const plain = f => f < 1 || f > TOWER.floors ? null : (sub0(f) || [rawFoe(f)])[0];
+  const subOf = f => { const X = sub0(f); if (!X || isBoss(f)) return X; const id = rawFoe(f); return (X[0] === plain(f - 1) || X[0] === plain(f + 1)) && ALT[id] ? ALT[id] : X; };
+  function foeOf(f) { const X = subOf(f); return X ? X[0] : rawFoe(f); }
+  const boostOf = f => { const X = subOf(f); return X ? X[1] : 1; };
   const skinOf = f => (TOWER.bossSkin || {})[f] || null;
   /* 第 1 層 LV25，每層 +0.75，BOSS 層再 +4，上限 LV100 */
   const lvOf = f => Math.min(MAX_LV, Math.round(25 + (f - 1) * .75 + (isBoss(f) ? 4 : 0)));
@@ -28,7 +46,9 @@
      hp／dmg 取代原本塔頂強化的體力與傷害倍率；imuPace＝伊姆第幾回合起才施放「最初20人」晉升（imuPaceHp 0＝體力再低也不提早）；revives＝BOSS 復活次數。
      tests/imu-sim.js 量測（LV100 三人隊）：200 層 洛基／洛克斯／尼卡 100%、四皇隊約 70%、SSR 頂尖隊 0～95%（依隊伍爆發力）；250 層更難。 */
   const FLOOR_FIX = { 200: { hp: .15, dmg: .7, imuPace: 8, imuPaceHp: 0, revives: 1 }, 250: { hp: .2, dmg: .7, imuPace: 6, imuPaceHp: 0, revives: 1 } };
-  const modOf = f => { const k = Math.max(0, f - 100), st = Math.min(3, Math.floor(k / 50)); const m = { hp: 1 + k * .012, dmg: 1 + k * .004, atk: st, def: st }; const X = FLOOR_FIX[f]; if (X) { m.hp = X.hp; m.dmg = X.dmg; m.imuPace = X.imuPace; m.imuPaceHp = X.imuPaceHp; } return m; };
+  const modOf = f => { const k = Math.max(0, f - 100), st = Math.min(3, Math.floor(k / 50)); const m = { hp: 1 + k * .012, dmg: 1 + k * .004, atk: st, def: st }; const X = FLOOR_FIX[f]; if (X) { m.hp = X.hp; m.dmg = X.dmg; m.imuPace = X.imuPace; m.imuPaceHp = X.imuPaceHp; } const b = boostOf(f); if (b !== 1) { m.hp *= b; m.dmg *= b; } return m; };
+  const hasMod = f => f > 100 || boostOf(f) !== 1; /* v168：換人的樓層在 100 層以內也有強敵加成 */
+  window.towerSpec = f => ({ foe: foeOf(f), raw: rawFoe(f), lv: lvOf(f), mod: hasMod(f) ? modOf(f) : null, boss: isBoss(f), revives: isBoss(f) ? ((FLOOR_FIX[f] && FLOOR_FIX[f].revives != null) ? FLOOR_FIX[f].revives : (f > 150 ? 2 : 1)) : 0, ch: chapterOf(f) }); /* 測試用（v168 難度量測） */
   let sel = null;
   const replayOf = r => ({ berry: Math.round(r.berry * .3), items: {}, tokens: 0 });
   const chapterOf = f => TIER[Math.min(TIER.length - 1, Math.floor((f - 1) / 15))];
@@ -52,7 +72,7 @@
     const rows = [];
     for (let f = Math.min(TOWER.floors, cur + 2); f >= 1; f--) {
       const st = f < s.floor ? 'clear' : f === cur && !done ? 'now' : 'lock', c = { ...CHARACTERS[foeOf(f)], ...(skinOf(f) ? { avatar: SKINS[skinOf(f)].avatar, name: SKINS[skinOf(f)].name } : {}) };
-      rows.push(`<li class="tw-f ${st} ${isBoss(f) ? 'boss' : ''} ${f === sel ? 'sel' : ''}" data-f="${f}" ${st !== 'lock' ? 'role="button" tabindex="0"' : ''}><span class="tw-no">${f}</span><img src="${c.avatar}" alt=""><span class="tw-n"><b>${isBoss(f) ? 'BOSS・' : ''}${c.name}</b><small>LV ${lvOf(f)}${f > 100 && !FLOOR_FIX[f] ? ` ＋${Math.round((modOf(f).hp - 1) * 100)}%` : ''}</small></span><i class="tw-st">${st === 'clear' ? (f === sel ? '重複挑戰' : '✓ 可重打') : st === 'now' ? '挑戰中' : '🔒'}</i></li>`);
+      rows.push(`<li class="tw-f ${st} ${isBoss(f) ? 'boss' : ''} ${f === sel ? 'sel' : ''}" data-f="${f}" ${st !== 'lock' ? 'role="button" tabindex="0"' : ''}><span class="tw-no">${f}</span><img src="${c.avatar}" alt=""><span class="tw-n"><b>${isBoss(f) ? 'BOSS・' : ''}${c.name}</b><small>LV ${lvOf(f)}${hasMod(f) && !FLOOR_FIX[f] ? ` ＋${Math.round((modOf(f).hp - 1) * 100)}%` : ''}</small></span><i class="tw-st">${st === 'clear' ? (f === sel ? '重複挑戰' : '✓ 可重打') : st === 'now' ? '挑戰中' : '🔒'}</i></li>`);
     }
     $('twFloors').innerHTML = rows.join('');
     $('twFloors').querySelectorAll('.tw-f.clear,.tw-f.now').forEach(li => { const pick = () => { sel = +li.dataset.f; render(); }; li.onclick = pick; li.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } }; });
@@ -60,7 +80,7 @@
     const f = sel, replay = f < s.floor, c = { ...CHARACTERS[foeOf(f)], ...(skinOf(f) ? { image: SKINS[skinOf(f)].image, name: SKINS[skinOf(f)].name } : {}) }, r = rewardOf(f), L = lvStats(CHARACTERS[foeOf(f)], lvOf(f));
     $('twPanel').innerHTML = (done ? `<p class="tw-top">🏆 已登頂 ${TOWER.floors} 層！點左側任一層可以重複挑戰。</p>` : '') +
       `<div class="tw-foe ${isBoss(f) ? 'boss' : ''}"><div class="tw-art"><img src="${c.image}" alt=""></div>
-        <div class="tw-info"><small>第 ${f} 層${isBoss(f) ? '・BOSS 層' : ''}</small><h3>${c.name}</h3><p class="tw-lv">LV ${lvOf(f)}・${c.title}${f > 100 ? `<br><small>塔頂強化：體力 ×${modOf(f).hp.toFixed(2)}、傷害 ×${modOf(f).dmg.toFixed(2)}${modOf(f).atk ? `、攻防 +${modOf(f).atk}` : ''}</small>` : ''}</p>
+        <div class="tw-info"><small>第 ${f} 層${isBoss(f) ? '・BOSS 層' : ''}</small><h3>${c.name}</h3><p class="tw-lv">LV ${lvOf(f)}・${c.title}${hasMod(f) ? `<br><small>${f > 100 ? '塔頂強化' : '強敵加成'}：體力 ×${modOf(f).hp.toFixed(2)}、傷害 ×${modOf(f).dmg.toFixed(2)}${modOf(f).atk ? `、攻防 +${modOf(f).atk}` : ''}</small>` : ''}</p>
         <div class="tw-stats"><span>體力 <b>${Math.round(L.hp * modOf(f).hp)}</b></span><span>攻擊 <b>${L.atk}</b></span><span>防禦 <b>${L.def}</b></span><span>速度 <b>${L.spd}</b></span></div>
         <p class="tw-rew">${replay ? `重複挑戰獎勵：<b>${rewardText(replayOf(r))}・陣容經驗 ${Math.round((40 + f * 12) / 2)}</b><br><small>首次通關獎勵已領取，重複挑戰不影響目前樓層</small>` : `過關獎勵：<b>${rewardText(r)}</b>`}</p>
         <p class="tw-team">出戰陣容：${SAVE.data.lineup.map(id => `<img src="${CHARACTERS[id].avatar}" alt="${CHARACTERS[id].name}" title="${CHARACTERS[id].name}">`).join('')}</p>
@@ -69,7 +89,7 @@
   }
   function fight(f) {
     const s = state();
-    startBattle({ team: SAVE.data.lineup.map(id => ({ id, lv: crewLv(id) })), enemyId: foeOf(f), enemySkin: skinOf(f), enemyLv: lvOf(f), bg: 'assets/ui/tower_bg.webp?v=23', chapterId: chapterOf(f), isBoss: isBoss(f), revives: isBoss(f) ? ((FLOOR_FIX[f] && FLOOR_FIX[f].revives != null) ? FLOOR_FIX[f].revives : (f > 150 ? 2 : 1)) : 0, enemyMod: f > 100 ? modOf(f) : null,
+    startBattle({ team: SAVE.data.lineup.map(id => ({ id, lv: crewLv(id) })), enemyId: foeOf(f), enemySkin: skinOf(f), enemyLv: lvOf(f), bg: 'assets/ui/tower_bg.webp?v=23', chapterId: chapterOf(f), isBoss: isBoss(f), revives: isBoss(f) ? ((FLOOR_FIX[f] && FLOOR_FIX[f].revives != null) ? FLOOR_FIX[f].revives : (f > 150 ? 2 : 1)) : 0, enemyMod: hasMod(f) ? modOf(f) : null,
       onEnd: r => {
         if (!r.win) return { message: `第 ${f} 層挑戰失敗。調整陣容、升級船員後再來挑戰吧！` };
         track('wins'); track('towerWins'); if (isBoss(f)) track('bossWins');
