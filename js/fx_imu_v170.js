@@ -208,7 +208,11 @@
   const THRONE = `<svg viewBox="0 0 200 260" preserveAspectRatio="none"><defs><linearGradient id="itG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a0418"/><stop offset=".6" stop-color="#0a0008"/><stop offset="1" stop-color="#000"/></linearGradient></defs>
     <path d="M100 4L112 42L127 20L133 64L151 38L152 122L162 132L162 198L176 200L180 256L20 256L24 200L38 198L38 132L48 122L49 38L67 64L73 20L88 42Z" fill="url(#itG)" stroke="#ff2a5a" stroke-width="2.4" opacity=".92"/>
     <path d="M100 30L108 60L100 92L92 60Z M62 96L138 96 M56 150L144 150" fill="none" stroke="#ff5ab4" stroke-width="1.6" opacity=".8"/><rect x="40" y="170" width="120" height="22" rx="4" fill="#120008" stroke="#ff2a5a" stroke-width="1.6"/></svg>`;
-  function back(S, html, o) { const A = $('bArena'); if (!A || T === 0) return null; const d = document.createElement('div'); d.className = 'imu-bk ' + (o.cls || ''); d.setAttribute('aria-hidden', 'true'); d.innerHTML = html;
+  /* v174：背景元素（王座、雙翼）照立繪高度放大，伊姆第三型態 5.5 倍時會變成好幾千像素的圖層，iPhone 記憶體不足閃退；
+     限制在畫面看得到的大小約 1.5 倍以內（換回戰場座標：÷ 鏡頭倍率），保持底部置中。 */
+  function capBox(A, o) { const cam = parseFloat(A.style.getPropertyValue('--cam')) || 1, mw = innerWidth * 1.5 / cam, mh = innerHeight * 1.3 / cam, k = Math.min(1, mw / Math.max(1, o.w), mh / Math.max(1, o.h));
+    if (k < 1) { const w = o.w * k, h = o.h * k; o = Object.assign({}, o, { x: o.x + (o.w - w) / 2, y: o.y + (o.h - h), w, h }); } return o; }
+  function back(S, html, o) { const A = $('bArena'); if (!A || T === 0) return null; o = capBox(A, o); const d = document.createElement('div'); d.className = 'imu-bk ' + (o.cls || ''); d.setAttribute('aria-hidden', 'true'); d.innerHTML = html;
     d.style.cssText = `left:${f1(o.x)}px;top:${f1(o.y)}px;width:${f1(o.w)}px;height:${f1(o.h)}px;transform-origin:${o.origin || '50% 100%'}`;
     let wr = A.querySelector(':scope > .imu-bkwrap'); if (!wr) { wr = document.createElement('div'); wr.className = 'imu-bkwrap'; wr.setAttribute('aria-hidden', 'true'); A.insertBefore(wr, A.querySelector('.fighter') || A.firstChild); } wr.appendChild(d); const ms = o.ms / spd(); let an = null;
     try { an = d.animate(o.kf, { duration: ms, easing: o.ease || 'ease-out', fill: 'forwards' }); an.onfinish = () => d.remove(); } catch (e) { }

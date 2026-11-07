@@ -1,8 +1,8 @@
 /* v170 伊姆特效（js/fx_imu_v170.js）：立繪後方的王座／雙翼、狀態持續中的場上氛圍、後排頭像受擊提示。
    全部 pointer-events:none，不擋血條、技能欄、戰鬥紀錄；只動 opacity／transform（不動含鏡射的立繪本身）。
    「減少動態效果」（.reduce-motion，v63.css）與系統減少動態時動畫自動停用；技能特效低／省電（#battleScreen.imu-lo）不放飄羽、紋章不旋轉。 */
-.imu-bkwrap{position:absolute;inset:0;z-index:0;pointer-events:none;overflow-x:clip;clip-path:inset(-400% 0 -100% 0)} /* 左右裁在戰場內，不造成水平捲動；上下可以超出 */
-.imu-bk{position:absolute;z-index:0;pointer-events:none;opacity:0;will-change:transform,opacity}
+.imu-bkwrap{position:absolute;inset:0;z-index:0;pointer-events:none;overflow-x:clip;clip-path:inset(-150% 0 -60% 0)} /* 左右裁在戰場內，不造成水平捲動；上下可以超出 */
+.imu-bk{position:absolute;z-index:0;pointer-events:none;opacity:0} /* v174：不預先建圖層（will-change 會讓超大元素一直佔記憶體） */
 .imu-bk svg{display:block;width:100%;height:100%;overflow:visible}
 .imu-throne::before{content:'';position:absolute;left:-12%;right:-12%;top:8%;bottom:-6%;border-radius:50%;background:radial-gradient(ellipse at 50% 55%,rgba(200,0,58,.42),rgba(200,0,58,0) 68%)}
 .imu-throne svg{position:relative}

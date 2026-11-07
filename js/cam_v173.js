@@ -59,7 +59,8 @@
         /* v173b：只推「比較大」的一方；比較小的一方留在原本站位，只在超出畫面時往內收（避免把小的推到畫面中間）。
            大的一方往外側讓開，外側（尾巴、翅膀）最多 45% 出畫面；讓開後還重疊太多才再拉遠。 */
         const bigL = wL >= wR, S = bigL ? R : L, G = bigL ? L : R, wS = bigL ? wR : wL, wG = bigL ? wL : wR;
-        let sS = 0; if (S.l < Lx) sS = Lx - S.l; else if (S.r > Rx) sS = Rx - S.r;
+        /* v174：小的一方稍微出畫面（原本的站位就會略出邊）不動它；超過自身寬度 30% 才往內收到剛好 30%，不會被推到中間 */
+        let sS = 0; const tol = .3 * wS; if (S.l < Lx - tol) sS = (Lx - tol) - S.l; else if (S.r > Rx + tol) sS = (Rx + tol) - S.r;
         let sG = 0; const gap = .1 * wS;
         if (bigL) { const ov = G.r - (S.l + sS) + gap; if (ov > 0) sG = -ov; const lim = Lx - .45 * wG; if (G.l + sG < lim) sG = lim - G.l; if (G.r + sG > Rx + .45 * wG) sG = Rx + .45 * wG - G.r; }
         else { const ov = (S.r + sS) - G.l + gap; if (ov > 0) sG = ov; const lim = Rx + .45 * wG; if (G.r + sG > lim) sG = lim - G.r; if (G.l + sG < Lx - .45 * wG) sG = Lx - .45 * wG - G.l; }

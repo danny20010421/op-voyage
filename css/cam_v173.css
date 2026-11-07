@@ -3,3 +3,5 @@
 .b-arena .fighter.R{translate:calc(var(--spread,0) * 38% + var(--fitX,0px)) 0}
 /* v173b 超大立繪不套用濾鏡，避免 iPhone 記憶體不足閃退 */
 #battleScreen .fighter.xl img,#battleScreen .fighter.xl.cast img,#battleScreen .fighter.xl.hit img,#battleScreen .fighter.xl.huge img{filter:none!important}
+/* v174 超大立繪不預先建立圖層，降低 iPhone 記憶體用量 */
+#battleScreen .fighter.xl img{will-change:auto}
