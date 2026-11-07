@@ -99,6 +99,7 @@
 - `css/v114.css`: F:培養視窗置中對齊（.gw-lvl 等級列、.gw-pow）、技能詳細說明樣式、冒險選單 #lbModes 卡片等高與標題對齊（container query 縮放標題字級）
 - `js/fx_v111.js`: F:奧義標題字過場（PRESET 風格表、SUB 角色→[風格, 副標]、cutIn 覆寫、ultTitle） | S:新角色要在 SUB 加一行，否則依屬性挑風格
 - `js/fx_v106.js`: F:主題式專屬特效（TH 主題表、WHO 角色對應、kindOf 招式種類） | S:要讓角色換主題改 WHO；不覆蓋既有 CHOREO
+- `js/fx_v171.js`: F:改寫 v106 主題式招式（只改 CHOREO 裡含「FXE.ensure(); await fn(A)」的、不動專屬編排與奧義）：招式名關鍵字 KW → 出手方式 GO（衝刺／飛彈／躍擊／地面／天降／瞬移）＋招牌元素 SIG；命中排列 LAYOUT；單雙數招互換主色；輔助法陣四種、削弱三種輪替。後半是自動畫質 FXAUTO（特效播放中幀率中位數 >42ms 就降級：1 級 3D 解析度降、2 級關 3D 層，記在 sessionStorage op_fxauto） | S:fx.js 的 shadowBlur 倍率 __fxShadowMul（技能特效高＝0，交給泛光層）；fx3d／VFX00 手機解析度 1、掉幀時 __fx3dDpr；fx_v140 招牌元素只在奧義與第 1、3 招
 - `js/fx_v105.js`: F:鷹眼／羅（七武海）／衛伯／巴基斯／斯巴可第 1～4 招專屬編排 | S:DOMContentLoaded 後註冊，不覆蓋既有 CHOREO
 - `js/story_stage.js` (v106): 沒有立繪的說話者用 npc_blank（stageArt／isBlank）
 - `js/story_more5.js`: F:任務收尾對白與 NPC 閒聊（以 step.title 定位） | R:app.js completeStep → playAfterLines

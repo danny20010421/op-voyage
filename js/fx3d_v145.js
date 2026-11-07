@@ -6,7 +6,7 @@
    開關：技能特效「高」（op_fxpro）且畫質不是「省電」（op_gfx）才開；不支援 WebGL2 時自動不開。Three.js 在第一次進戰鬥時才載入。 */
 (function () {
   const ok = (() => { try { return !!document.createElement('canvas').getContext('webgl2'); } catch (e) { return false; } })();
-  const enabled = () => { try { return ok && localStorage.getItem('op_fxpro') !== '0' && localStorage.getItem('op_gfx') !== 'low'; } catch (e) { return ok; } };
+  const enabled = () => { try { return ok && localStorage.getItem('op_fxpro') !== '0' && localStorage.getItem('op_gfx') !== 'low' && !window.__fxAuto3DOff; } catch (e) { return ok; } }; /* v171：__fxAuto3DOff＝實際掉幀時自動關閉（fx_v171.js） */
   const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const MOB = matchMedia('(pointer:coarse)').matches || Math.min(screen.width, screen.height) < 700;
   const $ = id => document.getElementById(id);
@@ -197,7 +197,7 @@
   function loop(now) {
     raf = 0; const dt = now < stopUntil ? 0 : Math.min(.05, (now - last) / 1000) * (window.BSPEED || 1); last = now; BU.uTime.value = (now - t0) / 1000;
     const scr = $('battleScreen'); if (!scr || scr.classList.contains('hidden')) { PS.list.length = 0; return; }
-    measure(); const dpr = Math.min(MOB ? 1.25 : 1.75, devicePixelRatio || 1), W = Math.max(1, Math.round(geo.SW)), H = Math.max(1, Math.round(geo.SH));
+    measure(); const dpr = Math.min(window.__fx3dDpr || (MOB ? 1 : 1.75), devicePixelRatio || 1) /* v171：手機 1.25 → 1，掉幀時再降 */, W = Math.max(1, Math.round(geo.SW)), H = Math.max(1, Math.round(geo.SH));
     /* 背景 */
     const foc = scr.classList.contains('fxp-focus'); BS.zoom += (BS.zT - BS.zoom) * Math.min(1, dt * 5); BS.rad += (BS.rT - BS.rad) * Math.min(1, dt * 6); BS.tT += dt; BS.tK *= Math.pow(.18, dt); BS.haze += (BS.hT - BS.haze) * Math.min(1, dt * 3);
     if (rd.domElement.width !== Math.round(W * dpr)) { rd.setPixelRatio(dpr); rd.setSize(W, H, false); } BU.uRes.value.set(W, H); BU.uDim.value = foc ? .5 : .66; BU.uSat.value = foc ? .8 : 1.1; BS.punch = (BS.punch || 0) * Math.pow(.004, dt); const pz = BS.punch || 0, zc = BS.zT > 1.01 ? BS.zc : (BS.pc || BS.zc); BU.uZoom.value = BS.zoom + pz; BU.uRad.value = Math.max(BS.rad, pz * 8); BU.uZC.value.set(zc[0], zc[1]); BU.uTint.value.setRGB(...BS.tint); BU.uTintK.value = BS.tK; BU.uHaze.value = BS.haze;

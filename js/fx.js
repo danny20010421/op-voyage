@@ -20,7 +20,10 @@ const FXE = (() => {
   function ensure() {
     if (!cv) { cv = document.getElementById('bCanvas'); cx = cv.getContext('2d');
       // 手機：發光模糊降到三成，減少掉幀
-      if (LOWFX) { const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur'); Object.defineProperty(cx, 'shadowBlur', { set(v) { d.set.call(cx, v * .3); }, get() { return d.get.call(cx); } }); } }
+      /* v171：shadowBlur 是特效卡頓的主因（低階手機 4 倍降速實測：關掉後 0.4 → 4 FPS 以上）。
+         技能特效「高」時發光改由泛光層（fx_v138 #bBloom）負責，畫布不再做 shadowBlur；「低」時手機 15%、電腦 50%。window.__fxShadowMul 可覆寫。 */
+      { const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur'); const mul = () => { if (typeof window.__fxShadowMul === 'number') return window.__fxShadowMul; let pro = true; try { pro = localStorage.getItem('op_fxpro') !== '0'; } catch (e) { } return pro ? 0 : LOWFX ? .15 : .5; };
+        Object.defineProperty(cx, 'shadowBlur', { set(v) { d.set.call(cx, v * mul()); }, get() { return d.get.call(cx); } }); } }
     dpr = Math.min(2, window.devicePixelRatio || 1);
     if (!sync()) { const r = cv.parentElement.getBoundingClientRect(); W = r.width; H = r.height; SW = W; SH = H; S = 1; OX = OY = 0; }
     if (cv.width !== Math.round(SW * dpr) || cv.height !== Math.round(SH * dpr)) { cv.width = Math.round(SW * dpr); cv.height = Math.round(SH * dpr); }

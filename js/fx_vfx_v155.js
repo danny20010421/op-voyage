@@ -59,7 +59,7 @@
   /* 換算：每公尺幾個畫面像素＝角色立繪高度 / 5.5（特效素材以公尺為單位，命中爆發約 1.5～4 公尺寬） */
   function unit(side) { try { const img = $('bImg' + side), f = $('bF' + side); const s = parseFloat(getComputedStyle(f).getPropertyValue('--sc')) || 1, g = FX3D.geo(); return Math.max(14, img.offsetHeight * s * g.S / 5.5); } catch (e) { return 40; } }
   function size(W, H) {
-    const dpr = Math.min(MOB ? 1.25 : 1.75, devicePixelRatio || 1);
+    const dpr = Math.min(window.__fx3dDpr || (MOB ? 1 : 1.75), devicePixelRatio || 1); /* v171 */
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { rd.setPixelRatio(dpr); rd.setSize(W, H, false); }
     const g = FX3D.geo(), st = cv.style, px = v => v.toFixed(2) + 'px', key = [g.OX, g.OY, g.S, W, H].map(v => v.toFixed(2)).join();
     if (cv.__k !== key) { cv.__k = key; st.right = st.bottom = 'auto'; st.left = px(-g.OX / g.S); st.top = px(-g.OY / g.S); st.width = px(W / g.S); st.height = px(H / g.S); }

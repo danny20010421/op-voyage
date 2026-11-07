@@ -78,7 +78,8 @@ const MOTIF = {
   window.addEventListener('DOMContentLoaded', () => {
     if (typeof playChoreo !== 'function') return; const _p = playChoreo;
     window.playChoreo = playChoreo = async function (side, actor, idx, skill) {
-      const f = on() && actor && MOTIF[actor.id] && M[MOTIF[actor.id]];
+      /* v171：招牌元素不再每招都出現（同一個鳥籠／拳影每招都蓋滿畫面，招式看起來都一樣）：奧義一定有，一般招只有第 1、3 招 */
+      const f = on() && actor && MOTIF[actor.id] && (!skill || skill.ultimate || idx % 2 === 0) && M[MOTIF[actor.id]];
       if (f) { try { const S = side === 'P' ? 'L' : 'R', T = S === 'L' ? 'R' : 'L', A = { S, T, f: fighterPoint(S), t: fighterPoint(T), d: S === 'L' ? 1 : -1 }; const big = !!(skill && skill.ultimate), sup = skill && skill.type === 'support';
         if (sup && !['nika', 'phoenix', 'pteranodon', 'asura', 'kingsaura', 'drums', 'room', 'notes'].includes(MOTIF[actor.id])) { /* 輔助招式：招牌元素繞著自己 */ later(200, () => f({ ...A, t: { x: A.f.x + A.d * 10, y: A.f.y - 60 } }, big)); }
         else later(big ? 900 : 220, () => f(A, big)); } catch (e) { } }
