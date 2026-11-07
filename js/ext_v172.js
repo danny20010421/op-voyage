@@ -28,7 +28,7 @@
   C.battleScale = Math.round(SZ[0] * UNIT * 100) / 100;
   C.forms = [
     { key: 'form1', label: '第一型態', name: '詛咒王子・洛基', title: '巨人族王子', image: C.image, avatar: C.avatar, scale: 1 },
-    { key: 'form2', label: '第二型態', name: '尼德霍格・洛基', title: '第二型態', image: img('loki_form2'), avatar: img('loki_form2_face'), scale: SZ[1] / SZ[0] },
+    { key: 'form2', label: '第二型態', name: '尼德霍格・洛基', title: '第二型態', image: img('loki_form2'), avatar: img('loki_form2_face'), scale: 5, wideCap: 3 } /* v172b 使用者 11/07 22:05：第二型態立繪尺寸 5（型態倍率 5）；電腦寬螢幕會超出畫面上緣，縮到 3 */,
     { key: 'form3', label: '第三型態', name: '諸神黃昏・洛基', title: '第三型態', image: img('loki_form3'), avatar: img('loki_form3_face'), scale: SZ[2] / SZ[0] }
   ];
   const sk = o => Object.assign({ accuracy: 100, maxPP: o.pp, tags: [] }, o);
@@ -85,7 +85,8 @@
     const I = f.__loki, F = C.forms[form] || C.forms[0], src = form === 0 ? I.base : F;
     f.image = src.image; f.avatar = src.avatar; f.name = src.name; f.title = src.title;
     const VO = form && typeof visualOverride === 'function' ? visualOverride('form:loki_form' + form) : null;
-    f.visMul = form === 0 ? 1 : (VO && VO.battleScale) || F.scale || 1; f.mirror = VO && VO.faceLeft !== undefined ? VO.faceLeft : false;
+    f.visMul = form === 0 ? 1 : (VO && VO.battleScale) || F.scale || 1;
+    if (form && F.wideCap && !(VO && VO.battleScale) && innerWidth >= 1000 && innerWidth > innerHeight) f.visMul = Math.min(f.visMul, F.wideCap); f.mirror = VO && VO.faceLeft !== undefined ? VO.faceLeft : false;
     if (!onScreen(f)) return;
     try { if (typeof refreshFighterImage === 'function') refreshFighterImage(f); } catch (e) { }
     const S = sideOf(f), $$ = id => document.getElementById(id);
@@ -114,7 +115,7 @@
   function ragnarok(f, t, J) {
     if (!t || t.hp <= 0) return; dispel(f, t, { block: J.block });
     if (t.voidImmune) { L(`🐉 ${t.name} 不受諸神黃昏的比例傷害影響！`); }
-    else { const b = B(), boss = !!(b && b.isBoss && t === b.enemy); const d = Math.max(1, Math.floor(t.maxHp * (boss ? J.bossStrike : J.strike))); const h0 = t.hp; t.hp = Math.max(0, t.hp - d);
+    else { const b = B(), boss = !!(b && b.isBoss && t === b.enemy); const d = Math.max(1, Math.floor(t.maxHp * (boss ? J.bossStrike : J.strike) * (isImuF(t) ? VS().atk : 1))); const h0 = t.hp; t.hp = Math.max(0, t.hp - d);
       try { if (onScreen(t)) showDamage(sideOf(t), h0 - t.hp, '#b06bff'); } catch (e) { } L(`🌑 諸神黃昏！${t.name} 失去 ${h0 - t.hp} 點體力（最大體力的 ${pct(boss ? J.bossStrike : J.strike)}%）`); }
     if (J.ult) { t.status.__ultSeal = Math.max(t.status.__ultSeal || 0, J.ult); L(`⛓️ ${t.name} ${J.ult} 回合內無法使用奧義（含變身與晉升）`); }
     if (J.inv) { f.status.invuln = Math.max(f.status.invuln || 0, J.inv); L(`🛡️ ${f.name} 無敵 ${J.inv} 回合`); }
@@ -132,18 +133,27 @@
   /* ---------- 技能效果 ---------- */
   const _ase = applySkillEffects;
   applySkillEffects = function (actor, target, skill, result) {
-    const r = _ase.apply(this, arguments);
+    const vs = isLoki(actor) && isImuF(target) && VS().atk !== 1, d0 = actor && actor.__dmgB; if (vs) actor.__dmgB = (d0 || 1) * VS().atk; /* 比例與真實傷害也套用對伊姆倍率 */
+    let r; try { r = _ase.apply(this, arguments); } finally { if (vs) actor.__dmgB = d0; }
     try { const ef = (skill && skill.effect) || {};
       if (ef.lokiDispel && actor && target && target !== actor && (skill.type !== 'attack' || (result && result.damage > 0))) dispel(actor, target, ef.lokiDispel);
       if (ef.lokiAscend && isLoki(actor)) ascend(actor, target, ef.lokiAscend);
     } catch (e) { console.warn('洛基型態效果錯誤', e); }
     return r;
   };
+  /* v172b 使用者 11/07 22:05「洛基打贏伊姆的機率 60～65% 就好」：洛基與伊姆互打時的傷害倍率（模擬調出來的值，見 CHANGELOG） */
+  /* 模擬（tests/imu-sim.js，各 60～120 場）調出來的：BOSS／勇者之塔／虛空王座的伊姆（真・伊姆，第 250 層）洛基隊勝率約 63～68%；一般對戰 1 對 1 約 60～66%。
+     atk＝洛基打伊姆的傷害倍率（也套用到比例與真實傷害、諸神黃昏），def＝伊姆打洛基的傷害倍率（疊在巨人的意志減半之上）。 */
+  const VS_BOSS = { atk: .095, def: 4.2 }, VS_NORM = { atk: .255, def: 2.1 };
+  const VS = () => { if (window.__LOKI_VS_IMU) return window.__LOKI_VS_IMU; const b = B(); return b && (b.isBoss || (b.opts && (b.opts.tower || b.opts.throne))) ? VS_BOSS : VS_NORM; };
+  const isImuF = t => !!(t && (t.id === 'imu' || t.__imu));
   if (typeof computeSkillOutcome === 'function') { const _cso = computeSkillOutcome;
     computeSkillOutcome = function (actor, target, skill) {
       const r = _cso.apply(this, arguments);
       try { if (r && r.damage > 0 && actor && skill && skill.type === 'attack') { let m = isLoki(actor) ? actor.__loki.pow || 1 : 1; const g = skill.effect && skill.effect.godSlayer; if (g && transformed(target)) { m *= g; r.__god = 1; }
+        if (isLoki(actor) && isImuF(target)) m *= VS().atk;
         if (m !== 1) r.damage = Math.floor(r.damage * m); if (r.__god) L(`⚔️ 弒神！對變身中的 ${target.name} 傷害 ×${g}`); } } catch (e) { }
+      try { if (r && r.damage > 0 && isImuF(actor) && isLoki(target) && VS().def !== 1) r.damage = Math.floor(r.damage * VS().def); } catch (e) { }
       return r; }; }
   /* 必中也無視「降低命中」（世界之王領域把命中降 50～60%）：在 IMU165.preAct 之後把命中改回 100 */
   if (window.IMU165) { const I = window.IMU165, _pre = I.preAct;
