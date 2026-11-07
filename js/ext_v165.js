@@ -3,6 +3,7 @@
    v169：再施放一次晉升為 3 第三型態「深淵聖靈・伊姆」（①～④換成 form3Skills）；第三型態再施放⑤為「天罰」（imuAscend.judge）。
    f.__imu.maxForm：最高能晉升到第幾型態（預設 3；勇者之塔第 200 層由 enemyMod.imuMaxForm 設成 2）。
    最多晉升三次；之後⑤仍有晉升效果，但立繪不再改變、也不會變回去（倒下、復活、霸王色解除變身都不影響）。
+   v172：第三型態只維持 5 回合，之後降回第二型態（revert3），再施放⑤才會再晉升；⑤固定 5 次、不能用道具補，虛空王座與勇者之塔的伊姆⑤無限。
    效果欄位：
    imuUndying { turns, regen, bossRegen, guard, thorn }：不死之身（每回合回復、致命保命 1 次、反彈受到傷害、淨化並把能力下降轉成提升）
    imuPact { turns, ratio, healCut, bossHealExempt, allDown, domChance, domRecoil, reward, full, noBuff, steal, sealChance }：惡魔契約／完全支配
@@ -95,6 +96,19 @@
     try { if ($$('bName' + S)) $$('bName' + S).textContent = f.name; if ($$('bTitle' + S)) $$('bTitle' + S).textContent = f.title; if ($$('bAv' + S)) $$('bAv' + S).src = f.avatar; if (S === 'L' && typeof renderTeam === 'function') renderTeam(); } catch (e) { }
   }
 
+  /* v172（使用者 11/07 19:34）：第三型態只能維持 forms[3].turns（5）回合，之後降回第二型態；再次施放「最初20人」才會再晉升（晉升效果照常）。
+     第二型態的技能欄在晉升時保存（f2Saved），降回時還原（次數維持當時剩下的）。 */
+  const f3Turns = () => ((((CHARACTERS.imu && CHARACTERS.imu.forms) || [])[3] || {}).turns) || 5;
+  function revert3(c) {
+    const I = c.__imu; I.form = 2; I.formTurns = 0;
+    if (I.f2Saved) { I.f2Saved.forEach((s, i) => { c.skills[i] = s; }); I.f2Saved = null; } else swapForm(c, 2);
+    const F = ((CHARACTERS.imu && CHARACTERS.imu.forms) || [])[2] || {};
+    L(`⌛ ${c.name} 的第三型態維持 ${f3Turns()} 回合後結束，降回第二型態「${F.name || '世界之王・伊姆聖'}」！再次施放「最初20人」才會再晉升。`);
+    if (inAction) I.pend = 2; else setForm(c, 2);
+    say(c, '降回第二型態');
+    if (onScreen(c) && c === B().player && typeof renderSkills === 'function') try { renderSkills(); } catch (e) { }
+  }
+
   /* ---------- 晉升（最初20人） ---------- */
   function transferNegatives(f, t) {
     const A = f.status; let n = 0;
@@ -112,7 +126,7 @@
     if (I.form < maxFormOf(f)) {
       I.form++; I.formTurns = 0;
       { const F = ((CHARACTERS.imu && CHARACTERS.imu.forms) || [])[I.form]; if (F) L(`👑 ${f.name} 晉升為${F.label}「${F.name}」！`); }
-      if (I.form === 1) unlockForm1(f); else swapForm(f, I.form);
+      if (I.form === 1) unlockForm1(f); else { if (I.form === 3 && !I.f2Saved) I.f2Saved = f.skills.slice(0, 4); swapForm(f, I.form); }
       if (inAction) I.pend = I.form; else setForm(f, I.form);
     } else if (judge) L(`⚡ ${f.name} 降下「天罰」！`);
     else L(`👑 ${f.name} 已是最終型態，最初20人的力量再次湧現！`);
@@ -350,6 +364,7 @@
   function imuTick(c) {
     const S = c.status, I = c.__imu || { form: 0, exec: 0 }, o = foeOf(c), oOk = o && o.hp > 0 && !o.voidImmune, hs = healScale(c);
     if (I.form > 0) I.formTurns++;
+    if (I.form >= 3 && c.hp > 0 && c.__imu && I.formTurns >= f3Turns()) revert3(c); /* v172：第三型態只維持 5 回合 */
     if (S.__imuInv > 0) S.__imuInv--;
     if (c.hp <= 0) return;
     const U = S.__imuUnd; if (act(U)) { const rg = isBossUnit(o) ? U.bossRegen : U.regen; if (canHeal(c)) { const h = Math.min(c.maxHp - c.hp, Math.floor(c.maxHp * rg * hs)); c.hp += h; healFx(c, h); if (h > 0) L(`✨ 不死之身：${c.name} 恢復 ${h} 體力`); } U.t--; if (U.t <= 0) L(`✨ ${c.name} 的不死之身結束了。`); }
@@ -483,7 +498,7 @@
 
   /* ---------- BOSS 奧義次數上限（story_boss_v156 的 bossUltCap）不套用在「最初20人」：使用者指定 4 次 ---------- */
   if (typeof applyChapterDifficulty === 'function') { const _acd = applyChapterDifficulty; applyChapterDifficulty = function (f) { const r = _acd.apply(this, arguments); const U = r && r.id === 'imu' && r.skills && r.skills[4];
-    if (U && U.effect && U.effect.imuAscend && !U.locked) { const n = Math.max(U.maxPP, ((CHARACTERS.imu.skills || [])[4] || {}).maxPP || 4); U.pp = U.maxPP = n; } return r; }; }
+    if (U && U.effect && U.effect.imuAscend && !U.locked) { const n = ((CHARACTERS.imu.skills || [])[4] || {}).maxPP || 5; U.pp = U.maxPP = n; } return r; }; } /* v172：固定 5 次（難度不加次數） */
 
   /* ---------- 建立角色與開戰 ---------- */
   if (typeof buildFighter === 'function') { const _bf = buildFighter; buildFighter = function (id) { const f = _bf.apply(this, arguments); if (id === 'imu') init(f); return f; }; }
@@ -494,6 +509,7 @@
       if (b) { b.__imuDom = null; [b.enemy, ...teamOf()].forEach(f => { if (f && f.id === 'imu') { init(f); lockForm(f); } });
         if (isImu(b.enemy) && b.opts && b.opts.enemyMod && b.opts.enemyMod.imuPace) { b.enemy.__imu.pace = b.opts.enemyMod.imuPace; if (b.opts.enemyMod.imuPaceHp != null) b.enemy.__imu.paceHp = b.opts.enemyMod.imuPaceHp; if (b.opts.enemyMod.imuPaceNext) b.enemy.__imu.paceNext = b.opts.enemyMod.imuPaceNext; }
         if (isImu(b.enemy) && b.opts && b.opts.enemyMod && b.opts.enemyMod.imuMaxForm != null) b.enemy.__imu.maxForm = b.opts.enemyMod.imuMaxForm; /* v169：勇者之塔第 200 層停在第二型態 */
+        if (isImu(b.enemy) && b.opts && b.opts.tower && b.enemy.skills[4]) b.enemy.skills[4].pp = b.enemy.skills[4].maxPP = 9999; /* v172 使用者 11/07：勇者之塔的伊姆第 5 招次數無限 */
         /* 虛空王座：伊姆完全體直接以第二型態登場（不經過晉升，所以沒有晉升的無敵、奪血、秒殺判定），也不施放「最初20人」，
            否則開場連續 10 回合無敵、累積傷害永遠是 0，挑戰失去意義（v165 待使用者確認） */
         const e = b.enemy; if (b.opts && b.opts.throne && isImu(e) && e.__imu.form === 0) throneInit(e);
@@ -521,7 +537,7 @@
       const h0 = _sc.apply(this, arguments); const S = c && c.status; if (!S) return h0; let h = ''; /* v165 標籤放在最前面：手機只顯示前 3 個 */
       const chip = (t, k, tip) => { h += `<span class="chip ${k}"${tip ? ` title="${tip}"` : ''}>${t}</span>`; };
       if (isImu(c)) { const I = c.__imu;
-        if (I.form > 0) chip((((CHARACTERS.imu && CHARACTERS.imu.forms) || [])[I.form] || {}).label || '型態', 'up', '最初20人晉升的型態');
+        if (I.form > 0) chip((((CHARACTERS.imu && CHARACTERS.imu.forms) || [])[I.form] || {}).label + (I.form >= 3 ? ' ' + Math.max(1, f3Turns() - I.formTurns) : '') || '型態', 'up', I.form >= 3 ? `第三型態還剩 ${Math.max(1, f3Turns() - I.formTurns)} 回合，之後降回第二型態` : '最初20人晉升的型態');
         if (S.__imuInv > 0) chip('無敵 ' + S.__imuInv, 'good', '不受任何傷害');
         if (act(S.__imuUnd)) chip('不死 ' + S.__imuUnd.t, 'good', `每回合回復、${S.__imuUnd.guard ? '可撐住一次致命傷、' : ''}反彈 ${pct(S.__imuUnd.thorn)}% 傷害`);
         if (act(S.__imuEt)) chip((S.__imuEt.name || '永劫不滅') + ' ' + S.__imuEt.t, 'good', `每回合回復 ${pct(S.__imuEt.regen)}%、減傷 ${pct(S.__imuEt.dr)}%、反彈 ${pct(S.__imuEt.reflect)}%`);
@@ -551,7 +567,7 @@
   }
 
   function throneInit(e) { const I = e.__imu; I.throne = true; I.tScale = THRONE_SCALE; I.pace = THRONE_PACE; I.paceHp = 0; e.dmgMul = (e.dmgMul || 1) * THRONE_DMG;
-    lockForm(e); const U = e.skills[4]; if (U) { const n = ((CHARACTERS.imu.skills || [])[4] || {}).maxPP || 4; U.pp = U.maxPP = n; } /* 第 5 招維持規格的 4 次；其他技能次數無限 */
+    lockForm(e); const U = e.skills[4]; if (U) U.pp = U.maxPP = 9999; /* v172 使用者 11/07：虛空王座的伊姆第 5 招次數無限 */
     L(`👑 虛空王座上的伊姆從初始型態開始，施放「最初20人」後才會一步步晉升！`); }
   /* 虛空王座的伊姆（v167：從初始型態開始，第 THRONE_PACE 回合起才施放「最初20人」，晉升後每次至少隔 THRONE_PACE 回合）：比例類效果（契約、霸王色震懾、毀滅之力追加、擊殺未出戰角色的機率、晉升的奪血與秒殺判定）×THRONE_SCALE，傷害倍率 ×THRONE_DMG。
      王座比的是累積傷害，伊姆照原規格出手時三人隊 4～5 回合全滅、累積傷害幾乎是 0；調整後回到與 v164 王座相近的挑戰長度（v165 待使用者確認） */

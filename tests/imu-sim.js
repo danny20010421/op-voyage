@@ -13,6 +13,7 @@ async () => {
   function pickNormal(A, B) {
     const av = A.skills.map((s, i) => [s, i]).filter(([s]) => s.pp > 0 && !s.locked); if (!av.length) return -1;
     const hpA = A.hp / A.maxHp, hpB = B.hp / B.maxHp, ult = av.find(([s]) => s.ultimate), heal = av.find(([s]) => s.type === 'support' && s.effect && (s.effect.healRatio || s.effect.fullHeal || s.effect.regenTurns));
+    if (ult && A.__loki && A.__loki.form < 2) return ult[1]; /* v172：洛基先晉升 */
     if (ult && (hpB < .6 || hpA < .4)) return ult[1]; if (heal && hpA < .45 && Math.random() < .7) return heal[1];
     const atk = av.filter(([s]) => !s.ultimate); if (!atk.length) return av[0][1];
     const wt = atk.map(([s]) => ((s.type === 'attack' ? (s.power || 60) : 70) + 20) * (window.__aiW160 ? window.__aiW160(A, B, s) : 1)); let r = Math.random() * wt.reduce((a, b) => a + b, 0);
@@ -56,6 +57,7 @@ async () => {
     if (E.__imu && C.pace) { E.__imu.pace = C.pace; if (C.paceHp != null) E.__imu.paceHp = C.paceHp; }
     if (E.__imu && C.paceNext) E.__imu.paceNext = C.paceNext;
     if (E.__imu && C.maxForm != null) E.__imu.maxForm = C.maxForm; /* v169：塔 200 層停在第二型態 */
+    if (C.tower && E.__imu && E.skills[4]) E.skills[4].pp = E.skills[4].maxPP = 9999; /* v172：勇者之塔的伊姆第 5 招無限 */
     if (C.throne && E.__imu) { E.maxHp = E.hp = 99999999; E.voidImmune = true; E.skills.forEach(s => { s.pp = s.maxPP = 9999; s.locked = 0; }); E.name = '伊姆（完全體）'; I.throneInit(E); battle.voidDamage = 0; }
     const st = { rev: C.boss ? (C.revives || 0) : 0 }; let rounds = 0;
     for (rounds = 1; rounds <= (CFG.maxRounds || 80); rounds++) {

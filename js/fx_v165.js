@@ -44,8 +44,8 @@
   let pick = 0;
   const esc2 = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const kindOf = s => s.ultimate ? '奧義' : s.type === 'attack' ? '攻擊' : '輔助';
-  function formSkills(form) { const C = CHARACTERS.imu; if (form < 2) return C.skills.map((s, i) => ({ s, i, lock: form === 0 && s.formNeed })); return (C['form' + form + 'Skills'] || C.form2Skills).concat([C.skills[4]]).map((s, i) => ({ s, i, lock: false })); } /* v169：第三型態 form3Skills */
-  function bar(cur) { const F = CHARACTERS.imu.forms; return `<div class="imu-forms" role="tablist" aria-label="伊姆的型態">${F.map((f, i) => `<button type="button" role="tab" data-imuf="${i}" aria-selected="${i === cur}" class="${i === cur ? 'on' : ''}"><img src="${f.avatar}" alt=""><span><b>${f.label}</b><small>${f.name}</small></span></button>`).join('')}</div>`; }
+  function formSkills(form) { const C = CHARACTERS[CID]; if (CID === 'loki') return (form === 0 ? C.skills : (C['form' + (form + 1) + 'Skills'] || []).concat([C.skills[4]])).map((s, i) => ({ s, i, lock: false })); if (form < 2) return C.skills.map((s, i) => ({ s, i, lock: form === 0 && s.formNeed })); return (C['form' + form + 'Skills'] || C.form2Skills).concat([C.skills[4]]).map((s, i) => ({ s, i, lock: false })); } /* v169：第三型態 form3Skills */
+  function bar(cur) { const F = CHARACTERS[CID].forms; return `<div class="imu-forms" role="tablist" aria-label="型態">${F.map((f, i) => `<button type="button" role="tab" data-imuf="${i}" aria-selected="${i === cur}" class="${i === cur ? 'on' : ''}"><img src="${f.avatar}" alt=""><span><b>${f.label}</b><small>${f.name}</small></span></button>`).join('')}</div>`; }
   function cxList(form) {
     return `<ol class="cx-skills imu-fsk">${formSkills(form).map(({ s, i, lock }) => `<li class="sk ${lock ? 'lock' : ''} ${s.ultimate ? 'ult' : ''}"><div class="sk-top"><span class="sk-no">${i + 1}</span><b>${s.name}</b><em class="sk-type ${s.type}">${kindOf(s)}</em></div>
       <div class="sk-meta"><span>威力 <b>${s.power || '—'}</b></span><span>命中 <b>${s.accuracy}</b></span><span>次數 <b>${s.maxPP}/${s.maxPP}</b></span></div><p>${s.desc}</p>${(s.tags || []).length ? `<div class="sk-tags">${s.tags.map(([t, cl]) => `<span class="tag ${cl}">${t}</span>`).join('')}</div>` : ''}${lock ? '<div class="sk-lock">🔒 晉升第一型態後開啟</div>' : ''}</li>`).join('')}</ol>`;
@@ -53,12 +53,12 @@
   function sbList(form) {
     return formSkills(form).map(({ s, i, lock }) => `<div class="sb-sk ${lock ? 'lock' : ''} ${s.ultimate ? 'ult' : ''} ${s.type === 'support' ? 'sup' : 'atk'}" title="${esc2(s.desc)}"><span class="sb-sk-n">${i + 1}</span><b>${s.ultimate ? '★ ' : ''}${s.name}</b><span>威力 ${s.power || '—'}</span><span>次數 ${s.maxPP}</span>${lock ? '<i>第一型態開啟</i>' : ''}<p>${s.desc}</p></div>`).join('');
   }
-  const formImg = (form, skinImg) => form === 0 ? skinImg : CHARACTERS.imu.forms[form].image;
+  const formImg = (form, skinImg) => form === 0 ? skinImg : CHARACTERS[CID].forms[form].image;
   function enhance(root, kind) {
-    if (!root || !CHARACTERS.imu || !CHARACTERS.imu.forms) return;
-    const isImuView = kind === 'cx' ? !!root.querySelector('.cx-hero') && root.__imuId === 'imu' : true; if (!isImuView) return;
+    if (!root || !CHARACTERS[CID] || !CHARACTERS[CID].forms) return;
+    const isImuView = kind === 'cx' ? !!root.querySelector('.cx-hero') && root.__imuId === CID : true; if (!isImuView) return;
     const list = kind === 'cx' ? root.querySelector('.cx-skills') : root.querySelector('.sb-skills'); if (!list || list.dataset.imu) return;
-    const art = kind === 'cx' ? root.querySelector('.cx-art img') : root.querySelector('.sb-stage > img'); const base = art ? art.getAttribute('src') : CHARACTERS.imu.image;
+    const art = kind === 'cx' ? root.querySelector('.cx-art img') : root.querySelector('.sb-stage > img'); const base = art ? art.getAttribute('src') : CHARACTERS[CID].image;
     list.dataset.imu = '1';
     const host = document.createElement('div'); host.className = 'imu-forms-host'; host.innerHTML = bar(pick); list.parentNode.insertBefore(host, list);
     const paint = () => { if (art) art.src = formImg(pick, base); if (kind === 'cx') { list.outerHTML; const tmp = document.createElement('div'); tmp.innerHTML = cxList(pick); list.innerHTML = tmp.firstElementChild.innerHTML; } else list.innerHTML = sbList(pick);
@@ -67,12 +67,14 @@
   }
   function watch(id, kind, isImu) {
     const el = document.getElementById(id); if (!el || el.__imuObs) return; el.__imuObs = true;
-    new MutationObserver(() => { if (!isImu(el)) return; if (kind === 'cx') el.__imuId = 'imu'; enhance(el, kind); }).observe(el, { childList: true, subtree: false });
+    new MutationObserver(() => { const id = isImu(el); if (!id) return; if (CID !== id) pick = 0; CID = id; if (kind === 'cx') el.__imuId = id; enhance(el, kind); }).observe(el, { childList: true, subtree: false });
   }
-  const imuName = () => (CHARACTERS.imu && CHARACTERS.imu.forms && CHARACTERS.imu.forms[0].name) || '伊姆';
+  /* v172：洛基也有型態切換（CID＝目前顯示的角色） */
+  let CID = 'imu'; const FORM_IDS = ['imu', 'loki'];
+  const nameHit = t => FORM_IDS.find(id => CHARACTERS[id] && CHARACTERS[id].forms && (t === CHARACTERS[id].name || t === CHARACTERS[id].forms[0].name)) || null;
   function hook() {
-    watch('cxCodexDetail', 'cx', el => { const h = el.querySelector('.cx-head h3'); return !!(h && h.firstChild && h.firstChild.textContent.trim() === imuName() && el.querySelector('.cx-art:not(.sil)') && !el.querySelector('.reserved')); });
-    watch('cxPane_crew', 'sb', el => { const h = el.querySelector('.sb-head h3'); return !!(h && h.firstChild && h.firstChild.textContent.trim() === imuName()); });
+    watch('cxCodexDetail', 'cx', el => { const h = el.querySelector('.cx-head h3'); return h && h.firstChild && el.querySelector('.cx-art:not(.sil)') && !el.querySelector('.reserved') ? nameHit(h.firstChild.textContent.trim()) : null; });
+    watch('cxPane_crew', 'sb', el => { const h = el.querySelector('.sb-head h3'); return h && h.firstChild ? nameHit(h.firstChild.textContent.trim()) : null; });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
   setTimeout(hook, 1500);
