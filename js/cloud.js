@@ -100,7 +100,9 @@ const CLOUD = (function () {
     if (!user || busy) return; busy = true; say('正在比對雲端存檔…'); let next = null;
     try {
       const R = await readRemote(), last = +(get(LS.last) || 0); remoteInfo = R ? { at: R.updatedAt, device: R.device } : null;
-      if (!R) { checked = true; next = () => upload(true); }
+      if (!R) { checked = true; next = async () => { await upload(true); emit('none'); }; }
+      /* v175：這台裝置還沒有進度（新安裝、首次登入）而雲端有存檔 → 直接問要不要載入，不用比對 */
+      else if (emptyLocal()) next = () => found(R);
       else if (R.csum && R.csum === contentSum(SAVE.data)) { checked = true; put(LS.last, String(R.updatedAt)); say('雲端與這台裝置的存檔一致'); }
       /* 雲端在上次同步之後被別台裝置更新過 → 一定要問 */
       else if (R.updatedAt > last && R.device !== deviceId) next = () => ask(R);
@@ -123,6 +125,23 @@ const CLOUD = (function () {
     SAVE.data = d; SAVE.__noStamp = true; SAVE.save(); SAVE.__noStamp = false; put(LS.last, String(R.updatedAt)); dirty = false; checked = true;
     if (typeof toast === 'function') toast('已載入雲端存檔，重新整理中…', 'gold'); setTimeout(() => location.reload(), 900);
   }
+  const emptyLocal = () => { try { return !Object.keys((SAVE.data && SAVE.data.roster) || {}).length; } catch (e) { return false; } };
+  const emit = k => { try { window.dispatchEvent(new CustomEvent('cloud:' + k)); } catch (e) { } };
+  /* v175 首次登入找到雲端存檔：顯示摘要，載入或重新開始（重新開始不會刪雲端，也暫停同步，避免新進度蓋掉雲端） */
+  function found(R) {
+    close(); document.querySelectorAll('.cl-ask,.acq').forEach(x => x.remove());
+    const who = user ? esc2(user.displayName || user.email || '你的帳號') : '你的帳號', kind = user && user.providerData && user.providerData[0] && user.providerData[0].providerId === 'google.com' ? 'Google 帳號' : '信箱帳號';
+    let sm = R.summary || ''; if (!sm) { try { sm = summary(unpack(R)); } catch (e) { } }
+    const box = document.createElement('div'); box.className = 'dl-wrap cl-ask acq'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', '找到你的存檔');
+    box.innerHTML = `<div class="dl-card cl-card"><header><h3>☁️ 找到你的存檔</h3></header>
+      <div class="acq-save"><b>${who}</b>（${kind}）<br>${esc2(sm)}<br><small>最後更新：${fmtT(R.updatedAt)}${R.device === deviceId ? '（這台裝置）' : '（其他裝置）'}</small></div>
+      <div class="acq-btns"><button class="btn-gold big" data-c="load">載入這份存檔，繼續冒險</button><button class="btn-ghost big" data-c="new">不要載入，重新開始</button></div>
+      <p class="acq-note">選「重新開始」不會刪掉雲端存檔，之後還能在「設定 → 雲端存檔」載入。</p></div>`;
+    document.body.appendChild(box);
+    box.querySelector('[data-c=load]').onclick = () => { box.remove(); apply(R); };
+    box.querySelector('[data-c=new]').onclick = () => { box.remove(); checked = false; say('暫停同步：這台裝置重新開始，雲端存檔保留'); emit('fresh'); };
+    say('找到雲端存檔，等待選擇');
+  }
   /* 雲端與這台裝置不同時，讓玩家選 */
   function ask(R) {
     document.querySelectorAll('.cl-ask').forEach(x => x.remove());
@@ -141,7 +160,7 @@ const CLOUD = (function () {
   }
 
   /* ---------- 介面 ---------- */
-  function open() {
+  function open(m) { if (m) mode = m;
     if (!panel) { panel = document.createElement('div'); panel.className = 'dl-wrap cl-wrap'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', '雲端存檔'); panel.onclick = e => { if (e.target === panel) close(); }; }
     document.body.appendChild(panel); render();
     if (!fb) sdk().catch(e => say(errText(e))); /* v107：一打開就先下載，按 Google 登入時才不會被擋 */
@@ -187,6 +206,6 @@ const CLOUD = (function () {
     /* 之前登入過：背景載入 Firebase、恢復登入並比對雲端 */
     if (get(LS.on)) setTimeout(() => sdk().catch(() => { }), 2500);
   });
-  return { open, close, login, logout, upload, download, check, deviceId, pack, unpack, ready: () => !!user, status: () => user ? `已登入：${user.email || ''}` : '尚未登入', _state: () => ({ user: !!user, checked, dirty, busy, status }), sdk, resetPw, fb: () => fb, user: () => user, onUser: f => { hooks.push(f); if (user) f(user); }, setName, myName, nameKey, NAME_RE, errText };
+  return { found, open, close, login, logout, upload, download, check, deviceId, pack, unpack, ready: () => !!user, status: () => user ? `已登入：${user.email || ''}` : '尚未登入', _state: () => ({ user: !!user, checked, dirty, busy, status }), sdk, resetPw, fb: () => fb, user: () => user, onUser: f => { hooks.push(f); if (user) f(user); }, setName, myName, nameKey, NAME_RE, errText };
 })();
 window.openCloud = () => CLOUD.open();

@@ -1,0 +1,15 @@
+/* v175 首次登入詢問帳號（js/account_v175.js、cloud.js found()） */
+.acq .dl-card{max-width:360px;text-align:center}
+.acq header{justify-content:center;position:relative}
+.acq header .icon-btn{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+.acq .acq-hero{font-size:15px;line-height:1.6;margin:8px 0 16px;color:#d7e3f2}
+.acq .acq-btns{display:flex;flex-direction:column;gap:8px}
+.acq .acq-btns button{height:48px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;width:100%;margin:0}
+.acq .acq-g{background:#fff;color:#1f1f1f;border:0;border-radius:12px;font-weight:700;cursor:pointer}
+.acq .acq-line{background:#06c755;color:#fff;border:0;border-radius:12px;font-weight:700;cursor:pointer}
+.acq .acq-ico{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;font-weight:900;color:#4285f4}
+.acq .acq-line .acq-ico{background:#fff;color:#06c755}
+.acq .acq-note{font-size:12px;color:#9fb3c8;margin:16px 0 0;line-height:1.6}
+.acq .acq-status{font-size:13px;color:#ffd77a;margin:8px 0 0;min-height:0}.acq .acq-status:empty{display:none}
+.acq .acq-sep{display:flex;align-items:center;gap:8px;color:#7f93a8;font-size:12px;margin:0}.acq .acq-sep:before,.acq .acq-sep:after{content:'';flex:1;height:1px;background:rgba(255,255,255,.15)}
+.acq .acq-save{background:rgba(255,215,120,.08);border:1px solid rgba(255,215,120,.35);border-radius:12px;padding:12px;margin:8px 0 16px;font-size:14px;line-height:1.7}
