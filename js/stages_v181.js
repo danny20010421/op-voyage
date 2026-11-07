@@ -258,6 +258,9 @@
     add(BOUNTY_POOL, { id: 'realm2', text: '完成每日秘境 2 次（含掃蕩）', stat: 'realm', goal: 2, berry: 1500 });
     if (typeof BOUNTY_PREMIUM !== 'undefined') add(BOUNTY_PREMIUM, { id: 'p_realm6', text: '完成每日秘境 6 次（含掃蕩）', stat: 'realm', goal: 6, berry: 5000, tokens: 5, premium: true }); }
 
+  /* 道具商店（貝里）：掃蕩券、護盾、羅格鎮的傳說也能用貝里買，配合秘境每天掃蕩（秘境次數有上限，不會無限刷） */
+  if (typeof SHOP !== 'undefined') [['sweep', 2000], ['shield', 1500], ['exp_l', 9000]].forEach(([id, price]) => { if (ITEMS[id] && !SHOP.some(x => x.id === id)) SHOP.push({ id, price }); });
+
   window.STAGES = { FESTS, REALMS, TIER, liveFest, nextFest, win, S, runsLeft, grant, goods };
   window.addEventListener('DOMContentLoaded', () => {
     build(); rail();
