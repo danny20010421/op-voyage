@@ -11,3 +11,8 @@
 .res-card .res-art img{display:block;width:100%!important;height:100%!important;object-fit:cover!important;filter:none!important}
 .b-result.lose .res-card .res-art{box-shadow:inset 0 0 0 2px rgba(255,90,90,.5),0 10px 24px rgba(0,0,0,.45)}
 @media (max-width:640px){.res-card .res-art{width:136px;height:168px;margin:0 auto}}
+/* v179 戰鬥背包依類別分組 */
+#bBagList .bag-cat{grid-column:1/-1;margin:8px 0 0;padding:0 4px;font-size:12px;font-weight:800;letter-spacing:.1em;color:#f3c969;opacity:.9}
+#bBagList .bag-cat:first-child{margin-top:0}
+#bBagList .bi-lim{display:block;font-style:normal;font-size:11px;color:#9fb3c8;margin-top:2px}
+#bBagList .bagItem.lim{opacity:.45}

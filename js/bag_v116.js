@@ -19,7 +19,7 @@
 
   /* ---------- 分類與獲取方式 ---------- */
   const CATS = [['all', '全部'], ['battle', '戰鬥'], ['grow', '培養'], ['ticket', '票券']];
-  const CAT_OF = { potion_s: 'battle', herb: 'battle', potion_l: 'battle', pp_s: 'battle', haki: 'battle', shield: 'battle', tome: 'battle', meat: 'battle', feather: 'battle',
+  const CAT_OF = { potion_s: 'battle', herb: 'battle', potion_l: 'battle', pp_s: 'battle', haki: 'battle', shield: 'battle', tome: 'battle', meat: 'battle', feather: 'battle', potion_m: 'battle', pp_l: 'battle', guard_pot: 'battle', haki_l: 'battle',
     exp_s: 'grow', exp_m: 'grow', exp_l: 'grow', sweep: 'grow', skin_ticket: 'ticket', event_ticket: 'ticket', char_select: 'ticket', mc_pick_2611: 'ticket', awaken_gem: 'grow', skill_book: 'grow', summon_ticket: 'ticket' };
   const hub = t => { if (typeof openGacha === 'function') openGacha(typeof currentScreen !== 'undefined' ? currentScreen : 'modeScreen'); if (t && typeof switchHub === 'function') setTimeout(() => switchHub(t), 0); };
   const GO = {
@@ -32,7 +32,7 @@
   };
   const SRC = {
     potion_s: ['shop', 'summon', 'chest', 'login'], herb: ['shop', 'summon', 'login'], potion_l: ['shop', 'summon', 'login'], pp_s: ['shop', 'summon', 'login'], haki: ['shop', 'summon'],
-    shield: ['summon', 'login'], tome: ['summon', 'login'], meat: ['summon', 'login'], feather: ['summon', 'login'],
+    shield: ['summon', 'login'], tome: ['summon', 'login'], meat: ['summon', 'login'], feather: ['summon', 'login'], potion_m: ['shop', 'summon'], guard_pot: ['shop', 'summon'], pp_l: ['shop', 'summon'], haki_l: ['shop', 'summon'],
     exp_s: ['shop', 'tower', 'chest', 'vip'], exp_m: ['shop', 'tower', 'vip'], exp_l: ['tower', 'summon', 'vip'], sweep: ['supply', 'vip'],
     skin_ticket: ['ach', 'vip'], event_ticket: ['card', 'vip', 'login'], char_select: ['card', 'vip'], mc_pick_2611: ['card'],
     awaken_gem: ['activity', 'pass', 'ladder', 'dupe'], skill_book: ['activity', 'pass', 'ladder'], summon_ticket: ['afk', 'ret']

@@ -50,6 +50,7 @@
 - `js/cam_v173.js`、`css/cam_v173.css`: F:自動取景，包 battle.js 的 updateCamera（下一幀 fit()：圖片不透明範圍 alphaBox、上下界＝.b-top 下緣～技能欄上緣、拉遠到 0.16、--fitX 左右推開） | S:只在原本鏡頭 <1 時啟動；window.__camDebug 印出取景過程
 - `js/account_v175.js`、`css/account_v175.css`: F:首次登入詢問帳號（包 startGame；ask／pick；聽 cloud:none、cloud:fresh；SHOW_LINE 開關）| S:cloud.js found() 找到雲端存檔的視窗、op_acct_asked 記住已問過
 - `js/faces_data_v178.js`、`js/faces_v178.js`: F:立繪臉部對焦（CHAR_FACE＝{立繪路徑:[x,y,臉寬]}；MutationObserver 監看 assets/chars 的圖片，object-fit:cover 的依臉部算 object-position，小框加 translate＋scale；含 .gfx-host 的 shadow DOM；戰鬥結算 #bResImg 包 .res-art）| S:新增立繪後執行 tests/face_fp.py 重新產生
+- `js/items_v179.js`: F:道具分類 ITEMS[id].cat／limit、新道具 potion_m／pp_l／guard_pot／haki_l、包 useItem（單場上限 battle.itemUse）、applyItem（itemDR、defUp、spdUp）、computeSkillOutcome（防禦藥劑減傷）、endTurnStatus、renderBag（分組）
 - `css/align_v168.css`: 全畫面對齊修正（text-box 裁切置中、同列等高、省略號）；最後載入的 css。量測工具在 /root/promo/v168/align/
 - `js/rocks_v166.js`＋`css/rocks_v166.css`: F:洛克斯新立繪（battleScale .85）、舊立繪皮膚 rocks_classic（擁有洛克斯自動獲得）、原造型戰鬥中的閃電環繞 .rocks-aura（包住 applyVisual）
 - `js/ext_v165.js`＋`js/balance_v165.js`＋`js/fx_v165.js`＋`css/v165.css`: F:伊姆三型態（__imu.form 0/1/2、晉升、各種契約／領域／抹除狀態）與洛基、尼卡、洛克斯、黑鬍子的通用克制效果；IMU165.preAct/postAct 給 battle.js 與 tests/*-sim 共用 | A:assets/chars/imu_form1、imu_form2 | T:tests/imu-sim.js
