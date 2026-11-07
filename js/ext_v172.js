@@ -32,49 +32,38 @@
     { key: 'form3', label: '第三型態', name: '諸神黃昏・洛基', title: '第三型態', image: img('loki_form3'), avatar: img('loki_form3_face'), scale: SZ[2] / SZ[0] }
   ];
   const sk = o => Object.assign({ accuracy: 100, maxPP: o.pp, tags: [] }, o);
-  const ANTI = '這招必中：無視閃避、看穿、迴避與降低命中的效果；出招前打破對手的無敵，並無視對手的減傷。';
+  /* v173b 使用者 11/08「洛基的技能太亂了……不要每一個技能既能攻擊也能有效果」：攻擊招只打傷害，效果集中在輔助招。
+     克制伊姆的「必中、打破無敵、無視減傷」改成第二、三型態攻擊的被動（寫在第 5 招說明），不在每招重複。 */
+  const P2 = { sureHit: true, pierceDR: 1, breakInvuln: true }, P3 = Object.assign({ guardBreak: 1 }, P2);
+  const atk = (name, power, pp, anima, desc, tags, ef) => sk({ name, type: 'attack', power, pp, anima, desc, tags, effect: ef || {} });
+  const sup = (name, pp, anima, desc, tags, ef) => sk({ name, type: 'support', pp, anima, desc, tags, effect: ef });
+  /* 第一型態（詛咒王子・洛基） */
+  const F1 = [
+    atk('雷電噴吐', 85, 10, 'bolt', '噴出雷電，連續攻擊 3～5 次。', [['連擊', 'blue']], { multiHitNormal: [3, 5], perHitPower: 85 }),
+    atk('鐵雷', 230, 8, 'thunder', '以鐵錘砸下雷霆的重擊。', [['重擊', 'red']]),
+    sup('原初世界', 5, 'awaken', '喚醒原初的世界：打散對手身上全部的強化，並清除自身的負面狀態。', [['驅散', 'red'], ['淨化', 'green']], { lokiDispel: { block: 0 }, clearSelfDebuffs: true }),
+    atk('鐵雷五矢', 300, 5, 'thunder', '五道鐵雷同時落下的強力一擊。', [['強力', 'red']])
+  ];
+  F1.forEach((x, i) => { const o = C.skills[i]; if (o) { Object.keys(o).forEach(k => delete o[k]); Object.assign(o, x); } });
   C.form2Skills = [
-    sk({ name: '冥龍雷息', type: 'attack', power: 95, pp: 10, anima: 'bolt',
-      desc: `尼德霍格噴出黑雷吐息：連續攻擊 3～6 次；命中後 3 回合內對手的回復量 -60%。${ANTI}`,
-      tags: [['連擊', 'blue'], ['必中', 'red'], ['回復壓制', 'red']],
-      effect: { multiHitNormal: [3, 6], perHitPower: 95, sureHit: true, pierceDR: 1, breakInvuln: true, healSeal: { turns: 3, cut: .6 } } }),
-    sk({ name: '啃噬世界樹', type: 'attack', power: 230, pp: 6, anima: 'chomp',
-      desc: `咬碎支撐世界的根：打散對手身上全部的強化（能力提升、護盾、減傷、無敵、閃避、反彈、不死、永劫、看穿，以及對手展開的領域），2 回合內無法獲得強化；吸走對手一半的型態與傷害加成，並追加對手最大體力 8% 的真實傷害。${ANTI}`,
-      tags: [['驅散', 'red'], ['封鎖強化', 'red'], ['吸收加成', 'gold'], ['必中', 'red']],
-      effect: { sureHit: true, pierceDR: 1, breakInvuln: true, lokiDispel: { block: 2 }, drainForm: .5, trueBurst: { pct: .08, label: '世界樹之根的真實傷害' } } }),
-    sk({ name: '冥龍鱗甲', type: 'support', pp: 5, anima: 'awaken',
-      desc: '漆黑龍鱗覆蓋全身：獲得最大體力 35% 的護盾並回復 20% 體力，清除自身負面狀態；解除身上的契約、支配、封印、存在抹除等效果（契約類反轉給對手）；接下來 4 回合是「自由」的（不受契約、支配、封印、壓制、奪取體力與秒殺），反彈到自己身上的傷害全部轉回去。',
-      tags: [['護盾', 'green'], ['自由', 'gold'], ['淨化', 'green'], ['反轉反彈', 'gold']],
-      effect: { selfShieldMaxHpRatio: .35, healRatio: .2, clearSelfDebuffs: true, cleanseMarks: true, freeTurns: 4, mirror: 4 } }),
-    sk({ name: '黑雷裂空', type: 'attack', power: 280, pp: 5, anima: 'thunder',
-      desc: `撕裂天空的黑雷：80% 機率讓對手的保命效果（撐住致命傷、不死、永劫、瀕死回滿、命數）全部失效，這一擊足以擊倒對手時 80% 機率貫穿保命；命中後 2 回合內對手無法使用奧義（含變身與晉升）；55% 使對手無法攻擊或下一招失效。${ANTI}`,
-      tags: [['破保命', 'red'], ['奧義壓制', 'red'], ['麻痺', 'blue'], ['必中', 'red']],
-      effect: { sureHit: true, pierceDR: 1, breakInvuln: true, voidGuard: .8, guardBreak: .8, ultSeal: 2, lokiStun: .55 } })
+    atk('冥龍雷息', 95, 10, 'bolt', '尼德霍格噴出黑雷吐息，連續攻擊 3～6 次。', [['連擊', 'blue']], Object.assign({ multiHitNormal: [3, 6], perHitPower: 95 }, P2)),
+    atk('黑雷裂空', 300, 6, 'thunder', '撕裂天空的黑雷重擊。', [['重擊', 'red']], Object.assign({}, P2)),
+    sup('啃噬世界樹', 5, 'chomp', '咬碎支撐世界的根：打散對手全部的強化（能力提升、護盾、減傷、無敵、閃避、反彈、不死、永劫、看穿）與對手展開的領域，2 回合內對手無法獲得強化。', [['驅散', 'red'], ['封鎖強化', 'red']], { lokiDispel: { block: 2 } }),
+    sup('冥龍鱗甲', 5, 'awaken', '漆黑龍鱗覆蓋全身：獲得最大體力 35% 的護盾；接下來 4 回合是「自由」的（不受契約、支配、封印、壓制、奪取體力與秒殺）。', [['護盾', 'green'], ['自由', 'gold']], { selfShieldMaxHpRatio: .35, freeTurns: 4 })
   ];
   C.form3Skills = [
-    sk({ name: '諸神黃昏之雷', type: 'attack', power: 115, pp: 10, anima: 'bolt',
-      desc: `終末之雷連續落下 5～8 次，造成傷害的 20% 回復到自己身上；命中後 4 回合內對手的回復量 -80%。${ANTI}`,
-      tags: [['連擊', 'blue'], ['吸血', 'green'], ['回復壓制', 'red'], ['必中', 'red']],
-      effect: { multiHitNormal: [5, 8], perHitPower: 115, sureHit: true, pierceDR: 1, breakInvuln: true, lifesteal: .2, healSeal: { turns: 4, cut: .8 } } }),
-    sk({ name: '弒神之爪', type: 'attack', power: 320, pp: 6, anima: 'claw',
-      desc: `專殺神明的巨爪：打散對手全部的強化與領域，3 回合內無法獲得強化，對手的保命效果全部失效，並吸走對手全部的型態與傷害加成；對「變身、晉升、覺醒中」的對手傷害 ×2。${ANTI}`,
-      tags: [['弒神', 'red'], ['驅散', 'red'], ['破保命', 'red'], ['吸收加成', 'gold'], ['必中', 'red']],
-      effect: { sureHit: true, pierceDR: 1, breakInvuln: true, lokiDispel: { block: 3 }, voidGuard: 1, drainForm: 1, godSlayer: 2 } }),
-    sk({ name: '芬布爾之冬', type: 'support', pp: 4, anima: 'ice',
-      desc: '降下終末的永冬：打散對手全部的強化與展開的領域，4 回合內對手無法獲得強化、回復量 -80%，3 回合內無法使用奧義（含變身與晉升）；自身獲得最大體力 30% 的護盾，接下來 4 回合是「自由」的，反彈到自己身上的傷害全部轉回去。',
-      tags: [['驅散', 'red'], ['封鎖強化', 'red'], ['奧義壓制', 'red'], ['回復壓制', 'red'], ['自由', 'gold']],
-      effect: { lokiDispel: { block: 4 }, healSeal: { turns: 4, cut: .8 }, ultSeal: 3, selfShieldMaxHpRatio: .3, freeTurns: 4, mirror: 4 } }),
-    sk({ name: '拉格納洛克', type: 'attack', power: 420, pp: 4, anima: 'ragnarok',
-      desc: `諸神的黃昏：這一擊足以擊倒對手時必定貫穿保命，並讓對手的保命效果全部失效；追加對手最大體力 10% 的真實傷害，後排還沒上場的角色受到這次傷害 40% 的波及；對「變身、晉升、覺醒中」的對手傷害 ×1.5。${ANTI}`,
-      tags: [['終焉', 'gold'], ['破保命', 'red'], ['波及後排', 'red'], ['弒神', 'red'], ['必中', 'red']],
-      effect: { sureHit: true, pierceDR: 1, breakInvuln: true, guardBreak: 1, voidGuard: 1, splash: .4, godSlayer: 1.5, trueBurst: { pct: .1, label: '拉格納洛克的真實傷害' } } })
+    atk('諸神黃昏之雷', 115, 10, 'bolt', '終末之雷連續落下 5～8 次。', [['連擊', 'blue']], Object.assign({ multiHitNormal: [5, 8], perHitPower: 115 }, P3)),
+    atk('拉格納洛克', 450, 5, 'ragnarok', '諸神黃昏的一擊。', [['終焉', 'gold']], Object.assign({}, P3)),
+    sup('芬布爾之冬', 4, 'ice', '降下終末的永冬：打散對手全部的強化與領域，4 回合內對手無法獲得強化，3 回合內無法使用奧義（含變身與晉升）。', [['驅散', 'red'], ['封鎖強化', 'red'], ['奧義壓制', 'red']], { lokiDispel: { block: 4 }, ultSeal: 3 }),
+    sup('諸神之鎧', 5, 'awaken', '獲得最大體力 40% 的護盾並回復 25% 體力，清除自身負面狀態；接下來 4 回合是「自由」的。', [['護盾', 'green'], ['回復', 'green'], ['自由', 'gold']], { selfShieldMaxHpRatio: .4, healRatio: .25, clearSelfDebuffs: true, freeTurns: 4 })
   ];
-  /* 第 5 招：換成晉升（取代原本的「尼德霍格覺醒」覺醒效果與變身立繪） */
+  /* 第 5 招：晉升（取代原本的「尼德霍格覺醒」覺醒效果與變身立繪） */
   { const U = C.skills[4]; if (U) {
-    Object.assign(U, { name: '尼德霍格覺醒', type: 'support', pp: 4, maxPP: 4, ultimate: true, power: 0, accuracy: 100,
-      desc: '奧義（4 次，無法用道具恢復）。第一次施放晉升為第二型態「尼德霍格・洛基」，第二次施放晉升為第三型態「諸神黃昏・洛基」；每次晉升技能欄都換成新型態的技能，第 1～4 招次數全部恢復，全部傷害再提高（第二型態 ×1.4、第三型態 ×1.8）。每次施放：全能力 +2、清除自身負面狀態、獲得最大體力 30% 的護盾並回復 35% 體力、接下來 3 回合是「自由」的（不受契約、支配、封印、壓制、奪取體力與秒殺）、反彈到自己身上的傷害轉回去；覺醒後直到倒下前受到的傷害 -20%，每 5 回合清除對手的能力提升。第三型態時再次施放改為「諸神黃昏」：打散對手全部的強化與領域、3 回合內無法獲得強化與使用奧義，對手失去最大體力 25% 的體力（BOSS 為 8%），自身 2 回合無敵。',
-      tags: [['奧義', 'gold'], ['變身', 'gold'], ['自由', 'gold'], ['護盾', 'green'], ['驅散', 'red']],
-      effect: { lokiAscend: { mul: [1.4, 1.8], final: { strike: .25, bossStrike: .08, block: 3, ult: 3, inv: 2 } }, statUpAll: 2, clearSelfDebuffs: true, selfShieldMaxHpRatio: .3, healRatio: .35, freeTurns: 3, mirror: 3, immunePermanent: true, lokiEternal: true, noRestore: true } });
+    Object.keys(U).forEach(k => delete U[k]);
+    Object.assign(U, { name: '尼德霍格覺醒', type: 'support', pp: 4, maxPP: 4, ultimate: true, power: 0, accuracy: 100, anima: 'awaken',
+      desc: '奧義（4 次，無法用道具恢復）。第一次施放晉升為第二型態「尼德霍格・洛基」，第二次晉升為第三型態「諸神黃昏・洛基」：技能欄換成新型態的技能、次數全滿，全部傷害提高（第二型態 ×1.4、第三型態 ×1.8），並回復 30% 體力。第二、三型態的攻擊必中，出招前打破對手的無敵並無視減傷；第三型態的攻擊足以擊倒對手時必定貫穿保命。第三型態再次施放改為「諸神黃昏」：對手失去最大體力 25% 的體力（BOSS 為 8%）。',
+      tags: [['奧義', 'gold'], ['變身', 'gold']],
+      effect: { lokiAscend: { mul: [1.4, 1.8], final: { strike: .25, bossStrike: .08 } }, healRatio: .3, noRestore: true } });
   } }
   if (C.desc && !C.desc.includes('三種型態')) C.desc = '艾爾巴夫的王子「詛咒王子」。吃下幻獸種尼德霍格的果實，施放「尼德霍格覺醒」晉升為尼德霍格・洛基、再晉升為諸神黃昏・洛基。招式必中、穿透無敵與減傷、打散強化、讓保命失效，是專門對抗世界之王的力量。';
 
@@ -112,7 +101,7 @@
     if (gone.length) say(t, '驅散');
   }
   function ragnarok(f, t, J) {
-    if (!t || t.hp <= 0) return; dispel(f, t, { block: J.block });
+    if (!t || t.hp <= 0) return;
     if (t.voidImmune) { L(`🐉 ${t.name} 不受諸神黃昏的比例傷害影響！`); }
     else { const b = B(), boss = !!(b && b.isBoss && t === b.enemy); const d = Math.max(1, Math.floor(t.maxHp * (boss ? J.bossStrike : J.strike) * (isImuF(t) ? VS().atk : 1))); const h0 = t.hp; t.hp = Math.max(0, t.hp - d);
       try { if (onScreen(t)) showDamage(sideOf(t), h0 - t.hp, '#b06bff'); } catch (e) { } L(`🌑 諸神黃昏！${t.name} 失去 ${h0 - t.hp} 點體力（最大體力的 ${pct(boss ? J.bossStrike : J.strike)}%）`); }
@@ -143,8 +132,10 @@
   /* v172b 使用者 11/07 22:05「洛基打贏伊姆的機率 60～65% 就好」：洛基與伊姆互打時的傷害倍率（模擬調出來的值，見 CHANGELOG） */
   /* 模擬（tests/imu-sim.js，各 60～120 場）調出來的：BOSS／勇者之塔／虛空王座的伊姆（真・伊姆，第 250 層）洛基隊勝率約 63～68%；一般對戰 1 對 1 約 60～66%。
      atk＝洛基打伊姆的傷害倍率（也套用到比例與真實傷害、諸神黃昏），def＝伊姆打洛基的傷害倍率（疊在巨人的意志減半之上）。 */
-  const VS_BOSS = { atk: .095, def: 4.2 }, VS_NORM = { atk: .255, def: 2.1 };
-  const VS = () => { if (window.__LOKI_VS_IMU) return window.__LOKI_VS_IMU; const b = B(); return b && (b.isBoss || (b.opts && (b.opts.tower || b.opts.throne))) ? VS_BOSS : VS_NORM; };
+  const VS_BOSS = { atk: .29, def: 3 }, VS_NORM = { atk: 2.8, def: .4 }; /* v173b 技能整理後重調：塔 250 洛基隊約 59～62%；1 對 1 洛基先手約 73%、後手約 49%（平均約 61%） */
+  const VS = () => { if (window.__LOKI_VS_IMU) return window.__LOKI_VS_IMU; const b = B(); return b && b.opts && b.opts.throne ? VS_THRONE : b && (b.isBoss || (b.opts && b.opts.tower)) ? VS_BOSS : VS_NORM; };
+  /* 虛空王座是比累積傷害：洛基的穿透減傷會無視王座伊姆的巨額減傷，傷害變成其他隊伍的上百倍，這裡壓回和改版前差不多（模擬約 2.4 萬，改版前約 2.6 萬） */
+  const VS_THRONE = { atk: .55, def: 3 };
   const isImuF = t => !!(t && (t.id === 'imu' || t.__imu));
   if (typeof computeSkillOutcome === 'function') { const _cso = computeSkillOutcome;
     computeSkillOutcome = function (actor, target, skill) {
@@ -174,6 +165,7 @@
     '冥龍鱗甲': async A => { SFX.play('buff'); X().vortex(A.f.x, A.f.y, { r: 150, color: '#2a0f4a', core: '#000000', rim: '#8a6bff', arms: 6, spin: 6, life: .7 }); await sl(220); X().ring(A.f.x, A.f.y, { r1: 190, color: '#b9a8ff', w: 10, life: .5 }); X().particles({ x: A.f.x, y: A.f.y, n: 30, spd: [60, 200], life: [.5, 1], size: [4, 8], colors: ['#b9a8ff', '#ffffff'], shape: 'spark', add: true, g: 0 }); },
     '黑雷裂空': async A => { moveFighter(A.S, 'float'); SFX.play('thunder'); X().tint('#1a0b33', .9, .4); for (let i = 0; i < 5; i++) setTimeout(() => X().bolt(A.t.x + R(-90, 90), -30, A.t.x + R(-20, 20), A.t.y, { w: 12, color: i % 2 ? '#ffffff' : '#7a5cff' }), i * 70); await sl(380); X().cracks(A.t.x, A.t.y + 70, { n: 10, len: 220, color: '#b9a8ff' }); X().flash('#ffffff', .25, .15); shake(); },
     '諸神黃昏之雷': async A => { SFX.play('thunder'); X().tint('#2a0a3a', .9, .45); for (let i = 0; i < 8; i++) setTimeout(() => { X().bolt(A.t.x + R(-120, 120), -30, A.t.x + R(-30, 30), A.t.y + R(-20, 30), { w: 9, color: i % 2 ? '#ff9cf5' : '#c86bff' }); if (i % 3 === 0) SFX.play('zap'); }, i * 55); await sl(460); X().burst(A.t.x, A.t.y, { r: 150, color: '#ff7ae6' }); },
+    '諸神之鎧': async A => { SFX.play('buff'); X().wings(A.f.x, A.f.y - 40, { color: '#c86bff', life: .8 }); X().ring(A.f.x, A.f.y, { r1: 200, color: '#ff9cf5', w: 10, life: .55 }); await sl(240); X().particles({ x: A.f.x, y: A.f.y, n: 34, spd: [60, 220], life: [.5, 1], size: [4, 8], colors: ['#ff9cf5', '#ffffff'], shape: 'spark', add: true, g: 0 }); },
     '弒神之爪': async A => { moveFighter(A.S, 'dash'); SFX.play('whoosh'); await sl(200); for (let i = 0; i < 3; i++) X().slash(A.t.x + (i - 1) * 26, A.t.y, { a: -2.2, span: 1.5, r: 210, w: 18, color: i === 1 ? '#ffffff' : '#c86bff', life: .32 }); await sl(120); SFX.play('explode'); X().particles({ x: A.t.x, y: A.t.y, n: 30, spd: [160, 420], life: [.4, .8], size: [4, 9], colors: ['#ffe27a', '#ffffff', '#ff9cf5'], shape: 'spark', add: true, g: 120 }); X().rays(A.t.x, A.t.y, { r: 260, n: 14, c1: 'rgba(255,170,250,.9)' }); X().flash('#ffffff', .25, .15); shake(); },
     '芬布爾之冬': async A => { SFX.play('ice'); X().tint('#bfe6ff', 1.2, .4); X().particles({ x: FXE.W / 2, y: -20, n: 70, spd: [60, 200], ang: [1.3, 1.9], life: [1, 1.6], size: [3, 7], colors: ['#ffffff', '#dff6ff', '#c86bff'], g: 40 }); await sl(260); X().spikes(A.t.x, A.t.y + 100, { n: 14, w: 220, life: 1.1, color: '#e8f6ff' }); X().ring(A.f.x, A.f.y, { r1: 180, color: '#dff6ff', w: 8, life: .5 }); },
     '拉格納洛克': async A => { moveFighter(A.S, 'leap'); SFX.play('ult'); X().tint('#120018', 1.4, .55); X().wings(A.f.x, A.f.y - 40, { color: '#c86bff', life: .9 }); await sl(420); for (let i = 0; i < 6; i++) setTimeout(() => X().bolt(A.t.x + R(-140, 140), -30, A.t.x + R(-40, 40), A.t.y, { w: 14, color: i % 2 ? '#ffffff' : '#ff7ae6' }), i * 60); X().beam(A.f.x, A.f.y - 40, A.t.x, A.t.y, { w: 60, c1: '#ffffff', c2: '#c86bff', life: .5 }); await sl(380); SFX.play('explode'); X().pillar(A.t.x, A.t.y, { w: 160, color: '#c86bff', life: .7 }); X().cracks(A.t.x, A.t.y + 70, { n: 16, len: 320, color: '#ff9cf5' }); X().flash('#ffffff', .35, .2); shake(); }
@@ -191,5 +183,5 @@
       if (!fn) return _pc.apply(this, arguments);
       try { FXE.ensure(); const A = { S, T, f: fighterPoint(S), t: fighterPoint(T), d: S === 'L' ? 1 : -1 }; await fn(A); } catch (e) { console.warn(e); return _pc.apply(this, arguments); }
     }; }
-  window.LOKI172 = { init, setForm, ascend, dispel, transformed };
+  window.LOKI172 = { init, setForm, ascend, dispel, transformed, vs: () => VS() };
 })();

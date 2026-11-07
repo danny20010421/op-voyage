@@ -33,7 +33,11 @@
     if (typeof battle === 'undefined' || !battle) return;
     if (!raf) raf = requestAnimationFrame(() => { raf = 0; fit(); });
   };
+  /* v173b：iPhone 在放大很多倍的立繪上套用發光濾鏡（drop-shadow、亮度閃爍）會用掉大量記憶體導致閃退（伊姆晉升第三型態 5.5 倍時發生），
+     立繪放大超過 2.4 倍的一方加上 .xl，不套用任何濾鏡（css/cam_v173.css）。 */
+  function xl() { ['L', 'R'].forEach(s => { const F = $('bF' + s); if (!F) return; const sc = parseFloat(getComputedStyle(F).getPropertyValue('--sc')) || 1; F.classList.toggle('xl', sc > 2.4); }); }
   function fit() {
+    xl();
     if (busy || typeof battle === 'undefined' || !battle) return;
     const A = $('bArena'); if (!A) return;
     const cam0 = parseFloat(A.style.getPropertyValue('--cam')) || 1;
@@ -52,13 +56,15 @@
       const plan = c => { apply(c); const L = content('L'), R = content('R'); if (!L || !R || L.wait || R.wait) return null;
         const t = Math.min(L.t, R.t), vn = t < T ? 1 + (T - t) / Math.max(1, Math.max(L.b, R.b) - t) : 1;
         const wL = L.r - L.l, wR = R.r - R.l; let sL = 0, sR = 0;
-        /* 外側可出畫面的比例：比較大的一方 45%（尾巴、翅膀），比較小的一方 0（整個人都要看得到） */
-        const oL = wL >= wR ? .45 : 0, oR = wR > wL ? .45 : 0, gap = .12 * Math.min(wL, wR);
-        const ov = L.r - R.l - gap; if (ov > 0) { sL = -ov * wL / (wL + wR); sR = ov * wR / (wL + wR); }
-        const fixR = () => { const lim = Rx + oR * wR; if (R.r + sR > lim) { const e = R.r + sR - lim; sR -= e; sL -= e; } };
-        const fixL = () => { const lim = Lx - oL * wL; if (L.l + sL < lim) { const e = lim - (L.l + sL); sL += e; sR += e; } };
-        fixR(); fixL(); fixR(); if (L.l + sL < Lx - oL * wL) sL = (Lx - oL * wL) - L.l;
-        const ov2 = (L.r + sL) - (R.l + sR) - .2 * Math.min(wL, wR), hn = ov2 > 0 ? 1 + ov2 / Math.min(wL + wR, Rx - Lx) : 1;
+        /* v173b：只推「比較大」的一方；比較小的一方留在原本站位，只在超出畫面時往內收（避免把小的推到畫面中間）。
+           大的一方往外側讓開，外側（尾巴、翅膀）最多 45% 出畫面；讓開後還重疊太多才再拉遠。 */
+        const bigL = wL >= wR, S = bigL ? R : L, G = bigL ? L : R, wS = bigL ? wR : wL, wG = bigL ? wL : wR;
+        let sS = 0; if (S.l < Lx) sS = Lx - S.l; else if (S.r > Rx) sS = Rx - S.r;
+        let sG = 0; const gap = .1 * wS;
+        if (bigL) { const ov = G.r - (S.l + sS) + gap; if (ov > 0) sG = -ov; const lim = Lx - .45 * wG; if (G.l + sG < lim) sG = lim - G.l; if (G.r + sG > Rx + .45 * wG) sG = Rx + .45 * wG - G.r; }
+        else { const ov = (S.r + sS) - G.l + gap; if (ov > 0) sG = ov; const lim = Rx + .45 * wG; if (G.r + sG > lim) sG = lim - G.r; if (G.l + sG < Lx - .45 * wG) sG = Lx - .45 * wG - G.l; }
+        if (bigL) { sL = sG; sR = sS; } else { sL = sS; sR = sG; }
+        const ov2 = (L.r + sL) - (R.l + sR) - .2 * wS, hn = ov2 > 0 ? 1 + ov2 / Math.min(wL + wR, Rx - Lx) : 1;
         return { need: Math.max(vn, hn), sL, sR }; };
       let c = cam0, P = null;
       for (let it = 0; it < 10; it++) { P = plan(c); if (window.__camDebug) console.log('cam it', c.toFixed(3), JSON.stringify(P), JSON.stringify(content('L')), JSON.stringify(content('R'))); if (!P || P.need <= 1.001 || c <= .16) break; c = Math.max(.16, c / Math.min(P.need * 1.02, 1.5)); }
@@ -68,6 +74,7 @@
       A.style.setProperty('--cam', old.v[0]); A.style.setProperty('--camY', old.v[1]); A.style.setProperty('--spread', old.v[2]); void A.offsetWidth;
       els.forEach((e, i) => { e.style.transition = tr0[i]; });
       apply(c); ['L', 'R'].forEach(s => { const F = $('bF' + s); if (F && Math.abs(fx[s] || 0) >= 1) F.style.setProperty('--fitX', fx[s].toFixed(0) + 'px'); });
+      xl();
       if (window.__camDebug) console.log('cam', cam0, '→', c, fx);
     } catch (e) { console.warn('自動取景', e); }
     busy = false;

@@ -53,7 +53,7 @@ async () => {
     let E = buildFighter(foeId, C.foeLv || lv, foeId === 'imu' ? (C.skin || null) : null);
     if (C.boss || C.chapter) E = applyChapterDifficulty(E, C.chapter || 'giant', !!C.boss); else if (C.pvp) applyRarityScale(E);
     if (C.mod) { const M = C.mod; if (M.hp) { E.maxHp = Math.round(E.maxHp * M.hp); E.hp = E.maxHp; } if (M.dmg) E.dmgMul *= M.dmg; ['atk', 'def'].forEach(k => { if (M[k]) E.buffs[k] = clamp(E.buffs[k] + M[k], -6, 6); }); }
-    battle.team = team; battle.pi = 0; battle.player = team[0]; battle.enemy = E; battle.isBoss = !!C.boss; battle.__imuDom = null; battle.eruption = null; battle.iceAge = null; battle.round = 1; battle.opts = { revives: C.revives || 0 }; battle.difficulty = CHAPTER_DIFFICULTY[C.chapter || 'giant'];
+    battle.team = team; battle.pi = 0; battle.player = team[0]; battle.enemy = E; battle.isBoss = !!C.boss; battle.__imuDom = null; battle.eruption = null; battle.iceAge = null; battle.round = 1; battle.opts = { revives: C.revives || 0, tower: C.tower || 0, throne: !!C.throne }; battle.difficulty = CHAPTER_DIFFICULTY[C.chapter || 'giant'];
     if (E.__imu && C.pace) { E.__imu.pace = C.pace; if (C.paceHp != null) E.__imu.paceHp = C.paceHp; }
     if (E.__imu && C.paceNext) E.__imu.paceNext = C.paceNext;
     if (E.__imu && C.maxForm != null) E.__imu.maxForm = C.maxForm; /* v169：塔 200 層停在第二型態 */

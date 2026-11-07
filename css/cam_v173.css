@@ -1,3 +1,5 @@
 /* v173 自動取景：仍放不下時把立繪往畫面內推（--fitX，js/cam_v173.js 設定） */
 .b-arena .fighter.L{translate:calc(var(--spread,0) * -38% + var(--fitX,0px)) 0}
 .b-arena .fighter.R{translate:calc(var(--spread,0) * 38% + var(--fitX,0px)) 0}
+/* v173b 超大立繪不套用濾鏡，避免 iPhone 記憶體不足閃退 */
+#battleScreen .fighter.xl img,#battleScreen .fighter.xl.cast img,#battleScreen .fighter.xl.hit img,#battleScreen .fighter.xl.huge img{filter:none!important}
