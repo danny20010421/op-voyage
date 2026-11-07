@@ -28,7 +28,7 @@
   C.battleScale = Math.round(SZ[0] * UNIT * 100) / 100;
   C.forms = [
     { key: 'form1', label: '第一型態', name: '詛咒王子・洛基', title: '巨人族王子', image: C.image, avatar: C.avatar, scale: 1 },
-    { key: 'form2', label: '第二型態', name: '尼德霍格・洛基', title: '第二型態', image: img('loki_form2'), avatar: img('loki_form2_face'), scale: 5, wideCap: 3 } /* v172b 使用者 11/07 22:05：第二型態立繪尺寸 5（型態倍率 5）；電腦寬螢幕會超出畫面上緣，縮到 3 */,
+    { key: 'form2', label: '第二型態', name: '尼德霍格・洛基', title: '第二型態', image: img('loki_form2'), avatar: img('loki_form2_face'), scale: 5 } /* v172b 使用者 11/07 22:05：第二型態立繪尺寸 5（型態倍率 5）；v173 起由自動取景（cam_v173.js）處理超出畫面 */,
     { key: 'form3', label: '第三型態', name: '諸神黃昏・洛基', title: '第三型態', image: img('loki_form3'), avatar: img('loki_form3_face'), scale: SZ[2] / SZ[0] }
   ];
   const sk = o => Object.assign({ accuracy: 100, maxPP: o.pp, tags: [] }, o);
@@ -85,8 +85,7 @@
     const I = f.__loki, F = C.forms[form] || C.forms[0], src = form === 0 ? I.base : F;
     f.image = src.image; f.avatar = src.avatar; f.name = src.name; f.title = src.title;
     const VO = form && typeof visualOverride === 'function' ? visualOverride('form:loki_form' + form) : null;
-    f.visMul = form === 0 ? 1 : (VO && VO.battleScale) || F.scale || 1;
-    if (form && F.wideCap && !(VO && VO.battleScale) && innerWidth >= 1000 && innerWidth > innerHeight) f.visMul = Math.min(f.visMul, F.wideCap); f.mirror = VO && VO.faceLeft !== undefined ? VO.faceLeft : false;
+    f.visMul = form === 0 ? 1 : (VO && VO.battleScale) || F.scale || 1; f.mirror = VO && VO.faceLeft !== undefined ? VO.faceLeft : false;
     if (!onScreen(f)) return;
     try { if (typeof refreshFighterImage === 'function') refreshFighterImage(f); } catch (e) { }
     const S = sideOf(f), $$ = id => document.getElementById(id);
