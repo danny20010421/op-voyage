@@ -89,7 +89,10 @@
   const _an = Element.prototype.animate; if (!_an) return;
   const big = el => { try { return !!(el.classList && el.classList.contains('xl')) || !!(el.tagName === 'IMG' && el.parentElement && el.parentElement.classList.contains('xl')); } catch (e) { return false; } };
   Element.prototype.animate = function (kf, opt) {
-    if (big(this)) { let t = ''; try { t = JSON.stringify(kf); } catch (e) { } if (/transform|scale|translate|rotate|filter/.test(t)) return _an.call(this, [{ opacity: getComputedStyle(this).opacity }, { opacity: getComputedStyle(this).opacity }], opt); }
+    if (big(this)) { let t = ''; try { t = JSON.stringify(kf); } catch (e) { }
+      /* v177：只保留原本動畫裡的不透明度（沒有就用空動畫）；不再記下「當下」的不透明度（淡入中途記到 0 會一直透明，看起來像角色消失） */
+      if (/transform|scale|translate|rotate|filter/.test(t)) { const keep = Array.isArray(kf) ? kf.map(k => { const o = {}; if (k && k.opacity != null) o.opacity = k.opacity; if (k && k.offset != null) o.offset = k.offset; return o; }) : [];
+        return _an.call(this, keep.some(k => k.opacity != null) ? keep : [], opt); } }
     return _an.apply(this, arguments);
   };
 })();

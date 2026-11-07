@@ -1,0 +1,8 @@
+/* v177 iPhone 抽獎池沒有置中（使用者 11/08 04:55）：Safari 對「1fr 欄寬＋內容有不換行的長字」會把欄寬撐大，整塊往右偏。
+   欄寬改成 minmax(0,1fr)、子元素不准比畫面寬，面板左右用 auto 置中。 */
+#gachaScreen .g-main{grid-template-columns:minmax(0,1fr)!important}
+#gachaScreen .g-main>*,#gachaScreen .g-scene-wrap{min-width:0;max-width:100%;box-sizing:border-box}
+#gachaScreen .g-scene-wrap,#gachaScreen .machine{margin-left:auto!important;margin-right:auto!important}
+#gachaScreen .hub-tabs,#gachaScreen .pool-tabs{max-width:calc(100% - 24px);margin-left:auto;margin-right:auto;box-sizing:border-box}
+/* 抽獎結果卡：寬度原本是 96vw，外層又有 16px 內距，手機上整張往右偏、右邊貼齊畫面 → 改成扣掉兩側 16px */
+.g-res-card{width:min(900px,calc(100vw - 32px))!important;max-width:calc(100% - 0px);margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}
