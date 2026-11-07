@@ -38,9 +38,18 @@
     b.querySelector('[data-a=mail]').onclick = () => { waiting = true; shut(); try { CLOUD.open('login'); } catch (e) { } };
   }
   /* Google 登入的狀態訊息（失敗原因）顯示在這個視窗 */
-  function watchCloud(b) { let n = 0; const t = setInterval(() => { if (!b.isConnected || ++n > 120) return clearInterval(t); const s = CLOUD._state && CLOUD._state(); const st = b.querySelector('.acq-status'); if (st && s && s.status) st.textContent = s.status; if (s && s.user) { clearInterval(t); shut(); } }, 500); }
+  function watchCloud(b) { let n = 0; const t = setInterval(() => { if (!b.isConnected || ++n > 120) return clearInterval(t); const s = CLOUD._state && CLOUD._state(); const st = b.querySelector('.acq-status'); if (st && s && s.status) st.textContent = s.status; if (s && s.user) { clearInterval(t); loading(); } }, 300); }
+  /* v176：登入完成 → 立刻顯示「正在讀取你的存檔」，讀完馬上問要載入以前的存檔還是開始新的（cloud.js found()／cloud:none），不會等到下次開遊戲 */
+  let lt = 0;
+  function loading() {
+    if (document.querySelector('.cl-ask')) return;
+    const b = show(`<header><h3>✅ 登入成功</h3></header><p class="acq-hero">正在讀取你的雲端存檔…</p><div class="acq-spin" aria-hidden="true"></div><p class="acq-status" aria-live="polite"></p>`);
+    clearTimeout(lt); lt = setTimeout(() => { if (!b.isConnected) return; const s = CLOUD._state && CLOUD._state(); b.querySelector('.dl-card').innerHTML = `<header><h3>讀取存檔比較久</h3></header><p class="acq-hero">${(s && s.status) || '網路比較慢，雲端存檔還沒讀到。'}</p><div class="acq-btns"><button class="btn-gold big" data-a="retry">再試一次</button><button class="btn-ghost big" data-a="close">先關閉</button></div>`;
+      b.querySelector('[data-a=retry]').onclick = () => { loading(); try { CLOUD.check(true); } catch (e) { } }; b.querySelector('[data-a=close]').onclick = shut; }, 15000);
+  }
+  addEventListener('cloud:checking', () => { if (waiting || !hasCrew()) loading(); });
   /* 登入後：雲端沒有存檔 → 新玩家流程；有存檔 → cloud.js found() 已經顯示 */
-  addEventListener('cloud:none', () => { if (!waiting || hasCrew()) return; waiting = false; put('op_acct_asked', '1'); try { CLOUD.close(); } catch (e) { } if (typeof toast === 'function') toast('這個帳號還沒有存檔，開始新的冒險吧！進度會自動存到這個帳號', 'gold'); if (typeof _start === 'function') _start(); });
+  addEventListener('cloud:none', () => { clearTimeout(lt); document.querySelectorAll('.acq').forEach(x => { if (!x.querySelector('[data-c]')) x.remove(); }); if (!(waiting || !get('op_acct_asked')) || hasCrew()) return; waiting = false; put('op_acct_asked', '1'); try { CLOUD.close(); } catch (e) { } if (typeof toast === 'function') toast('這個帳號還沒有存檔，開始新的冒險吧！進度會自動存到這個帳號', 'gold'); if (typeof _start === 'function') _start(); });
   addEventListener('cloud:fresh', () => { put('op_acct_asked', '1'); waiting = false; if (!hasCrew() && typeof _start === 'function') _start(); });
   let _start = null;
   window.addEventListener('DOMContentLoaded', () => {

@@ -13,3 +13,6 @@
 .acq .acq-status{font-size:13px;color:#ffd77a;margin:8px 0 0;min-height:0}.acq .acq-status:empty{display:none}
 .acq .acq-sep{display:flex;align-items:center;gap:8px;color:#7f93a8;font-size:12px;margin:0}.acq .acq-sep:before,.acq .acq-sep:after{content:'';flex:1;height:1px;background:rgba(255,255,255,.15)}
 .acq .acq-save{background:rgba(255,215,120,.08);border:1px solid rgba(255,215,120,.35);border-radius:12px;padding:12px;margin:8px 0 16px;font-size:14px;line-height:1.7}
+.acq .acq-spin{width:32px;height:32px;margin:0 auto;border-radius:50%;border:3px solid rgba(255,255,255,.18);border-top-color:#ffd77a;animation:acqSpin .9s linear infinite}
+@keyframes acqSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.acq .acq-spin{animation-duration:2.4s}}

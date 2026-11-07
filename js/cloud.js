@@ -22,6 +22,8 @@ const CLOUD = (function () {
   const sum = str => { let h = 2166136261 >>> 0; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h.toString(16); };
   const fmtT = t => { if (!t) return '—'; const d = new Date(t); return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
   const esc2 = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let pendCheck = false; /* v176：登入過程中（busy）登入完成時要做的比對，忙完立刻補做 */
+  const idle = () => { busy = false; render(); if (pendCheck && user && !checked) { pendCheck = false; check(false); } };
   const hooks = []; let mode = 'google', form = {}; let fb = null, user = null, busy = false, checked = false, dirty = false, lastUp = 0, status = '', remoteInfo = null, panel = null;
   const say = (m, kind) => { status = m; render(); if (kind && typeof toast === 'function') toast(m, kind === 'ok' ? 'gold' : undefined); };
 
@@ -61,9 +63,9 @@ const CLOUD = (function () {
     const P = new fb.F.auth.GoogleAuthProvider(); P.setCustomParameters({ prompt: 'select_account' });
     fb.auth.signInWithPopup(P).catch(e => {
       if (e.code === 'auth/popup-blocked') say('瀏覽器擋下了登入視窗。請允許這個網站開啟「彈出式視窗」後再按一次，或改用信箱登入。', 'err');
-      else if (['auth/operation-not-supported-in-this-environment', 'auth/web-storage-unsupported'].includes(e.code)) { say('改用整頁登入…'); return fb.auth.signInWithRedirect(P); }
+      else if (['auth/operation-not-supported-in-this-environment', 'auth/web-storage-unsupported'].includes(e.code)) { say('改用整頁登入…'); put('op_cloud_pending', '1'); return fb.auth.signInWithRedirect(P); }
       else say(errText(e), 'err');
-    }).finally(() => { busy = false; render(); });
+    }).finally(idle);
   }
   /* ---------- 帳號密碼（真實信箱＋自訂帳號名稱） ---------- */
   const NAME_RE = /^[A-Za-z0-9_\u4e00-\u9fff]{2,12}$/, nameKey = n => String(n || '').trim().toLowerCase();
@@ -84,9 +86,9 @@ const CLOUD = (function () {
       if (typeof playerProfile === 'function') { const P = playerProfile(); P.account = name; SAVE.save(); }
       try { await cr.user.sendEmailVerification(); } catch (e) { }
       say(`帳號「${name}」建立完成！`, 'ok');
-    } catch (e) { say(errText(e), 'err'); } finally { busy = false; render(); }
+    } catch (e) { say(errText(e), 'err'); } finally { idle(); }
   }
-  async function loginPw(id, pw) { if (busy) return; busy = true; say('登入中…'); try { const em = await emailOf(id); await fb.auth.signInWithEmailAndPassword(em, pw); } catch (e) { say(errText(e), 'err'); } finally { busy = false; render(); } }
+  async function loginPw(id, pw) { if (busy) return; busy = true; say('登入中…'); try { const em = await emailOf(id); await fb.auth.signInWithEmailAndPassword(em, pw); } catch (e) { say(errText(e), 'err'); } finally { idle(); } }
   async function resetPw(id) { if (busy) return; busy = true; try { const em = await emailOf(id); await fb.auth.sendPasswordResetEmail(em); say(`如果 ${em} 有註冊過，重設密碼的信已經寄出，請點信中的連結設定新密碼（也請檢查垃圾郵件）`, 'ok'); } catch (e) { say(errText(e), 'err'); } finally { busy = false; render(); } }
   /* Google 登入的玩家：好友系統需要一個帳號名稱 */
   async function setName(name) { await sdk(); if (!user) fail('auth'); await claimName(String(name || '').trim(), user.uid, user.email || ''); await user.updateProfile({ displayName: name }); if (typeof playerProfile === 'function') { const P = playerProfile(); P.account = name; SAVE.save(); } }
@@ -97,7 +99,7 @@ const CLOUD = (function () {
   async function readRemote() { const s = await ref().get(); return s.exists ? s.data() : null; }
   /* 開啟遊戲或登入時：先看雲端，再決定要上傳還是詢問 */
   async function check(manual) {
-    if (!user || busy) return; busy = true; say('正在比對雲端存檔…'); let next = null;
+    if (!user) return; if (busy) { pendCheck = true; return; } busy = true; say('正在讀取雲端存檔…'); emit('checking'); let next = null;
     try {
       const R = await readRemote(), last = +(get(LS.last) || 0); remoteInfo = R ? { at: R.updatedAt, device: R.device } : null;
       if (!R) { checked = true; next = async () => { await upload(true); emit('none'); }; }
@@ -144,7 +146,7 @@ const CLOUD = (function () {
   }
   /* 雲端與這台裝置不同時，讓玩家選 */
   function ask(R) {
-    document.querySelectorAll('.cl-ask').forEach(x => x.remove());
+    document.querySelectorAll('.cl-ask,.acq').forEach(x => x.remove());
     let rd = null; try { rd = unpack(R); } catch (e) { }
     const box = document.createElement('div'); box.className = 'dl-wrap cl-ask'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', '雲端有不同的存檔');
     box.innerHTML = `<div class="dl-card cl-card"><header><h3>雲端有不同的存檔</h3></header>
@@ -204,7 +206,8 @@ const CLOUD = (function () {
     setInterval(tick, 15000);
     document.addEventListener('visibilitychange', () => { if (document.hidden && user && checked && dirty && get(LS.auto) !== '0') upload(false); });
     /* 之前登入過：背景載入 Firebase、恢復登入並比對雲端 */
-    if (get(LS.on)) setTimeout(() => sdk().catch(() => { }), 2500);
+    if (get('op_cloud_pending')) { put('op_cloud_pending', null); emit('checking'); sdk().catch(() => { }); } /* v176：整頁登入回來，立刻完成登入並讀取存檔 */
+    else if (get(LS.on)) setTimeout(() => sdk().catch(() => { }), 1200);
   });
   return { found, open, close, login, logout, upload, download, check, deviceId, pack, unpack, ready: () => !!user, status: () => user ? `已登入：${user.email || ''}` : '尚未登入', _state: () => ({ user: !!user, checked, dirty, busy, status }), sdk, resetPw, fb: () => fb, user: () => user, onUser: f => { hooks.push(f); if (user) f(user); }, setName, myName, nameKey, NAME_RE, errText };
 })();

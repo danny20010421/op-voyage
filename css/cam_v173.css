@@ -5,3 +5,7 @@
 #battleScreen .fighter.xl img,#battleScreen .fighter.xl.cast img,#battleScreen .fighter.xl.hit img,#battleScreen .fighter.xl.huge img{filter:none!important}
 /* v174 超大立繪不預先建立圖層，降低 iPhone 記憶體用量 */
 #battleScreen .fighter.xl img{will-change:auto}
+/* v176 洛基晉升（第二型態 8 倍）後 iPhone 仍閃退：待機搖擺、變身動畫會讓瀏覽器替超大立繪另外建一張圖層（大小＝放大後的立繪×螢幕解析度），
+   記憶體爆掉。超大立繪改成不做 transform 動畫，直接畫在戰場圖層上（只保留淡入淡出）。 */
+#battleScreen .fighter.xl img,#battleScreen .fighter.xl.morph-in img,#battleScreen .fighter.xl.morph-out img,#battleScreen .fighter.xl img.morph{animation:none!important;transition:opacity .35s ease!important;will-change:auto!important}
+#battleScreen .fighter.xl{animation:none!important}

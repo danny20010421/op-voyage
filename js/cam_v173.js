@@ -31,6 +31,7 @@
   updateCamera = function () {
     _uc.apply(this, arguments);
     if (typeof battle === 'undefined' || !battle) return;
+    try { xl(); } catch (e) { } /* v176：換成超大立繪的同一刻就標記 .xl（不等下一幀），變身動畫才不會先建出超大圖層 */
     if (!raf) raf = requestAnimationFrame(() => { raf = 0; fit(); });
   };
   /* v173b：iPhone 在放大很多倍的立繪上套用發光濾鏡（drop-shadow、亮度閃爍）會用掉大量記憶體導致閃退（伊姆晉升第三型態 5.5 倍時發生），
@@ -81,4 +82,14 @@
     busy = false;
   }
   let rt = 0; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { try { if (typeof battle !== 'undefined' && battle && !battle.gameOver) updateCamera(); } catch (e) { } }, 200); });
+})();
+/* v176：超大立繪（.xl）不做位移、縮放、濾鏡動畫。moveFighter、受擊震動等用 Web Animations 移動整個角色，動畫期間瀏覽器會替角色（含放大後的立繪）
+   建一張超大圖層，iPhone 會因此閃退（洛基第二型態 8 倍）。這裡把這類動畫換成同長度、只維持不透明度的空動畫（回傳值與完成時間不變）。 */
+(function () {
+  const _an = Element.prototype.animate; if (!_an) return;
+  const big = el => { try { return !!(el.classList && el.classList.contains('xl')) || !!(el.tagName === 'IMG' && el.parentElement && el.parentElement.classList.contains('xl')); } catch (e) { return false; } };
+  Element.prototype.animate = function (kf, opt) {
+    if (big(this)) { let t = ''; try { t = JSON.stringify(kf); } catch (e) { } if (/transform|scale|translate|rotate|filter/.test(t)) return _an.call(this, [{ opacity: getComputedStyle(this).opacity }, { opacity: getComputedStyle(this).opacity }], opt); }
+    return _an.apply(this, arguments);
+  };
 })();
