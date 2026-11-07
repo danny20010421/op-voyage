@@ -1,0 +1,142 @@
+/* v181 活動關卡（js/stages_v181.js）：大廳右側入口＋活動關卡畫面。8px 網格、框內置中、同列按鈕等高。 */
+
+/* ---------- 大廳右側入口 ---------- */
+.v181-rail{display:none}
+#modeScreen #lobby.l2.v6 .v181-rail{position:absolute;z-index:8;display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px;border-radius:16px;box-sizing:border-box;
+  top:calc(var(--v6tb,88px) + 8px);right:var(--edge-x,16px);--ic:72px;--icI:48px;
+  background:linear-gradient(180deg,rgba(16,28,58,.78),rgba(8,14,32,.78));border:1px solid rgba(235,199,126,.32);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+/* 電腦版：放在立繪與右側資訊區之間（--v6hr＝資訊區寬＋16px） */
+#modeScreen #lobby.l2.v6.v6-desk .v181-rail{right:calc(var(--v6hr,340px) - 8px)}
+#modeScreen #lobby.l2.v6.v6-desk .lb-hero{right:calc(var(--v6hr,340px) + 96px)!important}
+#modeScreen #lobby.l2.v6.v6-tb .v181-rail{--ic:64px;--icI:44px}
+#modeScreen #lobby.l2.v6.v6-ph .v181-rail{--ic:52px;--icI:36px;padding:4px;gap:4px;right:8px}
+.v181-ic{all:unset;box-sizing:border-box;position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:var(--ic);height:var(--ic);border-radius:12px;color:#f6efe0;text-align:center;-webkit-tap-highlight-color:transparent}
+.v181-ic:hover{background:rgba(235,199,126,.12)}
+.v181-ic:focus-visible{outline:3px solid #fff3c8;outline-offset:2px}
+.v181-ic>.l2-svg{display:flex;align-items:center;justify-content:center;width:var(--icI);height:var(--icI);padding:calc(var(--icI) * .2);box-sizing:border-box;border-radius:12px;flex:none;
+  color:#ffe9b0;background:linear-gradient(180deg,#2b3f78,#152452);border:1px solid rgba(235,199,126,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.v181-ic>.l2-svg svg{width:100%;height:100%}
+.v181-ic.fest.live>.l2-svg{background:linear-gradient(180deg,#ff8a3d,#c23a1e);border-color:#ffd38a;animation:v181pulse 2.4s ease-in-out infinite}
+.v181-ic.realm>.l2-svg{background:linear-gradient(180deg,#2f8f86,#14524f);border-color:#9ff0de}
+@keyframes v181pulse{0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 0 0 0 rgba(255,140,60,.0)}50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 0 14px 2px rgba(255,140,60,.55)}}
+.v181-ic b{font-size:12px;line-height:16px;font-weight:800;white-space:nowrap}
+.v181-ic small{display:none}
+.v6-ph .v181-ic b{font-size:11px;line-height:12px}
+.v181-ic.has-dot::after{content:'';position:absolute;top:2px;right:calc(50% - var(--icI) / 2 - 4px);width:9px;height:9px;border-radius:50%;background:#ff5a5a;box-shadow:0 0 0 2px #0b1430,0 0 8px #ff5a5a}
+@media (prefers-reduced-motion:reduce){.v181-ic.fest.live>.l2-svg{animation:none}}
+
+/* ---------- 活動關卡畫面 ---------- */
+#stageScreen{background:#070c18;color:#f6efe0;overflow:hidden}
+#stageScreen .topbar{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;gap:16px;height:64px;padding:calc(8px + var(--safeT,0px)) 16px 8px;box-sizing:content-box}
+#stageScreen .topbar .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+#stageScreen .ch-lobby{height:40px;display:inline-flex;align-items:center;padding:0 16px}
+.stg-title{margin:0;font-size:20px;line-height:24px;font-weight:900;letter-spacing:.08em;color:#ffe9b0;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.stg-bg{position:absolute;inset:0;background:url('../assets/ui/mode_bg.webp') center/cover;filter:brightness(.4) saturate(1.1)}
+.stg-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,18,.55),rgba(5,8,18,.9))}
+.stg-wrap{position:absolute;inset:calc(80px + var(--safeT,0px)) 0 0;z-index:1;display:flex;flex-direction:column;align-items:center;gap:16px;padding:0 16px;box-sizing:border-box}
+.stg-tabs{display:flex;justify-content:center;gap:8px;flex:none}
+.stg-tabs button{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;height:40px;min-width:136px;padding:0 16px;border-radius:20px;font-size:14px;font-weight:800;
+  color:#d9d2bf;background:rgba(255,255,255,.06);border:1px solid rgba(235,199,126,.3)}
+.stg-tabs button.on{color:#1a1306;background:linear-gradient(180deg,#ffe39a,#e0a93c);border-color:#ffe9b0}
+.stg-tabs button:focus-visible{outline:3px solid #fff3c8;outline-offset:2px}
+.stg-main{flex:1;min-height:0;width:100%;max-width:960px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(24px + var(--safeB,0px));box-sizing:border-box;scrollbar-width:thin}
+
+/* 橫幅 */
+.stg-ban{position:relative;overflow:hidden;border-radius:16px;min-height:200px;display:flex;align-items:flex-end;border:1px solid color-mix(in srgb,var(--ac,#ebc77e) 60%,transparent);box-shadow:0 12px 32px rgba(0,0,0,.45)}
+.stg-ban.sm{min-height:168px}
+.stg-ban-art{position:absolute;inset:0;background:center/cover no-repeat}
+.stg-ban-art::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,10,22,.95),rgba(6,10,22,.75) 55%,rgba(6,10,22,.25))}
+.stg-ban-in{position:relative;display:flex;flex-direction:column;gap:8px;padding:16px 24px;max-width:600px}
+.stg-tag{align-self:flex-start;display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:8px;font-size:12px;font-weight:800;color:var(--ac,#ebc77e);background:color-mix(in srgb,var(--ac,#ebc77e) 18%,transparent)}
+.stg-ban h3{margin:0;font-size:24px;line-height:32px;font-weight:900}
+.stg-ban p{margin:0;font-size:13px;line-height:20px;color:#d9d2bf}
+.stg-meta{display:flex;flex-wrap:wrap;gap:8px}
+.stg-meta span{display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 12px;border-radius:16px;font-size:12px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12)}
+.stg-meta b{color:#ffe9b0}
+
+/* 三個難度 */
+.stg-tiers{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.stg-tier{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:16px;box-sizing:border-box;background:linear-gradient(180deg,rgba(22,34,66,.92),rgba(10,16,34,.92));border:1px solid rgba(235,199,126,.28)}
+.stg-tier.t1{border-color:rgba(120,180,255,.45)}.stg-tier.t2{border-color:rgba(255,120,120,.55)}
+.stg-tier.done .stg-t-h b::after{content:' ✔';color:#7fe0a0}
+.stg-tier.lock{opacity:.6}
+.stg-t-h{display:flex;flex-direction:column;align-items:center;gap:0;text-align:center}
+.stg-t-h b{font-size:18px;line-height:24px}
+.stg-boss{font-style:normal;display:inline-flex;align-items:center;height:16px;margin-left:4px;padding:0 4px;border-radius:4px;font-size:10px;line-height:16px;vertical-align:3px;background:#c8322b;color:#fff}
+.stg-t-h small{font-size:12px;line-height:16px;color:#b8b2a0}
+.stg-foes{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.stg-foes img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid rgba(235,199,126,.6);background:#0b1430;margin:0 -6px}
+.stg-foes span{font-size:12px;line-height:16px;color:#d9d2bf}
+.stg-foes{flex-wrap:wrap;flex-direction:row;justify-content:center}
+.stg-foes span{flex-basis:100%}
+.stg-rw{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;min-height:56px;align-content:flex-start}
+.stg-chip{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:12px;font-size:11px;background:rgba(255,255,255,.08);color:#f0e8d4;white-space:nowrap}
+.stg-chip.first{background:rgba(255,207,90,.2);color:#ffd36a}
+.stg-btns{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stg-btns button{height:40px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;margin:0}
+.stg-btns button:disabled{opacity:.45;filter:grayscale(.5);cursor:not-allowed}
+.stg-lock{grid-column:1/-1;display:flex;align-items:center;justify-content:center;height:40px;border-radius:10px;font-size:12px;color:#b8b2a0;background:rgba(0,0,0,.3)}
+
+/* 祭典商店 */
+.stg-h{margin:24px 0 8px;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;font-size:16px;line-height:24px}
+.stg-h small{font-size:12px;font-weight:400;color:#b8b2a0}
+.stg-shop{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:8px}
+.stg-shop li{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:12px;text-align:center;background:rgba(14,22,44,.9);border:1px solid rgba(255,255,255,.12)}
+.stg-shop li.r-SSR{border-color:rgba(255,207,90,.55)}.stg-shop li.r-SR{border-color:rgba(197,139,255,.5)}
+.stg-shop li.out{opacity:.5}
+.stg-g-ic{display:flex;align-items:center;justify-content:center;width:56px;height:56px}
+.stg-g-ic img,.stg-g-ic svg{max-width:56px;max-height:56px}
+.stg-g-ic em{font-style:normal;font-size:36px;line-height:56px}
+.stg-shop b{font-size:13px;line-height:16px;min-height:32px;display:flex;align-items:center}
+.stg-shop small{font-size:11px;line-height:16px;color:#b8b2a0}
+.stg-shop em{font-style:normal;font-size:11px;line-height:16px;color:#d9d2bf}
+.stg-shop button{width:100%;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;margin-top:4px}
+
+/* 每日秘境：上方五個秘境 */
+.stg-realms{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.stg-realms button{all:unset;box-sizing:border-box;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:0;height:104px;padding:8px;border-radius:12px;text-align:center;
+  border:1px solid rgba(255,255,255,.16);background:#0b1430}
+.stg-realms button>span{position:absolute;inset:0;background:center/cover no-repeat;opacity:.55}
+.stg-realms button>span::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,10,22,.1),rgba(6,10,22,.92))}
+.stg-realms button>*:not(span){position:relative}
+.stg-realms b{font-size:13px;line-height:16px}
+.stg-realms small{font-size:11px;line-height:16px;color:#d9d2bf}
+.stg-realms em{position:absolute!important;top:8px;right:8px;font-style:normal;font-size:11px;line-height:16px;padding:0 8px;border-radius:8px;background:rgba(0,0,0,.6)}
+.stg-realms button.on{border-color:var(--ac);box-shadow:inset 0 0 0 2px var(--ac),0 0 16px color-mix(in srgb,var(--ac) 40%,transparent)}
+.stg-realms button.on>span{opacity:.9}
+.stg-realms button:focus-visible{outline:3px solid #fff3c8;outline-offset:2px}
+
+.stg-empty{display:flex;flex-direction:column;align-items:center;gap:16px;padding:48px 16px;text-align:center}
+.stg-empty b{font-size:18px}
+.stg-empty p{margin:0;font-size:14px;line-height:24px;color:#d9d2bf}
+.stg-cal{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.stg-cal span{padding:4px 12px;border-radius:12px;background:rgba(255,255,255,.06);font-size:12px}
+
+/* 手機 */
+@media (max-width:760px){
+  .stg-wrap{inset:calc(64px + var(--safeT,0px)) 0 0;padding:0 8px;gap:8px}
+  #stageScreen .topbar{height:48px;padding:calc(8px + var(--safeT,0px)) 8px 8px;gap:8px}
+  .stg-title{font-size:18px}
+  .stg-tabs button{min-width:0;flex:1;height:40px;font-size:13px}
+  .stg-tabs{width:100%}
+  .stg-ban{min-height:0}
+  .stg-ban-in{padding:16px}
+  .stg-ban h3{font-size:20px;line-height:28px}
+  .stg-ban p{font-size:12px;line-height:18px}
+  .stg-tiers{grid-template-columns:1fr;gap:8px;margin-top:8px}
+  .stg-tier{display:grid;grid-template-columns:104px minmax(0,1fr);grid-template-areas:'h rw' 'f rw' 'b b';gap:8px;padding:12px}
+  .stg-t-h{grid-area:h}.stg-foes{grid-area:f}.stg-rw{grid-area:rw;min-height:0;justify-content:flex-start;align-content:center}.stg-btns{grid-area:b}
+  .stg-foes img{width:40px;height:40px}
+  .stg-foes span{display:none}
+  .stg-realms{grid-template-columns:repeat(5,152px);overflow-x:auto;margin:0 -8px 8px;padding:0 8px;scroll-snap-type:x mandatory;scroll-padding-inline:8px;scrollbar-width:none}
+  .stg-realms b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .stg-realms::-webkit-scrollbar{display:none}
+  .stg-realms button{scroll-snap-align:start;height:88px}
+  .stg-shop{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (orientation:landscape) and (max-height:520px){
+  .stg-wrap{inset:calc(56px + var(--safeT,0px)) 0 0}
+  #stageScreen .topbar{height:40px;padding-top:calc(8px + var(--safeT,0px))}
+  .stg-tiers{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stg-ban{min-height:0}
+}
