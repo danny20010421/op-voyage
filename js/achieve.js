@@ -38,16 +38,24 @@
   window.openAchievements = function (line) {
     line = line || 'adv'; const L = LINES[line];
     const box = document.querySelector('.ach-wrap') || document.body.appendChild(Object.assign(document.createElement('div'), { className: 'dl-wrap ach-wrap' }));
-    const rows = L.items.map(([id, name, desc, f, goal, rw]) => { const v = f(), done = v >= goal, got = A().got.includes(id), pct = Math.min(100, v / goal * 100);
-      return `<div class="ach-row ${got ? 'got' : done ? 'ready' : ''}"><div><b>${name}</b><small>${desc}</small><span class="ach-bar"><i style="width:${pct}%;background:${L.color}"></i></span><em>${Math.min(v, goal).toLocaleString()} / ${goal.toLocaleString()}</em></div><button class="${done && !got ? 'btn-gold' : 'btn-ghost'} sm" data-ach="${id}" ${done && !got ? '' : 'disabled'}>${got ? '已領取' : done ? '領取' : '未達成'}</button></div>`; }).join('');
+    /* v183：可領取 → 進行中（完成度高的在前）→ 已領取；顯示獎勵內容；分頁加「全部領取」 */
+    const rwTxt = rw => [rw.tokens && `寶藏幣 ×${rw.tokens}`, rw.berry && `貝里 ${rw.berry.toLocaleString()}`, rw.sweep && `掃蕩券 ×${rw.sweep}`, rw.tickets && `抽獎券 ×${rw.tickets}`, rw.skinTicket && `皮膚選擇券 ×${rw.skinTicket}`].filter(Boolean).join('・');
+    const view = L.items.map(it => { const v = it[3](), goal = it[4]; return { it, v, done: v >= goal, got: A().got.includes(it[0]), pct: Math.min(100, v / goal * 100) }; })
+      .sort((a, b) => ((a.got ? 2 : a.done ? 0 : 1) - (b.got ? 2 : b.done ? 0 : 1)) || b.pct - a.pct);
+    const ready = view.filter(x => x.done && !x.got);
+    const rows = view.map(({ it: [id, name, desc, , goal, rw], v, done, got, pct }) =>
+      `<div class="ach-row ${got ? 'got' : done ? 'ready' : ''}"><div><b>${name}</b><small>${desc}</small><span class="ach-bar"><i style="width:${pct}%;background:${L.color}"></i></span><em>${Math.min(v, goal).toLocaleString()} / ${goal.toLocaleString()}<span class="ach-rw">${rwTxt(rw)}</span></em></div><button class="${done && !got ? 'btn-gold' : 'btn-ghost'} sm" data-ach="${id}" ${done && !got ? '' : 'disabled'}>${got ? '已領取' : done ? '領取' : '未達成'}</button></div>`).join('');
     const cnt = k => LINES[k].items.filter(([id, , , f, goal]) => !A().got.includes(id) && f() >= goal).length;
     box.innerHTML = `<div class="dl-card ach-card"><header><h3>成就</h3><button class="icon-btn sm" data-x aria-label="關閉">×</button></header>
       <p class="dl-sub">三條主線互相支援：冒險的獎勵拿去召喚、收藏的獎勵拿去培養、經濟的獎勵拿去收藏。</p>
       <nav class="ach-tabs">${Object.entries(LINES).map(([k, X]) => `<button class="${k === line ? 'on' : ''}" data-line="${k}" style="--lc:${X.color}">${X.name}<small>獎勵：${X.reward}</small>${cnt(k) ? `<i>${cnt(k)}</i>` : ''}</button>`).join('')}</nav>
+      <div class="ach-head"><div><b>${L.name}</b><small>獎勵：${L.reward}</small></div><button class="btn-gold sm" data-achall ${ready.length ? '' : 'disabled'}>全部領取${ready.length ? `（${ready.length}）` : ''}</button></div>
       <div class="ach-list">${rows}</div></div>`;
     if (window.fixIcons) fixIcons(box);
     box.querySelector('[data-x]').onclick = () => box.remove(); box.onclick = e => { if (e.target === box) box.remove(); };
     box.querySelectorAll('[data-line]').forEach(b => b.onclick = () => openAchievements(b.dataset.line));
+    box.querySelector('[data-achall]').onclick = () => { const out = []; ready.forEach(({ it }) => { if (A().got.includes(it[0])) return; A().got.push(it[0]); out.push(...grant(it[5])); }); if (!out.length) return;
+      SFX.play('rare'); toast(`領取 ${ready.length} 個成就：${out.join('、')}`, 'gold'); openAchievements(line); if (window.renderLobby) renderLobby(); };
     box.querySelectorAll('[data-ach]:not([disabled])').forEach(b => b.onclick = () => { const it = all().find(x => x[0] === b.dataset.ach); if (!it || A().got.includes(it[0])) return; A().got.push(it[0]); const got = grant(it[5]); SFX.play('rare'); toast(`成就「${it[1]}」：${got.join('、')}`, 'gold'); openAchievements(line); if (window.renderLobby) renderLobby(); });
   };
 })();
