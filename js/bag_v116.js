@@ -27,15 +27,17 @@
     summon: ['懸賞處・召喚', () => hub('summon')], shop: ['道具商店', () => hub('shop')], bounty: ['每日懸賞', () => hub('bounty')],
     tower: ['勇者之塔', () => window.openTower && openTower()], login: ['七日登入', () => window.openLogin && openLogin()], ach: ['成就', () => window.openAchievements && openAchievements()],
     vip: ['VIP 每日／升級禮包', () => window.openVIP && openVIP('member')], card: ['月費', () => window.openVIP && openVIP('card')],
+    fest: ['限時祭典・祭典商店（大廳右側）', () => window.openStages && openStages('fest')], realm: ['每日秘境（大廳右側）', () => window.openStages && openStages('realm')],
     chest: ['劇情地圖的寶箱', null], supply: ['每天自動補給 5 張', null],
     activity: ['每日／本週活躍寶箱', () => window.openPass && openPass('daily')], pass: ['航海通行證', () => window.openPass && openPass('pass')], ladder: ['海賊天梯賽季獎勵', () => window.openLadder && openLadder()], dupe: ['分解重複角色（角色培養 → 覺醒）', null]
   };
+  /* v182：補上活動關卡（限時祭典、每日秘境）與商店新增的取得途徑 */
   const SRC = {
-    potion_s: ['shop', 'summon', 'chest', 'login'], herb: ['shop', 'summon', 'login'], potion_l: ['shop', 'summon', 'login'], pp_s: ['shop', 'summon', 'login'], haki: ['shop', 'summon'],
-    shield: ['summon', 'login'], tome: ['summon', 'login'], meat: ['summon', 'login'], feather: ['summon', 'login'], potion_m: ['shop', 'summon'], guard_pot: ['shop', 'summon'], pp_l: ['shop', 'summon'], haki_l: ['shop', 'summon'],
-    exp_s: ['shop', 'tower', 'chest', 'vip'], exp_m: ['shop', 'tower', 'vip'], exp_l: ['tower', 'summon', 'vip'], sweep: ['supply', 'vip'],
-    skin_ticket: ['ach', 'vip'], event_ticket: ['card', 'vip', 'login'], char_select: ['card', 'vip'], mc_pick_2611: ['card'],
-    awaken_gem: ['activity', 'pass', 'ladder', 'dupe'], skill_book: ['activity', 'pass', 'ladder'], summon_ticket: ['afk', 'ret']
+    potion_s: ['shop', 'realm', 'summon', 'chest', 'login'], herb: ['shop', 'realm', 'summon', 'login'], potion_l: ['shop', 'realm', 'summon', 'login'], pp_s: ['shop', 'realm', 'summon', 'login'], haki: ['shop', 'realm', 'summon'],
+    shield: ['shop', 'realm', 'summon', 'login'], tome: ['summon', 'login'], meat: ['summon', 'login'], feather: ['summon', 'login'], potion_m: ['shop', 'realm', 'summon'], guard_pot: ['shop', 'realm', 'fest', 'summon'], pp_l: ['shop', 'realm', 'summon'], haki_l: ['shop', 'fest', 'summon'],
+    exp_s: ['realm', 'shop', 'tower', 'chest', 'vip'], exp_m: ['realm', 'shop', 'tower', 'vip'], exp_l: ['realm', 'fest', 'shop', 'tower', 'summon', 'vip'], sweep: ['supply', 'shop', 'fest', 'vip'],
+    skin_ticket: ['ach', 'vip'], event_ticket: ['fest', 'card', 'vip', 'login'], char_select: ['card', 'vip'], mc_pick_2611: ['card'],
+    awaken_gem: ['realm', 'fest', 'activity', 'pass', 'ladder', 'dupe'], skill_book: ['realm', 'fest', 'activity', 'pass', 'ladder'], summon_ticket: ['afk', 'ret']
   };
   const USE = id => {
     const it = ITEMS[id] || {}, e = it.effect || {};
@@ -46,7 +48,7 @@
     if (e.eventTicket) return ['前往限定召喚', () => { close(); const b = $('lbEvent'); if (b && typeof currentScreen !== 'undefined' && currentScreen === 'modeScreen') b.click(); else hub(); }];
     if (e.grow) return ['選擇要培養的船員', () => { close(); if (window.openGrowPick) openGrowPick(); else { const id0 = (SAVE.data.lineup || [])[0]; if (window.openGrow && id0) openGrow(id0); } }]; /* v158：先選要培養誰 */
     if (e.exp) return ['選擇要培養的船員', () => { close(); if (window.openGrowPick) return openGrowPick(); const id0 = (SAVE.data.lineup || [])[0]; if (window.openGrow && id0) openGrow(id0); else if (typeof openCrew === 'function') openCrew('crew'); }];
-    if (id === 'sweep') return ['前往海圖掃蕩', () => { close(); if (typeof openChart === 'function') openChart(); }];
+    if (id === 'sweep') return ['前往每日秘境掃蕩', () => { close(); if (window.openStages) openStages('realm'); else if (typeof openChart === 'function') openChart(); }]; /* v182：秘境掃蕩最常用；海圖掃蕩仍可在劇情地圖使用 */
     return null; /* 戰鬥道具：在戰鬥中按「道具」使用 */
   };
   const RCOL = { N: '#7d93ab', R: '#3f8fe0', SR: '#9b5fe8', SSR: '#e8a83a' };
