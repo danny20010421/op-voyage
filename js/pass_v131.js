@@ -55,17 +55,21 @@ const PASS = {
         <div class="ps-track"><div class="ps-bar"><i style="width:${Math.min(100, W.pts / 6)}%"></i></div>${C.weekChest.map(c => node(c, 600, W.got, W.pts, 'w')).join('')}</div>
         <ul class="ps-legend">${C.weekChest.map(c => `<li><b>${c.at}</b>${PROG.rewText(c.rew)}</li>`).join('')}</ul></section>`;
   }
+  /* v186：把整季的獎勵加總寫出來，讓玩家一眼看出兩條路線的價值 */
+  function total(kind) { const T = { tokens: 0, berry: 0, items: {} }; for (let k = 1; k <= PASS.levels; k++) { const R = PASS.reward(k)[kind] || {}; T.tokens += R.tokens || 0; T.berry += R.berry || 0; Object.entries(R.items || {}).forEach(([i, n]) => { T.items[i] = (T.items[i] || 0) + n; }); } return T; }
+  function totText(T) { const a = []; if (T.tokens) a.push(`寶藏幣 ×${fmt(T.tokens)}`); Object.entries(T.items).forEach(([i, n]) => { if (ITEMS[i]) a.push(`${ITEMS[i].name} ×${fmt(n)}`); }); if (T.berry) a.push(`貝里 ${fmt(T.berry)}`); return a.join('、'); }
+  function sumText() { return `<b>整季合計</b>　免費路線：${totText(total('free'))}。<br><b>進階路線再加碼</b>：${totText(total('paid'))}（含 30 級的「限定皮膚選擇券」）。進階通行證用 ${fmt(PASS.price)} 寶藏幣解鎖，解鎖後已達等級的進階獎勵可以立刻補領。`; }
   function passHtml() {
     const P = st(), lv = level(), xpIn = P.xp - lv * PASS.xpPer, maxed = lv >= PASS.levels, n = pending();
     const rows = []; for (let k = 1; k <= PASS.levels; k++) { const R = PASS.reward(k), fGot = P.free.includes(k), pGot = P.paid.includes(k), reach = lv >= k;
       const cell = (kind, got, can, lock) => `<button class="ps-cell ${kind} ${got ? 'got' : can ? 'can' : lock ? 'lock' : ''}" data-c="${kind}:${k}" ${can ? '' : 'aria-disabled="true"'}>${rewIcons(R[kind])}<span class="ps-st">${got ? '已領取' : can ? '領取' : lock ? '🔒 進階' : `Lv ${k}`}</span></button>`;
       rows.push(`<li class="${reach ? 'reach' : ''} ${k === lv + 1 ? 'next' : ''} ${k % 5 === 0 ? 'big' : ''}"><span class="ps-lv">${k}</span>${cell('free', fGot, canFree(k), false)}${cell('paid', pGot, canPaid(k), !P.prem)}</li>`); }
     return `<section class="ps-card ps-head"><div class="ps-hl"><small>${seasonName(P.season)} 航海通行證・剩 ${daysLeft()} 天</small><b class="ps-big">Lv ${lv}<span>/${PASS.levels}</span></b>
-        <div class="ps-bar"><i style="width:${maxed ? 100 : xpIn / PASS.xpPer * 100}%"></i></div><p>${maxed ? '已滿級！' : `下一級還差 ${PASS.xpPer - xpIn} 經驗`}　經驗來源：每日活躍、本週活躍寶箱、天梯對戰。換季時沒領的獎勵會消失。</p></div>
+        <div class="ps-bar"><i style="width:${maxed ? 100 : xpIn / PASS.xpPer * 100}%"></i></div><p>${maxed ? '已滿級！本季的獎勵都領完了嗎？' : `下一級還差 ${PASS.xpPer - xpIn} 經驗（每級 ${PASS.xpPer}）`}<br>經驗來源：每日活躍（1 點＝1 經驗，每天最多 100）、本週活躍寶箱（每個 +50）、海賊天梯（勝 +20、敗 +10）。每月 1 日換季，沒領的獎勵會消失。</p></div>
         <div class="ps-hr">${P.prem ? '<span class="ps-prem on">進階通行證　已解鎖</span>' : `<button class="btn-gold ps-buy"><span>解鎖進階通行證</span><small><img src="assets/ui/coin_token.webp?v=115" alt="">${fmt(PASS.price)} 寶藏幣</small></button>`}
           <button class="btn-ghost ps-all" ${n ? '' : 'disabled'}>全部領取${n ? `（${n}）` : ''}</button></div></section>
       <section class="ps-card ps-tl"><div class="ps-th"><span>等級</span><span>免費</span><span>進階</span></div><ol class="ps-lvls">${rows.join('')}</ol>
-        <p class="ps-note">進階通行證目前用寶藏幣解鎖（測試期間）；30 級可領「限定皮膚選擇券」。</p></section>`;
+        <p class="ps-note">${sumText()}</p></section>`;
   }
   function render() {
     if (!el) return; if (window.ACT) ACT.sync();
