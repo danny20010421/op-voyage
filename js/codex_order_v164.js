@@ -42,7 +42,7 @@
       'jora|喬拉|d machvise|馬哈拜斯|d sugar|砂糖|d rosinante|唐吉訶德·羅西南迪|d'],
     ['w', '蛋糕島篇', 'inuarashi|犬嵐公爵|w nekomamushi|貓蝮蛇老大|w pedro|佩德羅|w carrot|卡洛特|w wanda|萬達|w judge|文斯莫克·加治|w reiju|文斯莫克·蕾玖|w ichiji|文斯莫克·一治|w niji|文斯莫克·二治|w ' +
       'yonji|文斯莫克·四治|w sora|文斯莫克·索拉|w belo_betty|貝洛·貝蒂|w morley|莫利|w karasu|卡拉斯|w lindbergh|林德柏格|w'],
-    ['o', '和之國篇', 'kid|基德（電磁炮模式）|o kinemon|錦衛門|o tama|阿玉|o yamato|大和|o luffy_wano|魯夫（和之國篇）|o zoro_wano|索隆（和之國篇）|o sanji_wano|香吉士（和之國篇）|o ' +
+    ['o', '和之國篇', 'kid|基德（電磁炮模式）|o kinemon|錦衛門|o tama|阿玉|o yamato|大和|o luffy_wano|魯夫（和之國篇）|o zoro_wano|索隆（和之國篇）|o sanji_wano|香吉士（和之國篇）|o robin_wano|妮可·羅賓（和之國篇）|o ' +
       'momonosuke|光月桃之助|o oden|光月御田|o toki|光月時|o hiyori|光月日和|o denjiro|傳次郎|o kawamatsu|河松|o raizo|雷藏|o kikunojo|菊之丞|o ashura|阿修羅童子|o kanjuro|勘十郎|o orochi|黑炭大蛇|o yasuie|霜月康義|o shinobu|忍|o'],
     ['g', '蛋頭島篇', 'vegapunk|貝加龐克|g york|約克|g morgans|摩甘茲|g shaka|夏卡|g lilith|莉莉絲|g edison|艾迪森|g pythagoras|畢達哥拉斯|g atlas|阿特拉斯|g ginny|金妮|g emet|艾美特|g'],
     ['b', '巨人篇', 'loki|洛基|b dorry|多利|b brogy|布洛基|b gunko|曼麥亞・軍子宮|b shamrock|費加蘭德・夏姆洛克聖|b gaban|賈巴|b harald|哈拉魯德|b jarul|雅爾|b hajrudin|漢裘爾頓|b ' +

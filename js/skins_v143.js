@@ -9,10 +9,8 @@
   const RATE = .005, DUP_GEM = 10, KEY = 'robin_city', ITEM = 'skin_robin_city';
   SKINS.nami_witch = { char: 'nami', name: '月下魔法師', image: img('nami_skin2'), avatar: img('nami_skin2_face'), battleScale: .75, faceLeft: true /* v144：立繪朝左，戰鬥中鏡像（使用者指定） */, monthCard: '2026-10', how: '2026 年 10 月月費限定（購買月費即可獲得）' };
   delete SKINS.robin_s2;
-  SKINS[KEY] = { char: 'robin', name: '城市女郎', image: img('robin_skin3'), avatar: img('robin_skin3_face'), battleScale: .8, gacha: true, how: `一般懸賞召喚獲得（機率 ${RATE * 100}%）` };
-  ITEMS[ITEM] = { name: '皮膚「城市女郎」', rarity: 'SSR', noPool: true, skin: KEY, img: SKINS[KEY].avatar, icon: 'gem', color: '#ff7ab0', effect: {},
-    desc: `妮可·羅賓的皮膚，抽到馬上可以在角色背包換上。重複抽到時自動換成覺醒結晶 ×${DUP_GEM}。` };
-
+  /* v185：使用者 11/09 刪除羅賓的皮膚「城市女郎」——不再加入 SKINS／ITEMS，也不再包裝抽獎（下面的包裝都改成不動作）。已擁有的存檔由 roster_v185.js 補償。 */
+  return;
   /* SSR 道具實際的絕對機率（照 app.js rollOne 的累加方式：船員、N、R、SR 之後剩下的才是 SSR）→ 皮膚佔其中多少比例，讓皮膚實際機率＝RATE */
   const ssrAbs = () => { const before = GAME_SETTINGS.charRate + RARITY.N.rate + RARITY.R.rate + RARITY.SR.rate; return Math.max(1e-6, Math.min(RARITY.SSR.rate, 1 - before)); };
   window.addEventListener('DOMContentLoaded', () => {

@@ -54,6 +54,7 @@
 - `js/content_v180.js`: F:角色介紹修正（CHARACTERS[id].desc）、BOUNTY_POOL／BOUNTY_PREMIUM 新任務（grows、pvp、sweeps、rhythm、digs）
 - `js/stages_v181.js`＋`css/stages_v181.css`: F:活動關卡 #stageScreen（openStages('fest'|'realm')）、大廳右側入口 #v181Rail、限時祭典 FESTS（檔期、三難度、祭典商店 goods／buy）、每日秘境 REALMS（每天 3 次、掃蕩）、存檔 SAVE.data.stg、window.STAGES
 - `css/sys_v183.css`: F:懸賞單精簡卡片（#bountyList .bounty.v183、.bt-head／#bountyAll）、道具商店（.shop-v183、.sh-cats、.sh-grid、#shopSheet 購買面板）、成就 .ach-head 全部領取。邏輯在 js/hub.js（renderBounty、claimBounty、bountyGo、BOUNTY_GO、renderShop、shopGoods、SHOP_CATS）與 js/achieve.js
+- `js/roster_v185.js`: F:新角色 reiju（SR）、robin_wano（SSR）（技能、CHAR_RARITY、CHAR_OBTAIN、蛋糕島／和之國 NPC）、薇薇皮膚 vivi_water 換圖、刪除 robin_city 的存檔補償、CHAR_FACE 補值
 - `css/align_v168.css`: 全畫面對齊修正（text-box 裁切置中、同列等高、省略號）；最後載入的 css。量測工具在 /root/promo/v168/align/
 - `js/rocks_v166.js`＋`css/rocks_v166.css`: F:洛克斯新立繪（battleScale .85）、舊立繪皮膚 rocks_classic（擁有洛克斯自動獲得）、原造型戰鬥中的閃電環繞 .rocks-aura（包住 applyVisual）
 - `js/ext_v165.js`＋`js/balance_v165.js`＋`js/fx_v165.js`＋`css/v165.css`: F:伊姆三型態（__imu.form 0/1/2、晉升、各種契約／領域／抹除狀態）與洛基、尼卡、洛克斯、黑鬍子的通用克制效果；IMU165.preAct/postAct 給 battle.js 與 tests/*-sim 共用 | A:assets/chars/imu_form1、imu_form2 | T:tests/imu-sim.js
