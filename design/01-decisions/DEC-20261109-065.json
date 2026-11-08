@@ -1,0 +1,10 @@
+{
+  "id": "DEC-20261109-065",
+  "title": "v184：鏡頭拉遠的站位改用像素 translate",
+  "status": "accepted",
+  "date": "2026-11-09",
+  "decision": "iPhone 上 CSS 變數＋calc 的 translate 沒有生效導致站位重疊；改由 js/cam_v173.js 計算像素值寫入 inline style.translate。",
+  "assumptions": [
+    "無法在 iPhone 實機測試，以停用 CSS 規則模擬 Safari 不套用的情況驗證"
+  ]
+}

@@ -37,13 +37,20 @@
   /* v173b：iPhone 在放大很多倍的立繪上套用發光濾鏡（drop-shadow、亮度閃爍）會用掉大量記憶體導致閃退（伊姆晉升第三型態 5.5 倍時發生），
      立繪放大超過 2.4 倍的一方加上 .xl，不套用任何濾鏡（css/cam_v173.css）。 */
   function xl() { ['L', 'R'].forEach(s => { const F = $('bF' + s); if (!F) return; const sc = parseFloat(getComputedStyle(F).getPropertyValue('--sc')) || 1; F.classList.toggle('xl', sc > 2.4); }); }
+  /* v184：iPhone（Safari）上 CSS 的 translate: calc(var(--spread) * 38% + var(--fitX)) 沒有套用，鏡頭拉遠後雙方都縮到畫面中間、大的一方蓋住對手
+     （使用者 11/09 回報：尼德霍格・洛基對布洛基，布洛基被龍完全擋住）。改成在這裡算出像素值，直接寫到角色的 style.translate（不用 var／calc／百分比），
+     Chrome 與 Safari 結果一致。 */
+  function tr(fx) { const A = $('bArena'); const sp = A ? (parseFloat(A.style.getPropertyValue('--spread')) || 0) : 0;
+    ['L', 'R'].forEach(s => { const F = $('bF' + s); if (!F) return; const v = (s === 'L' ? -1 : 1) * sp * .38 * F.offsetWidth + ((fx && fx[s]) || 0);
+      F.style.translate = Math.abs(v) < .5 ? '' : v.toFixed(1) + 'px 0px'; }); }
+  window.__camTr = tr;
   function fit() {
     xl();
     if (busy || typeof battle === 'undefined' || !battle) return;
     const A = $('bArena'); if (!A) return;
     const cam0 = parseFloat(A.style.getPropertyValue('--cam')) || 1;
-    ['L', 'R'].forEach(s => { const F = $('bF' + s); if (F) F.style.removeProperty('--fitX'); });
-    if (cam0 >= 1) return;
+    const prev = {}; ['L', 'R'].forEach(s => { const F = $('bF' + s); if (F) { prev[s] = parseFloat(F.style.getPropertyValue('--fitX')) || 0; F.style.removeProperty('--fitX'); } });
+    if (cam0 >= 1) { tr(null); return; }
     busy = true;
     try {
       const scr = ($('battleScreen') || document.body).getBoundingClientRect(), top = $('battleScreen') && $('battleScreen').querySelector('.b-top'), sk = $('bSkills'), panel = sk ? (sk.closest('.b-cmd') || sk).getBoundingClientRect() : null;
@@ -52,7 +59,7 @@
       const els = [A, $('bFL'), $('bFR'), $('bImgL'), $('bImgR')].filter(Boolean), tr0 = els.map(e => e.style.transition);
       els.forEach(e => { e.style.transition = 'none'; });
       const apply = c => { const oy = parseFloat((A.style.transformOrigin || '').split(' ')[1]) || A.offsetHeight, vis = panel ? panel.top - (scr.top + A.offsetTop) : A.offsetHeight;
-        A.style.setProperty('--cam', c.toFixed(3)); A.style.setProperty('--camY', Math.max(0, Math.min(vis - oy, (1 - c) * 90)).toFixed(0) + 'px'); A.style.setProperty('--spread', Math.min(1, (1 - c) / .5).toFixed(3)); void A.offsetWidth; };
+        A.style.setProperty('--cam', c.toFixed(3)); A.style.setProperty('--camY', Math.max(0, Math.min(vis - oy, (1 - c) * 90)).toFixed(0) + 'px'); A.style.setProperty('--spread', Math.min(1, (1 - c) / .5).toFixed(3)); tr(null); void A.offsetWidth; };
       /* 在鏡頭 c 下計算：上下是否放得下；左右用 --fitX 把雙方往外側推開（立繪面向對方，外側的尾巴／翅膀可以出畫面，最多 45%），推不開才再拉遠 */
       const plan = c => { apply(c); const L = content('L'), R = content('R'); if (!L || !R || L.wait || R.wait) return null;
         const t = Math.min(L.t, R.t), vn = t < T ? 1 + (T - t) / Math.max(1, Math.max(L.b, R.b) - t) : 1;
@@ -71,11 +78,12 @@
       let c = cam0, P = null;
       for (let it = 0; it < 10; it++) { P = plan(c); if (window.__camDebug) console.log('cam it', c.toFixed(3), JSON.stringify(P), JSON.stringify(content('L')), JSON.stringify(content('R'))); if (!P || P.need <= 1.001 || c <= .16) break; c = Math.max(.16, c / Math.min(P.need * 1.02, 1.5)); }
       if (P && c <= .16) P = plan(c);
-      const fx = P ? { L: P.sL / c, R: P.sR / c } : {};
+      /* 量不到（圖片還在載入）時保留上一次的推開量，不要讓雙方先縮回中間重疊；圖片載入後會再取景一次 */
+      const fx = P ? { L: P.sL / c, R: P.sR / c } : prev;
       /* 還原成舊值再開啟動畫，最後設成新值，讓鏡頭平順移動 */
-      A.style.setProperty('--cam', old.v[0]); A.style.setProperty('--camY', old.v[1]); A.style.setProperty('--spread', old.v[2]); void A.offsetWidth;
+      A.style.setProperty('--cam', old.v[0]); A.style.setProperty('--camY', old.v[1]); A.style.setProperty('--spread', old.v[2]); tr(prev); void A.offsetWidth;
       els.forEach((e, i) => { e.style.transition = tr0[i]; });
-      apply(c); ['L', 'R'].forEach(s => { const F = $('bF' + s); if (F && Math.abs(fx[s] || 0) >= 1) F.style.setProperty('--fitX', fx[s].toFixed(0) + 'px'); });
+      apply(c); ['L', 'R'].forEach(s => { const F = $('bF' + s); if (F && Math.abs(fx[s] || 0) >= 1) F.style.setProperty('--fitX', fx[s].toFixed(0) + 'px'); }); tr(fx);
       xl();
       if (window.__camDebug) console.log('cam', cam0, '→', c, fx);
     } catch (e) { console.warn('自動取景', e); }
