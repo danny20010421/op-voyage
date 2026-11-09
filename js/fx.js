@@ -29,13 +29,13 @@ const FXE = (() => {
     if (cv.width !== Math.round(SW * dpr) || cv.height !== Math.round(SH * dpr)) { cv.width = Math.round(SW * dpr); cv.height = Math.round(SH * dpr); }
   }
   const screenSpace = c => c.setTransform(dpr, 0, 0, dpr, 0, 0);
-  function add(e) { ensure(); e.t = 0; e.life = e.life || .6; list.push(e); if (!raf) { last = performance.now(); raf = requestAnimationFrame(loop); } return e; }
+  function add(e) { ensure(); e.t = 0; e.life = e.life || .6; list.push(e); if (!raf) { last = performance.now(); if (cv.style.visibility) cv.style.visibility = ''; raf = requestAnimationFrame(loop); } return e; } /* v194：沒有特效時畫布設成 visibility:hidden（少一層全螢幕合成），有特效才顯示 */
   function loop(now) {
     const dt = Math.min(.05, (now - last) / 1000) * (window.BSPEED || 1); last = now;
     sync(); if (cv.width !== Math.round(SW * dpr) || cv.height !== Math.round(SH * dpr)) { cv.width = Math.round(SW * dpr); cv.height = Math.round(SH * dpr); }
     screenSpace(cx); cx.clearRect(0, 0, SW, SH);
     list = list.filter(e => { e.t += dt; const k = Math.min(1, e.t / e.life); cx.save(); cx.setTransform(dpr * S, 0, 0, dpr * S, dpr * OX, dpr * OY); cx.globalCompositeOperation = e.add ? 'lighter' : 'source-over'; try { e.draw(cx, k, dt, e.t); } catch (err) { } cx.restore(); return e.t < e.life; });
-    if (list.length) raf = requestAnimationFrame(loop); else { raf = 0; screenSpace(cx); cx.clearRect(0, 0, SW, SH); }
+    if (list.length) raf = requestAnimationFrame(loop); else { raf = 0; screenSpace(cx); cx.clearRect(0, 0, SW, SH); cv.style.visibility = 'hidden'; }
   }
   function clear() { list = []; }
   const ease = { out: k => 1 - Math.pow(1 - k, 3), in: k => k * k * k, io: k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2, back: k => 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2) };

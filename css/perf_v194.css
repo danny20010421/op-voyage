@@ -1,0 +1,14 @@
+/* v194 效能與記憶體（使用者 11/10「全方面優化每一個系統，降低閃退、卡頓與效能低下」）。實測依據見 design/01-decisions/DEC-20261110-072.json。
+   ① 沒開啟的對話框、選單、載入遮罩：以前只是 opacity:0，整棵內容仍然排版、繪製並各自佔圖層（大廳實測 13 個全螢幕區塊、164 個元素，
+      裡面的毛玻璃按鈕在 Safari 每個都是獨立圖層）。改成關閉時 visibility:hidden，淡出動畫結束後才切換，開啟時立刻顯示。 */
+.modal:not(.show),.sheet:not(.show),.loading:not(.show){visibility:hidden;transition:opacity .2s,visibility 0s .2s}
+/* ② 觸控裝置：底色本來就有七成以上不透明的面板與小按鈕不再做背景模糊（backdrop-filter）。
+      大廳、戰鬥的背景一直在動，每個毛玻璃元素每一幀都要重新模糊一次，是手機發燙掉幀的常見來源；底色夠深，拿掉模糊外觀幾乎沒有差別。
+      電腦（滑鼠）維持原樣；畫質「省電」原本就全部關閉（v63.css .q-low）。 */
+@media (pointer:coarse){
+  .icon-btn,.pill,.topbar-right .btn-ghost,.w-title,.g-skip,
+  #lobby.l2 .l2g,#lobby.l2 .l2-rail,#lobby.l2 .l2-mission,#lobby.l2 .l2-team,#lobby.l2 .l2-emperor,
+  .tw-floors,.tw-panel,.th-boss,.th-pick,.th-rank,.pool-tabs,.ev-side,.ep-main,
+  #gachaScreen .g-panel,#gachaScreen .tavern .g-panel,#gachaScreen[data-tab=shop] .hub-inner,#gachaScreen[data-tab=bounty] .hub-inner,#gachaScreen[data-tab=navy] .hub-inner{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .pill{background-color:rgba(8,18,32,.7)}
+}

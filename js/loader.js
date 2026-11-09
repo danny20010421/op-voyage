@@ -27,7 +27,7 @@
       const img = new Image(); let done = false;
       const fin = ok => { if (done) return; done = true; clearTimeout(t); res(ok); };
       const t = setTimeout(() => fin(false), TIMEOUT);
-      img.onload = () => { const ok = img.naturalWidth > 0; if (ok && img.decode) img.decode().then(() => fin(true), () => fin(true)); else fin(ok); };
+      img.onload = () => fin(img.naturalWidth > 0); /* v194：不再對每張圖呼叫 decode()——進遊戲時一口氣把上百張圖全部解碼成點陣圖，記憶體瞬間多出一百多 MB，是 iPhone／LINE 內建瀏覽器載入時閃退的主因；下載完成且讀得到尺寸就算完整，實際用到時瀏覽器才解碼 */
       img.onerror = () => fin(false);
       img.src = item.url + (item.tries > 0 ? (item.url.includes('?') ? '&' : '?') + 'retry=' + item.tries : '');
     });

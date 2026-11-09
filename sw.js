@@ -18,6 +18,9 @@ self.addEventListener('fetch', e => {
   }
   e.respondWith(caches.open(CACHE).then(async k => {
     const hit = await k.match(req);
+    /* v194：帶 ?v= 版本號的檔案內容不會變（改檔一定換版本號），命中快取就直接用，不再每次開遊戲都在背景把兩百多個檔案重新下載一遍
+       （以前每次進遊戲約 280 個請求，手機上跟遊戲搶網路與 CPU）。保險：快取超過 7 天的仍會在背景更新一次。 */
+    if (hit && url.search.includes('v=')) { const d = Date.parse(hit.headers.get('date') || ''); if (d && Date.now() - d < 7 * 864e5) return hit; }
     const net = fetch(req).then(r => { if (r.ok && r.type === 'basic') { k.put(req, r.clone()); prune(k, req, url); } return r; }).catch(() => hit);
     return hit || net;
   }));

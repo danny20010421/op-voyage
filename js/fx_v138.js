@@ -18,8 +18,8 @@
     const s = cv.style, b = bloom.style; if (b.left !== s.left || b.top !== s.top || b.width !== s.width || b.height !== s.height) { b.left = s.left; b.top = s.top; b.width = s.width; b.height = s.height; b.right = b.bottom = 'auto'; }
     bctx.clearRect(0, 0, w, h); const full = window.__fxFullUntil && performance.now() < __fxFullUntil(); b.opacity = full ? '.12' : ''; bctx.drawImage(cv, 0, 0, w, h);
     const vis = typeof currentScreen === 'undefined' || currentScreen === 'battleScreen';
-    if (vis && performance.now() - idle < 2500) braf = requestAnimationFrame(bloomLoop); else bctx.clearRect(0, 0, w, h); }
-  function kick() { idle = performance.now(); if (!braf) braf = requestAnimationFrame(bloomLoop); }
+    if (vis && performance.now() - idle < 2500) braf = requestAnimationFrame(bloomLoop); else { bctx.clearRect(0, 0, w, h); bloom.style.visibility = 'hidden'; /* v194：閒置時整層隱藏（這層有模糊＋濾色混合，空著也要合成） */ } }
+  function kick() { idle = performance.now(); if (bloom && bloom.style.visibility) bloom.style.visibility = ''; if (!braf) braf = requestAnimationFrame(bloomLoop); }
 
   /* ---------- ② 命中 ---------- */
   let stopUntil = 0;

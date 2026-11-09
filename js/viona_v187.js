@@ -155,7 +155,7 @@
       } catch (e) { console.warn('維歐娜回合', e); }
       return r; }; }
   if (typeof statusChips === 'function') { const _sc = statusChips; statusChips = function (c) { const h = _sc.apply(this, arguments); return isV(c) && c.__vio ? chips(c) + h : h; }; }
-  if (typeof startBattle === 'function') { const _sb = startBattle; startBattle = function () { const r = _sb.apply(this, arguments); try { const b = B(); if (b) [b.enemy, ...(b.team || [])].forEach(f => { if (isV(f)) f.__vio = null; }); } catch (e) { } return r; }; }
+  if (typeof startBattle === 'function') { const _sb = startBattle; startBattle = function () { const r = _sb.apply(this, arguments); try { const b = B(); if (b) [b.enemy, ...(b.team || [])].forEach(f => { if (isV(f)) { f.__vio = null; warm(); } }); } catch (e) { } return r; }; }
 
   /* ---------- 特效：紫紅色系漸層 ---------- */
   const X = () => FXE.P, sl = ms => (typeof sleep === 'function' ? sleep(ms) : new Promise(res => setTimeout(res, ms)));
@@ -182,6 +182,8 @@
       if (a <= 0 || w <= 1) return; c.globalAlpha = Math.min(1, a); c.translate(v(o.x), v(o.y)); c.rotate(v(o.r || 0)); if (o.fx) c.scale(-1, 1); if (o.sy != null) c.scale(1, v(o.sy));
       c.drawImage(img, -w * (o.ax == null ? .5 : o.ax), -h * (o.ay == null ? .5 : o.ay), w, h); } }); }
   const wait = ms => sl(ms / (window.BSPEED || 1));
+  /* v194：維歐娜上場時先把五張特效素材解碼好（實測第一次放「萬王俯首」時，翅膀圖在出招當下才解碼，卡了約 0.3 秒） */
+  let warmed = false; function warm() { if (warmed) return; warmed = true; Object.values(IMG).forEach(i => { try { if (i.decode) i.decode().catch(() => { }); } catch (e) { } }); }
   /* fw：用特效畫布的時間等待（不是牆上時鐘）。手機掉幀時畫布時間會變慢，用它排程才不會「刀還沒劈下、刀光先出來」。分頁在背景（畫布停止）時，最多等到原本時間的 3 倍再加 1 秒就放行。 */
   const fw = ms => typeof FXE === 'undefined' ? wait(ms) : new Promise(res => { let done = false; const ok = () => { if (!done) { done = true; res(); } };
     const e = FXE.add({ life: 99, draw(c, q, dt, t) { if (t * 1000 >= ms) { e.t = 99; ok(); } } }); setTimeout(ok, ms * 3 / (window.BSPEED || 1) + 1000); });

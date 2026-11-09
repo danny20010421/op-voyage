@@ -67,6 +67,7 @@
 - `js/roster_v164.js`＋`js/ext_v164.js`: F:賈巴、雷利、巴托洛米奧（eventOnly）、三款皮膚、限定池 roger_hands／barto_fan、巨人篇 NPC gaban_n；ext_v164 的 bartoBarrier（絕對防禦期間還原對手造成的一切變化）、皮膚 bonus 在 buildFighter 套用
 - `js/balance_v164.js`: F:娜美、羅賓→SR，亞爾麗塔→R，近海之王→RR 與 statScale
 - `js/codex_order_v164.js`＋`css/codex_v164.css`: F:圖鑑全角色順序表（id|名字|篇章），載入後重給 no、重排 CHARACTER_ORDER、每 30 號留 5 格、最後 imu/rocks/joyboy；未實裝名字卡 | S:no 只用於顯示，存檔用 id
+- `js/perf_v194.js`＋`css/perf_v194.css`: F:跨系統的效能與記憶體處理——離開島嶼時釋放 3D 後製緩衝（包住 showScreen）、分頁進背景時清特效；CSS：關閉的 .modal／.sheet／.loading 用 visibility:hidden、觸控裝置不做背景模糊 | S:新的全螢幕遮罩若用「opacity:0＋pointer-events:none」隱藏，記得一起加 visibility:hidden（否則仍會排版、佔圖層）；戰鬥的四層特效畫布（#bCanvas、#bBloom、#bPGL、#bVFX）閒置時是 visibility:hidden，新增畫特效的入口要走 FXE.add／kick／wake 才會顯示；量測工具在 /root/promo/v194（perf.py、mem.py、layers.py、sweep.py）
 - `js/compat_v164.js`＋`css/compat_v164.css`: F:儲存空間封鎖時的記憶體存檔與提示、多分頁保護（最後開的分頁才能存）、is-ios/is-inapp class；舊瀏覽器 color-mix 等後備 | S:必須在所有程式之前載入
 - 月費檔期表：js/vip_v115.js 的 MCS（10/11/12 月），pickMC() 依時間挑當月；登入廣告只在大廳（onLobbyScreen、otherDialog）
 - `chapterEnemyLv(chId, boss, info)`（js/app.js）：篇章敵人等級的唯一算法（基本→BOSS 加成→篇章 BOSS 加成→等級同步），enemyLvFor 與航路卡、電話蟲提示都用它

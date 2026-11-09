@@ -190,7 +190,7 @@ class R3 {
     this.sky.renderOrder = -1; S.add(this.sky);
     /* 後製 */
     this.pro = !this.low;   /* v145：高畫質才開啟新後製；省電維持原本畫面 */
-    const rt = new THREE.WebGLRenderTarget(2, 2, { type: THREE.HalfFloatType, samples: this.low ? 0 : 4 }); if (this.pro) rt.depthTexture = new THREE.DepthTexture(2, 2, THREE.UnsignedIntType);
+    const rt = new THREE.WebGLRenderTarget(2, 2, { type: THREE.HalfFloatType, samples: this.low ? 0 : (matchMedia('(pointer:coarse)').matches || Math.min(screen.width, screen.height) < 700) ? 2 : 4 }); /* v194：手機、平板的多重取樣 4 → 2（解析度已是 2 倍，肉眼幾乎看不出差別；這組緩衝的記憶體少一半） */ if (this.pro) rt.depthTexture = new THREE.DepthTexture(2, 2, THREE.UnsignedIntType);
     this.composer = new EffectComposer(rd, rt); this.composer.addPass(new RenderPass(S, this.camera));
     if (this.pro) { const PU = this.PU = { tDiffuse: { value: null }, tDepth: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uSunUV: { value: new THREE.Vector2() }, uNear: { value: .4 }, uFar: { value: 1600 }, uTime: U.uTime, uSunVis: { value: 0 }, uFocus: { value: 20 }, uAO: { value: .55 }, uRays: { value: .55 }, uDOF: { value: 1 }, uScat: { value: .3 }, uProjY: { value: 1 }, uHeat: { value: 0 },
         uSunCol: { value: new THREE.Color() }, uSunDir: { value: new THREE.Vector3() }, uFogCol: { value: new THREE.Color() }, uCamPos: { value: new THREE.Vector3() }, uProjInv: { value: new THREE.Matrix4() }, uCamRot: { value: new THREE.Matrix3() } };

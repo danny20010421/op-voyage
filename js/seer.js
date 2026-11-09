@@ -36,9 +36,10 @@
   function placeBubbles() {
     const W = getW(), el = $('actBubbles');
     if (el && W && W.running && bubOpts.length) { const s = W.r.project(W.p.x, W.p.y + 3.2, W.p.z); if (s) { const maxX = innerWidth - el.offsetWidth - (innerWidth < 860 ? 84 : 16); el.style.transform = `translate(${Math.round(Math.max(8, Math.min(s.x + 46, maxX)))}px,${Math.round(s.y - 60)}px)`; } }
-    requestAnimationFrame(placeBubbles);
+    bubRaf = (W && W.running && typeof currentScreen !== 'undefined' && currentScreen === 'worldScreen') ? requestAnimationFrame(placeBubbles) : 0; /* v194：離開島嶼就停，scanBubbles 回到島上時再啟動（以前在大廳、戰鬥也每幀跑） */
   }
-  setInterval(scanBubbles, 220); requestAnimationFrame(placeBubbles);
+  let bubRaf = 0; const bubWake = () => { if (!bubRaf) bubRaf = requestAnimationFrame(placeBubbles); };
+  setInterval(() => { scanBubbles(); if (typeof currentScreen !== 'undefined' && currentScreen === 'worldScreen') bubWake(); }, 220);
 
   /* ---------- NPC 半身立繪：用離屏渲染器把 3D 模型拍成大頭照 ---------- */
   const PORTRAIT = {}; let pr = null, pc = null;

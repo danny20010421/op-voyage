@@ -217,6 +217,7 @@
     PS.list = live;
     [[ADD, na], [NRM, nn]].forEach(([L, c]) => { L.g.instanceCount = Math.min(c, MAXP); L.A.needsUpdate = L.B.needsUpdate = L.C.needsUpdate = true; });
     prd.render(pS, pCam);
+    { const hv = PS.list.length ? '' : 'hidden'; if (pc.style.visibility !== hv) pc.style.visibility = hv; } /* v194：沒有粒子時隱藏粒子層 */
     const busy = PS.list.length || (BS.punch || 0) > .001 || Math.abs(BS.zoom - BS.zT) > .002 || BS.rad > .01 || BS.tK > .01 || BS.haze > .01 || BU.uW.value.some(w => w.w > 0 && BU.uTime.value - w.z < .9) || foc !== BS.foc;
     BS.foc = foc; if (busy) raf = requestAnimationFrame(loop);
   }

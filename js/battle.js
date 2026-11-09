@@ -354,7 +354,10 @@ function finishBattle(win, fled) {
 function log(t, who) {
   const li = document.createElement('li'); li.textContent = t; if (who) li.className = who;
   const list = $('bLogList'); list.prepend(li); while (list.children.length > 40) list.lastChild.remove();
-  const tk = $('bTicker'); tk.textContent = t; tk.classList.remove('pop'); void tk.offsetWidth; tk.classList.add('pop');
+  const tk = $('bTicker'); tk.textContent = t;
+  /* v194：連續好幾行紀錄時，動畫還在播就直接從頭重播（不用強制重新排版）；動畫已播完才用原本的方式重新觸發 */
+  if (tk.classList.contains('pop') && tk.getAnimations) { const as = tk.getAnimations(); if (as.length) { as.forEach(a => { try { a.currentTime = 0; a.play(); } catch (e) { } }); return; } }
+  tk.classList.remove('pop'); void tk.offsetWidth; tk.classList.add('pop');
 }
 function wait(ms) { return new Promise(r => setTimeout(r, ms / (window.BSPEED || 1))); }
 function showFx(text) { floatText(null, text, 'status'); }

@@ -45,7 +45,7 @@
     return loading;
   }
   function init() {
-    cv = document.createElement('canvas'); cv.id = 'bVFX'; cv.className = 'b-canvas b-pgl b-vfx'; cv.setAttribute('aria-hidden', 'true');
+    cv = document.createElement('canvas'); cv.id = 'bVFX'; cv.className = 'b-canvas b-pgl b-vfx'; cv.setAttribute('aria-hidden', 'true'); cv.style.visibility = 'hidden'; /* v194：有特效（wake）才顯示 */
     const ref = $('bPGL') || $('bBloom') || $('bCanvas'); ref.insertAdjacentElement('afterend', cv);
     rd = new T.WebGLRenderer({ canvas: cv, antialias: !MOB, alpha: true, premultipliedAlpha: true }); rd.setClearColor(0x000000, 0);
     rd.outputColorSpace = T.SRGBColorSpace; rd.toneMapping = T.NoToneMapping;
@@ -78,7 +78,7 @@
     sc.add(gr); live.push({ fx, t: 0, stopAt: life || 0, stopped: false });
     wake();
   }
-  function wake() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(loop); } }
+  function wake() { if (!raf) { last = performance.now(); if (cv && cv.style.visibility) cv.style.visibility = ''; raf = requestAnimationFrame(loop); } }
   function loop(now) {
     raf = 0; const dt = Math.min(.05, (now - last) / 1000) * (window.BSPEED || 1); last = now;
     const scr = $('battleScreen'); if (!scr || !rd) return;
@@ -87,7 +87,7 @@
     for (let i = live.length - 1; i >= 0; i--) { const o = live[i]; o.t += dt; try { if (o.stopAt && !o.stopped && o.t > o.stopAt) { o.stopped = true; o.fx.stop(); } o.fx.update(dt); } catch (e) { o.dead = true; }
       if (o.dead || o.fx.finished || o.t > 8) { try { sc.remove(o.fx.group); o.fx.dispose(); } catch (e) { } live.splice(i, 1); } }
     rd.render(sc, cam);
-    if (live.length) raf = requestAnimationFrame(loop); else rd.clear();
+    if (live.length) raf = requestAnimationFrame(loop); else { rd.clear(); cv.style.visibility = 'hidden'; } /* v194：閒置時隱藏 */
   }
   const themeOf = cur => cur.theme || 'fist';
   const colorOf = (actor, th) => { try { const C = typeof CHAR_FX !== 'undefined' && actor && CHAR_FX[actor.id]; const P = (C && C[2]) || (FX3D.pal ? FX3D.pal(th) : null); return P ? P[2] : null; } catch (e) { return null; } };

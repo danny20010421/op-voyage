@@ -11,7 +11,7 @@
 
   CHARACTERS.reiju = { id: 'reiju', name: '文斯莫克·蕾玖', title: '毒粉紅', types: ['闇'], scale: 1, worldScale: 1, battleScale: .65, ai: 'control',
     image: img('reiju'), avatar: img('reiju_face'), ultimateBg: img('reiju'), cardPos: '50% 12%', cardFocus: '50% 15%',
-    maxHp: 1400, baseSpeed: 118, statScale: 1.0, role: '控制型',
+    maxHp: 1400, baseSpeed: 118, statScale: 1.07 /* v194：1.0 → 1.07。tests/tier-sim.js 對全部 SR 各打 60 場：調整前平均勝率 36.9%（低於同稀有度 44～58% 的範圍），調整後 49.4% */, role: '控制型',
     desc: '傑爾馬王國文斯莫克家的長女、香吉士的姊姊，「傑爾馬 66」的「毒粉紅」。身體經過改造，能吸收毒素、用毒攻擊，也能吸走別人身上的毒。在萬國暗中幫助了香吉士與草帽一夥。【定位】控制型：中毒持續傷害、麻痺與降攻，搭配吸毒自我回復。',
     skills: [
       S('毒粉紅', 'attack', 12, 60, '帶毒的踢擊連續攻擊 2 次；60% 機率使對手中毒 3 回合（每回合扣最大體力 5%）。', [['連擊', 'red'], ['中毒', 'red']], 'dash',
@@ -28,7 +28,7 @@
 
   CHARACTERS.robin_wano = { id: 'robin_wano', name: '妮可·羅賓（和之國）', title: '惡魔之子・鬼島之戰', types: ['自然'], scale: 1, worldScale: 1, battleScale: .65, ai: 'control',
     image: img('robin_wano'), avatar: img('robin_wano_face'), ultimateBg: img('robin_wano'), cardPos: '50% 8%', cardFocus: '50% 10%',
-    maxHp: 1500, baseSpeed: 116, statScale: 1.05, role: '控制型',
+    maxHp: 1500, baseSpeed: 116, statScale: 1.3 /* v194：1.05 → 1.3。tests/tier-sim.js 對全部 SSR 各打 60 場：調整前平均勝率 16.0%，1.28＝46.7%、1.31＝52.0% */, role: '控制型',
     desc: '潛入和之國時化名「阿羅賓」的羅賓。在鬼島上與百獸海賊團「飛六胞」的黑瑪利亞對決，第一次展現了「惡魔開花」的姿態。【定位】控制型：用無數的手鎖住對手——麻痺、暈眩、降防，奧義以大噴泉緊鎖一口氣扭斷對手。',
     skills: [
       S('六輪開花·緊鎖', 'attack', 12, 70, '在對手身上開出手臂反折關節：50% 機率使對手麻痺 1 回合，對手速度 -1（2 回合）。', [['麻痺', 'gold'], ['降速', 'blue']], 'limbs',
