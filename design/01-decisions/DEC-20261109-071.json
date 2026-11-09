@@ -3,6 +3,6 @@
   "title": "v193b：燼的戰鬥立繪 1.8",
   "status": "accepted",
   "date": "2026-11-09",
-  "decision": "依使用者指示把燼（king）的 battleScale 從 1.1 改為 1.8；皮膚「萬聖之燼」維持 1.1。",
+  "decision": "依使用者指示把燼（king）的 battleScale 從 1.1 改為 1.8；v193c 使用者 20:27 要求皮膚「萬聖之燼」也一起改為 1.8。",
   "assumptions": ["「立繪尺寸」指戰鬥立繪 battleScale（與維歐娜 0.65、0.95 同一個設定）"]
 }
