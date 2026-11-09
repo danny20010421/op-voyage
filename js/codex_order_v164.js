@@ -48,7 +48,7 @@
     ['b', '巨人篇', 'loki|洛基|b dorry|多利|b brogy|布洛基|b gunko|曼麥亞・軍子宮|b shamrock|費加蘭德・夏姆洛克聖|b gaban|賈巴|b harald|哈拉魯德|b jarul|雅爾|b hajrudin|漢裘爾頓|b ' +
       'oimo|歐依莫|b kashii|卡西|b saul|哈古瓦爾·D·薩龍|b garling|菲加蘭德·加林聖|b sommers|索馬茲聖|b killingham|基林漢聖|b']
   ];
-  const LAST = 'imu|伊姆|x rocks|洛克斯·D·吉貝克|x joyboy|喬伊波伊|x'; /* 使用者指定：伊姆、洛克斯、喬伊波伊依序放在最末三位 */
+  const LAST = 'viona|賽博亞齊·維歐娜|x imu|伊姆|x rocks|洛克斯·D·吉貝克|x joyboy|喬伊波伊|x'; /* 使用者指定：伊姆、洛克斯、喬伊波伊依序放在最末三位 */
   const PERIOD = 30, GAP = 5; /* 每 30 個編號之後預留 5 個「？？？？」 */
   const parse = (s, g) => s.trim().split(/\s+/).map(t => { const [id, name, arc] = t.split('|'); return { id, name, arc, g }; });
   const playable = id => typeof CHARACTERS !== 'undefined' && CHARACTERS[id] && !CHARACTERS[id].npcOnly;

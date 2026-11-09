@@ -9,7 +9,7 @@
   const V = 185, img = n => `assets/chars/${n}.webp?v=${V}`;
   const S = (name, type, pp, power, desc, tags, anima, effect, ult) => Object.assign({ name, type, pp, maxPP: pp, power, accuracy: 100, desc, tags, anima, effect: effect || {} }, ult ? { ultimate: true } : {});
 
-  CHARACTERS.reiju = { id: 'reiju', name: '文斯莫克·蕾玖', title: '毒粉紅', types: ['闇'], scale: .95, worldScale: 1, battleScale: .65, ai: 'control',
+  CHARACTERS.reiju = { id: 'reiju', name: '文斯莫克·蕾玖', title: '毒粉紅', types: ['闇'], scale: 1, worldScale: 1, battleScale: .65, ai: 'control',
     image: img('reiju'), avatar: img('reiju_face'), ultimateBg: img('reiju'), cardPos: '50% 12%', cardFocus: '50% 15%',
     maxHp: 1400, baseSpeed: 118, statScale: 1.0, role: '控制型',
     desc: '傑爾馬王國文斯莫克家的長女、香吉士的姊姊，「傑爾馬 66」的「毒粉紅」。身體經過改造，能吸收毒素、用毒攻擊，也能吸走別人身上的毒。在萬國暗中幫助了香吉士與草帽一夥。【定位】控制型：中毒持續傷害、麻痺與降攻，搭配吸毒自我回復。',
@@ -26,7 +26,7 @@
         { randomMultiplierRange: [2, 4], dotChance: 1, dotTurns: 3, dotRatio: .08, dotLabel: '中毒', enemyAllDown: 1, skipAttackChance: .6, skipAttackTurns: 1, ccKind: 'paralyze', noRestore: true }, true)
     ] };
 
-  CHARACTERS.robin_wano = { id: 'robin_wano', name: '妮可·羅賓（和之國）', title: '惡魔之子・鬼島之戰', types: ['自然'], scale: .95, worldScale: 1, battleScale: .65, ai: 'control',
+  CHARACTERS.robin_wano = { id: 'robin_wano', name: '妮可·羅賓（和之國）', title: '惡魔之子・鬼島之戰', types: ['自然'], scale: 1, worldScale: 1, battleScale: .65, ai: 'control',
     image: img('robin_wano'), avatar: img('robin_wano_face'), ultimateBg: img('robin_wano'), cardPos: '50% 8%', cardFocus: '50% 10%',
     maxHp: 1500, baseSpeed: 116, statScale: 1.05, role: '控制型',
     desc: '潛入和之國時化名「阿羅賓」的羅賓。在鬼島上與百獸海賊團「飛六胞」的黑瑪利亞對決，第一次展現了「惡魔開花」的姿態。【定位】控制型：用無數的手鎖住對手——麻痺、暈眩、降防，奧義以大噴泉緊鎖一口氣扭斷對手。',
