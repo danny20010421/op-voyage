@@ -111,7 +111,8 @@
     const L = lvStats(c, lv);
     /* v189：角色被動（c.passive，格式「【被動・名稱】說明」）獨立成一張卡，不寫在角色介紹裡 */
     const pv = c.passive ? (() => { const m = /^【被動[・·]?([^】]*)】/.exec(c.passive); return `<li class="sk passive"><div class="sk-top"><span class="sk-no">◆</span><b>${m && m[1] ? m[1] : '被動'}</b><em class="sk-type passive">被動</em></div><p>${m ? c.passive.slice(m[0].length) : c.passive}</p></li>`; })() : '';
-    return `<ol class="cx-skills">${pv}${c.skills.map((s, i) => { const need = SKILL_UNLOCK[i] || 1, ok = own && lv >= need, pp = skillPP(s, lv, L.ppAdj);
+    const sw = c.sigWeapon && window.sigWeaponCard ? sigWeaponCard(c) : ''; /* v192 角色專屬武器卡 */
+    return `<ol class="cx-skills">${pv}${sw}${c.skills.map((s, i) => { const need = SKILL_UNLOCK[i] || 1, ok = own && lv >= need, pp = skillPP(s, lv, L.ppAdj);
       return `<li class="sk ${ok ? '' : 'lock'} ${s.ultimate ? 'ult' : ''}"><div class="sk-top"><span class="sk-no">${i + 1}</span><b>${s.name}</b><em class="sk-type ${s.type}">${s.ultimate ? '奧義' : s.type === 'attack' ? '攻擊' : '輔助'}</em></div>
         <div class="sk-meta"><span>威力 <b>${s.power || '—'}</b></span><span>命中 <b>${s.accuracy}</b></span><span>次數 <b>${own ? pp : s.maxPP}/${s.maxPP}</b></span></div>
         <p>${s.desc}</p>${(s.tags || []).length ? `<div class="sk-tags">${s.tags.map(([t, cl]) => `<span class="tag ${cl}">${t}</span>`).join('')}</div>` : ''}

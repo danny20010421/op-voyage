@@ -1,7 +1,7 @@
 /* v187 原創角色「賽博亞齊·維歐娜」（使用者 11/09 14:00）
    UR・初代女帝・攻擊控制型，只能從限定抽獎池「初代女帝」抽取（集滿碎片合成）。
    人人果實·幻獸種·維納斯型態，手持無上大快刀「神妃」，亞馬遜百合·九蛇島初代女帝，空白一百年中少數被記錄下來的傳說人物。
-   立繪：原始 0.65（viona）；第 4 招「維納斯降臨」2 回合變成維納斯型態 0.85（viona_venus）；限定皮膚「無名女郎」0.55（viona_bunny，暫時無法獲得）。
+   立繪：原始 0.65（viona）；第 4 招「維納斯降臨」2 回合變成維納斯型態 0.95（viona_venus）；限定皮膚「無名女郎」0.55（viona_bunny，暫時無法獲得）。
 
    被動「女神之印」（存在維歐娜身上，最多 3 層）：
      ・每施放一招 +1 層（第 1～3 招說明裡的「附加一層」就是這一層，不會重複疊）。
@@ -14,7 +14,7 @@
    特效：紫紅色系漸層（VFX 表）。 */
 (function () {
   if (typeof CHARACTERS === 'undefined') return;
-  const V = 191, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
+  const V = 192, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
   const B = () => (typeof battle !== 'undefined' && battle) || null;
   const L = m => { try { log(m); } catch (e) { } };
   const R = (a, b) => a + Math.random() * (b - a), pct = x => Math.round(x * 100);
@@ -22,7 +22,7 @@
   const sideOf = f => { const b = B(); return b && f === b.enemy ? 'R' : 'L'; };
   const say = (f, t) => { try { if (onScreen(f)) floatText(sideOf(f), t, 'status'); } catch (e) { } };
   const isBossT = t => { const b = B(); return !!(t && (t.voidImmune || (b && b.isBoss && t === b.enemy))); };
-  const SZ0 = .65, SZV = .85; /* v191 使用者 11/09 18:23：維納斯型態立繪 0.85（原本 0.7）；無名女郎 0.55 */
+  const SZ0 = .65, SZV = .95; /* v192 使用者 11/09 18:42：維納斯型態立繪 0.95；無名女郎 0.55 */
 
   /* ---------- 狀態 ---------- */
   if (typeof ABN !== 'undefined') {
@@ -159,31 +159,69 @@
 
   /* ---------- 特效：紫紅色系漸層 ---------- */
   const X = () => FXE.P, sl = ms => (typeof sleep === 'function' ? sleep(ms) : new Promise(res => setTimeout(res, ms)));
-  /* v188 使用者 11/09：不要花瓣，以蛇、斬擊、羽翼、光柱與爆炸為主，紫紅色漸層 */
+  /* v192 使用者 11/09 18:42：用使用者提供的素材（翅膀、白蛇、能量球、神妃、光暈螺旋）重做五招動畫。
+     畫在戰場畫布（FXE）上：素材圖片 drawImage＋位移／旋轉／縮放／透明度曲線，搭配既有的爆炸、斬擊、光環。能量球是黑底圖，用加亮混合（lighter）去掉黑底。
+     圖片尺寸都在 1000px 以下，畫布繪製不會產生大型圖層（iPhone 安全）。 */
   const PK = ['#ff4fd8', '#e04cff', '#a63cff', '#ffd1f5', '#ffffff'];
-  const SNAKE = { body: '#efe2f4', belly: '#ffd1f5', eye: '#ff2a6a', w: 52, len: 480 };
+  const IMG = {}; ['wings', 'snake', 'orb', 'sword', 'aura'].forEach(k => { const i = new Image(); i.decoding = 'async'; i.src = `assets/fx/viona/${k}.webp?v=192`; IMG[k] = i; });
+  const ready = i => i && i.complete && i.naturalWidth > 0;
+  const PI = Math.PI, lerp = (a, b, q) => a + (b - a) * q, cl = q => Math.max(0, Math.min(1, q));
+  const eOut = q => 1 - Math.pow(1 - cl(q), 3), eIn = q => Math.pow(cl(q), 2.2), fd = (q, a, b) => q < a ? q / a : q > b ? Math.max(0, (1 - q) / (1 - b)) : 1;
+  const SWORD_ANG = Math.atan2(590, -520); /* 素材裡刀尖朝左下（約 131°） */
+  /* sp(圖, 參數)：x、y、w（寬）、s（縮放）、a（透明度）、r（旋轉）可以是數字或 (進度q, 秒t) => 值；ax/ay＝錨點；fx＝水平鏡像；add＝加亮混合 */
+  function sp(k, o) { const img = IMG[k]; if (typeof FXE === 'undefined') return;
+    return FXE.add({ add: !!o.add, life: o.life || .8, draw(c, q, dt, t) { if (!ready(img)) return; const v = f => typeof f === 'function' ? f(q, t) : f;
+      const s = v(o.s == null ? 1 : o.s), w = (o.w || 300) * s, h = w * img.naturalHeight / img.naturalWidth, a = v(o.a == null ? 1 : o.a);
+      if (a <= 0 || w <= 1) return; c.globalAlpha = Math.min(1, a); c.translate(v(o.x), v(o.y)); c.rotate(v(o.r || 0)); if (o.fx) c.scale(-1, 1);
+      c.drawImage(img, -w * (o.ax == null ? .5 : o.ax), -h * (o.ay == null ? .5 : o.ay), w, h); } }); }
+  const wait = ms => sl(ms / (window.BSPEED || 1));
   const boom = (x, y, r) => { X().burst(x, y, { r, color: '#e04cff', n: 26 }); X().ring(x, y, { r1: r * 1.8, color: '#ff4fd8', w: 10, life: .45 }); X().particles({ x, y, n: 30, spd: [200, 520], life: [.4, .8], size: [3, 8], colors: PK, shape: 'spark', add: true, g: 140 }); };
+  const orbBurst = (x, y, w) => sp('orb', { add: true, x, y, w, life: .55, s: q => .5 + 1.3 * eOut(q), a: q => 1 - q, r: (q, t) => t * 3 });
   const VFX = {
-    '垂憐': async A => { SFX.play('dark'); X().tint('#2a0530', .9, .4);
-      X().serpent(A.f.x - A.d * 160, A.f.y + 50, A.t.x + A.d * 160, A.t.y - 40, Object.assign({}, SNAKE, { life: 1 })); await sl(520);
-      SFX.play('explode'); boom(A.t.x, A.t.y, 120); await sl(140); X().rays(A.t.x, A.t.y, { r: 300, n: 14, c1: 'rgba(224,76,255,.85)' }); shake(); },
-    '神妃': async A => { moveFighter(A.S, 'dash'); SFX.play('whoosh'); await sl(200);
-      X().slash(A.t.x, A.t.y, { a: -2.4, span: 1.7, r: 230, w: 30, color: '#a63cff', life: .32 }); await sl(60); X().slash(A.t.x, A.t.y, { a: -2.4, span: 1.7, r: 230, w: 14, color: '#ffd1f5', life: .26 });
-      await sl(90); X().slash(A.t.x, A.t.y, { a: .8, span: 1.5, r: 210, w: 24, color: '#ff4fd8', life: .3 }); await sl(80);
-      SFX.play('explode'); boom(A.t.x, A.t.y, 130); X().rays(A.t.x, A.t.y, { r: 280, n: 16, c1: 'rgba(255,79,216,.85)' }); X().flash('#ffd1f5', .25, .14); shake(); },
-    '萬王俯首': async A => { SFX.play('buff'); X().tint('#24062e', 1, .45); X().wings(A.f.x, A.f.y - 40, { color: '#a63cff', life: .8 });
-      X().serpent(A.f.x + A.d * 40, A.f.y + 80, A.t.x, A.t.y + 60, Object.assign({}, SNAKE, { life: .9, w: 40, len: 380 })); await sl(420);
-      X().pillar(A.t.x, A.t.y, { w: 130, color: '#a63cff', life: .65 }); X().ring(A.f.x, A.f.y, { r1: 220, color: '#ffd1f5', w: 8, life: .5 }); await sl(160); boom(A.t.x, A.t.y + 30, 90); },
-    '維納斯降臨': async A => { SFX.play('ult'); X().tint('#2a0530', 1.6, .6); X().wings(A.f.x, A.f.y - 40, { color: '#a63cff', life: 1.3 });
-      X().serpent(A.f.x - A.d * 200, A.f.y + 80, A.f.x + A.d * 120, A.f.y - 180, Object.assign({}, SNAKE, { life: 1.2 })); await sl(420);
-      X().pillar(A.f.x, A.f.y, { w: 190, color: '#ff4fd8', life: .9 }); await sl(320);
-      X().rays(A.f.x, A.f.y - 80, { r: 360, n: 18, c1: 'rgba(255,209,245,.9)' }); boom(A.f.x, A.f.y - 40, 140); X().flash('#ffffff', .4, .22); shake(); },
-    '終焉·黃昏': async A => { moveFighter(A.S, 'leap'); SFX.play('ult'); X().tint('#120016', 1.8, .7); X().wings(A.f.x, A.f.y - 40, { color: '#e04cff', life: 1.1 });
-      X().serpent(A.f.x - A.d * 240, A.f.y + 70, A.t.x + A.d * 140, A.t.y - 70, Object.assign({}, SNAKE, { life: 1.3, w: 64, len: 560 })); await sl(420);
-      X().beam(A.f.x, A.f.y - 40, A.t.x, A.t.y, { w: 70, c1: '#ffffff', c2: '#e04cff', life: .55 }); await sl(160);
-      for (let i = 0; i < 6; i++) setTimeout(() => X().slash(A.t.x + R(-60, 60), A.t.y + R(-40, 40), { a: R(-3, 1), span: 1.6, r: 200 + i * 15, w: 20, color: PK[i % 3], life: .3 }), i * 70);
-      await sl(460); SFX.play('explode'); X().pillar(A.t.x, A.t.y, { w: 230, color: '#ff4fd8', life: .85 }); for (let i = 0; i < 3; i++) setTimeout(() => boom(A.t.x + R(-80, 80), A.t.y + R(-60, 40), 120 + i * 30), i * 120);
-      await sl(300); X().flash('#ffffff', .45, .25); shake(); }
+    /* ① 垂憐：掌心凝出能量球 → 白蛇從女帝身邊竄出咬向對手 → 能量球在對手身上炸開（全體） */
+    '垂憐': async A => { SFX.play('dark'); X().tint('#2a0530', .9, .35);
+      sp('orb', { add: true, life: 1, x: A.f.x + A.d * 70, y: A.f.y - 90, w: 220, s: q => .2 + .9 * eOut(q * 2), a: q => fd(q, .15, .7), r: (q, t) => t * 2.5 });
+      await wait(380);
+      const ang = Math.atan2(A.t.y - A.f.y, A.t.x - A.f.x);
+      sp('snake', { life: .6, w: 440, fx: A.d < 0, x: q => lerp(A.f.x - A.d * 60, A.t.x - A.d * 60, eIn(q)), y: q => lerp(A.f.y - 50, A.t.y - 40, q) - Math.sin(q * PI) * 90,
+        r: (q, t) => (A.d < 0 ? ang - PI : ang) * .5 + Math.sin(t * 18) * .08, a: q => fd(q, .12, .85) });
+      await wait(470); SFX.play('explode'); orbBurst(A.t.x, A.t.y - 20, 360); boom(A.t.x, A.t.y, 120);
+      X().rays(A.t.x, A.t.y, { r: 300, n: 14, c1: 'rgba(224,76,255,.85)' }); shake(); },
+    /* ② 神妃：無上大快刀在對手頭上現形，由上往下斜劈，刀光與爆炸 */
+    '神妃': async A => { moveFighter(A.S, 'dash'); SFX.play('whoosh');
+      const base = PI / 2 - SWORD_ANG; /* 讓刀尖朝下 */
+      sp('sword', { life: .75, w: 420, fx: A.d < 0, x: q => A.t.x - A.d * lerp(150, -40, eOut((q - .3) / .4)), y: q => A.t.y - lerp(170, 20, eOut((q - .3) / .4)),
+        r: q => (A.d < 0 ? -1 : 1) * (base + lerp(-1.4, .5, eOut((q - .3) / .45))), a: q => fd(q, .2, .8), s: q => .85 + .15 * eOut(q / .3), ax: .5, ay: .5 });
+      await wait(330); X().slash(A.t.x, A.t.y, { a: -2.4, span: 1.7, r: 230, w: 30, color: '#a63cff', life: .32 }); await wait(60);
+      X().slash(A.t.x, A.t.y, { a: -2.4, span: 1.7, r: 230, w: 14, color: '#ffd1f5', life: .26 }); await wait(120);
+      SFX.play('explode'); boom(A.t.x, A.t.y, 140); orbBurst(A.t.x, A.t.y, 300); X().rays(A.t.x, A.t.y, { r: 280, n: 16, c1: 'rgba(255,79,216,.85)' }); X().flash('#ffd1f5', .25, .14); shake(); },
+    /* ③ 萬王俯首：背後展開光翼、腳下升起紫光螺旋 → 光螺旋從天壓向對手，對手被壓得跪下 */
+    '萬王俯首': async A => { SFX.play('buff'); X().tint('#24062e', 1, .4);
+      sp('wings', { add: true, life: 1.3, x: A.f.x, y: A.f.y - 90, w: 560, s: q => .45 + .65 * eOut(q * 1.8), a: q => .85 * fd(q, .15, .7) });
+      sp('aura', { add: true, life: 1.1, x: A.f.x, y: q => A.f.y - 40 - 40 * q, w: 260, s: q => .7 + .4 * q, a: q => .9 * fd(q, .2, .65) });
+      await wait(560);
+      sp('aura', { add: true, life: .8, x: A.t.x, y: q => lerp(A.t.y - 320, A.t.y - 60, eIn(q * 1.6)), w: 300, s: q => 1 - .25 * q, a: q => fd(q, .15, .7) });
+      await wait(380); SFX.play('explode'); X().pillar(A.t.x, A.t.y, { w: 140, color: '#a63cff', life: .6 }); X().ring(A.t.x, A.t.y + 40, { r1: 260, color: '#ffd1f5', w: 10, life: .5 }); boom(A.t.x, A.t.y + 30, 90); shake(); },
+    /* ④ 維納斯降臨：光暈螺旋包住女帝、巨大雙翼展開、白蛇繞身一圈、胸前能量球爆出強光 → 化身維納斯型態 */
+    '維納斯降臨': async A => { SFX.play('ult'); X().tint('#2a0530', 1.8, .55);
+      sp('aura', { add: true, life: 1.6, x: A.f.x, y: A.f.y - 50, w: 380, s: q => .6 + .6 * eOut(q * 1.5), a: q => fd(q, .15, .75) });
+      sp('wings', { add: true, life: 1.7, x: A.f.x, y: A.f.y - 110, w: 760, s: q => .3 + .8 * eOut((q - .1) * 1.6), a: q => .9 * fd(q, .2, .75) });
+      sp('snake', { life: 1.3, w: 300, x: (q, t) => A.f.x + Math.cos(t * 5) * 150, y: (q, t) => A.f.y - 60 + Math.sin(t * 5) * 50, r: (q, t) => t * 5 + PI / 2, a: q => fd(q, .12, .8), s: q => .8 + .2 * q });
+      await wait(900); orbBurst(A.f.x, A.f.y - 70, 520); X().pillar(A.f.x, A.f.y, { w: 200, color: '#ff4fd8', life: .8 });
+      X().rays(A.f.x, A.f.y - 80, { r: 380, n: 18, c1: 'rgba(255,209,245,.9)' }); X().flash('#ffffff', .4, .22); shake(); },
+    /* ⑤ 終焉·黃昏：天色轉暗、雙翼遮天、頭頂凝聚巨大能量球 → 神妃從天而降插向對手、白蛇同時撲咬 → 能量球砸落爆炸、光柱與連續斬擊 */
+    '終焉·黃昏': async A => { moveFighter(A.S, 'leap'); SFX.play('ult'); X().tint('#120016', 2.4, .7);
+      sp('wings', { add: true, life: 2.2, x: A.f.x, y: A.f.y - 110, w: 820, s: q => .4 + .7 * eOut(q * 2), a: q => .9 * fd(q, .1, .8) });
+      sp('orb', { add: true, life: 1.1, x: A.f.x, y: A.f.y - 260, w: 300, s: q => .2 + 1.3 * eOut(q), a: q => fd(q, .1, .92), r: (q, t) => t * 4 });
+      await wait(950);
+      sp('orb', { add: true, life: .45, x: q => lerp(A.f.x, A.t.x, eIn(q)), y: q => lerp(A.f.y - 260, A.t.y - 30, eIn(q)), w: 390, r: (q, t) => t * 6 });
+      const down = PI / 2 - SWORD_ANG;
+      sp('sword', { life: 1.1, w: 460, fx: A.d < 0, x: A.t.x, y: q => lerp(A.t.y - 620, A.t.y - 140, eIn(q / .4)), r: () => (A.d < 0 ? -1 : 1) * down, a: q => fd(q, .08, .8), ax: .5, ay: .5 });
+      sp('snake', { life: .55, w: 460, fx: A.d < 0, x: q => lerp(A.f.x - A.d * 200, A.t.x - A.d * 70, eIn(q)), y: q => A.t.y + 40 - Math.sin(q * PI) * 70, a: q => fd(q, .1, .85) });
+      await wait(450); SFX.play('explode'); X().pillar(A.t.x, A.t.y, { w: 240, color: '#ff4fd8', life: .9 }); orbBurst(A.t.x, A.t.y, 620);
+      for (let i = 0; i < 4; i++) setTimeout(() => X().slash(A.t.x + R(-50, 50), A.t.y + R(-30, 30), { a: R(-3, 1), span: 1.6, r: 220 + i * 15, w: 20, color: PK[i % 3], life: .3 }), i * 70 / (window.BSPEED || 1));
+      for (let i = 0; i < 3; i++) setTimeout(() => boom(A.t.x + R(-80, 80), A.t.y + R(-60, 40), 120 + i * 30), i * 120 / (window.BSPEED || 1));
+      await wait(320); X().flash('#ffffff', .45, .25); shake(); }
   };
   if (typeof playChoreo === 'function') { const _pc = playChoreo;
     window.playChoreo = playChoreo = async function (side, actor, idx, skill) {
@@ -191,5 +229,24 @@
       if (!fn || typeof FXE === 'undefined' || typeof fighterPoint !== 'function') return _pc.apply(this, arguments);
       try { FXE.ensure(); const S2 = side === 'P' ? 'L' : 'R', T = S2 === 'L' ? 'R' : 'L'; await fn({ S: S2, T, f: fighterPoint(S2), t: fighterPoint(T), d: S2 === 'L' ? 1 : -1 }); } catch (e) { console.warn(e); return _pc.apply(this, arguments); }
     }; }
+  /* ---------- 專屬武器「神妃」（v192 使用者 11/09 18:42：抽中維歐娜免費送；裝備後攻擊 +5%、體力 +5%、受到的傷害 -5%） ----------
+     存檔 SAVE.data.sigw[角色] = { eq: true/false }；開戰時（天梯即時對戰除外）套用。角色卡「技能一覽」上方顯示武器卡，可以裝備／卸下。 */
+  const SIGW = { viona: { name: '無上大快刀「神妃」', img: 'assets/fx/viona/sword.webp?v=192', atk: .05, hp: .05, dr: .05, desc: '初代女帝的佩刀，刀身纏繞著紫紅色的妖光。' } };
+  CHARACTERS.viona.sigWeapon = 'viona';
+  const sw = () => (SAVE.data.sigw = SAVE.data.sigw || {});
+  function giveSig(id) { if (!SIGW[id] || sw()[id]) return; sw()[id] = { eq: true }; SAVE.save(); setTimeout(() => { try { toast(`獲得專屬武器 ${SIGW[id].name}，已自動裝備！`, 'gold'); } catch (e) { } }, 1200); }
+  window.sigWeaponCard = function (c) { const W = SIGW[c.sigWeapon]; if (!W) return ''; const S2 = sw()[c.id], has = !!S2, eq = has && S2.eq;
+    return `<li class="sk sigw" data-sigw-card="${c.id}"><div class="sk-top"><span class="sk-no sigw-ic"><img src="${W.img}" alt=""></span><b>${W.name}</b><em class="sk-type sigw">專屬武器</em></div>
+      <p>${W.desc}裝備後：攻擊 +${pct(W.atk)}%、體力 +${pct(W.hp)}%、受到的傷害 -${pct(W.dr)}%。${has ? '' : '<br>取得方式：獲得此角色時免費贈送。'}</p>
+      ${has ? `<button class="${eq ? 'btn-ghost' : 'btn-gold'} sm sigw-btn" data-sigw="${c.id}">${eq ? '卸下' : '裝備'}</button>` : '<span class="sigw-lock">尚未獲得</span>'}</li>`; };
+  document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-sigw]'); if (!b) return; const id = b.dataset.sigw, S2 = sw()[id]; if (!S2) return;
+    S2.eq = !S2.eq; SAVE.save(); toast(S2.eq ? `已裝備 ${SIGW[id].name}` : `已卸下 ${SIGW[id].name}`); const card = b.closest('[data-sigw-card]'); if (card) card.outerHTML = sigWeaponCard(CHARACTERS[id]); });
+  if (typeof addCrew === 'function') { const _ac = addCrew; addCrew = function (id) { const r = _ac.apply(this, arguments); try { if (SIGW[id]) giveSig(id); } catch (e) { } return r; }; }
+  window.addEventListener('DOMContentLoaded', () => setTimeout(() => { try { Object.keys(SIGW).forEach(id => { if (typeof owned === 'function' && owned(id)) giveSig(id); }); } catch (e) { } }, 1500));
+  if (typeof startBattle === 'function') { const _sb2 = startBattle; startBattle = function (opts) { const r = _sb2.apply(this, arguments);
+    try { const b = B(); if (b && !(opts && opts.live)) (b.team || []).forEach(f => { const W = f && SIGW[f.id], S2 = W && sw()[f.id]; if (!S2 || !S2.eq || f.__sigw) return; f.__sigw = W;
+      const full = f.hp >= f.maxHp; f.maxHp = Math.round(f.maxHp * (1 + W.hp)); if (full) f.hp = f.maxHp; f.__dmgB = (f.__dmgB || 1) * (1 + W.atk); L(`⚔️ ${f.name} 裝備專屬武器 ${W.name}：攻擊 +${pct(W.atk)}%、體力 +${pct(W.hp)}%、受到的傷害 -${pct(W.dr)}%`); }); } catch (e) { } return r; }; }
+  if (typeof computeSkillOutcome === 'function') { const _c2 = computeSkillOutcome; computeSkillOutcome = function (a, t) { const r = _c2.apply(this, arguments); try { if (r && r.damage > 0 && t && t.__sigw && t.__sigw.dr) r.damage = Math.max(1, Math.floor(r.damage * (1 - t.__sigw.dr))); } catch (e) { } return r; }; }
+
   window.VIONA187 = { st, setVenus, addMark, subdue };
 })();
