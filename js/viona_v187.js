@@ -1,7 +1,7 @@
 /* v187 原創角色「賽博亞齊·維歐娜」（使用者 11/09 14:00）
    UR・初代女帝・攻擊控制型，只能從限定抽獎池「初代女帝」抽取（集滿碎片合成）。
    人人果實·幻獸種·維納斯型態，手持無上大快刀「神妃」，亞馬遜百合·九蛇島初代女帝，空白一百年中少數被記錄下來的傳說人物。
-   立繪：原始 0.65（viona）；第 4 招「維納斯降臨」2 回合變成維納斯型態 0.7（viona_venus）；限定皮膚「無名女郎」0.55（viona_bunny，暫時無法獲得）。
+   立繪：原始 0.65（viona）；第 4 招「維納斯降臨」2 回合變成維納斯型態 0.85（viona_venus）；限定皮膚「無名女郎」0.55（viona_bunny，暫時無法獲得）。
 
    被動「女神之印」（存在維歐娜身上，最多 3 層）：
      ・每施放一招 +1 層（第 1～3 招說明裡的「附加一層」就是這一層，不會重複疊）。
@@ -14,7 +14,7 @@
    特效：紫紅色系漸層（VFX 表）。 */
 (function () {
   if (typeof CHARACTERS === 'undefined') return;
-  const V = 188, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
+  const V = 191, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
   const B = () => (typeof battle !== 'undefined' && battle) || null;
   const L = m => { try { log(m); } catch (e) { } };
   const R = (a, b) => a + Math.random() * (b - a), pct = x => Math.round(x * 100);
@@ -22,7 +22,7 @@
   const sideOf = f => { const b = B(); return b && f === b.enemy ? 'R' : 'L'; };
   const say = (f, t) => { try { if (onScreen(f)) floatText(sideOf(f), t, 'status'); } catch (e) { } };
   const isBossT = t => { const b = B(); return !!(t && (t.voidImmune || (b && b.isBoss && t === b.enemy))); };
-  const SZ0 = .65, SZV = .7;
+  const SZ0 = .65, SZV = .85; /* v191 使用者 11/09 18:23：維納斯型態立繪 0.85（原本 0.7）；無名女郎 0.55 */
 
   /* ---------- 狀態 ---------- */
   if (typeof ABN !== 'undefined') {
@@ -49,13 +49,13 @@
       S({ name: '維納斯降臨', type: 'support', power: 0, pp: 3, anima: 'awaken', desc: '【範圍】自身＋對手。進入「維納斯型態」2 回合，女神之印直接疊滿 3 層（立刻觸發被動臣服，之後歸零重新累積）；下回合攻擊 +30%、2 回合受到的傷害 -10%；對手 2 回合每回合受到 100～1000 固定傷害；清除自身的負面狀態與能力下降。這一回合對手的攻擊無效，並 100% 反彈。',
         tags: [['變身', 'gold'], ['反彈', 'green'], ['淨化', 'green'], ['固定傷害', 'red']],
         effect: { vioVenus: { turns: 2 }, nextAttackMult: 1.3, nextAttackMultTurns: 1, damageReductionTurns: 2, damageReductionValue: .1, clearSelfDebuffs: true, reflectTurns: 1, reflectMultiplier: 1, vioDot: [100, 1000, 2] } }),
-      S({ name: '終焉·黃昏', type: 'attack', power: 100, pp: 2, ultimate: true, anima: 'slash', desc: '奧義（無法用道具恢復次數）。【範圍】敵方全體。對手體力直接降到最大體力的 10%（BOSS 無效），再造成 520～1314% 傷害、無視 20～50% 防禦；每層女神之印最終傷害 +15%（最多 +45%）。45% 機率使對手「臣服」1 回合；隨機降低對手的技能共 5 次（BOSS 無效）。【維納斯型態下施放】追加一次 160% 的神罰傷害（無視 20% 減傷），並進入「自由」2 回合：不受任何控制與限制。',
-        tags: [['奧義', 'gold'], ['斬殺', 'red'], ['全體', 'red'], ['臣服', 'red'], ['削次數', 'blue']], effect: { randomMultiplierRange: [5.2, 13.14], splash: 1, vioFinal: { sub: .45, pp: 5, venusMul: 1.6 }, noRestore: true } })
+      S({ name: '終焉·黃昏', type: 'attack', power: 100, pp: 2, ultimate: true, anima: 'slash', desc: '奧義（無法用道具恢復次數）。【範圍】敵方全體。對手體力直接降到最大體力的 10%（BOSS 無效），再造成 520～1314% 傷害、無視 20～50% 防禦；每層女神之印最終傷害 +15%（最多 +45%）。45% 機率使對手「臣服」1 回合；隨機降低對手的技能共 5 次（BOSS 無效）。【維納斯型態下施放】追加一次 160% 的神罰傷害（無視 20% 減傷），並進入「自由」2 回合：不受任何控制與限制。施放後恢復自身最大體力 20%。',
+        tags: [['奧義', 'gold'], ['斬殺', 'red'], ['全體', 'red'], ['臣服', 'red'], ['削次數', 'blue']], effect: { randomMultiplierRange: [5.2, 13.14], healRatio: .2, splash: 1, vioFinal: { sub: .45, pp: 5, venusMul: 1.6 }, noRestore: true } })
     ] };
   if (typeof CHARACTER_ORDER !== 'undefined' && !CHARACTER_ORDER.includes('viona')) CHARACTER_ORDER.push('viona');
   if (typeof CHAR_RARITY !== 'undefined') CHAR_RARITY.viona = 'UR+'; /* v189 使用者 11/09 改為 UR+ */
   if (typeof CHAR_OBTAIN !== 'undefined') CHAR_OBTAIN.viona = { boss: 0, bossFirst: 0, bossRepeat: 0, eventOnly: true, npc: '本遊戲原創角色・限定抽獎池「初代女帝」：集滿 300 碎片合成；碎片 100 片可兌換皮膚「無名女郎」（無法從一般召喚取得）' };
-  if (typeof SKINS !== 'undefined') SKINS.viona_bunny = { char: 'viona', name: '無名女郎', image: img('viona_bunny'), avatar: img('viona_bunny_face'), battleScale: .55, how: '限定召喚「初代女帝」：碎片 100 片兌換' };
+  if (typeof SKINS !== 'undefined') SKINS.viona_bunny = { char: 'viona', name: '無名女郎', image: img('viona_bunny'), avatar: img('viona_bunny_face'), battleScale: .55 /* 使用者指定 0.55 */, how: '限定召喚「初代女帝」：碎片 100 片兌換' };
 
   /* 限定抽獎池＋檔期 */
   if (typeof EVENT_POOLS !== 'undefined' && !EVENT_POOLS.some(p => p.id === 'venus_viona'))
@@ -75,7 +75,7 @@
   function refresh(f) { try { if (onScreen(f) && typeof renderHUD === 'function') renderHUD(); } catch (e) { } }
   function setVenus(f, on) {
     const I = st(f);
-    if (on) { if (!I.base) I.base = { image: f.image, avatar: f.avatar, title: f.title, visMul: f.visMul || 1 }; f.image = img('viona_venus'); f.avatar = img('viona_venus_face'); f.title = '維納斯型態'; f.visMul = (SZV / SZ0) * (I.base.visMul || 1); }
+    if (on) { if (!I.base) I.base = { image: f.image, avatar: f.avatar, title: f.title, visMul: f.visMul || 1 }; f.image = img('viona_venus'); f.avatar = img('viona_venus_face'); f.title = '維納斯型態'; f.visMul = SZV / (f.battleScale || SZ0); } /* 不論穿哪套皮膚，維納斯型態都是 8.5 */
     else if (I.base) { f.image = I.base.image; f.avatar = I.base.avatar; f.title = I.base.title; f.visMul = I.base.visMul; I.base = null; }
     if (!onScreen(f)) return; const S2 = sideOf(f), $$ = id => document.getElementById(id);
     try { if (typeof refreshFighterImage === 'function') refreshFighterImage(f); else { if ($$('bImg' + S2)) $$('bImg' + S2).src = f.image; if (typeof applyVisual === 'function') applyVisual(f); } } catch (e) { }
