@@ -87,3 +87,7 @@
 .ev-shard .ev-acts{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:8px;flex:none}
 .ev-shard .ev-acts>*{min-width:80px;height:32px;display:inline-flex;align-items:center;justify-content:center;margin:0;padding:0 12px}
 .ev-shard .ev-skinx{display:block;color:#ff9cf5}
+/* v189 角色被動卡 */
+.cx-skills .sk.passive{border-color:rgba(224,76,255,.55)!important;background:linear-gradient(180deg,rgba(70,20,80,.55),rgba(20,10,35,.6))!important}
+.cx-skills .sk.passive .sk-no{color:#ff9cf5}
+.cx-skills .sk-type.passive{background:linear-gradient(90deg,#ff4fd8,#a63cff);color:#fff}

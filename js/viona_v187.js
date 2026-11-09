@@ -37,7 +37,7 @@
   CHARACTERS.viona = { id: 'viona', name: '賽博亞齊·維歐娜', title: '初代女帝', types: ['超能'], scale: 1, worldScale: 1, battleScale: SZ0, ai: 'control',
     image: img('viona'), avatar: img('viona_face'), ultimateBg: img('viona_venus'), cardPos: '50% 8%', cardFocus: '52% 10%',
     maxHp: 2150, baseSpeed: 124, statScale: 1.2, role: '攻擊控制型',
-    desc: '本遊戲原創角色。亞馬遜百合·九蛇島的初代女帝，空白一百年中少數被記錄下來的傳說人物，擁有極高的智謀與強大的實力。吃下人人果實·幻獸種·維納斯型態，手持無上大快刀「神妃」。【定位】攻擊控制型：用「女神之印」削弱對手的傷害並讓對手臣服，魅惑與臣服控場，維納斯型態下以終焉·黃昏一擊定勝負。' + PASSIVE,
+    desc: '本遊戲原創角色。亞馬遜百合·九蛇島的初代女帝，空白一百年中少數被記錄下來的傳說人物，擁有極高的智謀與強大的實力。吃下人人果實·幻獸種·維納斯型態，手持無上大快刀「神妃」。【定位】攻擊控制型：用「女神之印」削弱對手的傷害並讓對手臣服，魅惑與臣服控場，維納斯型態下以終焉·黃昏一擊定勝負。',
     passive: PASSIVE,
     skills: [
       S({ name: '垂憐', type: 'attack', power: 100, pp: 10, anima: 'snake', desc: '【範圍】敵方全體（後排同樣受到傷害）。造成 180% 攻擊傷害，附加 1 層女神之印。45% 機率使對手「魅惑」2 回合：攻擊 -1、速度 -1。',
@@ -53,7 +53,7 @@
         tags: [['奧義', 'gold'], ['斬殺', 'red'], ['全體', 'red'], ['臣服', 'red'], ['削次數', 'blue']], effect: { randomMultiplierRange: [5.2, 13.14], splash: 1, vioFinal: { sub: .45, pp: 5, venusMul: 1.6 }, noRestore: true } })
     ] };
   if (typeof CHARACTER_ORDER !== 'undefined' && !CHARACTER_ORDER.includes('viona')) CHARACTER_ORDER.push('viona');
-  if (typeof CHAR_RARITY !== 'undefined') CHAR_RARITY.viona = 'UR';
+  if (typeof CHAR_RARITY !== 'undefined') CHAR_RARITY.viona = 'UR+'; /* v189 使用者 11/09 改為 UR+ */
   if (typeof CHAR_OBTAIN !== 'undefined') CHAR_OBTAIN.viona = { boss: 0, bossFirst: 0, bossRepeat: 0, eventOnly: true, npc: '本遊戲原創角色・限定抽獎池「初代女帝」：集滿 300 碎片合成；碎片 100 片可兌換皮膚「無名女郎」（無法從一般召喚取得）' };
   if (typeof SKINS !== 'undefined') SKINS.viona_bunny = { char: 'viona', name: '無名女郎', image: img('viona_bunny'), avatar: img('viona_bunny_face'), battleScale: .55, how: '限定召喚「初代女帝」：碎片 100 片兌換' };
 

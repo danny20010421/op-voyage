@@ -14,7 +14,7 @@
     ['navy', '海軍與世界政府', 'coby0|初登場克比|e morgan|斧手摩根|e marine|海軍小兵|e helmeppo|貝魯梅柏|e nezumi|老鼠上校|e smoker|斯摩格|e tashigi|達斯琪|e hina|黑檻希娜|a ' +
       'lucci|羅布·路奇|n kaku|卡古|n kalifa|卡莉法|n blueno|布魯諾|n jabra|賈布拉|n kumadori|庫馬德利|n fukurou|福克羅|n spandam|斯潘達姆|n aokiji|青雉|n ' +
       'sengoku|佛之戰國|m tsuru|鶴中將|m kizaru|黃猿|m akainu|赤犬|m sentomaru|戰桃丸|m momonga|摩摩加中將|m garp_mf|卡普（頂上戰爭）|m koby_mf|克比（頂上戰爭）|m magellan|麥哲倫|m hannyabal|漢尼拔|m sadi|莎蒂|m charlos|查爾洛斯聖|m kong|空|m ' +
-      'vergo|威爾可|d fujitora|藤虎|d stussy|史塔西|w ryokugyu|綠牛|o garp_hc|卡普（蜂巢島）|h koby_hc|克比（蜂巢島）|h hibari|希巴莉|h grus|普林斯·格魯斯|h ' +
+      'fujitora|藤虎|d stussy|史塔西|w ryokugyu|綠牛|o garp_hc|卡普（蜂巢島）|h koby_hc|克比（蜂巢島）|h hibari|希巴莉|h grus|普林斯·格魯斯|h ' +
       'saturn|傑格西亞·沙杜恩聖|g mars|馬可斯·馬斯聖|g warcury|托普曼·沃丘里聖|g nusjuro|伊森巴隆·V·納斯壽郎聖|g jupeter|謝帕德·十·彼得聖|g'],
     ['warlord', '王下七武海', 'mihawk|喬拉可爾·密佛格|e crocodile|沙·克洛克達爾|a doflamingo|唐吉訶德·多佛朗明哥|s kuma|巴索羅繆·大熊|t moria|月光·莫莉亞|t law|托拉法爾加·羅|m hancock|波雅·漢庫克|m ' +
       'kuma_eh|巴索羅繆·大熊（蛋頭島）|g law_w|托拉法爾加·羅（七武海）|d weevil|愛德華·衛伯|w blackbeard_w|馬歇爾·D·汀奇（七武海）|m mihawk_w|喬拉可爾·密佛格（七武海）|m'],
@@ -37,7 +37,7 @@
     ['m', '頂上戰爭篇', 'duval|杜巴爾|m camie|凱米|m pappug|帕帕古|m shakky|夏姬|m rayleigh|西爾巴斯·雷利|m eustass|尤斯塔斯·基德|m killer|殺戮武人|m apoo|斯克拉奇·梅杰·阿普|m hawkins|巴吉爾·霍金斯|m ' +
       'drake|X·德雷克|m urouge|怪僧烏爾基|m bonney|珠寶·波妮|m bege|卡彭·貝基|m nyon|尼優婆婆|m marguerite|瑪格麗特|m sandersonia|波雅·桑達索妮雅|m marigold|波雅·瑪莉哥德|m ivankov|伊萬科夫|m inazuma|伊娜茲瑪|m dadan|達旦|m'],
     ['f', '魚人島篇', 'shyarly|夏莉|f decken|凡達·戴肯九世|f hody|荷帝·瓊斯|f neptune|尼普頓|f fukaboshi|富卡波|f ryuboshi|龍包|f manboshi|萬包|f shirahoshi|白星|f otohime|乙姬王妃|f fisher_tiger|費雪·泰格|f koala|可亞拉|f aladine|阿拉丁|f'],
-    ['d', '德雷斯羅薩篇', 'caesar|凱薩·克朗|d monet|莫內|d rebecca|蕾貝卡|d kyros|基羅斯|d riku|力克·德爾多三世|d viola|維奧萊特|d cavendish|卡文迪許|d bartolomeo|巴托洛米奧|d sai|齊|d ideo|伊迪歐|d orlumbus|歐隆布斯|d ' +
+    ['d', '德雷斯羅薩篇', 'caesar|凱薩·克朗|d monet|莫內|d vergo|威爾可|d rebecca|蕾貝卡|d kyros|基羅斯|d riku|力克·德爾多三世|d viola|維奧萊特|d cavendish|卡文迪許|d bartolomeo|巴托洛米奧|d sai|齊|d ideo|伊迪歐|d orlumbus|歐隆布斯|d ' +
       'sabo|薩波|d hack|哈克|d mansherry|曼雪莉|d leo|雷歐|d trebol|托雷波爾|d diamante|迪亞曼帝|d pica|比卡|d pink|塞尼奧爾·粉紅|d gladius|葛拉迪斯|d baby5|寶貝5|d buffalo|巴法洛|d dellinger|德林傑|d laog|拉奧G|d ' +
       'jora|喬拉|d machvise|馬哈拜斯|d sugar|砂糖|d rosinante|唐吉訶德·羅西南迪|d'],
     ['w', '蛋糕島篇', 'inuarashi|犬嵐公爵|w nekomamushi|貓蝮蛇老大|w pedro|佩德羅|w carrot|卡洛特|w wanda|萬達|w judge|文斯莫克·加治|w reiju|文斯莫克·蕾玖|w ichiji|文斯莫克·一治|w niji|文斯莫克·二治|w ' +
