@@ -2,7 +2,7 @@
    必須在 roster_v91 之前載入（序號：百獸海賊團第 1 位）。戰鬥效果 ppUpRandom、kingFlame 在 ext_v115.js。 */
 (function () {
   const V = 115, S = (name, type, pp, power, desc, tags, anima, effect, ult) => Object.assign({ name, type, pp, maxPP: pp, power, accuracy: 100, desc, tags, anima, effect: effect || {} }, ult ? { ultimate: true } : {});
-  CHARACTERS.king = { id: 'king', name: '燼', title: '炎災', types: ['火', '獸'], scale: .95, worldScale: 1.05, battleScale: 1.1, ai: 'balanced',
+  CHARACTERS.king = { id: 'king', name: '燼', title: '炎災', types: ['火', '獸'], scale: .95, worldScale: 1.05, battleScale: 1.8, ai: 'balanced',
     image: `assets/chars/king.webp?v=${V}`, avatar: `assets/chars/king_face.webp?v=${V}`, ultimateBg: `assets/chars/king.webp?v=${V}`, cardPos: '50% 38%', cardFocus: '49% 30%',
     maxHp: 1880, baseSpeed: 114, statScale: 1.035, role: '防禦速度型',
     desc: '百獸海賊團「大看板」之一，傳說中的露娜莉亞族倖存者。背上燃起火焰時刀槍不入；火焰熄滅時，又能化為無齒翼龍以極速飛行。',
