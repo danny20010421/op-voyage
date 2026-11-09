@@ -15,6 +15,14 @@
   }
   window.openEventPreview = id => { pool = 'ev:' + PV; applyPool(); if (id) renderPreview(id); };
   /* 每位角色可以有自己的碎片需求（例：羅（七武海）80 片），沒寫就用活動池的 need */
+  /* v188：碎片可兌換的皮膚（shard.skin＝{ key, need }）。皮膚還沒換到之前，擁有角色後抽到的碎片不會自動換成覺醒結晶，留著換皮膚 */
+  const skinOwned = k => (((SAVE.data.skins || {}).owned) || []).includes(k);
+  const keepShard = s => !!(s && s.skin && SKINS[s.skin.key] && !skinOwned(s.skin.key));
+  function skinX(pl, cid) { const s = pl.shards.find(x => x.char === cid), E = st(pl); if (!s || !s.skin) return; const K = s.skin, need = K.need || 100, n = E.shards[cid] || 0;
+    if (skinOwned(K.key)) { toast('已經擁有這款皮膚'); return; } if (n < need) { toast(`碎片不足：需要 ${need} 片，目前 ${n} 片`); return; }
+    if (!confirm(`要用 ${need} 片${CHARACTERS[cid].name}碎片兌換皮膚「${SKINS[K.key].name}」嗎？`)) return;
+    E.shards[cid] = n - need; const S = SAVE.data.skins = SAVE.data.skins || { owned: [], equip: {} }; S.owned = S.owned || []; S.equip = S.equip || {}; S.owned.push(K.key); if (owned(cid)) S.equip[cid] = K.key;
+    SAVE.save(); if (typeof SFX !== 'undefined') SFX.play('rare'); toast(`獲得皮膚「${SKINS[K.key].name}」${owned(cid) ? '，已經換上' : ''}！`, 'gold'); if (window.renderLobby) renderLobby(); }
   const NEED = (pl, cid) => ((pl.shards.find(x => x.char === cid) || {}).need || pl.need);
   const phase = id => (typeof eventPhase === 'function' ? eventPhase(id) : 'live');
   const md = ms => { const d = new Date(ms + 8 * 3600e3); return `${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}`; };
@@ -55,16 +63,16 @@
   }
   /* v156：已經擁有的角色，抽到的碎片自動換成覺醒結晶（1 隻重複角色可分解的結晶 ÷ 合成需要的碎片數 × 片數，至少 1 個），不會白白堆著 */
   const gemOf = (pl, cid, n) => { const r = (typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[cid]) || 'SSR', per = (window.PROG && PROG.cfg && PROG.cfg.dupeGem && PROG.cfg.dupeGem[r]) || ({ SR: 10, SSR: 20, UR: 35, 'UR+': 50 })[r] || 20; return Math.max(1, Math.round(n * per / NEED(pl, cid))); };
-  function convertOwned(pl, E) { let g = 0; pl.shards.forEach(s => { const n = E.shards[s.char] || 0; if (n > 0 && typeof owned === 'function' && owned(s.char)) { g += gemOf(pl, s.char, n); E.shards[s.char] = 0; } }); if (g) { const inv = SAVE.data.inventory = SAVE.data.inventory || {}; inv.awaken_gem = (inv.awaken_gem || 0) + g; } return g; }
-  function grant(E, res) { res.forEach(x => { if (x.shard) { if (typeof owned === 'function' && owned(x.shard)) { x.gem = gemOf(P(), x.shard, x.n); const inv = SAVE.data.inventory; inv.awaken_gem = (inv.awaken_gem || 0) + x.gem; } else E.shards[x.shard] += x.n; } else SAVE.data.inventory[x.item] = (SAVE.data.inventory[x.item] || 0) + 1; }); SAVE.save(); }
+  function convertOwned(pl, E) { let g = 0; pl.shards.forEach(s => { const n = E.shards[s.char] || 0; if (n > 0 && typeof owned === 'function' && owned(s.char) && !keepShard(s)) { g += gemOf(pl, s.char, n); E.shards[s.char] = 0; } }); if (g) { const inv = SAVE.data.inventory = SAVE.data.inventory || {}; inv.awaken_gem = (inv.awaken_gem || 0) + g; } return g; }
+  function grant(E, res) { res.forEach(x => { if (x.shard) { if (typeof owned === 'function' && owned(x.shard) && !keepShard(P().shards.find(z => z.char === x.shard))) { x.gem = gemOf(P(), x.shard, x.n); const inv = SAVE.data.inventory; inv.awaken_gem = (inv.awaken_gem || 0) + x.gem; } else E.shards[x.shard] += x.n; } else SAVE.data.inventory[x.item] = (SAVE.data.inventory[x.item] || 0) + 1; }); SAVE.save(); }
 
   /* ---------- 畫面 ---------- */
   function render() {
     const E = st(), pane = $('evPane'); if (!pane) return;
     if (E.__msg) { toast(E.__msg, 'gold'); delete E.__msg; SAVE.save(); }
     const card = s => { const c = CHARACTERS[s.char], n = E.shards[s.char], own = owned(s.char), pct = Math.min(100, n / NEED(P(), s.char) * 100);
-      return `<div class="ev-shard" style="--c:${s.color}"><img src="${s.icon}" alt=""><div class="ev-sh-info"><b><span class="rar c-rar r-${(typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[s.char]) || 'SSR'}">${(typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[s.char]) || 'SSR'}</span> ${c.name}<small>${c.title}</small></b><div class="ev-bar"><i style="width:${pct}%"></i></div><small>${own ? '改給覺醒結晶' : `碎片 ${n}/${NEED(P(), s.char)}`}・單抽機率 ${Math.round(s.rate * 1000) / 10}%</small></div>
-        ${own ? '<span class="ev-owned">已擁有</span>' : `<button class="btn-gold sm" data-synth="${s.char}" ${n >= NEED(P(), s.char) ? '' : 'disabled'}>合成</button>`}</div>`; };
+      return `<div class="ev-shard" style="--c:${s.color}"><img src="${s.icon}" alt=""><div class="ev-sh-info"><b><span class="rar c-rar r-${(typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[s.char]) || 'SSR'}">${(typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[s.char]) || 'SSR'}</span> ${c.name}<small>${c.title}</small></b><div class="ev-bar"><i style="width:${pct}%"></i></div><small>${own && !keepShard(s) ? '改給覺醒結晶' : `碎片 ${n}/${own ? s.skin.need : NEED(P(), s.char)}`}・單抽機率 ${Math.round(s.rate * 1000) / 10}%</small>${s.skin && SKINS[s.skin.key] ? `<small class="ev-skinx">皮膚「${SKINS[s.skin.key].name}」：碎片 ${s.skin.need} 片兌換${skinOwned(s.skin.key) ? '（已擁有）' : ''}</small>` : ''}</div>
+        <span class="ev-acts">${own ? '<span class="ev-owned">已擁有</span>' : `<button class="btn-gold sm" data-synth="${s.char}" ${n >= NEED(P(), s.char) ? '' : 'disabled'}>合成</button>`}${keepShard(s) ? `<button class="btn-ghost sm" data-skinx="${s.char}" ${n >= s.skin.need ? '' : 'disabled'}>換皮膚</button>` : ''}</span></div>`; };
     const UT = (SAVE.data.inventory || {}).event_ticket || 0, TT = E.tickets + UT; /* v115：限定抽獎券（月費、VIP 禮包）可在任一限定池使用 */
     const cost1 = TT >= 1 ? '1 張抽獎券' : `${P().tokenCost} 枚寶藏幣`, cost10 = TT >= 10 ? '10 張抽獎券' : `${P().tokenCost * 10} 枚寶藏幣`;
     const ph = phase(P().id), W = typeof eventWindow === 'function' ? eventWindow(P().id) : null, soon = ph === 'soon';
@@ -83,6 +91,7 @@
           <tr><td>保底</td><td colspan="2">連續 ${P().pity - 1} 抽沒有碎片時，第 ${P().pity} 抽必定出現碎片</td></tr></table></details>
       </div>`;
     pane.querySelectorAll('[data-synth]').forEach(b => b.onclick = () => synth(b.dataset.synth));
+    pane.querySelectorAll('[data-skinx]').forEach(b => b.onclick = () => { skinX(P(), b.dataset.skinx); render(); });
     if ($('evPull1')) { $('evPull1').onclick = () => pull(1); $('evPull10').onclick = () => pull(10); }
   }
   function synth(id) {

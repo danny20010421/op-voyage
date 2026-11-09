@@ -79,3 +79,11 @@
 .hp-table tr.hp-tdesc td{padding-top:0;font-size:12px;line-height:18px;color:#b8c4d6}
 .hp-table tr.hp-tdesc td span{display:block;color:#8fa0b8}
 .ps-note b{color:#ffd98a}
+
+/* v188 使用者 11/09「抽獎池按鈕文字沒有水平垂直居中」：限定池與一般召喚的抽獎按鈕一律 flex 置中；按鈕底部有 3px 立體邊（inset 陰影），下方多留 3px 讓文字落在可見按鈕面的正中間 */
+#gachaScreen .ev-pulls button,#gachaScreen .g-pulls button{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:0 16px 3px!important;line-height:1.2!important;text-align:center!important;box-sizing:border-box}
+#gachaScreen .ev-pulls button small,#gachaScreen .g-pulls button small{display:block;margin:0!important;line-height:1.3!important}
+/* v188 限定池：碎片換皮膚 */
+.ev-shard .ev-acts{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:8px;flex:none}
+.ev-shard .ev-acts>*{min-width:80px;height:32px;display:inline-flex;align-items:center;justify-content:center;margin:0;padding:0 12px}
+.ev-shard .ev-skinx{display:block;color:#ff9cf5}
