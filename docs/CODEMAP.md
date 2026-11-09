@@ -55,7 +55,7 @@
 - `js/stages_v181.js`＋`css/stages_v181.css`: F:活動關卡 #stageScreen（openStages('fest'|'realm')）、大廳右側入口 #v181Rail、限時祭典 FESTS（檔期、三難度、祭典商店 goods／buy）、每日秘境 REALMS（每天 3 次、掃蕩）、存檔 SAVE.data.stg、window.STAGES
 - `css/sys_v183.css`: F:懸賞單精簡卡片（#bountyList .bounty.v183、.bt-head／#bountyAll）、道具商店（.shop-v183、.sh-cats、.sh-grid、#shopSheet 購買面板）、成就 .ach-head 全部領取。邏輯在 js/hub.js（renderBounty、claimBounty、bountyGo、BOUNTY_GO、renderShop、shopGoods、SHOP_CATS）與 js/achieve.js
 - `js/roster_v185.js`: F:新角色 reiju（SR）、robin_wano（SSR）（技能、CHAR_RARITY、CHAR_OBTAIN、蛋糕島／和之國 NPC）、薇薇皮膚 vivi_water 換圖、刪除 robin_city 的存檔補償、CHAR_FACE 補值
-- `js/viona_v187.js`: F:原創角色 viona（UR）資料、女神之印被動、魅惑／臣服狀態（ABN.charm、ABN.subdue）、維納斯型態（setVenus）、技能自訂效果 vio*、紫紅特效 VFX、限定池 venus_viona＋檔期、皮膚 viona_bunny
+- `js/viona_v187.js`: F:原創角色 viona（UR）資料、女神之印被動、魅惑／臣服狀態（ABN.charm、ABN.subdue）、維納斯型態（setVenus）、技能自訂效果 vio*、紫紅特效 VFX（v193：pt 角色範圍、back 身後圖層、sp 畫布素材、fw 畫布時間等待）、限定池 venus_viona＋檔期、皮膚 viona_bunny
 - `js/passives_v190.js`: F:角色被動 CHARACTERS[id].passive（伊姆、洛基、尼卡魯夫、凱多），清理介紹與技能說明；尼卡魯夫開戰即帶 __legacy。顯示在 js/crew.js skillCards
 - `css/align_v168.css`: 全畫面對齊修正（text-box 裁切置中、同列等高、省略號）；最後載入的 css。量測工具在 /root/promo/v168/align/
 - `js/rocks_v166.js`＋`css/rocks_v166.css`: F:洛克斯新立繪（battleScale .85）、舊立繪皮膚 rocks_classic（擁有洛克斯自動獲得）、原造型戰鬥中的閃電環繞 .rocks-aura（包住 applyVisual）
