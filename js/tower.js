@@ -5,9 +5,9 @@
   const isBoss = f => f % 10 === 0;
   /* 一般樓層：把全部角色打亂成一輪輪出場，相鄰兩層不重複，同一位角色約隔一整輪才會再出現 */
   let SEQ = null;
-  /* v198 使用者 11/10 15:11「維歐娜不能出現在勇者之塔裡面」：不當對手，也不能編進塔的出戰陣容（陣容裡有她時自動略過） */
+  /* v198 使用者 11/10 15:11／15:27：維歐娜不當勇者之塔的對手，但可以上場打塔 */
   const NO_CREW = ['viona'];
-  const crew = () => (SAVE.data.lineup || []).filter(id => !NO_CREW.includes(id) && CHARACTERS[id]);
+  const crew = () => (SAVE.data.lineup || []).filter(id => CHARACTERS[id]);
   window.towerCrew = crew;
   function buildSeq() {
     const pool = CHARACTER_ORDER.filter(id => !TOWER.bosses.includes(id) || !['imu'].includes(id)).filter(id => id !== 'imu' && !NO_CREW.includes(id) && !((CHAR_OBTAIN[id] || {}).npcOnly && id !== 'marine' && id !== 'mayor')); /* NPC 專屬角色（如摩甘茲）不會出現在勇者之塔 */ 
@@ -88,13 +88,13 @@
         <div class="tw-info"><small>第 ${f} 層${isBoss(f) ? '・BOSS 層' : ''}</small><h3>${c.name}</h3><p class="tw-lv">LV ${lvOf(f)}・${c.title}${hasMod(f) ? `<br><small>${f > 100 ? '塔頂強化' : '強敵加成'}：體力 ×${modOf(f).hp.toFixed(2)}、傷害 ×${modOf(f).dmg.toFixed(2)}${modOf(f).atk ? `、攻防 +${modOf(f).atk}` : ''}</small>` : ''}</p>
         <div class="tw-stats"><span>體力 <b>${Math.round(L.hp * modOf(f).hp)}</b></span><span>攻擊 <b>${L.atk}</b></span><span>防禦 <b>${L.def}</b></span><span>速度 <b>${L.spd}</b></span></div>
         <p class="tw-rew">${replay ? `重複挑戰獎勵：<b>${rewardText(replayOf(r))}・陣容經驗 ${Math.round((40 + f * 12) / 2)}</b><br><small>首次通關獎勵已領取，重複挑戰不影響目前樓層</small>` : `過關獎勵：<b>${rewardText(r)}</b>`}</p>
-        <p class="tw-team">出戰陣容：${crew().map(id => `<img src="${CHARACTERS[id].avatar}" alt="${CHARACTERS[id].name}" title="${CHARACTERS[id].name}">`).join('')}${(SAVE.data.lineup || []).some(id => NO_CREW.includes(id)) ? '<br><small>維歐娜無法在勇者之塔出戰，這一層不會派她上場</small>' : ''}</p>
+        <p class="tw-team">出戰陣容：${crew().map(id => `<img src="${CHARACTERS[id].avatar}" alt="${CHARACTERS[id].name}" title="${CHARACTERS[id].name}">`).join('')}</p>
         <button class="btn-primary big" id="twGo">${replay ? '重複挑戰' : '挑戰'}第 ${f} 層</button></div></div>`;
     const go = $('twGo'); if (go) go.onclick = () => fight(f);
   }
   function fight(f) {
     const s = state();
-    const team = crew(); if (!team.length) { if (typeof toast === 'function') toast('維歐娜無法在勇者之塔出戰，請先在船員裡換上其他角色'); return; }
+    const team = crew();
     startBattle({ tower: f, team: team.map(id => ({ id, lv: crewLv(id) })), enemyId: foeOf(f), enemySkin: skinOf(f), enemyLv: lvOf(f), bg: 'assets/ui/tower_bg.webp?v=23', chapterId: chapterOf(f), isBoss: isBoss(f), revives: isBoss(f) ? ((FLOOR_FIX[f] && FLOOR_FIX[f].revives != null) ? FLOOR_FIX[f].revives : (f > 150 ? 2 : 1)) : 0, enemyMod: hasMod(f) ? modOf(f) : null,
       onEnd: r => {
         if (!r.win) return { message: `第 ${f} 層挑戰失敗。調整陣容、升級船員後再來挑戰吧！` };
