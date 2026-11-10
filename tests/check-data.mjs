@@ -1,6 +1,7 @@
+import { fileURLToPath } from 'node:url';
 // 資料一致性檢查（不需瀏覽器）：node tests/check-data.mjs
 import fs from 'fs'; import vm from 'vm'; import { execSync } from 'child_process';
-const root = new URL('..', import.meta.url).pathname, rd = f => fs.readFileSync(root + f, 'utf8');
+const root = fileURLToPath(new URL('..', import.meta.url)), /* 解碼路徑：資料夾名稱有中文或空白時也能跑 */ rd = f => fs.readFileSync(root + f, 'utf8');
 const errs = [], warn = [];
 for (const f of fs.readdirSync(root + 'js')) if (f.endsWith('.js')) { try { execSync(`node --check "${root}js/${f}"`, { stdio: 'pipe' }); } catch (e) { errs.push(`語法錯誤 js/${f}: ${e.stderr}`); } }
 const ctx = { window: { addEventListener() { } }, console, addEventListener() { }, document: { addEventListener() { } } }; vm.createContext(ctx);

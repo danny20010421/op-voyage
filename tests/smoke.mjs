@@ -1,7 +1,8 @@
+import { fileURLToPath } from 'node:url';
 // 瀏覽器冒煙測試：node tests/smoke.mjs（需要 playwright）
 // 在桌機與手機尺寸開啟遊戲，走過主要畫面，並讓每位角色的每一招都算一次，確認沒有程式錯誤或缺檔。
 import http from 'http'; import fs from 'fs'; import path from 'path'; import { chromium } from 'playwright';
-const root = path.resolve(new URL('..', import.meta.url).pathname), PORT = 8799;
+const root = path.resolve(fileURLToPath(new URL('..', import.meta.url))), PORT = 8799;
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml' };
 const server = http.createServer((q, r) => { let p = decodeURIComponent(q.url.split('?')[0]); if (p.endsWith('/')) p += 'index.html'; const f = path.join(root, p); fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'content-type': MIME[path.extname(f)] || 'application/octet-stream' }); r.end(d); }); }).listen(PORT);
 const fails = [];
