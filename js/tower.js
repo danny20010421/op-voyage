@@ -5,8 +5,12 @@
   const isBoss = f => f % 10 === 0;
   /* 一般樓層：把全部角色打亂成一輪輪出場，相鄰兩層不重複，同一位角色約隔一整輪才會再出現 */
   let SEQ = null;
+  /* v198 使用者 11/10 15:11「維歐娜不能出現在勇者之塔裡面」：不當對手，也不能編進塔的出戰陣容（陣容裡有她時自動略過） */
+  const NO_CREW = ['viona'];
+  const crew = () => (SAVE.data.lineup || []).filter(id => !NO_CREW.includes(id) && CHARACTERS[id]);
+  window.towerCrew = crew;
   function buildSeq() {
-    const pool = CHARACTER_ORDER.filter(id => !TOWER.bosses.includes(id) || !['imu'].includes(id)).filter(id => id !== 'imu' && !((CHAR_OBTAIN[id] || {}).npcOnly && id !== 'marine' && id !== 'mayor')); /* NPC 專屬角色（如摩甘茲）不會出現在勇者之塔 */ 
+    const pool = CHARACTER_ORDER.filter(id => !TOWER.bosses.includes(id) || !['imu'].includes(id)).filter(id => id !== 'imu' && !NO_CREW.includes(id) && !((CHAR_OBTAIN[id] || {}).npcOnly && id !== 'marine' && id !== 'mayor')); /* NPC 專屬角色（如摩甘茲）不會出現在勇者之塔 */ 
     const okR = ['RRR', 'SR', 'SSR', 'UR', 'UR+']; for (let i = pool.length - 1; i >= 0; i--) if (!okR.includes((typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[pool[i]]) || 'SR')) pool.splice(i, 1); /* v97：稀有度低於 RRR 的角色不會出現在勇者之塔 */
     let seed = 20260928; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     const seq = []; while (seq.length < TOWER.floors) { const a = pool.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } if (seq.length && a[0] === seq[seq.length - 1]) a.push(a.shift()); seq.push(...a); }
@@ -84,22 +88,23 @@
         <div class="tw-info"><small>第 ${f} 層${isBoss(f) ? '・BOSS 層' : ''}</small><h3>${c.name}</h3><p class="tw-lv">LV ${lvOf(f)}・${c.title}${hasMod(f) ? `<br><small>${f > 100 ? '塔頂強化' : '強敵加成'}：體力 ×${modOf(f).hp.toFixed(2)}、傷害 ×${modOf(f).dmg.toFixed(2)}${modOf(f).atk ? `、攻防 +${modOf(f).atk}` : ''}</small>` : ''}</p>
         <div class="tw-stats"><span>體力 <b>${Math.round(L.hp * modOf(f).hp)}</b></span><span>攻擊 <b>${L.atk}</b></span><span>防禦 <b>${L.def}</b></span><span>速度 <b>${L.spd}</b></span></div>
         <p class="tw-rew">${replay ? `重複挑戰獎勵：<b>${rewardText(replayOf(r))}・陣容經驗 ${Math.round((40 + f * 12) / 2)}</b><br><small>首次通關獎勵已領取，重複挑戰不影響目前樓層</small>` : `過關獎勵：<b>${rewardText(r)}</b>`}</p>
-        <p class="tw-team">出戰陣容：${SAVE.data.lineup.map(id => `<img src="${CHARACTERS[id].avatar}" alt="${CHARACTERS[id].name}" title="${CHARACTERS[id].name}">`).join('')}</p>
+        <p class="tw-team">出戰陣容：${crew().map(id => `<img src="${CHARACTERS[id].avatar}" alt="${CHARACTERS[id].name}" title="${CHARACTERS[id].name}">`).join('')}${(SAVE.data.lineup || []).some(id => NO_CREW.includes(id)) ? '<br><small>維歐娜無法在勇者之塔出戰，這一層不會派她上場</small>' : ''}</p>
         <button class="btn-primary big" id="twGo">${replay ? '重複挑戰' : '挑戰'}第 ${f} 層</button></div></div>`;
     const go = $('twGo'); if (go) go.onclick = () => fight(f);
   }
   function fight(f) {
     const s = state();
-    startBattle({ tower: f, team: SAVE.data.lineup.map(id => ({ id, lv: crewLv(id) })), enemyId: foeOf(f), enemySkin: skinOf(f), enemyLv: lvOf(f), bg: 'assets/ui/tower_bg.webp?v=23', chapterId: chapterOf(f), isBoss: isBoss(f), revives: isBoss(f) ? ((FLOOR_FIX[f] && FLOOR_FIX[f].revives != null) ? FLOOR_FIX[f].revives : (f > 150 ? 2 : 1)) : 0, enemyMod: hasMod(f) ? modOf(f) : null,
+    const team = crew(); if (!team.length) { if (typeof toast === 'function') toast('維歐娜無法在勇者之塔出戰，請先在船員裡換上其他角色'); return; }
+    startBattle({ tower: f, team: team.map(id => ({ id, lv: crewLv(id) })), enemyId: foeOf(f), enemySkin: skinOf(f), enemyLv: lvOf(f), bg: 'assets/ui/tower_bg.webp?v=23', chapterId: chapterOf(f), isBoss: isBoss(f), revives: isBoss(f) ? ((FLOOR_FIX[f] && FLOOR_FIX[f].revives != null) ? FLOOR_FIX[f].revives : (f > 150 ? 2 : 1)) : 0, enemyMod: hasMod(f) ? modOf(f) : null,
       onEnd: r => {
         if (!r.win) return { message: `第 ${f} 層挑戰失敗。調整陣容、升級船員後再來挑戰吧！` };
         track('wins'); track('towerWins'); if (isBoss(f)) track('bossWins');
-        if (f < s.floor) { const rr = replayOf(rewardOf(f)), ex = Math.round((40 + f * 12) / 2); addBerry(rr.berry); SAVE.data.lineup.forEach(id => gainExp(id, ex, true)); SAVE.save(); if (window.checkTitles) checkTitles(false);
+        if (f < s.floor) { const rr = replayOf(rewardOf(f)), ex = Math.round((40 + f * 12) / 2); addBerry(rr.berry); team.forEach(id => gainExp(id, ex, true)); SAVE.save(); if (window.checkTitles) checkTitles(false);
           return { message: `重複挑戰第 ${f} 層成功！<br>獲得 貝里 ${rr.berry.toLocaleString()}・陣容經驗 ${ex}`, next: { label: '再挑戰一次', fn: () => fight(f) }, alt: { label: '返回勇者之塔', fn: () => openTower(true) } }; }
         const first = f > (s.best || 0), rw = rewardOf(f);
         s.floor = f + 1; s.best = Math.max(s.best || 0, f); sel = null; SAVE.save();
         const lines = [`突破第 ${f} 層！`];
-        if (first) { addBerry(rw.berry); if (rw.tokens) addTokens(rw.tokens, '勇者之塔'); Object.entries(rw.items).forEach(([k, n]) => { SAVE.data.inventory[k] = (SAVE.data.inventory[k] || 0) + n; }); SAVE.data.lineup.forEach(id => gainExp(id, 40 + f * 12, true)); SAVE.save(); lines.push(`獲得 ${rewardText(rw)}`); }
+        if (first) { addBerry(rw.berry); if (rw.tokens) addTokens(rw.tokens, '勇者之塔'); Object.entries(rw.items).forEach(([k, n]) => { SAVE.data.inventory[k] = (SAVE.data.inventory[k] || 0) + n; }); team.forEach(id => gainExp(id, 40 + f * 12, true)); SAVE.save(); lines.push(`獲得 ${rewardText(rw)}`); }
         if (window.checkTitles) checkTitles(false);
         return { message: lines.join('<br>'), next: f < TOWER.floors ? { label: `繼續挑戰（第 ${f + 1} 層）`, fn: () => fight(f + 1) } : { label: '返回船上', fn: () => openModes() }, alt: f < TOWER.floors ? { label: '返回船上', fn: () => openModes() } : null };
       },
