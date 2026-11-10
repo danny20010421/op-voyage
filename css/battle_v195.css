@@ -1,0 +1,89 @@
+/* v195 戰鬥：傷害數字與結算畫面（js/battle_v195.js）。8px 網格。 */
+
+/* ---------- ① 傷害數字：在所有特效畫布之上（畫布 z-index 4），上方資訊列（10）與技能欄（12）之下；不隨鏡頭縮放 ---------- */
+#battleScreen .b-dmgtop{position:absolute;inset:0;z-index:9;pointer-events:none;overflow:hidden}
+.dmg2{position:absolute;transform:translate(-50%,-50%);font-family:var(--num);font-size:48px;line-height:1;letter-spacing:.02em;color:#fff;white-space:nowrap;
+  -webkit-text-stroke:5px #5a0f08;paint-order:stroke fill;text-shadow:0 4px 0 rgba(0,0,0,.45);animation:dmg2 1.25s cubic-bezier(.2,.8,.2,1) forwards;will-change:transform,opacity}
+.dmg2.big{font-size:72px;color:#ffe14a;-webkit-text-stroke:6px #6b2400}
+.dmg2.heal{color:#b8ffca;-webkit-text-stroke-color:#0d4a22}
+.dmg2.miss,.dmg2.status{font-family:var(--serif);font-weight:900;font-size:28px;letter-spacing:.08em;color:#eaf2f8;-webkit-text-stroke:4px #0b2236}
+@keyframes dmg2{0%{opacity:0;transform:translate(-50%,-30%) scale(1.7)}12%{opacity:1;transform:translate(-50%,-50%) scale(.92)}22%{transform:translate(-50%,-50%) scale(1.06)}30%{transform:translate(-50%,-50%) scale(1)}72%{opacity:1;transform:translate(-50%,-80%) scale(1)}100%{opacity:0;transform:translate(-50%,-120%) scale(.96)}}
+@media (max-width:860px),(max-height:520px){.dmg2{font-size:38px;-webkit-text-stroke-width:4px}.dmg2.big{font-size:56px;-webkit-text-stroke-width:5px}.dmg2.miss,.dmg2.status{font-size:22px;-webkit-text-stroke-width:3px}}
+@media (prefers-reduced-motion:reduce){.dmg2{animation-name:dmg2r}@keyframes dmg2r{0%{opacity:0}12%,72%{opacity:1}100%{opacity:0}}}
+
+/* ---------- ② 結算畫面：左＝出戰船員直條，右＝徽章與獎勵 ---------- */
+#battleScreen .b-result{display:flex;align-items:stretch;justify-content:flex-start;place-items:stretch;padding:0;overflow:hidden;cursor:default;
+  background:radial-gradient(90% 120% at 78% 34%,#231d5c 0%,#0d0f24 52%,#05060d 100%)}
+#battleScreen .b-result.lose{background:radial-gradient(90% 120% at 78% 34%,#4a1620 0%,#170a10 52%,#07050a 100%)}
+#battleScreen .b-result.fled{background:radial-gradient(90% 120% at 78% 34%,#2a3442 0%,#10141c 52%,#06080c 100%)}
+#battleScreen .b-result.rs-one{cursor:pointer}
+.rs-team{flex:0 0 auto;display:flex;align-items:flex-start;gap:4px;height:100%;box-sizing:border-box;padding:0 0 0 calc(32px + var(--safeL,0px))}
+.rs-strip{position:relative;flex:0 0 auto;width:clamp(72px,calc(54vw / var(--n,3)),176px);height:86%;overflow:hidden;background:linear-gradient(180deg,#2c3a55,#6f7f9c 62%,#9aa6bb);
+  box-shadow:inset 1px 0 0 rgba(255,255,255,.14),inset -1px 0 0 rgba(0,0,0,.4);
+  animation:rsIn .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 70ms)}
+.rs-strip img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.rs-strip::after{content:'';position:absolute;left:0;right:0;bottom:0;height:36%;background:linear-gradient(180deg,transparent,rgba(8,10,20,.88));pointer-events:none}
+.rs-info{position:absolute;left:8px;right:8px;bottom:12px;z-index:2;display:flex;flex-direction:column;align-items:flex-start;gap:0;text-align:left}
+.rs-info small{max-width:100%;font-size:11px;line-height:16px;color:#cfd8e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rs-info b{font-family:var(--sans);font-weight:500;font-size:22px;line-height:24px;color:#fff;letter-spacing:.02em}
+.rs-exp{position:absolute;left:0;right:0;bottom:0;height:4px;z-index:2;background:rgba(255,255,255,.2)}
+.rs-exp.none{background:rgba(255,255,255,.08)}
+.rs-exp u{display:block;height:100%;width:calc(var(--r1,0) * 100%);background:linear-gradient(90deg,#f0a92e,#ffe08a);box-shadow:0 0 8px rgba(255,200,90,.7);animation:rsExp 1s .6s ease-out both}
+.rs-up{position:absolute;top:8px;left:8px;z-index:2;height:24px;padding:0 8px;display:inline-flex;align-items:center;border-radius:12px;font-family:var(--num);font-size:13px;font-weight:400;letter-spacing:.06em;color:#1a1306;background:linear-gradient(180deg,#ffe39a,#e0a93c);animation:rsPop .4s 1.5s cubic-bezier(.2,1.4,.3,1) both}
+.rs-strip.ko img,#battleScreen .b-result.lose .rs-strip img{filter:grayscale(.9) brightness(.62)}
+#battleScreen .b-result.fled .rs-strip img{filter:grayscale(.5) brightness(.8)}
+@keyframes rsIn{from{opacity:0;transform:translateY(-32px)}}
+@keyframes rsExp{from{width:calc(var(--r0,0) * 100%)}}
+@keyframes rsPop{from{opacity:0;transform:scale(.5)}}
+
+.rs-side{position:relative;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;box-sizing:border-box;padding:24px calc(24px + var(--safeR,0px)) 56px 24px;text-align:center}
+.rs-emblem{position:relative;flex:0 0 auto;width:clamp(152px,24vw,336px);aspect-ratio:1;display:grid;place-items:center;animation:rsPop .55s .2s cubic-bezier(.2,1.4,.3,1) both}
+.rs-emblem i{position:absolute;inset:15%;border-radius:4px;transform:rotate(45deg)}
+.rs-emblem .d1{background:linear-gradient(135deg,#8a6cff,#4a35b8 55%,#2a1f78);box-shadow:inset 0 0 0 2px rgba(255,255,255,.82),0 16px 40px rgba(40,20,140,.55)}
+.rs-emblem .d2{background:rgba(120,100,255,.3);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);transform:translate(-11%,7%) rotate(45deg)}
+.rs-emblem .d3{background:rgba(120,100,255,.2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25);transform:translate(12%,-7%) rotate(45deg)}
+#battleScreen .b-result.lose .rs-emblem .d1{background:linear-gradient(135deg,#c2485a,#7a1f2e 55%,#3d0c16);box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),0 16px 40px rgba(120,20,30,.5)}
+#battleScreen .b-result.lose .rs-emblem .d2,#battleScreen .b-result.lose .rs-emblem .d3{background:rgba(200,70,90,.24)}
+#battleScreen .b-result.fled .rs-emblem .d1{background:linear-gradient(135deg,#7c8a9c,#465364 55%,#262f3b);box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),0 16px 40px rgba(0,0,0,.5)}
+#battleScreen .b-result.fled .rs-emblem .d2,#battleScreen .b-result.fled .rs-emblem .d3{background:rgba(150,165,185,.22)}
+#battleScreen .rs-emblem h2{position:relative;z-index:2;margin:0;display:flex;align-items:center;justify-content:center;gap:.08em;font-family:var(--sans);font-weight:900;font-size:clamp(48px,7.6vw,116px);line-height:1;letter-spacing:0;color:#fff;white-space:nowrap;text-shadow:0 4px 0 rgba(0,0,0,.22)}
+#battleScreen .rs-emblem h2.long{flex-direction:column;gap:8px;font-size:clamp(22px,calc(26vw / var(--n,4)),52px)}
+.rs-en{font-style:normal;font-family:var(--sans);font-weight:500;font-size:12px;letter-spacing:.32em;color:rgba(255,255,255,.92);text-shadow:none}
+.rs-en.v{writing-mode:vertical-rl;text-orientation:mixed;font-size:max(9px,.13em)}
+#battleScreen .rs-desc{flex:0 1 auto;min-height:0;max-width:min(440px,100%);max-height:32vh;overflow-y:auto;color:#d5deea;font-size:14px;line-height:22px;animation:rsFade .5s .45s both}
+#battleScreen .rs-desc p{margin:0 0 4px;line-height:22px;color:#d5deea}
+#battleScreen .rs-desc b{color:#ffd98a}
+#battleScreen .rs-side .res-actions{display:flex;gap:8px;margin:0;justify-content:center;animation:rsFade .5s .55s both}
+#battleScreen .rs-side .res-actions button{height:48px;min-width:128px;margin:0;padding:0 24px;display:inline-flex;align-items:center;justify-content:center}
+#battleScreen .b-result.rs-one .res-actions{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%)}
+.rs-tap{position:absolute;left:0;right:0;bottom:calc(24px + var(--safeB,0px));margin:0;font-size:15px;line-height:24px;letter-spacing:.08em;color:#eef2f8;animation:rsTap 1.8s 1s ease-in-out infinite both}
+.rs-tap:empty{display:none}
+@keyframes rsFade{from{opacity:0;transform:translateY(8px)}}
+@keyframes rsTap{0%,100%{opacity:.45}50%{opacity:1}}
+
+/* 橫式：直條下方有一小段倒影（參考圖的做法）；直式不做 */
+@media (orientation:landscape){.rs-strip{-webkit-box-reflect:below 0 linear-gradient(transparent 62%,rgba(0,0,0,.28))}}
+/* 直式（手機直拿、平板直拿）：徽章在上、船員直條在中間、獎勵與提示在下 */
+@media (orientation:portrait){
+  #battleScreen .b-result{flex-direction:column;align-items:center;padding:calc(24px + var(--safeT,0px)) 0 calc(24px + var(--safeB,0px));gap:16px;box-sizing:border-box}
+  .rs-side{display:contents}
+  .rs-emblem{order:1;width:clamp(136px,40vw,216px)}
+  #battleScreen .rs-emblem h2{font-size:clamp(44px,13vw,80px)}
+  #battleScreen .rs-emblem h2.long{font-size:clamp(20px,calc(44vw / var(--n,4)),44px)}
+  .rs-team{order:2;flex:1 1 0;min-height:0;width:100%;height:auto;padding:0 16px;justify-content:center;align-items:stretch}
+  .rs-strip{height:auto;width:clamp(56px,calc((100vw - 48px) / var(--n,3)),152px);border-radius:8px}
+  #battleScreen .rs-desc{order:3;flex:0 0 auto;max-height:24vh;padding:0 24px;box-sizing:border-box}
+  #battleScreen .rs-side .res-actions{order:4}
+  .rs-tap{order:5;position:static;flex:0 0 auto}
+}
+@media (min-width:1100px) and (orientation:landscape){#battleScreen .rs-desc{font-size:16px;line-height:26px;max-width:520px}#battleScreen .rs-desc p{line-height:26px}.rs-tap{font-size:17px;bottom:calc(40px + var(--safeB,0px))}.rs-info b{font-size:26px;line-height:32px}.rs-info small{font-size:13px;line-height:20px}.rs-info{left:12px;bottom:16px}}
+/* 手機橫式（高度不足）：字級與間距收小 */
+@media (orientation:landscape) and (max-height:520px){
+  .rs-side{gap:8px;padding:16px calc(16px + var(--safeR,0px)) 48px 16px}
+  .rs-emblem{width:clamp(128px,22vw,176px)}
+  #battleScreen .rs-emblem h2{font-size:clamp(40px,6.4vw,64px)}
+  #battleScreen .rs-desc{font-size:13px;line-height:20px;max-height:28vh}#battleScreen .rs-desc p{line-height:20px}
+  .rs-tap{bottom:calc(16px + var(--safeB,0px));font-size:13px}
+  .rs-team{padding-left:calc(16px + var(--safeL,0px))}
+}
+@media (prefers-reduced-motion:reduce){.rs-strip,.rs-emblem,.rs-up,.rs-exp u,.rs-tap,#battleScreen .rs-desc{animation:none}}

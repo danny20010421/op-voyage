@@ -47,7 +47,7 @@
 - `js/ext_v169.js`: 通用效果 foresight（看穿：每回合第一次受到的攻擊必定迴避，破無敵／必中／自由不受影響）、imuPact.chain（契約連鎖後排扣血）、splash（後排波及）。ext_v165 新增 maxForm（伊姆晉升上限，塔 imuMaxForm）、paceNext、天罰 judge
 - `js/fx_imu_v170.js`、`css/fx_imu_v170.css`：伊姆全技能特效（14 招專屬編排、晉升 imuFormFx 覆寫 fx_v165 版、天罰、看穿／後排波及提示、領域氛圍）。包住 playChoreo、triggerImpact、log、IMU165.preAct/postAct、onEvaded、applySkillEffects、endTurnStatus、renderHUD、startBattle、finishBattle；用 FXE 畫布＋立繪後方 DOM（王座、雙翼）＋VFX00.fx（fx_vfx_v155 新開放）。降級：減少動態／技能特效低／省電／手機
 - `js/ext_v172.js`: F:洛基三型態（CHARACTERS.loki.forms／form2Skills／form3Skills、第 5 招 lokiAscend）與通用效果 lokiDispel（打散強化＋封鎖）、godSlayer（對變身中的對手加倍）、必中無視降低命中（包 IMU165.preAct）；第二、三型態招式與晉升特效（包 playChoreo）｜window.LOKI172 | S:伊姆第三型態 5 回合降回（ext_v165 revert3、forms[3].turns）
-- `js/cam_v173.js`、`css/cam_v173.css`: F:自動取景，包 battle.js 的 updateCamera（下一幀 fit()：圖片不透明範圍 alphaBox、上下界＝.b-top 下緣～技能欄上緣、拉遠到 0.16、--fitX 左右推開） | S:只在原本鏡頭 <1 時啟動；window.__camDebug 印出取景過程
+- `js/cam_v173.js`、`css/cam_v173.css`: F:自動取景，包 battle.js 的 updateCamera（下一幀 fit()：圖片不透明範圍 alphaBox、上下界＝.b-top 下緣～技能欄上緣、拉遠到 0.16、--fitX 左右推開） | S:只在原本鏡頭 <1 時啟動；window.__camDebug 印出取景過程 ｜ v195：fit() 改成解析式（box() 用 offset 版面座標＋--sc/--vx/--vy 算不透明範圍，place() 決定兩人位置，二分搜尋鏡頭倍率）；updateCamera 每場第一次之後保留目前鏡頭；匯出 __camBox(side)（畫面座標）、__camTx(side)（站位位移，fighterPoint 已加上）
 - `js/account_v175.js`、`css/account_v175.css`: F:首次登入詢問帳號（包 startGame；ask／pick；聽 cloud:none、cloud:fresh；SHOW_LINE 開關）| S:cloud.js found() 找到雲端存檔的視窗、op_acct_asked 記住已問過
 - `js/faces_data_v178.js`、`js/faces_v178.js`: F:立繪臉部對焦（CHAR_FACE＝{立繪路徑:[x,y,臉寬]}；MutationObserver 監看 assets/chars 的圖片，object-fit:cover 的依臉部算 object-position，小框加 translate＋scale；含 .gfx-host 的 shadow DOM；戰鬥結算 #bResImg 包 .res-art）| S:新增立繪後執行 tests/face_fp.py 重新產生
 - `js/items_v179.js`: F:道具分類 ITEMS[id].cat／limit、新道具 potion_m／pp_l／guard_pot／haki_l、包 useItem（單場上限 battle.itemUse）、applyItem（itemDR、defUp、spdUp）、computeSkillOutcome（防禦藥劑減傷）、endTurnStatus、renderBag（分組）
@@ -68,6 +68,7 @@
 - `js/balance_v164.js`: F:娜美、羅賓→SR，亞爾麗塔→R，近海之王→RR 與 statScale
 - `js/codex_order_v164.js`＋`css/codex_v164.css`: F:圖鑑全角色順序表（id|名字|篇章），載入後重給 no、重排 CHARACTER_ORDER、每 30 號留 5 格、最後 imu/rocks/joyboy；未實裝名字卡 | S:no 只用於顯示，存檔用 id
 - `js/perf_v194.js`＋`css/perf_v194.css`: F:跨系統的效能與記憶體處理——離開島嶼時釋放 3D 後製緩衝（包住 showScreen）、分頁進背景時清特效；CSS：關閉的 .modal／.sheet／.loading 用 visibility:hidden、觸控裝置不做背景模糊 | S:新的全螢幕遮罩若用「opacity:0＋pointer-events:none」隱藏，記得一起加 visibility:hidden（否則仍會排版、佔圖層）；戰鬥的四層特效畫布（#bCanvas、#bBloom、#bPGL、#bVFX）閒置時是 visibility:hidden，新增畫特效的入口要走 FXE.add／kick／wake 才會顯示；量測工具在 /root/promo/v194（perf.py、mem.py、layers.py、sweep.py）
+- `js/battle_v195.js`＋`css/battle_v195.css`: F:①覆寫 floatText——傷害／補血／狀態文字畫在 #battleScreen 最上層 #bDmgTop（位置用 __camBox，連續命中錯開）；②結算畫面——把 #bResTitle／#bResDesc／.res-actions 搬進全螢幕版面（.rs-team 直條立繪、.rs-emblem 菱形徽章），包 startBattle 記下開戰時的等級經驗，#bResult 出現 show 時 fill() | S:新增結算按鈕仍用 #bRetry／#bBack；只有一個動作時 .rs-one（點擊任意位置＝#bBack.click()）
 - `js/compat_v164.js`＋`css/compat_v164.css`: F:儲存空間封鎖時的記憶體存檔與提示、多分頁保護（最後開的分頁才能存）、is-ios/is-inapp class；舊瀏覽器 color-mix 等後備 | S:必須在所有程式之前載入
 - 月費檔期表：js/vip_v115.js 的 MCS（10/11/12 月），pickMC() 依時間挑當月；登入廣告只在大廳（onLobbyScreen、otherDialog）
 - `chapterEnemyLv(chId, boss, info)`（js/app.js）：篇章敵人等級的唯一算法（基本→BOSS 加成→篇章 BOSS 加成→等級同步），enemyLvFor 與航路卡、電話蟲提示都用它

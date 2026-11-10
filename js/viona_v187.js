@@ -191,11 +191,11 @@
   /* 角色在戰場上的實際範圍（戰場座標）：x 中線、top 頭頂、bot 腳底、h 身高、y 身體中心 */
   function pt(side) { const f = $$('bF' + side), img = $$('bImg' + side);
     const sc = parseFloat(getComputedStyle(f).getPropertyValue('--sc')) || 1, h = Math.max(60, img.offsetHeight * sc), bot = f.offsetTop + img.offsetTop + img.offsetHeight;
-    return { x: f.offsetLeft + img.offsetLeft + img.offsetWidth / 2, bot, top: bot - h, h, y: bot - h * .5 }; }
+    return { x: f.offsetLeft + img.offsetLeft + img.offsetWidth / 2 + (window.__camTx ? __camTx(side) : 0), bot, top: bot - h, h, y: bot - h * .5 }; } /* v195：加上鏡頭取景的左右位移（js/cam_v173.js） */
   /* back(角色, 圖, 參數)：畫在角色「身後」的素材（DOM，插在角色圖之前），跟著角色一起移動。kf＝Web Animations 關鍵影格 */
   function back(side, k, o) { const f = $$('bF' + side), img = $$('bImg' + side), I = IMG[k]; if (!f || !img || !ready(I)) return;
     const w = o.w, h = w * I.naturalHeight / I.naturalWidth, ax = o.ax == null ? .5 : o.ax, ay = o.ay == null ? .5 : o.ay, el = document.createElement('div');
-    el.style.cssText = `position:absolute;left:${o.x - f.offsetLeft - w * ax}px;top:${o.y - f.offsetTop - h * ay}px;width:${w}px;height:${h}px;background:url("${I.src}") center/100% 100% no-repeat;pointer-events:none;transform-origin:${ax * 100}% ${ay * 100}%;opacity:0`;
+    el.style.cssText = `position:absolute;left:${o.x - (window.__camTx ? __camTx(side) : 0) - f.offsetLeft - w * ax}px;top:${o.y - f.offsetTop - h * ay}px;width:${w}px;height:${h}px;background:url("${I.src}") center/100% 100% no-repeat;pointer-events:none;transform-origin:${ax * 100}% ${ay * 100}%;opacity:0`;
     f.insertBefore(el, img); const dur = o.dur / (window.BSPEED || 1);
     try { el.animate(o.kf, { duration: dur, easing: o.ease || 'linear', fill: 'forwards' }); } catch (e) { }
     setTimeout(() => el.remove(), dur + 60); return el; }
