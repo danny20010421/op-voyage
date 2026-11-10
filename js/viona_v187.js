@@ -14,7 +14,7 @@
    特效：紫紅色系漸層（VFX 表）。 */
 (function () {
   if (typeof CHARACTERS === 'undefined') return;
-  const V = 192, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
+  const V = 199, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
   const B = () => (typeof battle !== 'undefined' && battle) || null;
   const L = m => { try { log(m); } catch (e) { } };
   const R = (a, b) => a + Math.random() * (b - a), pct = x => Math.round(x * 100);
@@ -66,7 +66,7 @@
     EVENT_CALENDAR.push({ id: 'venus_viona', start: '2026-11-11 00:00', end: '2026-12-13 00:00', label: '11～12 月限定', preview: '2026-11-09 00:00' }); /* v188：11/11～12/12，開放前顯示預告 */
 
   /* 結算畫面臉部位置 */
-  window.addEventListener('DOMContentLoaded', () => { if (window.CHAR_FACE) Object.assign(CHAR_FACE, { 'assets/chars/viona.webp': [.515, .107, .093], 'assets/chars/viona_venus.webp': [.5, .171, .077], 'assets/chars/viona_bunny.webp': [.497, .196, .126] }); });
+  window.addEventListener('DOMContentLoaded', () => { if (window.CHAR_FACE) Object.assign(CHAR_FACE, { 'assets/chars/viona.webp': [0.457, 0.085, 0.096], 'assets/chars/viona_venus.webp': [0.441, 0.281, 0.052], 'assets/chars/viona_bunny.webp': [0.554, 0.104, 0.112] }); });
 
   /* ---------- 戰鬥狀態 ---------- */
   const isV = f => !!(f && f.id === 'viona');
@@ -163,12 +163,12 @@
      畫在戰場畫布（FXE）上：素材圖片 drawImage＋位移／旋轉／縮放／透明度曲線，搭配既有的爆炸、斬擊、光環。能量球是黑底圖，用加亮混合（lighter）去掉黑底。
      圖片尺寸都在 1000px 以下，畫布繪製不會產生大型圖層（iPhone 安全）。 */
   const PK = ['#ff4fd8', '#e04cff', '#a63cff', '#ffd1f5', '#ffffff'];
-  const IMG = {}; ['wings', 'snake', 'orb', 'sword', 'aura'].forEach(k => { const i = new Image(); i.decoding = 'async'; i.src = `assets/fx/viona/${k}.webp?v=193`; IMG[k] = i; });
+  const IMG = {}; ['wings', 'snake', 'orb', 'sword', 'aura'].forEach(k => { const i = new Image(); i.decoding = 'async'; i.src = `assets/fx/viona/${k}.webp?v=199`; IMG[k] = i; });
   const ready = i => i && i.complete && i.naturalWidth > 0;
   const PI = Math.PI, lerp = (a, b, q) => a + (b - a) * q, cl = q => Math.max(0, Math.min(1, q));
   const eOut = q => 1 - Math.pow(1 - cl(q), 3), eIn = q => Math.pow(cl(q), 2.2), fd = (q, a, b) => q < a ? q / a : q > b ? Math.max(0, (1 - q) / (1 - b)) : 1;
-  const SWORD_ANG = Math.atan2(594, -518); /* 素材裡刀從握柄（.85,.10）指向刀尖（.04,.95），約 131° */
-  const BLADE = 1.23; /* 刀身長度（握柄到刀尖）＝圖寬 × 1.23 */
+  const SWORD_ANG = Math.atan2(1238, -58); /* v199 新素材（直立的刀，303×1400）：握柄（.683,.114）指向刀尖（.492,.999），約 93° */
+  const BLADE = 4.09; /* 刀身長度（握柄到刀尖）＝圖寬 × 4.09 */
   /* v193 使用者 11/09 18:59「很醜也很不符合邏輯，請重新設計」：
      ・尺寸一律以角色在畫面上的身高為單位（u），不再寫死像素：手機上不會整片糊住畫面。
      ・翅膀、白蛇「從背後長出來」：畫在角色圖的後面（插在角色 img 之前的 div），不再用加亮混合蓋在人身上。
@@ -211,7 +211,7 @@
     c.strokeStyle = '#ff9cf5'; c.lineWidth = 6; c.beginPath(); c.arc(0, 0, r * k, 0, TAU2); c.stroke(); c.lineWidth = 3; c.beginPath(); c.arc(0, 0, r * k * .72, 0, TAU2); c.stroke(); } });
   const TAU2 = PI * 2;
   /* 神妃：以握柄為支點畫刀；ang＝刀尖指向的角度 */
-  const sword = (L, o) => sp('sword', Object.assign({ w: L / BLADE, ax: .85, ay: .1 }, o, { r: (q, t) => o.ang(q, t) - SWORD_ANG }));
+  const sword = (L, o) => sp('sword', Object.assign({ w: L / BLADE, ax: .683, ay: .114 }, o, { r: (q, t) => o.ang(q, t) - SWORD_ANG }));
   const VFX = {
     /* ① 垂憐：白蛇從女帝背後探出頭 → 張口竄向對手 → 一口咬住（魅惑的粉紅光炸開） */
     '垂憐': async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h; SFX.play('dark'); X().tint('#2a0530', 1.1, .28);
@@ -295,7 +295,7 @@
     }; }
   /* ---------- 專屬武器「神妃」（v192 使用者 11/09 18:42：抽中維歐娜免費送；裝備後攻擊 +5%、體力 +5%、受到的傷害 -5%） ----------
      存檔 SAVE.data.sigw[角色] = { eq: true/false }；開戰時（天梯即時對戰除外）套用。角色卡「技能一覽」上方顯示武器卡，可以裝備／卸下。 */
-  const SIGW = { viona: { name: '無上大快刀「神妃」', img: 'assets/fx/viona/sword.webp?v=192', atk: .05, hp: .05, dr: .05, desc: '初代女帝的佩刀，刀身纏繞著紫紅色的妖光。' } };
+  const SIGW = { viona: { name: '無上大快刀「神妃」', img: 'assets/fx/viona/sword.webp?v=199', atk: .05, hp: .05, dr: .05, desc: '初代女帝的佩刀，刀身纏繞著紫紅色的妖光。' } };
   CHARACTERS.viona.sigWeapon = 'viona';
   const sw = () => (SAVE.data.sigw = SAVE.data.sigw || {});
   function giveSig(id) { if (!SIGW[id] || sw()[id]) return; sw()[id] = { eq: true }; SAVE.save(); setTimeout(() => { try { toast(`獲得專屬武器 ${SIGW[id].name}，已自動裝備！`, 'gold'); } catch (e) { } }, 1200); }
