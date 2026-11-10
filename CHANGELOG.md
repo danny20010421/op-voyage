@@ -3,6 +3,9 @@
 每累積約 20 個版本統整一次。逐版的完整紀錄（v1～v97）保存在 [docs/archive/README_v1-v97_完整更新紀錄.md](docs/archive/README_v1-v97_完整更新紀錄.md)。
 
 ## 未統整（v98 起，下次在 v118 左右統整）
+### v198c（使用者 11/10 19:28「把目前所有進度打包統整，沒有實際應用的冗餘內容刪除」）
+- 刪除未被遊戲使用的重複檔案（約 23MB）：根目錄的 chars/、chapters/、ui/、login/、music/、runner/（v144 誤放的舊副本，遊戲只讀 assets/ 底下）；根目錄的 pc_test.html、pc_model.html、sample_east.html 與 js/hd3/（dev/ 底下有正式版本）；根目錄 workflows/（與 .github/workflows/ 相同）；assets/chars/devon*.webp（沒有對應角色）。
+- 驗證：程式裡所有 assets/ 路徑都存在；check-data、smoke 通過；開啟大廳、勇者之塔、船員、商店、懸賞、排行、跑酷、召喚、戰鬥並載入全部角色圖，沒有任何 404。
 ### v198（使用者 11/10 15:11「維歐娜不能出現在勇者之塔裡面」）
 決策 DEC-20261110-076。
 - js/tower.js：維歐娜不再當勇者之塔的對手（250 層實測都沒有她）；她仍可以上場打塔（v198b 使用者 15:27 確認）。
