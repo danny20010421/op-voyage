@@ -48,7 +48,7 @@
     const title = $('bResTitle'), desc = $('bResDesc'), acts = res.querySelector('.res-actions'), img = $('bResImg'); if (!title || !desc || !acts) return;
     const team = document.createElement('div'); team.className = 'rs-team'; team.id = 'bResTeam';
     const side = document.createElement('div'); side.className = 'rs-side';
-    const emb = document.createElement('div'); emb.className = 'rs-emblem'; emb.innerHTML = '<i class="d3"></i><i class="d2"></i><i class="d1"></i>'; emb.appendChild(title);
+    const emb = document.createElement('div'); emb.className = 'rs-emblem'; emb.innerHTML = '<span class="rs-rays"></span><i class="d3"></i><i class="d2"></i><i class="d1"></i><span class="rs-gem t"></span><span class="rs-gem b"></span><span class="rs-sp s1"></span><span class="rs-sp s2"></span><span class="rs-sp s3"></span><span class="rs-sp s4"></span>'; emb.appendChild(title); /* v197：放射光、頂點金菱、星芒 */
     desc.classList.add('rs-desc'); const tap = document.createElement('p'); tap.className = 'rs-tap'; tap.id = 'bResTap';
     side.append(emb, desc, acts, tap);
     const old = res.querySelector('.res-card'); res.append(team, side); if (img) { img.hidden = true; res.appendChild(img.closest('.res-art') || img); } if (old) old.remove();
@@ -71,8 +71,9 @@
     const kind = res.classList.contains('win') ? 'win' : res.classList.contains('lose') ? 'lose' : 'fled';
     /* 徽章文字：兩個字（勝利、戰敗、撤退）時把英文直排夾在中間，其他長度的標題英文放下面 */
     const title = $('bResTitle'), txt = (title.textContent || '').trim(), ch = [...txt];
-    title.innerHTML = ch.length === 2 ? `<span>${H(ch[0])}</span><em class="rs-en v">${EN[kind]}</em><span>${H(ch[1])}</span>` : `<span class="rs-long">${H(txt)}</span><em class="rs-en">${EN[kind]}</em>`;
-    title.classList.toggle('long', ch.length > 2); title.style.setProperty('--n', Math.max(2, ch.length));
+    /* v197：中文一行大字（兩個字時逐字落下），英文小字放在下面，整組收在菱形裡 */
+    title.innerHTML = (ch.length <= 3 ? `<span class="rs-cn">${ch.map((c, i) => `<b style="--k:${i}">${H(c)}</b>`).join('')}</span>` : `<span class="rs-cn long">${H(txt)}</span>`) + `<em class="rs-en">${EN[kind]}</em>`;
+    title.classList.toggle('long', ch.length > 3); title.style.setProperty('--n', Math.max(2, ch.length));
     /* 出戰船員直條 */
     const team = $('bResTeam'), R = (SAVE.data && SAVE.data.roster) || {}, snap = b.__expSnap || {}, list = (b.team && b.team.length ? b.team : [b.player]).filter(Boolean).slice(0, 6);
     team.style.setProperty('--n', list.length); team.dataset.n = list.length;

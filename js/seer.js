@@ -146,17 +146,8 @@
     a.classList.toggle('on', !!(battle && battle.auto)); a.setAttribute('aria-pressed', String(!!(battle && battle.auto)));
     s.textContent = '×' + BSPEED; s.classList.toggle('on', BSPEED > 1);
   }
-  const _finish = window.finishBattle;
-  window.finishBattle = function (win, fled) {
-    const b = battle, r = _finish.apply(this, arguments);
-    if (win && !fled && b) {
-      const v = $('bVictory'), team = b.team.slice(0, 6);
-      v.innerHTML = `<div class="vt-strips">${team.map((f, i) => `<div class="vt-strip ${f.hp <= 0 ? 'down' : ''}" style="--i:${i}"><img src="${f.image}" alt=""><span>LV ${f.level}</span></div>`).join('')}</div><div class="vt-emblem"><b>勝利</b><small>VICTORY</small></div>`;
-      v.classList.remove('show'); void v.offsetWidth; v.classList.add('show');
-      const hide = () => v.classList.remove('show'); v.onclick = hide; setTimeout(hide, 2100);
-    }
-    return r;
-  };
+  /* v197（使用者 11/10 14:26「不用圖1的結算頁面，保留圖2就好」）：原本勝利時會先蓋一層 2.1 秒的斜條立繪＋菱形「勝利」過場（#bVictory），
+     跟 v195 的全螢幕結算畫面重複，已移除；結算只剩 js/battle_v195.js 的那一個畫面。 */
 
   /* ---------- 綁定 ---------- */
   window.addEventListener('DOMContentLoaded', () => {

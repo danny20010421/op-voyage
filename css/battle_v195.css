@@ -37,19 +37,46 @@
 @keyframes rsPop{from{opacity:0;transform:scale(.5)}}
 
 .rs-side{position:relative;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;box-sizing:border-box;padding:24px calc(24px + var(--safeR,0px)) 56px 24px;text-align:center}
-.rs-emblem{position:relative;flex:0 0 auto;width:clamp(152px,24vw,336px);aspect-ratio:1;display:grid;place-items:center;animation:rsPop .55s .2s cubic-bezier(.2,1.4,.3,1) both}
-.rs-emblem i{position:absolute;inset:15%;border-radius:4px;transform:rotate(45deg)}
-.rs-emblem .d1{background:linear-gradient(135deg,#8a6cff,#4a35b8 55%,#2a1f78);box-shadow:inset 0 0 0 2px rgba(255,255,255,.82),0 16px 40px rgba(40,20,140,.55)}
-.rs-emblem .d2{background:rgba(120,100,255,.3);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);transform:translate(-11%,7%) rotate(45deg)}
-.rs-emblem .d3{background:rgba(120,100,255,.2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25);transform:translate(12%,-7%) rotate(45deg)}
-#battleScreen .b-result.lose .rs-emblem .d1{background:linear-gradient(135deg,#c2485a,#7a1f2e 55%,#3d0c16);box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),0 16px 40px rgba(120,20,30,.5)}
-#battleScreen .b-result.lose .rs-emblem .d2,#battleScreen .b-result.lose .rs-emblem .d3{background:rgba(200,70,90,.24)}
-#battleScreen .b-result.fled .rs-emblem .d1{background:linear-gradient(135deg,#7c8a9c,#465364 55%,#262f3b);box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),0 16px 40px rgba(0,0,0,.5)}
-#battleScreen .b-result.fled .rs-emblem .d2,#battleScreen .b-result.fled .rs-emblem .d3{background:rgba(150,165,185,.22)}
-#battleScreen .rs-emblem h2{position:relative;z-index:2;margin:0;display:flex;align-items:center;justify-content:center;gap:.08em;font-family:var(--sans);font-weight:900;font-size:clamp(48px,7.6vw,116px);line-height:1;letter-spacing:0;color:#fff;white-space:nowrap;text-shadow:0 4px 0 rgba(0,0,0,.22)}
-#battleScreen .rs-emblem h2.long{flex-direction:column;gap:8px;font-size:clamp(22px,calc(26vw / var(--n,4)),52px)}
-.rs-en{font-style:normal;font-family:var(--sans);font-weight:500;font-size:12px;letter-spacing:.32em;color:rgba(255,255,255,.92);text-shadow:none}
-.rs-en.v{writing-mode:vertical-rl;text-orientation:mixed;font-size:max(9px,.13em)}
+/* v197 徽章重新設計（使用者 11/10 14:26「優化勝利標示」）：金邊雙線框菱形＋背後放射光＋掃光＋星芒；文字改成一行大字（金白漸層）＋下方英文小字，整組收在菱形裡面。
+   尺寸全部由 --ew（徽章寬）推算，三種版面只改 --ew。 */
+.rs-emblem{--ew:clamp(152px,24vw,336px);--c1:#a58bff;--c2:#5b3fd8;--c3:#2a1c86;--c4:#150d4a;--rim:#ffe6a3;--rimA:rgba(255,230,163,.6);--glow:rgba(140,110,255,.6);--ink:rgba(22,10,70,.6);
+  position:relative;flex:0 0 auto;width:var(--ew);aspect-ratio:1;display:grid;place-items:center;animation:rsPop .55s .2s cubic-bezier(.2,1.4,.3,1) both}
+#battleScreen .b-result.lose .rs-emblem{--c1:#e0697a;--c2:#a02a3c;--c3:#5a1220;--c4:#2a070e;--rim:#f1d3d3;--rimA:rgba(241,211,211,.55);--glow:rgba(200,50,70,.45);--ink:rgba(50,6,14,.6)}
+#battleScreen .b-result.fled .rs-emblem{--c1:#a3b1c4;--c2:#5d6c80;--c3:#333e4d;--c4:#1a212b;--rim:#e3e9f1;--rimA:rgba(227,233,241,.55);--glow:rgba(120,140,170,.35);--ink:rgba(10,16,24,.6)}
+.rs-emblem i{position:absolute;inset:15%;border-radius:calc(var(--ew) * .02);transform:rotate(45deg)}
+/* 背後的放射光（只有勝利）：慢慢轉，外圈淡出 */
+.rs-rays{position:absolute;inset:-34%;border-radius:50%;pointer-events:none;opacity:0;background:repeating-conic-gradient(from 0deg,rgba(255,232,170,0) 0 7deg,rgba(255,232,170,.2) 7deg 9deg,rgba(255,232,170,0) 9deg 15deg);
+  -webkit-mask-image:radial-gradient(circle,#000 22%,rgba(0,0,0,.55) 42%,transparent 68%);mask-image:radial-gradient(circle,#000 22%,rgba(0,0,0,.55) 42%,transparent 68%)}
+#battleScreen .b-result.win .rs-rays{animation:rsRaysIn .8s .5s both,rsSpin 28s linear infinite}
+.rs-emblem::before{content:"";position:absolute;inset:4%;border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 66%);pointer-events:none}
+/* 後面兩片錯開的菱形：細金線框 */
+.rs-emblem .d2,.rs-emblem .d3{background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.02));box-shadow:inset 0 0 0 1px var(--rimA)}
+.rs-emblem .d2{transform:translate(-9%,6%) rotate(45deg)}.rs-emblem .d3{transform:translate(9%,-6%) rotate(45deg)}
+/* 主菱形：四段漸層＋金邊雙線框＋左上高光＋掃光 */
+.rs-emblem .d1{overflow:hidden;background:linear-gradient(135deg,var(--c1) 0%,var(--c2) 36%,var(--c3) 72%,var(--c4) 100%);
+  box-shadow:inset 0 0 0 2px var(--rim),inset 0 0 0 calc(var(--ew) * .028) var(--ink),inset 0 0 0 calc(var(--ew) * .028 + 1px) var(--rimA),0 0 calc(var(--ew) * .16) var(--glow),0 calc(var(--ew) * .07) calc(var(--ew) * .16) rgba(8,4,40,.6)}
+.rs-emblem .d1::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,.08) 30%,transparent 52%)}
+.rs-emblem .d1::after{content:"";position:absolute;top:-20%;bottom:-20%;left:-60%;width:38%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:rotate(-45deg) translateX(0);animation:rsShine 3.6s 1s ease-in-out infinite}
+/* 上下頂點的小金菱 */
+.rs-gem{position:absolute;left:50%;width:calc(var(--ew) * .06);aspect-ratio:1;margin-left:calc(var(--ew) * -.03);border-radius:1px;transform:rotate(45deg);background:linear-gradient(135deg,#fff7dc,var(--rim) 45%,#c9973a);box-shadow:0 0 calc(var(--ew) * .05) var(--rimA);z-index:3}
+.rs-gem.t{top:-2.5%}.rs-gem.b{bottom:-2.5%}
+/* 星芒 */
+.rs-sp{position:absolute;width:calc(var(--ew) * .09);aspect-ratio:1;background:#fff;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);opacity:0;z-index:3;pointer-events:none;filter:drop-shadow(0 0 4px var(--rim))}
+#battleScreen .b-result.win .rs-sp{animation:rsTwinkle 2.4s ease-in-out infinite}
+.rs-sp.s1{left:8%;top:22%;animation-delay:.9s!important}.rs-sp.s2{right:6%;top:30%;width:calc(var(--ew) * .06);animation-delay:1.5s!important}.rs-sp.s3{left:20%;bottom:10%;width:calc(var(--ew) * .05);animation-delay:2.1s!important}.rs-sp.s4{right:18%;bottom:14%;width:calc(var(--ew) * .075);animation-delay:1.2s!important}
+/* 文字：一行大字＋英文小字，整組在菱形內 */
+#battleScreen .rs-emblem h2{position:relative;z-index:2;margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--ew) * .035);line-height:1;white-space:nowrap;text-shadow:none;transform:translateY(calc(var(--ew) * .012))}
+.rs-cn{display:flex;align-items:center;justify-content:center;gap:.06em;font-family:var(--serif);font-weight:900;font-size:calc(var(--ew) * .62 / (var(--n,2) + .3));line-height:1;letter-spacing:0;filter:drop-shadow(0 calc(var(--ew) * .012) 0 var(--ink)) drop-shadow(0 0 calc(var(--ew) * .05) var(--rimA))}
+.rs-cn b,.rs-cn.long{font-weight:900;color:#fff;background:linear-gradient(180deg,#ffffff 0%,#fff8e2 46%,var(--rim) 74%,#d9a441 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#battleScreen .b-result.lose .rs-cn b,#battleScreen .b-result.lose .rs-cn.long,#battleScreen .b-result.fled .rs-cn b,#battleScreen .b-result.fled .rs-cn.long{background-image:linear-gradient(180deg,#ffffff 0%,#f2f4f8 55%,var(--rim) 100%)}
+.rs-cn b{display:block;animation:rsSlam .42s calc(.42s + var(--k,0) * .12s) cubic-bezier(.2,1.3,.3,1) both}
+.rs-cn.long{font-size:calc(var(--ew) * 1.02 / (var(--n,4) + 1.6));animation:rsSlam .42s .42s cubic-bezier(.2,1.3,.3,1) both}
+.rs-en{display:flex;align-items:center;gap:calc(var(--ew) * .03);font-style:normal;font-family:var(--num);font-weight:400;font-size:calc(var(--ew) * .062);line-height:1;letter-spacing:.34em;padding-left:.34em;color:var(--rim);text-shadow:0 1px 0 var(--ink);animation:rsFade .5s .75s both}
+.rs-en::before,.rs-en::after{content:"";width:calc(var(--ew) * .07);height:1px;background:linear-gradient(90deg,transparent,var(--rim))}.rs-en::after{transform:scaleX(-1);margin-left:-.34em}
+@keyframes rsSlam{0%{opacity:0;transform:scale(1.9)}60%{opacity:1}100%{opacity:1;transform:scale(1)}}
+@keyframes rsShine{0%,55%{transform:rotate(-45deg) translateX(0)}85%,100%{transform:rotate(-45deg) translateX(520%)}}
+@keyframes rsRaysIn{to{opacity:1}}@keyframes rsSpin{to{transform:rotate(360deg)}}
+@keyframes rsTwinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0)}50%{opacity:1;transform:scale(1) rotate(45deg)}}
 #battleScreen .rs-desc{flex:0 1 auto;min-height:0;max-width:min(440px,100%);max-height:32vh;overflow-y:auto;color:#d5deea;font-size:14px;line-height:22px;animation:rsFade .5s .45s both}
 #battleScreen .rs-desc p{margin:0 0 4px;line-height:22px;color:#d5deea}
 #battleScreen .rs-desc b{color:#ffd98a}
@@ -67,9 +94,7 @@
 @media (orientation:portrait){
   #battleScreen .b-result{flex-direction:column;align-items:center;padding:calc(24px + var(--safeT,0px)) 0 calc(24px + var(--safeB,0px));gap:16px;box-sizing:border-box}
   .rs-side{display:contents}
-  .rs-emblem{order:1;width:clamp(136px,40vw,216px)}
-  #battleScreen .rs-emblem h2{font-size:clamp(44px,13vw,80px)}
-  #battleScreen .rs-emblem h2.long{font-size:clamp(20px,calc(44vw / var(--n,4)),44px)}
+  .rs-emblem{order:1;--ew:clamp(152px,46vw,240px);margin:8px 0}
   .rs-team{order:2;flex:1 1 0;min-height:0;width:100%;height:auto;padding:0 16px;justify-content:center;align-items:stretch}
   .rs-strip{height:auto;width:clamp(56px,calc((100vw - 48px) / var(--n,3)),152px);border-radius:8px}
   #battleScreen .rs-desc{order:3;flex:0 0 auto;max-height:24vh;padding:0 24px;box-sizing:border-box}
@@ -80,10 +105,9 @@
 /* 手機橫式（高度不足）：字級與間距收小 */
 @media (orientation:landscape) and (max-height:520px){
   .rs-side{gap:8px;padding:16px calc(16px + var(--safeR,0px)) 48px 16px}
-  .rs-emblem{width:clamp(128px,22vw,176px)}
-  #battleScreen .rs-emblem h2{font-size:clamp(40px,6.4vw,64px)}
+  .rs-emblem{--ew:clamp(128px,22vw,176px)}
   #battleScreen .rs-desc{font-size:13px;line-height:20px;max-height:28vh}#battleScreen .rs-desc p{line-height:20px}
   .rs-tap{bottom:calc(16px + var(--safeB,0px));font-size:13px}
   .rs-team{padding-left:calc(16px + var(--safeL,0px))}
 }
-@media (prefers-reduced-motion:reduce){.rs-strip,.rs-emblem,.rs-up,.rs-exp u,.rs-tap,#battleScreen .rs-desc{animation:none}}
+@media (prefers-reduced-motion:reduce){.rs-strip,.rs-emblem,.rs-up,.rs-exp u,.rs-tap,#battleScreen .rs-desc,.rs-cn b,.rs-cn.long,.rs-en,.rs-emblem .d1::after,.rs-sp{animation:none!important}#battleScreen .b-result.win .rs-rays{animation:none;opacity:1}}
