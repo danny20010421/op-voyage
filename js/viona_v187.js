@@ -184,8 +184,10 @@
   const wait = ms => sl(ms / (window.BSPEED || 1));
   /* v194：維歐娜上場時先把五張特效素材解碼好（實測第一次放「萬王俯首」時，翅膀圖在出招當下才解碼，卡了約 0.3 秒） */
   let warmed = false; function warm() { movPre(); if (warmed) return; warmed = true; Object.values(IMG).forEach(i => { try { if (i.decode) i.decode().catch(() => { }); } catch (e) { } }); }
-  /* v201 使用者 11/12 19:15：第 4 招「維納斯降臨」先在戰鬥畫面全螢幕播放變身影片（assets/video/viona_venus.mp4／.webm，4 秒、1280×720、約 1.5MB），
-     播完（或點一下跳過）再接原本立繪上的技能特效、化身維納斯型態。
+  /* v201b 使用者 11/12 19:24「是在戰鬥系統的背景圖改成播變身動畫，不是直接變螢幕」：影片放在戰鬥背景那一層（#bBg／#bGL 上面、角色與介面下面），
+     雙方角色、血條、技能欄照常顯示；播完淡回原本的背景。
+     v201 使用者 11/12 19:15：第 4 招「維納斯降臨」先播放變身影片（assets/video/viona_venus.mp4／.webm，4 秒、1280×720、約 1.5MB），
+     播完再接原本立繪上的技能特效、化身維納斯型態。
      - 有維歐娜的戰鬥一開始就先下載；直向手機用 object-fit:cover 裁左右，人物在正中間不受影響。
      - 聲音跟著設定裡的音效音量／靜音；背景音樂播放期間降到 25%；瀏覽器不允許有聲自動播放時改成靜音播放；影片載入失敗直接跳過。
      - 戰鬥倍速 ×2 以上時影片也加速（最多 2 倍）。 */
@@ -193,16 +195,16 @@
   function movPre() { if (movEl) return movEl; const v = document.createElement('video'); v.preload = 'auto'; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', ''); v.poster = POSTER; v.muted = true; /* 先用 mp4（iPhone、Safari），不支援 H.264 的瀏覽器改用 webm */
     [[MOV, 'video/mp4'], [MOV.replace('.mp4', '.webm'), 'video/webm']].forEach(([src, type]) => { const so = document.createElement('source'); so.src = src; so.type = type; v.appendChild(so); });
     if (!document.getElementById('vioMovCss')) { const c = document.createElement('style'); c.id = 'vioMovCss';
-      c.textContent = '.vio-movbox{position:absolute;inset:0;z-index:40;background:#000;opacity:0;transition:opacity .2s;cursor:pointer;overflow:hidden}.vio-movbox.in{opacity:1}.vio-movbox.out{opacity:0;transition:opacity .25s}.vio-movbox video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}.vio-movbox i{position:absolute;right:16px;bottom:16px;height:32px;padding:0 16px;border-radius:16px;display:flex;align-items:center;justify-content:center;font:700 12px/1 system-ui,sans-serif;font-style:normal;color:rgba(255,255,255,.85);background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25)}';
+      c.textContent = '#battleScreen .vio-movbox{position:absolute;inset:0;z-index:0;opacity:0;transition:opacity .35s;overflow:hidden;pointer-events:none;background:#12061c}#battleScreen .vio-movbox.in{opacity:1}#battleScreen .vio-movbox.out{opacity:0;transition:opacity .5s}.vio-movbox video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.82) saturate(1.05)}';
       document.head.appendChild(c); }
     try { v.load(); } catch (e) { } return (movEl = v); }
   const duck = k => { try { if (window.MUSIC && MUSIC.duck) MUSIC.duck(k); } catch (e) { } };
-  function movie() { return new Promise(res => { const scr = document.getElementById('battleScreen'); if (!scr) return res();
-    const v = movPre(), box = document.createElement('div'); box.className = 'vio-movbox'; box.innerHTML = '<i>點擊跳過</i>'; box.insertBefore(v, box.firstChild); scr.appendChild(box);
-    let done = false; const end = () => { if (done) return; done = true; duck(1); box.classList.add('out'); setTimeout(() => { try { v.pause(); } catch (e) { } box.remove(); res(); }, 260); };
+  function movie() { return new Promise(res => { const bg = document.getElementById('bBg'); if (!bg) return res();
+    const v = movPre(), box = document.createElement('div'); box.className = 'vio-movbox'; box.appendChild(v); const gl = document.getElementById('bGL'); ((gl && gl.parentNode === bg.parentNode) ? gl : bg).insertAdjacentElement('afterend', box);
+    let done = false; const end = () => { if (done) return; done = true; duck(1); box.classList.add('out'); res(); setTimeout(() => { try { v.pause(); } catch (e) { } box.remove(); }, 520); }; /* 背景開始淡回時就接立繪特效 */
     const P = (window.AUDIO && AUDIO.pref) || {}; v.muted = !!P.muted; try { v.volume = Math.max(0, Math.min(1, P.sfx == null ? .8 : P.sfx)); } catch (e) { }
     try { v.currentTime = 0; } catch (e) { } const rate = Math.max(1, Math.min(2, window.BSPEED || 1)); try { v.playbackRate = rate; } catch (e) { }
-    v.onended = end; const lastSrc = v.querySelector('source:last-child'); if (lastSrc) lastSrc.onerror = end; v.onerror = end; box.onclick = end; setTimeout(end, 4000 / rate + 3000);
+    v.onended = end; const lastSrc = v.querySelector('source:last-child'); if (lastSrc) lastSrc.onerror = end; v.onerror = end; setTimeout(end, 4000 / rate + 3000);
     duck(.25); const p = v.play(); if (p && p.catch) p.catch(() => { if (done) return; v.muted = true; const q = v.play(); if (q && q.catch) q.catch(end); });
     requestAnimationFrame(() => box.classList.add('in')); }); }
   /* fw：用特效畫布的時間等待（不是牆上時鐘）。手機掉幀時畫布時間會變慢，用它排程才不會「刀還沒劈下、刀光先出來」。分頁在背景（畫布停止）時，最多等到原本時間的 3 倍再加 1 秒就放行。 */
