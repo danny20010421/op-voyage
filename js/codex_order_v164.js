@@ -16,7 +16,7 @@
       'sengoku|佛之戰國|m tsuru|鶴中將|m kizaru|黃猿|m akainu|赤犬|m sentomaru|戰桃丸|m momonga|摩摩加中將|m garp_mf|卡普（頂上戰爭）|m koby_mf|克比（頂上戰爭）|m magellan|麥哲倫|m hannyabal|漢尼拔|m sadi|莎蒂|m charlos|查爾洛斯聖|m kong|空|m ' +
       'fujitora|藤虎|d stussy|史塔西|w ryokugyu|綠牛|o garp_hc|卡普（蜂巢島）|h koby_hc|克比（蜂巢島）|h hibari|希巴莉|h grus|普林斯·格魯斯|h ' +
       'saturn|傑格西亞·沙杜恩聖|g mars|馬可斯·馬斯聖|g warcury|托普曼·沃丘里聖|g nusjuro|伊森巴隆·V·納斯壽郎聖|g jupeter|謝帕德·十·彼得聖|g'],
-    ['warlord', '王下七武海', 'mihawk|喬拉可爾·密佛格|e mihawk_w|喬拉可爾·密佛格（七武海）|m crocodile|沙·克洛克達爾|a doflamingo|唐吉訶德·多佛朗明哥|s kuma|巴索羅繆·大熊|t kuma_eh|巴索羅繆·大熊（蛋頭島）|g ' +
+    ['warlord', '王下七武海', 'mihawk_w|喬拉可爾·密佛格（七武海）|m mihawk|喬拉可爾·密佛格|e crocodile|沙·克洛克達爾|a doflamingo|唐吉訶德·多佛朗明哥|s kuma|巴索羅繆·大熊|t kuma_eh|巴索羅繆·大熊（蛋頭島）|g ' +
       'moria|月光·莫莉亞|t law|托拉法爾加·羅|m law_w|托拉法爾加·羅（七武海）|d hancock|波雅·漢庫克|m weevil|愛德華·衛伯|w blackbeard_w|馬歇爾·D·汀奇（七武海）|m'],
     ['wb', '白鬍子海賊團', 'ace|波特卡斯·D·艾斯|a marco|馬爾科|m jozu|鑽石·喬斯|m vista|花劍·比斯塔|m izo|以藏|m thatch|薩奇|m squard|斯庫亞德|m oars_jr|小奧斯Jr.|m'],
     ['rh', '紅髮海賊團', 'uta|美音|e beckman|班·貝克曼|e yasopp|耶穌布|e lucky_roux|拉基·路|e limejuice|萊姆瓊斯|e rockstar|洛克斯達|m'],

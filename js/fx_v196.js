@@ -18,14 +18,15 @@
     ace: { '火拳': 'ace_fist', '火槍': 'ace_gun' }, burgess: { '冠軍・巨岩粉碎': 'burgess_rock' }, enel: { '放電': 'enel_discharge', '電光': 'enel_flash' },
     rocks: { '蝕': 'rocks_eclipse', '殺': 'rocks_kill', '戴維的秘密': 'rocks_secret' },
     crocodile: { '沙嵐（沙塵暴）': 'croc_storm', '沙漠寶刀': 'croc_sabre' }, aokiji: { '冰河時期': 'aokiji_age', '暴雉嘴': 'aokiji_pheasant', '冰刀': 'aokiji_blade' },
-    kuma: { '肉球砲': 'kuma_paw', '痛苦泡泡': 'kuma_bubble', '毀滅光炮': 'kuma_beam' }, mihawk_w: { '斬擊': 'mihawk_slash', '劍氣狀態': 'mihawk_aura', '洞察弱點': 'mihawk_eye' } };
+    kuma: { '肉球砲': 'kuma_paw', '痛苦泡泡': 'kuma_bubble', '毀滅光炮': 'kuma_cannon' }, mihawk_w: { '斬擊': 'mihawk_slash', '劍氣狀態': 'mihawk_aura', '洞察弱點': 'mihawk_eye' },
+    mihawk: { '普攻': 'mihawk_slash', '劍氣狀態': 'mihawk_aura', '洞察弱點': 'mihawk_eye' } };
   MAP.luffy['解放的鼓動'] = 'luffy_drum';
   /* 素材上的定位點（佔圖寬、圖高的比例） */
   const AN = { dragon: { head: [.106, .592] }, burst: { base: [.491, .873] }, heart: { c: [.207, .557], tip: .979 }, drum: { c: [.525, .492] }, quake: { c: [.489, .514] }, ghosts: { c: [.502, .518] }, ghost: { c: [.569, .502] }, rail: { ring: [.923, .515], hit: [.148, .521] },
     luffy_pistol: { fist: [.8, .52] }, luffy_rocket: { fist: [.84, .5] }, kizaru_jewel: { o: [.19, .4] }, kizaru_sword: { o: [.27, .47], tip: [.986, .676] }, ace_fist: { fist: [.88, .55] }, ace_gun: { head: [.96, .57] },
     burgess_rock: { head: [.84, .6] }, enel_discharge: { o: [.12, .53], end: [.98, .52] }, enel_flash: { base: [.5, .96] }, rocks_eclipse: { head: [.92, .55] }, rocks_kill: { o: [.02, .34], hit: [.86, .6] }, rocks_secret: { c: [.5, .52] },
     croc_storm: { base: [.5, .93] }, croc_sabre: { c: [.72, .5] }, luffy_drum: { base: [.5, .97] }, aokiji_age: { base: [.5, .92] }, aokiji_pheasant: { c: [.5, .5] }, aokiji_blade: { c: [.55, .52] },
-    kuma_paw: { paw: [.73, .5] }, kuma_bubble: { c: [.5, .55] }, kuma_beam: { o: [.3, .47] }, mihawk_slash: { c: [.5, .6] }, mihawk_aura: { base: [.5, .97] }, mihawk_eye: { c: [.5, .5] } };
+    kuma_paw: { paw: [.73, .5] }, kuma_bubble: { c: [.5, .55] }, mihawk_slash: { c: [.5, .6] }, mihawk_aura: { base: [.5, .97] }, mihawk_eye: { c: [.5, .5] } };
   const IMG = {};
   const get = k => { if (!IMG[k]) { const i = new Image(); i.decoding = 'async'; i.src = `assets/fx/v196/${k}.webp?v=${V}`; IMG[k] = i; } return IMG[k]; };
   const ready = i => i && i.complete && i.naturalWidth > 0;
@@ -325,20 +326,35 @@
       X().particles({ x: e.x, y: e.y, n: 30, spd: [E * .9, E * 2.8], life: [.4, .9], size: [4, 10], colors: ['#3a1a30', '#5a2a4a', '#1a0a14'], shape: 'shard', g: 800 }); shake(); hit(A); await fw(200); shake(); hit(A); await fw(500); },
 
     /* ═════ v205 ═════ 克洛克達爾、巨人篇魯夫、青雉、大熊、密佛格（七武海） */
-    /* 克洛克達爾「沙嵐（沙塵暴）」：腳下捲起沙塵 → 巨大沙暴龍捲從對手腳下拔地而起、旋轉吞沒 → 連續沙礫打擊 */
-    croc_storm: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.croc_storm.base; sfx('sand'); X().tint('#2a1800', 1.9, .45); mv(A.S, 'float');
-      X().particles({ x: f.x, y: f.bot - 6, jx: u * .4, n: 22, ang: [-PI / 2 - .8, -PI / 2 + .8], spd: [u * .3, u * .9], life: [.5, 1], size: [3, 7], colors: ['#d8b070', '#b08040', '#f0d8a0'], shape: 'sand', g: -40 });
-      X().ring(f.x, f.bot - 4, { r1: u * .8, flat: .25, color: '#e8c080', w: 8, life: .5 }); await fw(260); sfx('whoosh'); sfx('sand');
-      /* 沙暴在克洛克達爾身前成形 → 貼著地面平移到對手身上 → 原地旋轉連打 */
-      const H = Math.min(Math.max(E * 1.9, u * 1.6), (Math.min(e.bot, f.bot) - visTop()) * 1.02), img = get('croc_storm'), W = Math.min(H * (ready(img) ? img.naturalWidth / img.naturalHeight : 1), visW() * .9);
-      const X0 = f.x + d * (u * .25 + W * .3), Y0 = f.bot + u * .03, X1 = e.x, Y1 = e.bot + E * .03, TR = .85, mvq = t => eIO(Math.min(1, t / TR));
-      const o = { life: 2.2, w: W, ax: an[0], ay: an[1], fx: d < 0, x: (q, t) => lerp(X0, X1, mvq(t)) + Math.sin(t * 9) * E * .04, y: (q, t) => lerp(Y0, Y1, mvq(t)), sy: (q, t) => Math.min(1, eOut(t / .22)), s: (q, t) => (.8 + .2 * mvq(t)) * (.94 + .06 * Math.sin(t * 14)), r: (q, t) => Math.sin(t * 7) * .04 - d * .06 * Math.sin(Math.min(1, t / TR) * PI), a: (q, t) => t > 1.8 ? Math.max(0, 1 - (t - 1.8) / .4) : Math.min(1, t / .1) };
-      sp('croc_storm', o); sp('croc_storm', Object.assign({}, o, { add: true, a: (q, t) => .22 * o.a(q, t) }));
-      for (let k = 0; k < 5; k++) { await fw(160); const x = lerp(X0, X1, mvq(.16 * (k + 1)));
-        X().particles({ x, y: lerp(Y0, Y1, mvq(.16 * (k + 1))) - 6, jx: W * .2, n: 12, ang: [-PI / 2 - .9, -PI / 2 + .9], spd: [u * .3, u * .9], life: [.4, .8], size: [3, 7], colors: ['#e8c890', '#b8884a', '#7a5428'], shape: 'sand', g: 200 }); if (k % 2) sfx('sand'); }
-      for (let k = 0; k < 6; k++) { await fw(k ? 150 : 60); sfx(k % 2 ? 'sand' : 'hit'); const y = e.bot - E * (.15 + .7 * Math.random());
-        X().particles({ x: e.x, y, jx: E * .35, n: 14, ang: d > 0 ? [-.6, .6] : [PI - .6, PI + .6], spd: [E * .6, E * 1.8], life: [.3, .6], size: [3, 7], colors: ['#e8c890', '#b8884a', '#7a5428'], shape: 'sand', g: 120 }); if (k % 2 === 0) hit(A); }
-      X().flash('#ffe8c0', .12, .25); hit(A); await fw(400); },
+    /* 克洛克達爾「沙嵐（沙塵暴）」v206：天色轉為黃沙 → 沙塵被吸進克洛克達爾高舉的手 → 主沙暴＋兩道小沙暴貼地平移 → 吞沒對手、沙流螺旋上升連打 → 沙暴炸散 */
+    croc_storm: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.croc_storm.base, FW = FXE.W, FH = FXE.H; sfx('sand'); X().tint('#3a2200', 3.4, .55); mv(A.S, 'float');
+      /* 全畫面沙塵：斜向飄動的沙線，強度隨時間升降 */
+      const SL = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), l: .03 + Math.random() * .08, v: .25 + Math.random() * .5, w: 1 + Math.random() * 2.5 }));
+      FXE.add({ life: 3.3, draw(c, q, dt, t) { const k = Math.min(1, t / .5) * Math.min(1, (3.3 - t) / .6); if (k <= 0) return; c.lineCap = 'round';
+        SL.forEach(s => { const x = ((s.x + d * s.v * t) % 1 + 1) % 1 * FW, y = s.y * FH + Math.sin(t * 3 + s.x * 9) * 8; c.strokeStyle = `rgba(232,196,128,${.32 * k})`; c.lineWidth = s.w; c.beginPath(); c.moveTo(x, y); c.lineTo(x - d * s.l * FW, y + s.l * FW * .18); c.stroke(); }); } });
+      try { X().cracks(f.x, f.bot - 2, { n: 6, len: u * .45 }); } catch (er) { }
+      const hand = { x: f.x + d * u * .12, y: f.top + u * .18 };
+      for (let k = 0; k < 4; k++) { const a0 = Math.random() * TAU;
+        X().particles({ x: hand.x + Math.cos(a0) * u * .7, y: hand.y + Math.sin(a0) * u * .5, jx: u * .3, jy: u * .3, n: 12, spd: [-u * 1.4, -u * .6], life: [.3, .5], size: [2, 5], colors: ['#f0d8a0', '#d0a060', '#fff0c8'], shape: 'sand' }); await fw(90); }
+      X().glow(hand.x, hand.y, { color: '#ffd890', r: u * .3, life: .45, hold: true }); X().ring(f.x, f.bot - 4, { r1: u * 1.1, flat: .25, color: '#e8c080', w: 10, life: .55 }); sfx('whoosh'); await fw(160);
+      const H = Math.min(Math.max(E * 2, u * 1.7), (Math.min(e.bot, f.bot) - visTop()) * 1.02), img = get('croc_storm'), W = Math.min(H * (ready(img) ? img.naturalWidth / img.naturalHeight : 1), visW() * .9);
+      const X0 = f.x + d * (u * .25 + W * .3), Y0 = f.bot + u * .03, X1 = e.x, Y1 = e.bot + E * .03, TR = .85, mvq = t => eIO(Math.min(1, t / TR)), END = 2.25;
+      const o = { life: END + .25, w: W, ax: an[0], ay: an[1], fx: d < 0, x: (q, t) => lerp(X0, X1, mvq(t)) + Math.sin(t * 11) * E * .04, y: (q, t) => lerp(Y0, Y1, mvq(t)), sy: (q, t) => Math.min(1, eOut(t / .22)),
+        s: (q, t) => (t < TR ? .8 + .2 * mvq(t) : t < END - .2 ? 1 + .18 * eOut((t - TR) / .4) : 1.18 + .5 * eOut((t - END + .2) / .45)) * (.95 + .05 * Math.sin(t * 16)), r: (q, t) => Math.sin(t * 8) * .045 - d * .06 * Math.sin(Math.min(1, t / TR) * PI),
+        a: (q, t) => t > END - .2 ? Math.max(0, 1 - (t - END + .2) / .45) : Math.min(1, t / .1) };
+      sp('croc_storm', o); sp('croc_storm', Object.assign({}, o, { add: true, a: (q, t) => (.2 + (t > END - .3 && t < END ? .5 : 0)) * o.a(q, t) }));
+      /* 兩道小沙暴跟在主沙暴兩側 */
+      [[-.32, .55, .15], [.28, .48, .3]].forEach(([dx, sc, dl]) => { const o2 = Object.assign({}, o, { life: END, w: W * sc, fx: d > 0, x: (q, t) => lerp(X0, X1, mvq(Math.max(0, t - dl))) + d * dx * W + Math.sin(t * 13 + dl) * E * .05,
+        a: (q, t) => (t < dl ? 0 : Math.min(.8, (t - dl) / .15)) * (t > END - .45 ? Math.max(0, 1 - (t - END + .45) / .4) : 1), s: (q, t) => .9 + .1 * Math.sin(t * 18 + dl * 9) }); sp('croc_storm', o2); });
+      for (let k = 0; k < 5; k++) { await fw(160); const q = mvq(.16 * (k + 1)); X().particles({ x: lerp(X0, X1, q), y: lerp(Y0, Y1, q) - 6, jx: W * .25, n: 14, ang: [-PI / 2 - .9, -PI / 2 + .9], spd: [u * .3, u * 1], life: [.4, .8], size: [3, 8], colors: ['#e8c890', '#b8884a', '#7a5428'], shape: 'sand', g: 200 }); if (k % 2) sfx('sand'); }
+      sfx('heavy'); X().ring(e.x, e.bot - 4, { r1: E * 1.6, flat: .25, color: '#ffe0a0', w: 12, life: .5 }); shake();
+      for (let k = 0; k < 8; k++) { await fw(k ? 120 : 40); sfx(k % 2 ? 'sand' : 'hit'); const y = e.bot - E * (.1 + .8 * Math.random()), sgn = k % 2 ? 1 : -1;
+        X().particles({ x: e.x + sgn * E * .35, y, jx: E * .1, n: 10, ang: [-PI / 2 - .3 + sgn * .6, -PI / 2 + .3 + sgn * .6], spd: [E * .8, E * 1.8], life: [.3, .6], size: [3, 7], colors: ['#f0d8a0', '#b8884a', '#7a5428'], shape: 'sand', g: -60 });
+        X().burst(e.x + (Math.random() - .5) * E * .4, y, { r: E * .16, color: 'rgba(255,220,150,.9)' }); if (k % 2 === 0) hit(A); }
+      await fw(120); sfx('explode'); sfx('heavy');
+      X().burst(e.x, e.y, { r: E * .9, color: 'rgba(255,214,140,.95)' }); X().ring(e.x, e.y, { r1: W * .6, color: '#fff0c8', w: 14, life: .5 }); X().ring(e.x, e.bot - 4, { r1: E * 2, flat: .25, color: '#e8c080', w: 16, life: .6 });
+      X().particles({ x: e.x, y: e.y, n: 50, spd: [E * 1, E * 3.2], life: [.5, 1], size: [3, 9], colors: ['#f0d8a0', '#b8884a', '#7a5428', '#fff0c8'], shape: 'sand', g: 300 });
+      try { X().cracks(e.x, e.bot - 2, { n: 10, len: E * 1 }); } catch (er) { } X().flash('#ffe8c0', .26, .4); shake(); hit(A); await fw(200); shake(); await fw(520); },
     /* 克洛克達爾「沙漠寶刀」：沙之刃由左到右劃開對手（裁切展開）→ 沙塵爆散 */
     croc_sabre: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.croc_sabre.c; sfx('sand'); mv(A.S, 'lunge');
       const dist = Math.abs(e.x - f.x), W = Math.min(Math.max(E * 2.4, dist * 1.05), visW() * .95), T = { x: e.x, y: e.y - E * .02 };
@@ -406,28 +422,49 @@
       await fw(780); sfx('explode'); sfx('heavy');
       X().burst(T.x, T.y, { r: E * .7, color: 'rgba(170,210,255,.95)' }); X().ring(T.x, T.y, { r1: E * 1.4, color: '#ffffff', w: 12, life: .45 }); X().ring(T.x, T.y, { r1: E * 1, color: '#6a8aff', w: 7, life: .5 });
       X().particles({ x: T.x, y: T.y, n: 30, spd: [E * .8, E * 2.4], life: [.4, .8], size: [4, 10], colors: ['#ffffff', '#cfe4ff', '#8aaaff'], shape: 'glow', add: true, g: 80 }); X().flash('#eef4ff', .18, .3); shake(); hit(A); await fw(480); },
-    /* 大熊「毀滅光炮」：身上的負面狀態被彈開、光圈護身 → 肉球光環展開 → 巨大光炮貫穿對手 */
-    kuma_beam: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.kuma_beam.o; sfx('ult'); X().tint('#000a2a', 2.0, .55);
-      /* 淨化：負面狀態從身上彈開（小光點往外散）→ 肉球掌心聚光 → 水平光炮直線貫穿對手 */
-      const T = { x: e.x, y: e.y - E * .05 }, O = { x: f.x + d * u * .32, y: Math.max(f.y - u * .05, T.y - E * .12) };
-      X().particles({ x: f.x, y: f.y, jx: u * .2, jy: u * .3, n: 18, spd: [u * .5, u * 1.3], life: [.3, .6], size: [2, 5], colors: ['#ffffff', '#bfe0ff', '#6aa8ff'], shape: 'spark', add: true });
-      X().ring(f.x, f.bot - 4, { r1: u * .7, flat: .25, color: '#bfe0ff', w: 7, life: .5 }); sfx('buff'); await fw(260);
-      mv(A.S, 'lunge'); X().glow(O.x, O.y, { color: '#bfe0ff', r: u * .22, life: .45, hold: true });
-      X().particles({ x: O.x, y: O.y, jx: u * .35, jy: u * .35, n: 16, spd: [-u * .9, -u * .4], life: [.25, .4], size: [2, 4], colors: ['#ffffff', '#bfe0ff'], shape: 'spark', add: true });
-      await fw(300); sfx('thunder'); sfx('explode');
-      /* 主圖：等比例縮放（肉球光環不變形），掌心光環對準大熊手前；光束不夠長時，用光束段水平延伸到對手身後 */
-      const img = get('kuma_beam'), ra = ready(img) ? img.naturalHeight / img.naturalWidth : .5, W0 = Math.min(Math.max(E * 2.2, u * 1.9), visW() * .7), H0 = W0 * ra;
-      const flick = t => .97 + Math.random() * .06, fade = (q, t) => t > .95 ? Math.max(0, 1 - (t - .95) / .35) : 1, rev = t => eOut(Math.min(1, t / .14));
-      const A0 = { life: 1.3, w: W0, ax: an[0], ay: an[1], fx: d < 0, x: O.x, y: O.y, s: (q, t) => (t < .12 ? .7 + .3 * t / .12 : 1), a: fade,
-        clip: (c, x0, y0, w, h, q, t) => c.rect(x0, y0 - h, w * Math.min(.64, an[0] + (1 - an[0]) * rev(t)) + 2, h * 3) };
-      sp('kuma_beam', A0); sp('kuma_beam', Object.assign({}, A0, { add: true, a: (q, t) => .35 * fade(q, t) }));
-      const P = O.x + d * W0 * (.55 - an[0]), Lb = Math.abs(T.x - P) + E * .6;
-      if (Lb > W0 * .45) { const WL = Lb / .45, B = { life: 1.3, w: WL, ax: .55, ay: an[1], fx: d < 0, x: P, y: O.y, sy: (q, t) => W0 / WL * flick(t), a: fade,
-          clip: (c, x0, y0, w, h, q, t) => { const k = eOut(Math.min(1, Math.max(0, t - .04) / .14)); c.rect(x0 + w * .55, y0 - h, w * .45 * k + 2, h * 3); } };
-        sp('kuma_beam', B); sp('kuma_beam', Object.assign({}, B, { add: true, a: (q, t) => .35 * fade(q, t) })); }
-      X().flash('#ffffff', .2, .3); await fw(140);
-      const HY = O.y; for (let k = 0; k < 6; k++) { await fw(k ? 120 : 40); sfx(k % 2 ? 'hit' : 'zap'); X().burst(T.x, HY, { r: E * (.32 + Math.random() * .15), color: 'rgba(170,215,255,.95)' }); X().ring(T.x, HY, { r1: E * .8, color: '#ffffff', w: 6, life: .3 }); hit(A); }
-      X().particles({ x: T.x, y: HY, n: 30, ang: d > 0 ? [-1.1, 1.1] : [PI - 1.1, PI + 1.1], spd: [E * .8, E * 2.4], life: [.4, .8], size: [3, 8], colors: ['#ffffff', '#cfe4ff', '#6aa8ff'], shape: 'spark', add: true, g: 120 }); shake(); await fw(520); },
+    /* 大熊「毀滅光炮」v206（重新設計，不使用素材圖）：負面狀態化成黑霧被彈飛、回復光與護盾 → 掌前浮現旋轉的巨大肉球印 → 肉球印收縮成光核 → 水平光炮（多層光束＋沿著光束推進的肉球衝擊波）→ 命中處炸出肉球形爆風 */
+    kuma_cannon: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h; sfx('ult'); X().tint('#000a24', 3, .6);
+      const T = { x: e.x, y: e.y - E * .05 }, O = { x: f.x + d * u * .34, y: Math.max(f.y - u * .05, T.y - E * .12) };
+      /* 肉球形狀（toes 朝向 dir）：大肉墊＋三個小肉球 */
+      const paw = (c, x, y, r, rot) => { c.save(); c.translate(x, y); c.rotate(rot); c.beginPath(); c.ellipse(-r * .2, 0, r * .42, r * .52, 0, 0, TAU);
+        [-.9, -.3, .3, .9].forEach(a => { const px = -r * .2 + r * .9 * Math.cos(a), py = r * .9 * Math.sin(a), rr = r * (Math.abs(a) > .5 ? .19 : .22); c.moveTo(px + rr, py); c.arc(px, py, rr, 0, TAU); }); c.restore(); };
+      /* 發光的實心肉球（徑向漸層填色＋外框） */
+      const pawFill = (c, x, y, r, rot, a) => { const g = c.createRadialGradient(x, y, r * .1, x, y, r * 1.2); g.addColorStop(0, `rgba(255,255,255,${a})`); g.addColorStop(.55, `rgba(160,210,255,${.75 * a})`); g.addColorStop(1, `rgba(60,120,255,${.25 * a})`);
+        c.shadowColor = '#6aa8ff'; c.shadowBlur = r * .5; paw(c, x, y, r, rot); c.fillStyle = g; c.fill(); c.lineWidth = Math.max(2, r * .06); c.strokeStyle = `rgba(235,248,255,${a})`; c.stroke(); c.shadowBlur = 0; };
+      const rot0 = d > 0 ? 0 : PI;
+      /* 1 淨化：黑霧被彈飛、綠色回復光上升、淡淡的護盾光膜 */
+      X().particles({ x: f.x, y: f.y, jx: u * .2, jy: u * .3, n: 26, spd: [u * .7, u * 1.6], life: [.4, .7], size: [8, 16], colors: ['rgba(40,20,60,.75)', 'rgba(70,40,90,.6)'], shape: 'smoke', g: -30 }); sfx('pop');
+      X().particles({ x: f.x, y: f.bot - u * .1, jx: u * .35, n: 18, ang: [-PI / 2 - .3, -PI / 2 + .3], spd: [u * .3, u * .8], life: [.6, 1], size: [3, 6], colors: ['#9affc8', '#d0ffe8', '#ffffff'], shape: 'glow', add: true, g: -40 });
+      FXE.add({ add: true, life: .9, draw(c, q, dt, t) { const a = Math.sin(Math.min(1, t / .9) * PI) * .55; c.strokeStyle = `rgba(170,215,255,${a})`; c.lineWidth = 3; c.beginPath(); c.ellipse(f.x, f.y, u * .42, u * .55, 0, 0, TAU); c.stroke();
+        c.fillStyle = `rgba(120,180,255,${a * .12})`; c.fill(); } }); sfx('buff'); await fw(420);
+      /* 2 掌前浮現巨大肉球印（旋轉、脈動）→ 收縮成光核 */
+      mv(A.S, 'lunge'); sfx('zap'); const R0 = Math.min(u * .7, E * .85, visW() * .2), CH = .8;
+      FXE.add({ add: true, life: CH, draw(c, q, dt, t) { const k = t / CH, r = R0 * (k < .6 ? eOut(k / .35) : 1 - .85 * eIn((k - .6) / .4)), a = k < .1 ? k / .1 : 1;
+        pawFill(c, O.x, O.y, Math.max(2, r), rot0 + Math.sin(t * 6) * .12, a * (.85 + .15 * Math.sin(t * 30)));
+        c.strokeStyle = `rgba(200,230,255,${.5 * a})`; c.lineWidth = 3; c.beginPath(); c.arc(O.x, O.y, r * 1.45 + 6 * Math.sin(t * 9), 0, TAU); c.stroke(); } });
+      for (let k = 0; k < 3; k++) { X().particles({ x: O.x, y: O.y, jx: u * .5, jy: u * .5, n: 14, spd: [-u * 1.2, -u * .5], life: [.25, .4], size: [2, 4], colors: ['#ffffff', '#bfe0ff'], shape: 'spark', add: true }); await fw(200); }
+      X().glow(O.x, O.y, { color: '#e0f0ff', r: u * .2, life: .3 }); await fw(150);
+      /* 3 光炮：外光暈＋主光束＋白色核心，閃爍；肉球衝擊波沿光束推進 */
+      sfx('thunder'); sfx('explode'); X().flash('#ffffff', .22, .3); shake();
+      const EX = T.x + d * E * .7, LEN = Math.abs(EX - O.x), BW = Math.min(E * .95, u * .8, visW() * .2), LIFE = 1.3;
+      FXE.add({ add: true, life: LIFE, draw(c, q, dt, t) { const grow = eOut(Math.min(1, t / .12)), fade = t > LIFE - .3 ? Math.max(0, (LIFE - t) / .3) : 1, fl = .9 + Math.random() * .2, len = LEN * grow;
+        c.save(); c.translate(O.x, O.y); if (d < 0) c.scale(-1, 1);
+        [[BW * 2.3, `rgba(60,120,255,${.22 * fade})`], [BW * 1.1 * fl, `rgba(120,190,255,${.55 * fade})`], [BW * .55 * fl, `rgba(210,240,255,${.9 * fade})`], [BW * .22, `rgba(255,255,255,${fade})`]].forEach(([w, col]) => {
+          const g = c.createLinearGradient(0, -w / 2, 0, w / 2); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, -w / 2, len, w);
+          [0, len].forEach(px => { const rg = c.createRadialGradient(px, 0, 0, px, 0, w * .6); rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = rg; c.fillRect(px - w * .6, -w * .6, w * 1.2, w * 1.2); }); });
+        /* 沿光束飛的細光線 */
+        c.strokeStyle = `rgba(255,255,255,${.7 * fade})`; c.lineWidth = 2; for (let i = 0; i < 6; i++) { const y = (Math.random() - .5) * BW * 1.2, x = Math.random() * len; c.beginPath(); c.moveTo(x, y); c.lineTo(Math.min(len, x + BW * 1.5), y); c.stroke(); }
+        c.restore(); pawFill(c, O.x, O.y, BW * .75 * (1 + .06 * Math.sin(t * 40)), rot0, fade * .9);
+        /* 肉球衝擊波：每 0.22 秒一圈，從掌心推進到對手 */
+        for (let i = 0; i < 4; i++) { const tt = t - i * .22; if (tt < 0 || tt > .5) continue; const p = eOut(tt / .5), x = O.x + d * LEN * p * .92;
+          c.strokeStyle = `rgba(220,240,255,${(1 - p) * .9 * fade})`; c.lineWidth = 6; c.save(); c.translate(x, O.y); c.scale(.4, 1); paw(c, 0, 0, BW * (1 + p * .4), rot0); c.restore(); c.stroke(); } } });
+      for (let k = 0; k < 6; k++) { await fw(k ? 120 : 130); sfx(k % 2 ? 'hit' : 'zap'); X().burst(T.x, O.y, { r: E * (.3 + Math.random() * .15), color: 'rgba(170,215,255,.95)' }); hit(A);
+        X().particles({ x: T.x, y: O.y, n: 10, ang: d > 0 ? [-.9, .9] : [PI - .9, PI + .9], spd: [E * .8, E * 2], life: [.3, .6], size: [2, 6], colors: ['#ffffff', '#bfe0ff', '#6aa8ff'], shape: 'spark', add: true }); }
+      /* 4 命中處炸出肉球形爆風 */
+      await fw(120); sfx('explode'); sfx('heavy');
+      FXE.add({ add: true, life: .7, draw(c, q, dt, t) { const p = eOut(t / .7); pawFill(c, T.x, O.y, E * (.45 + .8 * p), rot0, 1 - p); } });
+      X().burst(T.x, O.y, { r: E * .8, color: 'rgba(190,225,255,.95)' }); X().ring(e.x, e.bot - 4, { r1: E * 1.6, flat: .25, color: '#bfe0ff', w: 14, life: .6 });
+      X().particles({ x: T.x, y: O.y, n: 36, spd: [E * .9, E * 2.8], life: [.4, .9], size: [3, 8], colors: ['#ffffff', '#cfe4ff', '#6aa8ff'], shape: 'spark', add: true, g: 150 }); X().flash('#eef6ff', .2, .35); shake(); hit(A); await fw(200); shake(); await fw(560); },
     /* 密佛格（七武海）「斬擊」：紫黑色新月斬直接劈在對手身上（裁切展開）→ 斬痕炸裂 */
     mihawk_slash: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.mihawk_slash.c; sfx('dark'); mv(A.S, 'dash');
       const W = Math.min(Math.max(E * 2.1, u * 1.8), visW() * .85), T = { x: e.x, y: e.y - E * .05 }; await fw(130); sfx('slash');
@@ -455,13 +492,14 @@
       await fw(300); sfx('zap'); await fw(460); },
   };
 
+  const NOIMG = new Set(['kuma_cannon']); /* v206：全部用程式畫、不需要素材圖的招式 */
   const keyOf = (actor, skill) => { if (!actor || !skill) return null; const id = skill.copiedFrom && skill.copiedFrom.id ? skill.copiedFrom.id : actor.id; return (MAP[id] && MAP[id][skill.name]) || null; };
   /* 掛在最外層（做法同 fx_imu_v170.js）：其他特效層有些在 DOMContentLoaded 才包上去（fx_v138 主題光環、fx_v140 招牌動畫——凱多的藍色青龍、佩羅娜的小幽靈、
      尼卡的「咚」字——會跟這 8 招的新素材疊在一起），所以這 8 招直接由這裡接手，不再跑通用特效層；其他招式原樣交給內層。 */
   function install() { const cur = window.playChoreo; if (typeof cur !== 'function' || cur.__fx196) return;
     const w = async function (side, actor, idx, skill) { const k = keyOf(actor, skill);
       if (!k || typeof FXE === 'undefined' || typeof fighterPoint !== 'function') return cur.apply(this, arguments);
-      try { if (!(await need(k))) return cur.apply(this, arguments);
+      try { if (!NOIMG.has(k) && !(await need(k))) return cur.apply(this, arguments);
         FXE.ensure(); const S = side === 'P' ? 'L' : 'R', T = S === 'L' ? 'R' : 'L'; await VFX[k]({ S, T, f: pt(S), t: pt(T), d: S === 'L' ? 1 : -1 });
       } catch (e) { console.warn('fx196', e); return cur.apply(this, arguments); } };
     w.__fx196 = true; w.__fx3 = cur.__fx3; w.__vfx = cur.__vfx; w.__imu170 = cur.__imu170; window.playChoreo = w; try { playChoreo = w; } catch (e) { } }
@@ -469,7 +507,7 @@
   /* 開戰時先把出場角色會用到的素材載好、解碼好（不在場的角色不下載） */
   if (typeof startBattle === 'function') { const _sb = startBattle; startBattle = function () { const r = _sb.apply(this, arguments);
     try { install(); const b = typeof battle !== 'undefined' && battle; if (b) { const ids = new Set(); (b.team || []).forEach(f => ids.add(f.id)); (b.enemies || []).forEach(f => ids.add(f.id)); if (b.enemy) ids.add(b.enemy.id); if (b.player) ids.add(b.player.id);
-        ids.forEach(id => { if (MAP[id]) Object.values(MAP[id]).forEach(k => { const i = get(k); try { if (i.decode) i.decode().catch(() => { }); } catch (e) { } }); }); } } catch (e) { } return r; };
+        ids.forEach(id => { if (MAP[id]) Object.values(MAP[id]).forEach(k => { if (NOIMG.has(k)) return; const i = get(k); try { if (i.decode) i.decode().catch(() => { }); } catch (e) { } }); }); } } catch (e) { } return r; };
     try { window.startBattle = startBattle; } catch (e) { } }
   window.__fx196 = { VFX, MAP, pt, keyOf };
 })();

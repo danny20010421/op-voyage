@@ -28,15 +28,15 @@
   /* ── 喬拉可爾·密佛格（七武海）→ UR，瞬殺型 ── */
   if (CHARACTERS.mihawk_w && typeof CHAR_RARITY !== 'undefined') { CHAR_RARITY.mihawk_w = 'UR';
     const S = CHARACTERS.mihawk_w;
-    { const s = get('mihawk_w', '斬擊'); if (s) { s.power = 90; Object.assign(s.effect, { multiHitNormal: [3, 5], perHitPower: 90, executeChance: .03 });
-      s.desc = '以黑刀「夜」快速斬擊 3～5 次，3% 機率一刀斬殺。'; tag(s, '斬殺', 'red'); } }
+    { const s = get('mihawk_w', '斬擊'); if (s) { s.power = 90; Object.assign(s.effect, { multiHitNormal: [3, 5], perHitPower: 90, executeChance: .02 });
+      s.desc = '以黑刀「夜」快速斬擊 3～5 次，2% 機率一刀斬殺。'; tag(s, '斬殺', 'red'); } }
     { const s = get('mihawk_w', '劍氣狀態'); if (s) { Object.assign(s.effect, { healRange: [.2, .4], nextAttackMult: [1.3, 1.8], nextAttackMultTurns: 2 });
       s.desc = '劍氣纏身：回復 20～40% 體力，接下來 2 回合的下一次攻擊威力 ×1.3～1.8。'; } }
-    { const s = get('mihawk_w', '黑刀·夜'); if (s) { s.power = 185; Object.assign(s.effect, { executeChance: .08, randomMultiplierRange: [6, 13] });
-      s.desc = '一刀劈開冰山的斬擊：造成 6～13 倍傷害，8% 機率一刀斬殺。'; } }
+    { const s = get('mihawk_w', '黑刀·夜'); if (s) { s.power = 180; Object.assign(s.effect, { executeChance: .07, randomMultiplierRange: [6, 13] });
+      s.desc = '一刀劈開冰山的斬擊：造成 6～13 倍傷害，7% 機率一刀斬殺。'; } }
     { const s = get('mihawk_w', '洞察弱點'); if (s) { Object.assign(s.effect, { enemyDefDownTemp: [2, 2], weakTurns: 2, weakRange: [1.2, 1.6] });
       s.desc = '鷹眼看穿對手的破綻：清除對手的能力提升、對手防禦 -2（2 回合），並使對手虛弱 2 回合（受到 1.2～1.6 倍傷害）。'; } }
-    { const s = get('mihawk_w', '世界最強劍豪'); if (s) { Object.assign(s.effect, { dotSequence: [[.04, .07], [.04, .07], [.04, .07]] });
-      s.desc = '奧義。全能力 +1，1 回合內不受任何傷害，並讓對手連續 3 回合受到 4～7% 最大體力的斬擊傷害。'; } }
+    { const s = get('mihawk_w', '世界最強劍豪'); if (s) { Object.assign(s.effect, { dotSequence: [[.03, .06], [.03, .06], [.03, .06]] });
+      s.desc = '奧義。全能力 +1，1 回合內不受任何傷害，並讓對手連續 3 回合受到 3～6% 最大體力的斬擊傷害。'; } }
     void S; }
 })();
