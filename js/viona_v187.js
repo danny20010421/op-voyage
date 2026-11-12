@@ -234,7 +234,9 @@
     c.strokeStyle = '#ff9cf5'; c.lineWidth = 6; c.beginPath(); c.arc(0, 0, r * k, 0, TAU2); c.stroke(); c.lineWidth = 3; c.beginPath(); c.arc(0, 0, r * k * .72, 0, TAU2); c.stroke(); } });
   const TAU2 = PI * 2;
   /* 神妃：以握柄為支點畫刀；ang＝刀尖指向的角度 */
-  const sword = (L, o) => sp('sword', Object.assign({ w: L / BLADE, ax: .683, ay: .114 }, o, { r: (q, t) => o.ang(q, t) - SWORD_ANG }));
+  const sword = (L, o) => sp('sword', Object.assign({ w: L / BLADE, ax: .683, ay: .114 }, o, o.flipY ? { sy: -1, r: (q, t) => o.ang(q, t) - SWORD_ANG_F } : { r: (q, t) => o.ang(q, t) - SWORD_ANG }));
+  /* v204 使用者 11/12 21:23「神妃技能特效的刀需要上下鏡射」：flipY＝刀圖上下翻轉（刀尖方向不變，刀刃與護手換到另一側） */
+  const SWORD_ANG_F = Math.atan2(-1238, -58);
   /* v202 終焉·黃昏用的小工具 */
   function visTop() { try { const Ar = $$('bArena'), r = Ar.getBoundingClientRect(), k = r.height / (Ar.offsetHeight || 1), tb = document.querySelector('#battleScreen .b-top'); return ((tb ? tb.getBoundingClientRect().bottom : r.top) - r.top) / (k || 1); } catch (e) { return 0; } }
   /* 黃昏天空：放在戰場背景那一層（角色與介面下面），紫黑天頂→緋紅地平線＋一輪巨大的落日，結束時淡回原背景 */
@@ -281,7 +283,7 @@
       const mir = a => d > 0 ? a : PI - a, th0 = -PI / 2 - .75, th1 = .5;
       const ang = (q, t) => mir(t < .3 ? -PI / 2 : t < .5 ? lerp(-PI / 2, th0, eOut((t - .3) / .2)) : lerp(th0, th1, eIn((t - .5) / .15)));
       sword(L, { life: 1, x: (q, t) => t < .3 ? P0.x : lerp(P0.x, Pv.x, eOut((t - .3) / .2)), y: (q, t) => t < .3 ? P0.y - u * .05 * t / .3 : lerp(P0.y - u * .05, Pv.y, eOut((t - .3) / .2)),
-        s: (q, t) => t < .3 ? .6 + .4 * eOut(t / .3) : 1, a: (q, t) => t < .12 ? t / .12 : t > .82 ? Math.max(0, (1 - t) / .18) : 1, ang });
+        s: (q, t) => t < .3 ? .6 + .4 * eOut(t / .3) : 1, a: (q, t) => t < .12 ? t / .12 : t > .82 ? Math.max(0, (1 - t) / .18) : 1, ang, flipY: true });
       X().burst(P0.x, P0.y, { r: u * .25, color: '#e04cff', n: 14 }); X().ring(P0.x, P0.y, { r1: u * .4, color: '#ffd1f5', w: 6, life: .4 });
       await fw(500); SFX.play('whoosh');
       X().slash(Pv.x, Pv.y, { a: mir(th0), span: th1 - th0, ccw: d < 0, r: L * .95, w: E * .14, color: '#a63cff', life: .32 });
