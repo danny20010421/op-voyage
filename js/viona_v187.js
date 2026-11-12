@@ -14,7 +14,7 @@
    特效：紫紅色系漸層（VFX 表）。 */
 (function () {
   if (typeof CHARACTERS === 'undefined') return;
-  const V = 201, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
+  const V = 202, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
   const B = () => (typeof battle !== 'undefined' && battle) || null;
   const L = m => { try { log(m); } catch (e) { } };
   const R = (a, b) => a + Math.random() * (b - a), pct = x => Math.round(x * 100);
@@ -49,7 +49,7 @@
       S({ name: '維納斯降臨', type: 'support', power: 0, pp: 3, anima: 'awaken', desc: '【範圍】自身＋對手。進入「維納斯型態」2 回合，女神之印直接疊滿 3 層（立刻觸發被動臣服，之後歸零重新累積）；下回合攻擊 +30%、2 回合受到的傷害 -10%；對手 2 回合每回合受到 100～1000 固定傷害；清除自身的負面狀態與能力下降。這一回合對手的攻擊無效，並 100% 反彈。',
         tags: [['變身', 'gold'], ['反彈', 'green'], ['淨化', 'green'], ['固定傷害', 'red']],
         effect: { vioVenus: { turns: 2 }, nextAttackMult: 1.3, nextAttackMultTurns: 1, damageReductionTurns: 2, damageReductionValue: .1, clearSelfDebuffs: true, reflectTurns: 1, reflectMultiplier: 1, vioDot: [100, 1000, 2] } }),
-      S({ name: '終焉·黃昏', type: 'attack', power: 100, pp: 2, ultimate: true, anima: 'slash', desc: '奧義（無法用道具恢復次數）。【範圍】敵方全體。對手體力直接降到最大體力的 10%（BOSS 無效），再造成 520～1314% 傷害、無視 20～50% 防禦；每層女神之印最終傷害 +15%（最多 +45%）。45% 機率使對手「臣服」1 回合；隨機降低對手的技能共 5 次（BOSS 無效）。【維納斯型態下施放】追加一次 160% 的神罰傷害（無視 20% 減傷），並進入「自由」2 回合：不受任何控制與限制。施放後恢復自身最大體力 20%。',
+      S({ name: '終焉·黃昏', type: 'attack', power: 100, pp: 3 /* v202 使用者 11/12 19:32：使用次數 2 → 3 */, ultimate: true, anima: 'slash', desc: '奧義（無法用道具恢復次數）。【範圍】敵方全體。對手體力直接降到最大體力的 10%（BOSS 無效），再造成 520～1314% 傷害、無視 20～50% 防禦；每層女神之印最終傷害 +15%（最多 +45%）。45% 機率使對手「臣服」1 回合；隨機降低對手的技能共 5 次（BOSS 無效）。【維納斯型態下施放】追加一次 160% 的神罰傷害（無視 20% 減傷），並進入「自由」2 回合：不受任何控制與限制。施放後恢復自身最大體力 20%。',
         tags: [['奧義', 'gold'], ['斬殺', 'red'], ['全體', 'red'], ['臣服', 'red'], ['削次數', 'blue']], effect: { randomMultiplierRange: [5.2, 13.14], healRatio: .2, splash: 1, vioFinal: { sub: .45, pp: 5, venusMul: 1.6 }, noRestore: true } })
     ] };
   if (typeof CHARACTER_ORDER !== 'undefined' && !CHARACTER_ORDER.includes('viona')) CHARACTER_ORDER.push('viona');
@@ -235,6 +235,31 @@
   const TAU2 = PI * 2;
   /* 神妃：以握柄為支點畫刀；ang＝刀尖指向的角度 */
   const sword = (L, o) => sp('sword', Object.assign({ w: L / BLADE, ax: .683, ay: .114 }, o, { r: (q, t) => o.ang(q, t) - SWORD_ANG }));
+  /* v202 終焉·黃昏用的小工具 */
+  function visTop() { try { const Ar = $$('bArena'), r = Ar.getBoundingClientRect(), k = r.height / (Ar.offsetHeight || 1), tb = document.querySelector('#battleScreen .b-top'); return ((tb ? tb.getBoundingClientRect().bottom : r.top) - r.top) / (k || 1); } catch (e) { return 0; } }
+  /* 黃昏天空：放在戰場背景那一層（角色與介面下面），紫黑天頂→緋紅地平線＋一輪巨大的落日，結束時淡回原背景 */
+  function duskSky(ms) { const bg = $$('bBg'); if (!bg) return; const el = document.createElement('div'), dur = ms / (window.BSPEED || 1);
+    el.style.cssText = 'position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;background:radial-gradient(60% 46% at 62% 70%,rgba(255,170,120,.85) 0,rgba(255,96,140,.55) 26%,rgba(170,40,140,.25) 48%,transparent 62%),radial-gradient(22% 30% at 62% 72%,rgba(255,236,200,.95) 0,rgba(255,180,140,.6) 55%,transparent 100%),linear-gradient(180deg,#0c0418 0%,#2a0a3a 34%,#7a1e5a 62%,#d8566a 80%,#3a0e2a 100%)';
+    const gl = $$('bGL'); ((gl && gl.parentNode === bg.parentNode) ? gl : bg).insertAdjacentElement('afterend', el);
+    try { el.animate([{ opacity: 0 }, { opacity: .96, offset: .1 }, { opacity: .96, offset: .86 }, { opacity: 0 }], { duration: dur, fill: 'forwards' }); } catch (e) { }
+    setTimeout(() => el.remove(), dur + 80); }
+  /* 神紋魔法陣：兩圈＋六芒星＋刻度，旋轉；flat＝壓扁（地面上） */
+  const sigil = (x, y, r, o) => FXE.add({ add: true, life: o.life || 1.2, draw(c, q, dt, t) { const k = eOut(Math.min(1, t / .35)), a = fd(q, .08, .78); if (a <= 0) return;
+    c.globalAlpha = a; c.translate(x, y); c.scale(1, o.flat || 1); c.rotate(t * (o.spin || 1)); const R0 = r * k, col = o.color || '#ff9cf5';
+    const g = c.createRadialGradient(0, 0, 0, 0, 0, R0); g.addColorStop(0, 'rgba(255,79,216,.35)'); g.addColorStop(.7, 'rgba(166,60,255,.18)'); g.addColorStop(1, 'rgba(166,60,255,0)'); c.fillStyle = g; c.beginPath(); c.arc(0, 0, R0, 0, TAU2); c.fill();
+    c.strokeStyle = col; c.shadowColor = '#ff4fd8'; c.shadowBlur = 12; c.lineWidth = 4; c.beginPath(); c.arc(0, 0, R0, 0, TAU2); c.stroke(); c.lineWidth = 2; c.beginPath(); c.arc(0, 0, R0 * .86, 0, TAU2); c.stroke();
+    c.beginPath(); for (let i = 0; i < 48; i++) { const an = i / 48 * TAU2, l = i % 4 ? .04 : .09; c.moveTo(Math.cos(an) * R0 * .86, Math.sin(an) * R0 * .86); c.lineTo(Math.cos(an) * R0 * (.86 - l), Math.sin(an) * R0 * (.86 - l)); } c.stroke();
+    c.lineWidth = 2.5; [0, PI].forEach(o2 => { c.beginPath(); for (let i = 0; i <= 3; i++) { const an = o2 + i / 3 * TAU2 - PI / 2; const px = Math.cos(an) * R0 * .7, py = Math.sin(an) * R0 * .7; i ? c.lineTo(px, py) : c.moveTo(px, py); } c.stroke(); });
+    c.beginPath(); c.arc(0, 0, R0 * .3, 0, TAU2); c.stroke(); c.shadowBlur = 0; } });
+  /* 光點從四周螺旋吸進中心 */
+  const converge = (x, y, R, life, n) => { const P = []; for (let i = 0; i < n; i++) P.push({ a: Math.random() * TAU2, r: R * (.6 + Math.random() * .6), d: Math.random() * .5, s: 1.5 + Math.random() * 2.5, c: PK[i % PK.length] });
+    return FXE.add({ add: true, life, draw(c, q, dt, t) { P.forEach(p => { const k = Math.max(0, Math.min(1, (q - p.d * .6) / .55)); if (k <= 0 || k >= 1) return; const rr = p.r * (1 - eIn(k)), an = p.a + k * 2.4;
+      c.globalAlpha = Math.sin(k * PI); c.fillStyle = p.c; c.beginPath(); c.arc(x + Math.cos(an) * rr, y + Math.sin(an) * rr * .8, p.s, 0, TAU2); c.fill(); }); } }); };
+  /* 黃昏刀光：一道從施放者那側橫掃整個畫面的寬弧光 */
+  const duskBlade = (f, e, d) => { const W = Math.abs(e.x - f.x) + e.h * 2.4, cx = (f.x + e.x) / 2 + d * e.h * .3, cy = e.y - e.h * .05;
+    return FXE.add({ add: true, life: .55, draw(c, q) { const k = eOut(Math.min(1, q / .45)), a = q < .45 ? 1 : 1 - (q - .45) / .55; c.globalAlpha = a; c.translate(cx, cy); c.rotate(d * -.1); if (d < 0) c.scale(-1, 1);
+      const x0 = -W / 2, x1 = x0 + W * k, g = c.createLinearGradient(x0, 0, x1, 0); g.addColorStop(0, 'rgba(255,120,170,0)'); g.addColorStop(.7, 'rgba(255,150,200,.75)'); g.addColorStop(.97, '#ffffff'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      c.fillStyle = g; c.beginPath(); c.moveTo(x0, 0); c.quadraticCurveTo((x0 + x1) / 2, -e.h * .16, x1, -e.h * .02); c.quadraticCurveTo((x0 + x1) / 2, e.h * .1, x0, 0); c.fill(); } }); };
   const VFX = {
     /* ① 垂憐：白蛇從女帝背後探出頭 → 張口竄向對手 → 一口咬住（魅惑的粉紅光炸開） */
     '垂憐': async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h; SFX.play('dark'); X().tint('#2a0530', 1.1, .28);
@@ -289,26 +314,55 @@
       await fw(480); SFX.play('explode');
       orbBurst(f.x, f.top + u * .38, u * 1.2); X().pillar(f.x, f.bot, { w: u * .1, color: '#ff4fd8', life: .6 });
       X().rays(f.x, f.top + u * .38, { r: u * .8, n: 12, wid: 10, c1: 'rgba(255,209,245,.6)', life: .6 }); X().flash('#ffd1f5', .2, .18); shake(); await fw(300); },
-    /* ⑤ 終焉·黃昏：天色轉暗、背後雙翼張開 → 頭頂凝聚能量球 → 擲向對手爆炸 → 神妃從天而降插進對手腳下 → 光柱、衝擊波、十字斬 */
-    '終焉·黃昏': async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h; SFX.play('ult'); X().tint('#100014', 2.6, .6);
-      back(A.S, 'wings', { x: f.x, y: f.top + u * .32, w: u * 2.5, dur: 2300, kf: wingsKF(.85) });
-      const O = { x: f.x + d * u * .05, y: f.top - u * .22 };
-      sp('orb', { add: true, life: .95, x: O.x, y: O.y, w: u * .95, s: q => .12 + .88 * eOut(q * 1.2), a: q => Math.min(1, q * 4), r: (q, t) => t * 4 });
-      X().particles({ x: O.x, y: O.y, jx: u * .6, jy: u * .4, n: 20, spd: [10, 40], life: [.5, .8], size: [2, 5], colors: PK, shape: 'spark', add: true, g: -40 });
-      await fw(900); SFX.play('whoosh');
-      sp('orb', { add: true, life: .3, x: q => lerp(O.x, e.x, eIn(q)), y: q => lerp(O.y, e.y, eIn(q)), w: u * .95, s: q => lerp(1, E / u, q), r: (q, t) => t * 8 });
-      await fw(300); SFX.play('explode'); orbBurst(e.x, e.y, E * 1.6); boom(e.x, e.y, E * .4); moveFighter(A.T, 'recoil'); shake();
-      await fw(180);
-      const L = E * 1.55, yEnd = e.bot + E * .04 - L, yStart = -L * .2 - 40;
-      sword(L, { life: 1.05, x: e.x, y: (q, t) => lerp(yStart, yEnd, eIn(t / .22)), ang: () => PI / 2, a: (q, t) => t > .8 ? Math.max(0, (1.05 - t) / .25) : 1 });
-      await fw(220); SFX.play('explode');
-      X().pillar(e.x, e.bot, { w: E * .14, color: '#ff4fd8', life: .7 }); X().ring(e.x, e.bot, { r1: E * 1.6, flat: .25, color: '#ffd1f5', w: 12, life: .6 });
-      X().particles({ x: e.x, y: e.bot, jx: E * .2, n: 26, ang: [PI + .2, TAU2 - .2], spd: [E * 1, E * 2.6], life: [.4, .8], size: [3, 7], colors: PK, shape: 'spark', add: true, g: 420 });
-      X().flash('#ffd1f5', .2, .2); shake();
-      await fw(160);
-      X().slash(e.x, e.y, { a: -2.4, span: 1.6, r: E * .55, w: E * .08, color: '#ff4fd8', life: .28 });
-      await fw(90); X().slash(e.x, e.y, { a: -.7, span: 1.6, r: E * .55, w: E * .08, color: '#a63cff', life: .28, ccw: true });
-      await fw(380); }
+    /* ⑤ 終焉·黃昏（v202 使用者 11/12 19:32「已經很帥了，但我想更帥」重新編排，約 4.3 秒）：
+       ① 黃昏降臨：戰場背景換成黃昏天空（紫黑天頂→緋紅地平線，背後一輪巨大的落日），維歐娜腳下展開旋轉的神紋魔法陣，雙翼與白蛇從背後展開
+       ② 集氣：光點從四周螺旋吸進頭頂，三道光環收縮，能量球越來越大
+       ③ 三連星：能量球分裂成三顆，依序轟向對手（每顆都有爆炸與受擊）
+       ④ 天罰：對手頭頂裂開一個巨大的神紋陣，神妃帶著三道殘影從天插下 → 光柱、三重衝擊波、地面龜裂、碎石噴飛
+       ⑤ 終焉：十字斬＋一道橫掃全畫面的黃昏刀光，花瓣飄落，天空淡回原本的背景 */
+    '終焉·黃昏': async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h; SFX.play('ult'); duskSky(4300);
+      X().tint('#12001a', 1.2, .35);
+      sigil(f.x, f.bot - 2, u * .95, { life: 3.2, flat: .3, spin: .9 * d });
+      back(A.S, 'wings', { x: f.x, y: f.top + u * .32, w: Math.min(u * 2.8, Math.abs(e.x - f.x) * 1.5), dur: 3300, kf: wingsKF(.9) }); /* 直向手機兩人很近：翅膀不蓋住對手 */
+      back(A.S, 'snake', { x: f.x - d * u * .24, y: f.top + u * .36, w: u * 1.25, dur: 3000, ease: 'ease-out',
+        kf: [{ opacity: 0, transform: 'translate(0,45%) scale(.6) rotate(-8deg)' + M(d) }, { opacity: 1, transform: 'translate(0,0) scale(1) rotate(0)' + M(d), offset: .25 }, { opacity: 1, transform: 'translate(0,-3%) scale(1.03) rotate(3deg)' + M(d), offset: .85 }, { opacity: 0, transform: 'translate(0,-6%) scale(1.06)' + M(d) }] });
+      moveFighter(A.S, 'float');
+      /* ② 集氣 */
+      const O = { x: f.x + d * u * .04, y: f.top - u * .26 };
+      converge(O.x, O.y, u * 1.4, 1.0, 70);
+      for (let k = 0; k < 3; k++) setTimeout(() => X().ring(O.x, O.y, { r0: u * (.9 - k * .1), r1: u * .08, color: k % 2 ? '#ffd1f5' : '#e04cff', w: 5, life: .45 }), (180 + k * 260) / (window.BSPEED || 1));
+      sp('orb', { add: true, life: 1.2, x: O.x, y: O.y, w: u * 1.05, s: q => .1 + .9 * eOut(q * 1.15) + Math.sin(q * 40) * .02 * q, a: q => Math.min(1, q * 4) * (q > .92 ? (1 - q) / .08 : 1), r: (q, t) => t * 5 });
+      X().glow(O.x, O.y, { color: '#ff4fd8', r: u * .6, life: 1.2, hold: true });
+      await fw(1000); SFX.play('zap'); X().flash('#ffd1f5', .12, .12);
+      /* ③ 三連星 */
+      for (let k = 0; k < 3; k++) { const oy = O.y + (k - 1) * u * .22, ox = O.x - d * u * (.1 + k * .05), tx = e.x + (k - 1) * E * .12, ty = e.y - E * (.18 - k * .12);
+        sp('orb', { add: true, life: .28, x: q => lerp(ox, tx, eIn(q)), y: q => lerp(oy, ty, eIn(q)) - Math.sin(q * PI) * u * (k - 1) * .25, w: u * .55, s: q => lerp(1, E / u * 1.1, q), r: (q, t) => t * 9 });
+        SFX.play('whoosh'); await fw(260); SFX.play('explode'); orbBurst(tx, ty, E * 1.1); boom(tx, ty, E * .32); moveFighter(A.T, 'recoil'); if (k === 2) shake();
+        await fw(110); }
+      /* ④ 天罰 */
+      const skyY = Math.max(visTop() + E * .1, e.top - E * .55);
+      sigil(e.x, skyY, E * .85, { life: 1.4, flat: .32, spin: -1.4, color: '#ffd1f5' });
+      X().rays(e.x, skyY, { r: E * 1.1, n: 14, wid: 8, c1: 'rgba(255,209,245,.45)', life: .9 });
+      await fw(320); SFX.play('whoosh');
+      const L = E * 1.6, yEnd = e.bot + E * .04 - L, yStart = skyY - L * .9;
+      [.45, .3, .16].forEach((ga, gi) => sword(L, { add: true, life: .55, x: e.x, y: (q, t) => lerp(yStart, yEnd, eIn(Math.max(0, t - (gi + 1) * .035) / .22)), ang: () => PI / 2, a: (q, t) => (t < .25 ? ga : ga * Math.max(0, 1 - (t - .25) / .2)) }));
+      sword(L, { life: 1.25, x: e.x, y: (q, t) => lerp(yStart, yEnd, eIn(t / .22)), ang: () => PI / 2, a: (q, t) => t > 1 ? Math.max(0, (1.25 - t) / .25) : 1 });
+      sword(L, { add: true, life: 1.25, x: e.x, y: (q, t) => lerp(yStart, yEnd, eIn(t / .22)), ang: () => PI / 2, a: (q, t) => t < .22 ? .5 : Math.max(0, .5 - (t - .22) * 1.4) });
+      await fw(220); SFX.play('explode'); SFX.play('heavy');
+      X().pillar(e.x, e.bot, { w: E * .2, color: '#ff4fd8', life: .8 }); X().pillar(e.x, e.bot, { w: E * .08, color: '#ffffff', life: .5 });
+      [1.2, 1.8, 2.5].forEach((r, k) => setTimeout(() => X().ring(e.x, e.bot, { r1: E * r, flat: .25, color: k === 1 ? '#a63cff' : '#ffd1f5', w: 14 - k * 3, life: .55 + k * .1 }), k * 90 / (window.BSPEED || 1)));
+      try { X().cracks(e.x, e.bot - 2, { n: 12, len: E * 1.1 }); } catch (er) { }
+      X().particles({ x: e.x, y: e.bot, jx: E * .25, n: 34, ang: [PI + .15, TAU2 - .15], spd: [E * 1.2, E * 3], life: [.45, .9], size: [3, 8], colors: PK, shape: 'spark', add: true, g: 520 });
+      X().particles({ x: e.x, y: e.bot, jx: E * .3, n: 16, ang: [PI + .3, TAU2 - .3], spd: [E * .8, E * 1.8], life: [.6, 1], size: [5, 10], colors: ['#3a1a40', '#5a2a5a', '#2a1030'], shape: 'shard', g: 900 });
+      X().flash('#ffffff', .22, .28); moveFighter(A.T, 'recoil'); shake();
+      await fw(260); shake();
+      /* ⑤ 終焉 */
+      X().slash(e.x, e.y, { a: -2.4, span: 1.7, r: E * .62, w: E * .09, color: '#ff4fd8', life: .3 });
+      await fw(90); X().slash(e.x, e.y, { a: -.7, span: 1.7, r: E * .62, w: E * .09, color: '#a63cff', life: .3, ccw: true });
+      await fw(140); SFX.play('slash'); duskBlade(f, e, d);
+      X().particles({ x: e.x, y: visTop() + 4, jx: E * 1.6, n: 30, ang: [PI / 2 - .4, PI / 2 + .4], spd: [40, 120], life: [1.2, 1.8], size: [6, 10], colors: ['#ff9cf5', '#ffd1f5', '#e04cff'], shape: 'petal', g: 60 });
+      X().flash('#ffd1f5', .2, .22); moveFighter(A.T, 'recoil');
+      await fw(520); }
   };
   if (typeof playChoreo === 'function') { const _pc = playChoreo;
     window.playChoreo = playChoreo = async function (side, actor, idx, skill) {
