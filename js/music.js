@@ -30,7 +30,7 @@ const MUSIC_BY_SCREEN = { loginScreen: 'title', modeScreen: 'lobby', exchangeScr
   const playing = () => cur && !audio.paused;
   const screenNow = () => (typeof currentScreen !== 'undefined' ? currentScreen : null);
   function hold(on) { held = !!on; if (on) { ++token; clearInterval(fadeT); fadeT = 0; cur = null; audio.pause(); const au = A_(); try { au && au.stopSong && au.stopSong(); au && au.ambient && au.ambient(null); } catch (e) { } } }
-  window.MUSIC = { onScreen, hold, held: () => held, playing, refresh: () => { if (cur) audio.volume = vol(); }, state: () => ({ track: cur, src: audio.src.split('/').pop(), paused: audio.paused, time: +audio.currentTime.toFixed(1), duration: Math.round(audio.duration || 0), volume: +audio.volume.toFixed(2) }) };
+  window.MUSIC = { onScreen, hold, held: () => held, playing, duck: k => { if (!cur) return; clearInterval(fadeT); fadeT = 0; audio.volume = Math.max(0, Math.min(1, vol() * k)); } /* v201：暫時調低背景音樂（1＝恢復） */, refresh: () => { if (cur) audio.volume = vol(); }, state: () => ({ track: cur, src: audio.src.split('/').pop(), paused: audio.paused, time: +audio.currentTime.toFixed(1), duration: Math.round(audio.duration || 0), volume: +audio.volume.toFixed(2) }) };
   /* v107：播放失敗（檔案錯誤）時改用內建合成音樂；載入卡住時自動重新載入 */
   audio.addEventListener('error', () => { const k = cur; if (!k) return; console.warn('背景音樂載入失敗', k, audio.error && audio.error.code); exists[k] = Promise.resolve(false); const au = A_(); cur = null; if (au && au.playSong) au.playSong(FALLBACK[k] || 'map'); });
   let lastT = -1, stuck = 0;

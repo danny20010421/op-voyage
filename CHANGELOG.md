@@ -3,6 +3,11 @@
 每累積約 20 個版本統整一次。逐版的完整紀錄（v1～v97）保存在 [docs/archive/README_v1-v97_完整更新紀錄.md](docs/archive/README_v1-v97_完整更新紀錄.md)。
 
 ## 未統整（v98 起，下次在 v118 左右統整）
+### v201（使用者 11/12 19:15 提供維歐娜變身影片）
+決策 DEC-20261112-078。
+- 第 4 招「維納斯降臨」：先全螢幕播放 4 秒變身影片（可點擊跳過），再接立繪上的光螺旋、雙翼、白蛇、能量球特效並化身維納斯型態。
+- assets/video/viona_venus.mp4／.webm／_poster.webp（1280×720，約 1.5MB）；js/viona_v187.js movie()；js/music.js MUSIC.duck。
+- 測試：check-data、smoke；844×390、390×844 實測影片播放到結束、接特效、換成維納斯立繪，無錯誤或缺檔。
 ### v200（使用者 11/12 16:59 提供去背版的頭像、無名女郎、維納斯型態）
 - 換成使用者提供的透明背景原檔：assets/chars/viona_face.webp（頭像）、viona_bunny.webp（無名女郎）、viona_venus.webp（維納斯型態）；臉部位置依新圖重算。
 - 測試：check-data、smoke；手機直向／橫向截圖確認無名女郎與維納斯型態，沒有錯誤或缺檔。

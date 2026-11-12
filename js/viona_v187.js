@@ -14,7 +14,7 @@
    特效：紫紅色系漸層（VFX 表）。 */
 (function () {
   if (typeof CHARACTERS === 'undefined') return;
-  const V = 200, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
+  const V = 201, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
   const B = () => (typeof battle !== 'undefined' && battle) || null;
   const L = m => { try { log(m); } catch (e) { } };
   const R = (a, b) => a + Math.random() * (b - a), pct = x => Math.round(x * 100);
@@ -183,7 +183,28 @@
       c.drawImage(img, -w * (o.ax == null ? .5 : o.ax), -h * (o.ay == null ? .5 : o.ay), w, h); } }); }
   const wait = ms => sl(ms / (window.BSPEED || 1));
   /* v194：維歐娜上場時先把五張特效素材解碼好（實測第一次放「萬王俯首」時，翅膀圖在出招當下才解碼，卡了約 0.3 秒） */
-  let warmed = false; function warm() { if (warmed) return; warmed = true; Object.values(IMG).forEach(i => { try { if (i.decode) i.decode().catch(() => { }); } catch (e) { } }); }
+  let warmed = false; function warm() { movPre(); if (warmed) return; warmed = true; Object.values(IMG).forEach(i => { try { if (i.decode) i.decode().catch(() => { }); } catch (e) { } }); }
+  /* v201 使用者 11/12 19:15：第 4 招「維納斯降臨」先在戰鬥畫面全螢幕播放變身影片（assets/video/viona_venus.mp4／.webm，4 秒、1280×720、約 1.5MB），
+     播完（或點一下跳過）再接原本立繪上的技能特效、化身維納斯型態。
+     - 有維歐娜的戰鬥一開始就先下載；直向手機用 object-fit:cover 裁左右，人物在正中間不受影響。
+     - 聲音跟著設定裡的音效音量／靜音；背景音樂播放期間降到 25%；瀏覽器不允許有聲自動播放時改成靜音播放；影片載入失敗直接跳過。
+     - 戰鬥倍速 ×2 以上時影片也加速（最多 2 倍）。 */
+  const MOV = 'assets/video/viona_venus.mp4?v=201', POSTER = 'assets/video/viona_venus_poster.webp?v=201'; let movEl = null;
+  function movPre() { if (movEl) return movEl; const v = document.createElement('video'); v.preload = 'auto'; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', ''); v.poster = POSTER; v.muted = true; /* 先用 mp4（iPhone、Safari），不支援 H.264 的瀏覽器改用 webm */
+    [[MOV, 'video/mp4'], [MOV.replace('.mp4', '.webm'), 'video/webm']].forEach(([src, type]) => { const so = document.createElement('source'); so.src = src; so.type = type; v.appendChild(so); });
+    if (!document.getElementById('vioMovCss')) { const c = document.createElement('style'); c.id = 'vioMovCss';
+      c.textContent = '.vio-movbox{position:absolute;inset:0;z-index:40;background:#000;opacity:0;transition:opacity .2s;cursor:pointer;overflow:hidden}.vio-movbox.in{opacity:1}.vio-movbox.out{opacity:0;transition:opacity .25s}.vio-movbox video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}.vio-movbox i{position:absolute;right:16px;bottom:16px;height:32px;padding:0 16px;border-radius:16px;display:flex;align-items:center;justify-content:center;font:700 12px/1 system-ui,sans-serif;font-style:normal;color:rgba(255,255,255,.85);background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25)}';
+      document.head.appendChild(c); }
+    try { v.load(); } catch (e) { } return (movEl = v); }
+  const duck = k => { try { if (window.MUSIC && MUSIC.duck) MUSIC.duck(k); } catch (e) { } };
+  function movie() { return new Promise(res => { const scr = document.getElementById('battleScreen'); if (!scr) return res();
+    const v = movPre(), box = document.createElement('div'); box.className = 'vio-movbox'; box.innerHTML = '<i>點擊跳過</i>'; box.insertBefore(v, box.firstChild); scr.appendChild(box);
+    let done = false; const end = () => { if (done) return; done = true; duck(1); box.classList.add('out'); setTimeout(() => { try { v.pause(); } catch (e) { } box.remove(); res(); }, 260); };
+    const P = (window.AUDIO && AUDIO.pref) || {}; v.muted = !!P.muted; try { v.volume = Math.max(0, Math.min(1, P.sfx == null ? .8 : P.sfx)); } catch (e) { }
+    try { v.currentTime = 0; } catch (e) { } const rate = Math.max(1, Math.min(2, window.BSPEED || 1)); try { v.playbackRate = rate; } catch (e) { }
+    v.onended = end; const lastSrc = v.querySelector('source:last-child'); if (lastSrc) lastSrc.onerror = end; v.onerror = end; box.onclick = end; setTimeout(end, 4000 / rate + 3000);
+    duck(.25); const p = v.play(); if (p && p.catch) p.catch(() => { if (done) return; v.muted = true; const q = v.play(); if (q && q.catch) q.catch(end); });
+    requestAnimationFrame(() => box.classList.add('in')); }); }
   /* fw：用特效畫布的時間等待（不是牆上時鐘）。手機掉幀時畫布時間會變慢，用它排程才不會「刀還沒劈下、刀光先出來」。分頁在背景（畫布停止）時，最多等到原本時間的 3 倍再加 1 秒就放行。 */
   const fw = ms => typeof FXE === 'undefined' ? wait(ms) : new Promise(res => { let done = false; const ok = () => { if (!done) { done = true; res(); } };
     const e = FXE.add({ life: 99, draw(c, q, dt, t) { if (t * 1000 >= ms) { e.t = 99; ok(); } } }); setTimeout(ok, ms * 3 / (window.BSPEED || 1) + 1000); });
@@ -253,7 +274,7 @@
       X().particles({ x: e.x, y: e.bot, jx: E * .3, n: 22, ang: [PI + .15, TAU2 - .15], spd: [E * .8, E * 2], life: [.3, .6], size: [2, 6], colors: ['#a63cff', '#e04cff', '#ffd1f5'], shape: 'spark', add: true, g: 300 });
       moveFighter(A.T, 'stomp'); shake(); await fw(380); },
     /* ④ 維納斯降臨：腳下光螺旋升起包住全身 → 背後雙翼展開、白蛇盤上背 → 胸前能量球凝聚後爆開 → 化身維納斯 */
-    '維納斯降臨': async A => { const f = A.f, d = A.d, u = f.h; SFX.play('ult'); X().tint('#2a0530', 2, .5);
+    '維納斯降臨': async A => { await movie(); const f = A.f, d = A.d, u = f.h; SFX.play('ult'); X().tint('#2a0530', 2, .5);
       X().ring(f.x, f.bot - 4, { r1: u * .6, flat: .25, color: '#e04cff', w: 8, life: .7 });
       sp('aura', { add: true, life: 1.5, x: f.x, y: f.bot + u * .04, ay: 1, w: u * .95, sy: q => .15 + 1.05 * eOut(q * 1.6), a: q => .6 * fd(q, .15, .75), r: (q, t) => Math.sin(t * 3) * .03 });
       await fw(220);
