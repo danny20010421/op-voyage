@@ -272,8 +272,8 @@ const EVENT_POOL = { id:"moria_hancock", tab:"女帝＆莫莉亞", series:"七�
  amount:[[20,0.6],[30,0.3],[50,0.1]], pity:120, newbieFree:10, dailyFree:3, bountyBonus:2, tokenCost:1 };
 /* 所有限定活動池：之後新增活動，只要在這個陣列多加一個物件 */
 /* 十字公會限定池（小丑巴基、鷹眼） */
-const EVENT_POOL_CROSS = { id:"cross_guild", tab:"十字公會", series:"七武海系列", name:"七武海系列 十字公會 限定活動", banner:"assets/ui/event_banner_cross.webp?v=41", need:100,
- shards:[{char:"buggy", rate:0.02, icon:"assets/ui/shard_buggy.webp?v=40", color:"#ff5a5a"},{char:"mihawk", rate:0.02, icon:"assets/ui/shard_mihawk.webp?v=40", color:"#e0407a"}],
+const EVENT_POOL_CROSS = { id:"cross_guild", tab:"十字公會", series:"七武海系列", name:"七武海系列 十字公會 限定活動", banner:"assets/ui/event_banner_cross.webp?v=208", need:150,
+ shards:[{char:"buggy", rate:0.02, icon:"assets/ui/shard_buggy.webp?v=40", color:"#ff5a5a", need:150},{char:"mihawk", rate:0.02, icon:"assets/ui/shard_mihawk.webp?v=208", color:"#e0407a", need:300}],
  amount:[[20,0.6],[30,0.3],[50,0.1]], pity:120, newbieFree:10, dailyFree:3, bountyBonus:2, tokenCost:1 };
 /* 艾爾巴夫第一彈限定池（多利、布洛基）：集滿 150 碎片合成 */
 const EVENT_POOL_ELBAF = { id:"elbaf_01", tab:"艾爾巴夫 No.01", name:"艾爾巴夫第一彈 限定活動", banner:"assets/ui/event_banner_elbaf.webp?v=100", need:150,
