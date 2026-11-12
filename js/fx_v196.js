@@ -10,11 +10,17 @@
    載入順序：viona_v187.js、battle_v195.js 之後。 */
 (function () {
   if (typeof CHARACTERS === 'undefined' || typeof playChoreo !== 'function') return;
-  const V = 196, $ = id => document.getElementById(id);
+  const V = 203, $ = id => document.getElementById(id);
   /* 招式 → 素材 */
-  const MAP = { kaido: { '升龍·火焰八卦': 'dragon', '酒龍八卦': 'burst' }, hancock: { '虜之箭': 'heart' }, luffy_nika: { '解放之鼓': 'drum' }, blackbeard: { '引發震動': 'quake' }, perona: { '鬼魂網域': 'ghosts', '特大幽靈': 'ghost' }, kid: { '電磁砲': 'rail' } };
+  const MAP = { kaido: { '升龍·火焰八卦': 'dragon', '酒龍八卦': 'burst' }, hancock: { '虜之箭': 'heart' }, luffy_nika: { '解放之鼓': 'drum' }, blackbeard: { '引發震動': 'quake' }, perona: { '鬼魂網域': 'ghosts', '特大幽靈': 'ghost' }, kid: { '電磁砲': 'rail' },
+    /* v203 使用者 11/12 20:49 提供 13 張素材 */
+    luffy0: { '橡膠手槍': 'luffy_pistol', '二檔': 'luffy_gear2' }, luffy: { '橡膠火箭砲': 'luffy_rocket' }, kizaru: { '八尺瓊勾玉': 'kizaru_jewel', '天叢雲劍': 'kizaru_sword' },
+    ace: { '火拳': 'ace_fist', '火槍': 'ace_gun' }, burgess: { '冠軍・巨岩粉碎': 'burgess_rock' }, enel: { '放電': 'enel_discharge', '電光': 'enel_flash' },
+    rocks: { '蝕': 'rocks_eclipse', '殺': 'rocks_kill', '戴維的秘密': 'rocks_secret' } };
   /* 素材上的定位點（佔圖寬、圖高的比例） */
-  const AN = { dragon: { head: [.106, .592] }, burst: { base: [.491, .873] }, heart: { c: [.207, .557], tip: .979 }, drum: { c: [.525, .492] }, quake: { c: [.489, .514] }, ghosts: { c: [.502, .518] }, ghost: { c: [.569, .502] }, rail: { ring: [.923, .515], hit: [.148, .521] } };
+  const AN = { dragon: { head: [.106, .592] }, burst: { base: [.491, .873] }, heart: { c: [.207, .557], tip: .979 }, drum: { c: [.525, .492] }, quake: { c: [.489, .514] }, ghosts: { c: [.502, .518] }, ghost: { c: [.569, .502] }, rail: { ring: [.923, .515], hit: [.148, .521] },
+    luffy_pistol: { fist: [.8, .52] }, luffy_rocket: { fist: [.84, .5] }, kizaru_jewel: { o: [.19, .4] }, kizaru_sword: { o: [.27, .47], tip: [.986, .676] }, ace_fist: { fist: [.88, .55] }, ace_gun: { head: [.96, .57] },
+    burgess_rock: { head: [.84, .6] }, enel_discharge: { o: [.12, .53], end: [.98, .52] }, enel_flash: { base: [.5, .96] }, rocks_eclipse: { head: [.92, .55] }, rocks_kill: { o: [.02, .34], hit: [.86, .6] }, rocks_secret: { c: [.5, .52] } };
   const IMG = {};
   const get = k => { if (!IMG[k]) { const i = new Image(); i.decoding = 'async'; i.src = `assets/fx/v196/${k}.webp?v=${V}`; IMG[k] = i; } return IMG[k]; };
   const ready = i => i && i.complete && i.naturalWidth > 0;
@@ -216,7 +222,102 @@
       X().particles({ x: G.x, y: G.y, n: 30, spd: [E * .8, E * 2.6], life: [.3, .8], size: [3, 7], colors: ['#ffffff', '#ff7ab8', '#ff2a6a', '#c01a5a'], shape: 'spark', add: true, g: 160 });
       hit(A);
       await fw(190); sfx('heavy'); try { shake(); } catch (e2) { } X().ring(G.x, G.y, { r1: E * .9, color: '#ffffff', w: 6, life: .4 });
-      await fw(470); }
+      await fw(470); },
+
+    /* ═════ v203 ═════ 共用：proj＝素材從施放者飛向對手（錨點對準目標），flick＝閃爍 */
+    luffy_pistol: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.luffy_pistol.fist, S0 = { x: f.x + d * u * .25, y: f.y - u * .08 }, T = { x: e.x - d * E * .12, y: e.y - E * .05 }, dist = Math.abs(T.x - S0.x);
+      sfx('whoosh'); mv(A.S, 'stretch');
+      const W = Math.max(u * .9, dist / an[0] * 1.02), o = { life: .62, ax: an[0], ay: an[1], fx: d < 0, w: (q, t) => lerp(u * .5, W, eOut(Math.min(1, t / .16))), x: (q, t) => lerp(S0.x, T.x, eOut(Math.min(1, t / .16))), y: (q, t) => lerp(S0.y, T.y, eOut(Math.min(1, t / .16))), a: (q, t) => t > .42 ? Math.max(0, 1 - (t - .42) / .2) : 1 };
+      sp('luffy_pistol', o); await fw(160); sfx('punch'); sfx('hit');
+      X().burst(T.x, T.y, { r: E * .45, color: 'rgba(255,90,50,.95)' }); X().ring(T.x, T.y, { r1: E * .9, color: '#ffd26c', w: 9, life: .35 });
+      X().particles({ x: T.x, y: T.y, n: 22, spd: [E * .8, E * 2.2], life: [.25, .5], size: [3, 6], colors: ['#ffffff', '#ffd26c', '#ff5a2a'], shape: 'spark', add: true }); X().flash('#fff0d0', .12, .14); hit(A); await fw(420); },
+    luffy_rocket: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.luffy_rocket.fist, S0 = { x: f.x + d * u * .3, y: f.y - u * .05 }, T = { x: e.x - d * E * .1, y: e.y - E * .05 }, dist = Math.abs(T.x - S0.x);
+      sfx('whoosh'); mv(A.S, 'lunge'); const W = Math.max(u * 1.4, dist / an[0] * 1.05);
+      const o = { life: 1.05, ax: an[0], ay: an[1], fx: d < 0, w: (q, t) => lerp(u * .6, W, eOut(Math.min(1, t / .2))), x: (q, t) => lerp(S0.x, T.x, eOut(Math.min(1, t / .2))) + (t > .2 ? Math.sin(t * 90) * E * .03 : 0), y: (q, t) => lerp(S0.y, T.y, eOut(Math.min(1, t / .2))) + (t > .2 ? Math.cos(t * 77) * E * .03 : 0), a: (q, t) => t > .82 ? Math.max(0, 1 - (t - .82) / .23) : 1 };
+      sp('luffy_rocket', o); sp('luffy_rocket', Object.assign({}, o, { add: true, a: (q, t) => .25 * o.a(q, t) })); await fw(200);
+      for (let k = 0; k < 5; k++) { sfx(k % 2 ? 'hit' : 'punch'); const x = T.x + (Math.random() - .5) * E * .5, y = T.y + (Math.random() - .5) * E * .5; X().burst(x, y, { r: E * .28, color: 'rgba(255,60,60,.95)' }); X().ring(x, y, { r1: E * .55, color: '#ffffff', w: 6, life: .25 }); hit(A); await fw(115); }
+      X().flash('#ffd0d0', .14, .16); await fw(320); },
+    luffy_gear2: async A => { const f = A.f, u = f.h; sfx('buff'); X().tint('#2a0410', 1.1, .3);
+      back(A.S, 'luffy_gear2', { x: f.x, y: f.y - u * .12, w: u * 2.9, dur: 1700, ease: 'ease-out', kf: [{ opacity: 0, transform: 'translateY(12%) scale(.5)' }, { opacity: 1, transform: 'translateY(0) scale(1.02)', offset: .25 }, { opacity: .95, transform: 'translateY(-4%) scale(1.06)', offset: .65 }, { opacity: 0, transform: 'translateY(-12%) scale(1.16)' }] });
+      mv(A.S, 'float'); X().ring(f.x, f.bot - 4, { r1: u * .7, flat: .25, color: '#ff8aa8', w: 7, life: .5 });
+      for (let k = 0; k < 3; k++) { X().particles({ x: f.x, y: f.y, jx: u * .3, jy: u * .35, n: 10, ang: [-PI / 2 - .5, -PI / 2 + .5], spd: [u * .3, u * .8], life: [.5, .9], size: [6, 12], colors: ['rgba(255,235,240,.9)', 'rgba(255,170,190,.8)'], shape: 'smoke', g: -40 }); await fw(260); }
+      sfx('whoosh'); await fw(500); },
+    kizaru_jewel: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.kizaru_jewel.o;
+      sfx('zap'); X().tint('#2a2000', 1.3, .3); mv(A.S, 'float');
+      const O = { x: e.x - d * E * .55, y: Math.max(visTop() + 10, e.top - E * .75) }, T = { x: e.x + d * E * .05, y: e.y + E * .08 }, ang = Math.atan2(T.y - O.y, (T.x - O.x)), L = Math.hypot(T.x - O.x, T.y - O.y) * 1.15, W = L / (1 - an[0]);
+      X().glow(O.x, O.y, { color: '#ffe680', r: E * .5, life: .5, hold: true }); X().ring(O.x, O.y, { r0: E * .6, r1: E * .1, color: '#fff3a8', w: 5, life: .3 });
+      await fw(260); sfx('thunder');
+      const o = { life: 1.1, w: W, ax: an[0], ay: an[1], x: O.x, y: O.y, r: ang, a: (q, t) => t > .85 ? Math.max(0, 1 - (t - .85) / .25) : 1, clip: (c, x0, y0, w, h, q, t) => { const k = eOut(Math.min(1, t / .18)); c.rect(x0, y0 - h, w * (an[0] + (1 - an[0]) * k) + 2, h * 3); } };
+      sp('kizaru_jewel', o); sp('kizaru_jewel', Object.assign({}, o, { add: true, a: (q, t) => .35 * o.a(q, t) })); await fw(180);
+      for (let k = 0; k < 6; k++) { sfx('hit'); const x = T.x + (Math.random() - .5) * E * .55, y = T.y - E * .1 + (Math.random() - .5) * E * .6; X().burst(x, y, { r: E * .22, color: 'rgba(255,235,120,.95)' }); X().particles({ x, y, n: 8, spd: [E * .4, E * 1.2], life: [.2, .4], size: [2, 5], colors: ['#ffffff', '#fff3a8', '#ffd24a'], shape: 'spark', add: true }); hit(A); await fw(95); }
+      X().flash('#fff6c8', .14, .2); await fw(330); },
+    kizaru_sword: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.kizaru_sword;
+      sfx('zap'); X().tint('#2a2000', 1.2, .3); const O = { x: f.x + d * u * .22, y: f.y - u * .12 }, T = { x: e.x + d * E * .05, y: e.y - E * .05 };
+      const img = get('kizaru_sword'), ra = ready(img) ? img.naturalHeight / img.naturalWidth : .5, dx = an.tip[0] - an.o[0], dy = (an.tip[1] - an.o[1]) * ra, imgAng = Math.atan2(dy, dx), L = Math.hypot(T.x - O.x, T.y - O.y) * 1.08, W = L / Math.hypot(dx, dy), ta = Math.atan2(T.y - O.y, T.x - O.x);
+      X().glow(O.x, O.y, { color: '#ffe680', r: u * .35, life: .35, hold: true }); await fw(200); sfx('slash');
+      const o = { life: .85, w: W, ax: an.o[0], ay: an.o[1], fx: d < 0, x: O.x, y: O.y, r: d > 0 ? ta - imgAng : ta - PI + imgAng, a: (q, t) => t > .55 ? Math.max(0, 1 - (t - .55) / .3) : 1, clip: (c, x0, y0, w, h, q, t) => { const k = eOut(Math.min(1, t / .14)); c.rect(x0, y0 - h, w * (an.o[0] + (1 - an.o[0]) * k) + 2, h * 3); } };
+      sp('kizaru_sword', o); sp('kizaru_sword', Object.assign({}, o, { add: true, a: (q, t) => .4 * o.a(q, t) })); mv(A.S, 'lunge'); await fw(140); sfx('explode');
+      X().burst(T.x, T.y, { r: E * .5, color: 'rgba(255,235,120,.95)' }); X().ring(T.x, T.y, { r1: E * 1.1, color: '#fff3a8', w: 10, life: .4 }); X().flash('#fffbe0', .16, .3); hit(A); await fw(480); },
+    ace_fist: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.ace_fist.fist, S0 = { x: f.x + d * u * .25, y: f.y - u * .1 }, T = { x: e.x - d * E * .1, y: e.y - E * .05 }, dist = Math.abs(T.x - S0.x);
+      sfx('whoosh'); X().tint('#2a0800', 1.2, .3); mv(A.S, 'lunge'); X().flames(f.x, f.bot - u * .1, { n: 26, jx: u * .25, dy: 0, colors: ['#ff5a2a', '#ffb347', '#ffd26c'] });
+      const W0 = Math.max(u * 1.2, E * 1.3), o = { life: .8, ax: an[0], ay: an[1], fx: d < 0, w: (q, t) => lerp(W0 * .55, Math.max(W0, dist * .9), eOut(Math.min(1, t / .26))), x: (q, t) => lerp(S0.x, T.x, eIn(Math.min(1, t / .26))), y: (q, t) => lerp(S0.y, T.y, eIn(Math.min(1, t / .26))), a: (q, t) => t > .5 ? Math.max(0, 1 - (t - .5) / .3) : 1 };
+      sp('ace_fist', o); sp('ace_fist', Object.assign({}, o, { add: true, a: (q, t) => .3 * o.a(q, t) })); await fw(260); sfx('explode');
+      X().burst(T.x, T.y, { r: E * .6, color: 'rgba(255,120,40,.95)' }); X().flames(e.x, e.bot - E * .15, { n: 70, jx: E * .4, dy: 0, colors: ['#ff5a2a', '#ffb347', '#ffd26c', '#ffffff'] });
+      X().ring(e.x, e.bot - 4, { r1: E * 1.2, flat: .25, color: '#ffb347', w: 12, life: .5 }); X().flash('#ffd9a8', .18, .3); hit(A); await fw(460); },
+    ace_gun: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.ace_gun.head; sfx('whoosh'); mv(A.S, 'float');
+      const S0 = { x: f.x + d * u * .28, y: f.y - u * .1 }, W = Math.max(u * 1.1, E * 1.5);
+      for (let v = 0; v < 3; v++) { const T = { x: e.x - d * E * (.05 + v * .06), y: e.y - E * (.15 - v * .13) };
+        const o = { life: .42, ax: an[0], ay: an[1], fx: d < 0, w: W * (.8 + v * .12), x: (q, t) => lerp(S0.x, T.x, eIn(Math.min(1, t / .2))), y: (q, t) => lerp(S0.y, T.y, eIn(Math.min(1, t / .2))), a: (q, t) => t > .22 ? Math.max(0, 1 - (t - .22) / .2) : 1 };
+        sp('ace_gun', o); sp('ace_gun', Object.assign({}, o, { add: true, a: (q, t) => .3 * o.a(q, t) }));
+        setTimeout(() => { for (let k = 0; k < 4; k++) setTimeout(() => { sfx('hit'); const x = T.x + (Math.random() - .5) * E * .45, y = T.y + (Math.random() - .5) * E * .35; X().burst(x, y, { r: E * .18, color: 'rgba(255,130,40,.95)' }); X().particles({ x, y, n: 8, spd: [E * .3, E * 1], life: [.2, .45], size: [2, 5], colors: ['#ffd26c', '#ff7a2a', '#ffffff'], shape: 'ember', add: true, g: -60 }); hit(A); }, k * 55 / (window.BSPEED || 1)); }, 200 / (window.BSPEED || 1));
+        await fw(260); }
+      X().flames(e.x, e.bot - E * .1, { n: 30, jx: E * .3, dy: 0, colors: ['#ff5a2a', '#ffb347', '#ffd26c'] }); await fw(420); },
+    burgess_rock: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.burgess_rock.head; sfx('heavy'); mv(A.S, 'stomp');
+      const S0 = { x: f.x + d * u * .3, y: f.y - u * .2 }, T = { x: e.x - d * E * .05, y: e.y - E * .02 }, W = Math.max(u * 1.4, E * 1.9);
+      try { X().cracks(f.x, f.bot - 2, { n: 6, len: u * .5 }); } catch (er) { } await fw(200); sfx('whoosh');
+      const o = { life: .9, ax: an[0], ay: an[1], fx: d < 0, w: W, x: (q, t) => lerp(S0.x, T.x, eIn(Math.min(1, t / .3))), y: (q, t) => lerp(S0.y, T.y, eIn(Math.min(1, t / .3))) - Math.sin(Math.min(1, t / .3) * PI) * u * .25, r: (q, t) => d * Math.sin(Math.min(1, t / .3) * PI) * -.15, a: (q, t) => t > .45 ? Math.max(0, 1 - (t - .45) / .3) : 1 };
+      sp('burgess_rock', o); await fw(300); sfx('explode'); sfx('heavy');
+      X().burst(T.x, T.y, { r: E * .55, color: 'rgba(220,200,170,.9)' }); X().ring(e.x, e.bot - 4, { r1: E * 1.4, flat: .25, color: '#e8dcc0', w: 12, life: .55 });
+      X().particles({ x: e.x, y: e.y, jx: E * .2, n: 26, spd: [E * .8, E * 2.4], life: [.5, .9], size: [5, 11], colors: ['#8a8070', '#5a544a', '#b0a894'], shape: 'shard', g: 900 });
+      X().particles({ x: e.x, y: e.bot - 6, jx: E * .5, n: 14, ang: [-PI / 2 - .9, -PI / 2 + .9], spd: [E * .2, E * .6], life: [.6, 1], size: [10, 18], colors: ['rgba(230,220,200,.7)'], shape: 'smoke', g: -30 });
+      try { X().cracks(e.x, e.bot - 2, { n: 10, len: E * .9 }); } catch (er) { } shake(); hit(A); await fw(200); shake(); await fw(380); },
+    enel_discharge: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.enel_discharge;
+      sfx('zap'); X().tint('#000a2a', 1.3, .35); mv(A.S, 'float'); const O = { x: f.x + d * u * .28, y: f.y - u * .12 }, T = { x: e.x, y: e.y - E * .05 };
+      const L = Math.hypot(T.x - O.x, T.y - O.y), W = L / (an.end[0] - an.o[0]) * 1.02, ta = Math.atan2(T.y - O.y, T.x - O.x);
+      X().glow(O.x, O.y, { color: '#7ad0ff', r: u * .35, life: .4, hold: true }); for (let k = 0; k < 4; k++) { const a2 = Math.random() * TAU, r = u * .35; try { X().bolt(O.x + Math.cos(a2) * r, O.y + Math.sin(a2) * r, O.x, O.y, { color: '#bfe8ff', life: .18, amp: u * .05 }); } catch (er) { } }
+      await fw(220); sfx('thunder');
+      const o = { life: .95, add: true, w: W, ax: an.o[0], ay: an.o[1], fx: d < 0, x: O.x, y: O.y, r: d > 0 ? ta : ta - PI, sy: (q, t) => .85 + Math.random() * .3, a: (q, t) => (t > .7 ? Math.max(0, 1 - (t - .7) / .25) : 1) * (.65 + Math.random() * .35), clip: (c, x0, y0, w, h, q, t) => { const k = eOut(Math.min(1, t / .1)); c.rect(x0, y0 - h, w * (an.o[0] + (1 - an.o[0]) * k) + 2, h * 3); } };
+      sp('enel_discharge', o); sp('enel_discharge', Object.assign({}, o, { add: false, a: (q, t) => (t > .7 ? Math.max(0, 1 - (t - .7) / .25) : 1) * .55 }));
+      for (let k = 0; k < 4; k++) { await fw(k ? 150 : 100); sfx(k % 2 ? 'zap' : 'thunder'); X().burst(T.x, T.y, { r: E * .35, color: 'rgba(150,210,255,.95)' }); X().ring(T.x, T.y, { r1: E * .8, color: '#bfe8ff', w: 6, life: .3 }); if (!k) X().flash('#e0f4ff', .14, .25); hit(A); }
+      await fw(380); },
+    enel_flash: async A => { const f = A.f, e = A.t, u = f.h, E = e.h, an = AN.enel_flash.base; sfx('zap'); X().tint('#000a2a', 1.1, .4);
+      X().glow(f.x, f.top + u * .1, { color: '#7ad0ff', r: u * .4, life: .35, hold: true }); await fw(260); sfx('thunder'); sfx('explode');
+      const H = Math.max(E * 1.7, (e.bot - visTop()) * .95), img = get('enel_flash'), W = H * (ready(img) ? img.naturalWidth / img.naturalHeight : .5);
+      const o = { life: .9, add: true, w: W, ax: an[0], ay: an[1], x: e.x, y: e.bot + E * .02, sy: (q, t) => Math.min(1, t / .07) * (.95 + Math.random() * .1), a: (q, t) => (t > .55 ? Math.max(0, 1 - (t - .55) / .35) : 1) * (.75 + Math.random() * .25) };
+      sp('enel_flash', o); sp('enel_flash', Object.assign({}, o, { add: false, a: (q, t) => (t > .55 ? Math.max(0, 1 - (t - .55) / .35) : 1) * .5 }));
+      X().flash('#ffffff', .2, .45); X().ring(e.x, e.bot - 4, { r1: E * 1.3, flat: .25, color: '#bfe8ff', w: 12, life: .5 }); X().particles({ x: e.x, y: e.bot - 4, jx: E * .2, n: 26, ang: [PI + .2, TAU - .2], spd: [E * .8, E * 2.2], life: [.3, .7], size: [2, 5], colors: ['#ffffff', '#bfe8ff', '#5ab0ff'], shape: 'spark', add: true, g: 400 });
+      hit(A); await fw(260); hit(A); await fw(420); },
+    rocks_eclipse: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.rocks_eclipse.head; sfx('dark'); X().tint('#1a0008', 1.3, .4); mv(A.S, 'lunge');
+      const S0 = { x: f.x + d * u * .1, y: f.y - u * .05 }, T = { x: e.x + d * E * .1, y: e.y - E * .02 }, W = Math.max(u * 1.6, Math.abs(T.x - S0.x) * 1.1);
+      const o = { life: .75, ax: an[0], ay: an[1], fx: d < 0, w: W, x: (q, t) => lerp(S0.x, T.x, eOut(Math.min(1, t / .2))), y: (q, t) => lerp(S0.y, T.y, eOut(Math.min(1, t / .2))), a: (q, t) => t > .45 ? Math.max(0, 1 - (t - .45) / .3) : 1 };
+      sp('rocks_eclipse', o); sp('rocks_eclipse', Object.assign({}, o, { add: true, a: (q, t) => .3 * o.a(q, t) })); sfx('slash'); await fw(200); sfx('explode');
+      X().burst(T.x, T.y, { r: E * .5, color: 'rgba(230,40,70,.95)' }); X().ring(T.x, T.y, { r1: E * 1.1, color: '#ff4a6a', w: 9, life: .4 }); X().particles({ x: T.x, y: T.y, n: 22, spd: [E * .8, E * 2.2], life: [.3, .6], size: [3, 7], colors: ['#ff4a6a', '#ffffff', '#5a0a1a'], shape: 'spark', add: true });
+      X().flash('#ffd0d8', .12, .2); hit(A); await fw(430); },
+    rocks_kill: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.rocks_kill; sfx('dark'); X().tint('#10001a', 1.5, .45);
+      const T = { x: e.x, y: e.y - E * .02 }, W = Math.max(u * 1.8, (Math.abs(T.x - f.x) + E * .5) / (an.hit[0] - an.o[0]));
+      X().glow(f.x, f.y, { color: '#a63cff', r: u * .5, life: .45, hold: true }); mv(A.S, 'lunge'); await fw(200); sfx('slash');
+      const o = { life: 1.0, ax: an.hit[0], ay: an.hit[1], fx: d < 0, w: W, x: T.x, y: T.y, a: (q, t) => t > .7 ? Math.max(0, 1 - (t - .7) / .3) : 1, clip: (c, x0, y0, w, h, q, t) => { const k = eOut(Math.min(1, t / .14)); c.rect(x0, y0 - h, w * k + 2, h * 3); } };
+      sp('rocks_kill', o); sp('rocks_kill', Object.assign({}, o, { add: true, a: (q, t) => .3 * o.a(q, t) })); await fw(140); sfx('explode'); sfx('heavy');
+      X().burst(T.x, T.y, { r: E * .6, color: 'rgba(170,60,255,.95)' }); X().ring(T.x, T.y, { r1: E * 1.3, color: '#e04cff', w: 10, life: .45 }); X().ring(T.x, T.y, { r1: E * .9, color: '#ff3a5a', w: 6, life: .5 });
+      X().flash('#e8d0ff', .16, .3); hit(A); await fw(220); hit(A); await fw(420); },
+    rocks_secret: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h; sfx('dark'); X().tint('#10001a', 1.8, .5);
+      X().glow(f.x, f.y, { color: '#a63cff', r: u * .6, life: .5, hold: true }); X().ring(f.x, f.bot - 4, { r1: u * .7, flat: .25, color: '#e04cff', w: 8, life: .4 });
+      await fw(260); sfx('whoosh'); mv(A.S, 'dash'); X().particles({ x: f.x, y: f.y, jx: u * .2, jy: u * .3, n: 18, ang: d > 0 ? [PI - .3, PI + .3] : [-.3, .3], spd: [u * 1, u * 2.4], life: [.2, .4], size: [2, 5], colors: ['#e04cff', '#ff3a5a', '#ffffff'], shape: 'spark', add: true });
+      await fw(240); sfx('explode'); sfx('heavy');
+      const W = Math.min(Math.max(E * 2.6, u * 2), visW() * .9), o = { life: 1.1, w: W, ax: .5, ay: .55, x: e.x, y: e.y, s: (q, t) => t < .12 ? .3 + .8 * (t / .12) : 1.1 + .1 * eOut((t - .12) / 1), a: (q, t) => t > .7 ? Math.max(0, 1 - (t - .7) / .4) : 1, r: (q, t) => t * .3 * d };
+      sp('rocks_secret', o); sp('rocks_secret', Object.assign({}, o, { add: true, a: (q, t) => (t < .3 ? .6 * (1 - t / .3) : 0) }));
+      X().flash('#ffffff', .2, .45); X().ring(e.x, e.y, { r1: W * .55, color: '#ffffff', w: 10, life: .35 }); X().ring(e.x, e.bot - 4, { r1: E * 1.6, flat: .25, color: '#e04cff', w: 14, life: .6 });
+      X().particles({ x: e.x, y: e.y, n: 30, spd: [E * .9, E * 2.8], life: [.4, .9], size: [4, 10], colors: ['#3a1a30', '#5a2a4a', '#1a0a14'], shape: 'shard', g: 800 }); shake(); hit(A); await fw(200); shake(); hit(A); await fw(500); },
   };
 
   const keyOf = (actor, skill) => { if (!actor || !skill) return null; const id = skill.copiedFrom && skill.copiedFrom.id ? skill.copiedFrom.id : actor.id; return (MAP[id] && MAP[id][skill.name]) || null; };
