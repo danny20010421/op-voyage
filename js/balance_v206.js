@@ -15,3 +15,6 @@
   { const s = get('世界最強劍豪'); if (s) { Object.assign(s.effect, { dotSequence: [[.04, .06], [.04, .06], [.04, .06]], clearSelfDebuffs: true }); tag(s, '淨化', 'green');
     s.desc = '解除自身的異常狀態與負面能力，全能力 +1；接下來 2 回合，對手對自己的攻擊無效；對手每回合損失 4～6% 體力，最多 3 回合。'; } }
 })();
+/* v207：密佛格新立繪——頭像（bag_v116.js 會改成 ?v=116）與奧義背景（舊的 ?v=40）一起換新版本號，避免瀏覽器繼續用快取裡的舊圖 */
+(function () { const c = typeof CHARACTERS !== 'undefined' && CHARACTERS.mihawk; if (!c) return;
+  c.image = 'assets/chars/mihawk.webp?v=207'; c.avatar = 'assets/chars/mihawk_face.webp?v=207'; c.ultimateBg = 'assets/chars/mihawk.webp?v=207'; })();

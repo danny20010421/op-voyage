@@ -3,6 +3,10 @@
 每累積約 20 個版本統整一次。逐版的完整紀錄（v1～v97）保存在 [docs/archive/README_v1-v97_完整更新紀錄.md](docs/archive/README_v1-v97_完整更新紀錄.md)。
 
 ## 未統整（v98 起，下次在 v118 左右統整）
+### v207（使用者 11/13 00:16「大熊大招改成向內塌縮的熊掌，然後大爆炸攻擊；密佛格立繪還沒改」）
+- 密佛格立繪：v206 已換檔，但頭像被 bag_v116.js 固定改成 ?v=116、奧義背景還是舊的 ?v=40，瀏覽器繼續用快取裡的舊圖。balance_v206.js 最後把 image／avatar／ultimateBg 都改成 ?v=207。
+- 大熊「毀滅光炮」改用使用者素材 assets/fx/v196/kuma_implode.webp：淨化 → 巨大熊掌在對手身上展開 → 旋轉著向內塌縮（周圍光線被吸入）→ 大爆炸（熊掌形衝擊波、多重光環、5 段追加爆炸）。v206 的程式繪製光炮移除。
+- js/fx_v196.js：FXE 的 burst／glow／smoke 只吃 #hex 顏色，傳 rgba(...) 會畫出黑色光暈；檔內 35 處 rgba 顏色字串改成 hex。
 ### v206（使用者 11/12 23:30）
 - 密佛格（UR）換上新立繪（assets/chars/mihawk.webp、mihawk_face.webp 重做，白底去背；CHAR_FACE 臉部位置更新）。
 - 鷹眼兩個版本共用技能特效：密佛格「普攻」「劍氣狀態」「洞察弱點」改用 v205 密佛格（七武海）的斬擊、劍氣、鷹眼素材（js/fx_v196.js MAP.mihawk）。
