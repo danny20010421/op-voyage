@@ -328,13 +328,17 @@
     /* 克洛克達爾「沙嵐（沙塵暴）」：腳下捲起沙塵 → 巨大沙暴龍捲從對手腳下拔地而起、旋轉吞沒 → 連續沙礫打擊 */
     croc_storm: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.croc_storm.base; sfx('sand'); X().tint('#2a1800', 1.9, .45); mv(A.S, 'float');
       X().particles({ x: f.x, y: f.bot - 6, jx: u * .4, n: 22, ang: [-PI / 2 - .8, -PI / 2 + .8], spd: [u * .3, u * .9], life: [.5, 1], size: [3, 7], colors: ['#d8b070', '#b08040', '#f0d8a0'], shape: 'sand', g: -40 });
-      X().ring(f.x, f.bot - 4, { r1: u * .8, flat: .25, color: '#e8c080', w: 8, life: .5 }); await fw(300); sfx('whoosh'); sfx('sand');
-      const H = Math.min(Math.max(E * 2, u * 1.7), (e.bot - visTop()) * 1.02), img = get('croc_storm'), W = Math.min(H * (ready(img) ? img.naturalWidth / img.naturalHeight : 1), visW() * .95);
-      const o = { life: 1.7, w: W, ax: an[0], ay: an[1], fx: d < 0, x: (q, t) => e.x + Math.sin(t * 9) * E * .05, y: e.bot + E * .03, sy: (q, t) => Math.min(1, eOut(t / .35)), s: (q, t) => .92 + .08 * Math.sin(t * 14), r: (q, t) => Math.sin(t * 7) * .04, a: (q, t) => t > 1.3 ? Math.max(0, 1 - (t - 1.3) / .4) : Math.min(1, t / .12) };
+      X().ring(f.x, f.bot - 4, { r1: u * .8, flat: .25, color: '#e8c080', w: 8, life: .5 }); await fw(260); sfx('whoosh'); sfx('sand');
+      /* 沙暴在克洛克達爾身前成形 → 貼著地面平移到對手身上 → 原地旋轉連打 */
+      const H = Math.min(Math.max(E * 1.9, u * 1.6), (Math.min(e.bot, f.bot) - visTop()) * 1.02), img = get('croc_storm'), W = Math.min(H * (ready(img) ? img.naturalWidth / img.naturalHeight : 1), visW() * .9);
+      const X0 = f.x + d * (u * .25 + W * .3), Y0 = f.bot + u * .03, X1 = e.x, Y1 = e.bot + E * .03, TR = .85, mvq = t => eIO(Math.min(1, t / TR));
+      const o = { life: 2.2, w: W, ax: an[0], ay: an[1], fx: d < 0, x: (q, t) => lerp(X0, X1, mvq(t)) + Math.sin(t * 9) * E * .04, y: (q, t) => lerp(Y0, Y1, mvq(t)), sy: (q, t) => Math.min(1, eOut(t / .22)), s: (q, t) => (.8 + .2 * mvq(t)) * (.94 + .06 * Math.sin(t * 14)), r: (q, t) => Math.sin(t * 7) * .04 - d * .06 * Math.sin(Math.min(1, t / TR) * PI), a: (q, t) => t > 1.8 ? Math.max(0, 1 - (t - 1.8) / .4) : Math.min(1, t / .1) };
       sp('croc_storm', o); sp('croc_storm', Object.assign({}, o, { add: true, a: (q, t) => .22 * o.a(q, t) }));
-      for (let k = 0; k < 7; k++) { await fw(k ? 150 : 220); sfx(k % 2 ? 'sand' : 'hit'); const y = e.bot - E * (.15 + .7 * Math.random());
+      for (let k = 0; k < 5; k++) { await fw(160); const x = lerp(X0, X1, mvq(.16 * (k + 1)));
+        X().particles({ x, y: lerp(Y0, Y1, mvq(.16 * (k + 1))) - 6, jx: W * .2, n: 12, ang: [-PI / 2 - .9, -PI / 2 + .9], spd: [u * .3, u * .9], life: [.4, .8], size: [3, 7], colors: ['#e8c890', '#b8884a', '#7a5428'], shape: 'sand', g: 200 }); if (k % 2) sfx('sand'); }
+      for (let k = 0; k < 6; k++) { await fw(k ? 150 : 60); sfx(k % 2 ? 'sand' : 'hit'); const y = e.bot - E * (.15 + .7 * Math.random());
         X().particles({ x: e.x, y, jx: E * .35, n: 14, ang: d > 0 ? [-.6, .6] : [PI - .6, PI + .6], spd: [E * .6, E * 1.8], life: [.3, .6], size: [3, 7], colors: ['#e8c890', '#b8884a', '#7a5428'], shape: 'sand', g: 120 }); if (k % 2 === 0) hit(A); }
-      X().flash('#ffe8c0', .12, .25); hit(A); await fw(380); },
+      X().flash('#ffe8c0', .12, .25); hit(A); await fw(400); },
     /* 克洛克達爾「沙漠寶刀」：沙之刃由左到右劃開對手（裁切展開）→ 沙塵爆散 */
     croc_sabre: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.croc_sabre.c; sfx('sand'); mv(A.S, 'lunge');
       const dist = Math.abs(e.x - f.x), W = Math.min(Math.max(E * 2.4, dist * 1.05), visW() * .95), T = { x: e.x, y: e.y - E * .02 };
@@ -366,14 +370,16 @@
       await fw(330); sfx('ice'); X().flash('#e8f8ff', .2, .35); hit(A); await fw(600); },
     /* 青雉「暴雉嘴」：冰之雉從青雉身前展翅、低空衝向對手 → 冰晶炸開凍結 */
     aokiji_pheasant: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.aokiji_pheasant.c; sfx('ice'); X().tint('#001a2a', 1.5, .4);
-      const S0 = { x: f.x + d * u * .35, y: f.y - u * .1 }, T = { x: e.x - d * E * .15, y: e.y - E * .05 }, W = Math.min(Math.max(E * 2.6, u * 2.2), visW() * .9);
-      X().glow(S0.x, S0.y, { color: '#9adcff', r: u * .4, life: .4, hold: true }); await fw(220); sfx('whoosh'); mv(A.S, 'lunge');
-      const o = { life: 1.05, w: W, ax: an[0], ay: an[1], fx: d < 0, x: (q, t) => lerp(S0.x, T.x, eIO(Math.min(1, t / .42))), y: (q, t) => lerp(S0.y, T.y, eIO(Math.min(1, t / .42))) - Math.sin(Math.min(1, t / .42) * PI) * u * .18, s: (q, t) => .45 + .55 * eOut(Math.min(1, t / .42)), r: (q, t) => d * Math.sin(Math.min(1, t / .42) * PI * 2) * .06, a: (q, t) => t > .7 ? Math.max(0, 1 - (t - .7) / .35) : Math.min(1, t / .1) };
+      /* 冰雉在青雉身前展翅 → 水平平移穿過對手 → 冰晶炸開 */
+      const W = Math.min(Math.max(E * 2.4, u * 2), visW() * .85), Y = e.y - E * .08, X0 = f.x + d * W * .2, X1 = e.x + d * W * .22, TR = .62;
+      X().glow(f.x + d * u * .3, Y, { color: '#9adcff', r: u * .4, life: .4, hold: true }); await fw(200); sfx('whoosh'); mv(A.S, 'lunge');
+      const px = t => lerp(X0, X1, eIO(Math.min(1, t / TR)));
+      const o = { life: 1.0, w: W, ax: an[0], ay: an[1], fx: d < 0, x: (q, t) => px(t), y: (q, t) => Y + Math.sin(t * 16) * E * .015, a: (q, t) => t > TR + .05 ? Math.max(0, 1 - (t - TR - .05) / .4) : Math.min(1, t / .08) };
       sp('aokiji_pheasant', o); sp('aokiji_pheasant', Object.assign({}, o, { add: true, a: (q, t) => .28 * o.a(q, t) }));
-      for (let i = 1; i <= 3; i++) { await fw(110); const q = eIO(i * .11 / .42); X().particles({ x: lerp(S0.x, T.x, q), y: lerp(S0.y, T.y, q), jx: E * .2, jy: E * .15, n: 10, spd: [E * .1, E * .4], life: [.4, .8], size: [2, 5], colors: ['#ffffff', '#bfeaff'], shape: 'snow', g: 40 }); }
-      await fw(100); sfx('ice'); sfx('explode');
+      for (let i = 1; i <= 3; i++) { await fw(125); X().particles({ x: px(i * .095) - d * W * .3, y: Y, jx: E * .15, jy: E * .25, n: 12, spd: [E * .1, E * .4], life: [.4, .8], size: [2, 5], colors: ['#ffffff', '#bfeaff'], shape: 'snow', g: 40 }); }
+      await fw(60); sfx('ice'); sfx('explode');
       X().burst(e.x, e.y, { r: E * .6, color: 'rgba(170,225,255,.95)' }); X().ring(e.x, e.y, { r1: E * 1.2, color: '#ffffff', w: 10, life: .45 }); X().ring(e.x, e.bot - 4, { r1: E * 1.3, flat: .25, color: '#9adcff', w: 10, life: .55 });
-      X().particles({ x: e.x, y: e.y, n: 30, spd: [E * .8, E * 2.4], life: [.4, .8], size: [3, 8], colors: ['#ffffff', '#bfeaff', '#6ac0ff'], shape: 'shard', g: 500 }); X().flash('#e8f8ff', .16, .3); hit(A); await fw(500); },
+      X().particles({ x: e.x, y: e.y, n: 30, ang: d > 0 ? [-1, 1] : [PI - 1, PI + 1], spd: [E * .8, E * 2.4], life: [.4, .8], size: [3, 8], colors: ['#ffffff', '#bfeaff', '#6ac0ff'], shape: 'shard', g: 500 }); X().flash('#e8f8ff', .16, .3); hit(A); await fw(520); },
     /* 青雉「冰刀」：冰刃一閃劃過對手（裁切展開）→ 連續冰晶斬擊 */
     aokiji_blade: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.aokiji_blade.c; sfx('ice'); mv(A.S, 'dash');
       const W = Math.min(Math.max(E * 2, u * 1.7), visW() * .8), T = { x: e.x, y: e.y - E * .04 }; await fw(140); sfx('slash');
@@ -401,16 +407,27 @@
       X().burst(T.x, T.y, { r: E * .7, color: 'rgba(170,210,255,.95)' }); X().ring(T.x, T.y, { r1: E * 1.4, color: '#ffffff', w: 12, life: .45 }); X().ring(T.x, T.y, { r1: E * 1, color: '#6a8aff', w: 7, life: .5 });
       X().particles({ x: T.x, y: T.y, n: 30, spd: [E * .8, E * 2.4], life: [.4, .8], size: [4, 10], colors: ['#ffffff', '#cfe4ff', '#8aaaff'], shape: 'glow', add: true, g: 80 }); X().flash('#eef4ff', .18, .3); shake(); hit(A); await fw(480); },
     /* 大熊「毀滅光炮」：身上的負面狀態被彈開、光圈護身 → 肉球光環展開 → 巨大光炮貫穿對手 */
-    kuma_beam: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.kuma_beam.o; sfx('ult'); X().tint('#000a2a', 2.1, .55); mv(A.S, 'float');
-      X().ring(f.x, f.y, { r0: u * .2, r1: u * .9, color: '#bfe0ff', w: 9, life: .5 }); X().glow(f.x, f.y, { color: '#9ac8ff', r: u * .55, life: .55, hold: true });
-      X().particles({ x: f.x, y: f.y, jx: u * .2, jy: u * .3, n: 22, spd: [u * .6, u * 1.6], life: [.3, .6], size: [2, 5], colors: ['#ffffff', '#bfe0ff', '#6aa8ff'], shape: 'spark', add: true });
-      await fw(320); sfx('buff'); X().ring(f.x, f.bot - 4, { r1: u * .9, flat: .25, color: '#ffffff', w: 9, life: .5 }); await fw(220);
-      const T = { x: e.x, y: e.y - E * .05 }, O = { x: f.x + d * u * .3, y: Math.max(f.y - u * .08, T.y - E * .25) }, L = Math.abs(T.x - O.x) + E * .7, W = L / (1 - an[0]);
-      sfx('thunder'); sfx('explode');
-      const o = { life: 1.3, w: W, ax: an[0], ay: an[1], fx: d < 0, x: O.x, y: O.y, r: Math.atan2(T.y - O.y, Math.abs(T.x - O.x)) * d, sy: (q, t) => Math.min(1, E * 1.5 / (W * .5)) * (t < .1 ? .3 + .7 * t / .1 : 1) * (.94 + Math.random() * .12), a: (q, t) => t > .95 ? Math.max(0, 1 - (t - .95) / .35) : 1, clip: (c, x0, y0, w, h, q, t) => { const k = eOut(Math.min(1, t / .14)); c.rect(x0, y0 - h, w * (an[0] + (1 - an[0]) * k) + 2, h * 3); } };
-      sp('kuma_beam', o); sp('kuma_beam', Object.assign({}, o, { add: true, a: (q, t) => .4 * o.a(q, t) })); X().flash('#ffffff', .24, .35);
-      for (let k = 0; k < 6; k++) { await fw(k ? 120 : 140); sfx(k % 2 ? 'hit' : 'zap'); X().burst(T.x, T.y, { r: E * (.35 + Math.random() * .2), color: 'rgba(170,215,255,.95)' }); X().ring(T.x, T.y, { r1: E * .9, color: '#ffffff', w: 6, life: .3 }); hit(A); }
-      X().particles({ x: T.x, y: T.y, n: 30, spd: [E * .8, E * 2.4], life: [.4, .8], size: [3, 8], colors: ['#ffffff', '#cfe4ff', '#6aa8ff'], shape: 'spark', add: true, g: 120 }); shake(); await fw(520); },
+    kuma_beam: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.kuma_beam.o; sfx('ult'); X().tint('#000a2a', 2.0, .55);
+      /* 淨化：負面狀態從身上彈開（小光點往外散）→ 肉球掌心聚光 → 水平光炮直線貫穿對手 */
+      const T = { x: e.x, y: e.y - E * .05 }, O = { x: f.x + d * u * .32, y: Math.max(f.y - u * .05, T.y - E * .12) };
+      X().particles({ x: f.x, y: f.y, jx: u * .2, jy: u * .3, n: 18, spd: [u * .5, u * 1.3], life: [.3, .6], size: [2, 5], colors: ['#ffffff', '#bfe0ff', '#6aa8ff'], shape: 'spark', add: true });
+      X().ring(f.x, f.bot - 4, { r1: u * .7, flat: .25, color: '#bfe0ff', w: 7, life: .5 }); sfx('buff'); await fw(260);
+      mv(A.S, 'lunge'); X().glow(O.x, O.y, { color: '#bfe0ff', r: u * .22, life: .45, hold: true });
+      X().particles({ x: O.x, y: O.y, jx: u * .35, jy: u * .35, n: 16, spd: [-u * .9, -u * .4], life: [.25, .4], size: [2, 4], colors: ['#ffffff', '#bfe0ff'], shape: 'spark', add: true });
+      await fw(300); sfx('thunder'); sfx('explode');
+      /* 主圖：等比例縮放（肉球光環不變形），掌心光環對準大熊手前；光束不夠長時，用光束段水平延伸到對手身後 */
+      const img = get('kuma_beam'), ra = ready(img) ? img.naturalHeight / img.naturalWidth : .5, W0 = Math.min(Math.max(E * 2.2, u * 1.9), visW() * .7), H0 = W0 * ra;
+      const flick = t => .97 + Math.random() * .06, fade = (q, t) => t > .95 ? Math.max(0, 1 - (t - .95) / .35) : 1, rev = t => eOut(Math.min(1, t / .14));
+      const A0 = { life: 1.3, w: W0, ax: an[0], ay: an[1], fx: d < 0, x: O.x, y: O.y, s: (q, t) => (t < .12 ? .7 + .3 * t / .12 : 1), a: fade,
+        clip: (c, x0, y0, w, h, q, t) => c.rect(x0, y0 - h, w * Math.min(.64, an[0] + (1 - an[0]) * rev(t)) + 2, h * 3) };
+      sp('kuma_beam', A0); sp('kuma_beam', Object.assign({}, A0, { add: true, a: (q, t) => .35 * fade(q, t) }));
+      const P = O.x + d * W0 * (.55 - an[0]), Lb = Math.abs(T.x - P) + E * .6;
+      if (Lb > W0 * .45) { const WL = Lb / .45, B = { life: 1.3, w: WL, ax: .55, ay: an[1], fx: d < 0, x: P, y: O.y, sy: (q, t) => W0 / WL * flick(t), a: fade,
+          clip: (c, x0, y0, w, h, q, t) => { const k = eOut(Math.min(1, Math.max(0, t - .04) / .14)); c.rect(x0 + w * .55, y0 - h, w * .45 * k + 2, h * 3); } };
+        sp('kuma_beam', B); sp('kuma_beam', Object.assign({}, B, { add: true, a: (q, t) => .35 * fade(q, t) })); }
+      X().flash('#ffffff', .2, .3); await fw(140);
+      const HY = O.y; for (let k = 0; k < 6; k++) { await fw(k ? 120 : 40); sfx(k % 2 ? 'hit' : 'zap'); X().burst(T.x, HY, { r: E * (.32 + Math.random() * .15), color: 'rgba(170,215,255,.95)' }); X().ring(T.x, HY, { r1: E * .8, color: '#ffffff', w: 6, life: .3 }); hit(A); }
+      X().particles({ x: T.x, y: HY, n: 30, ang: d > 0 ? [-1.1, 1.1] : [PI - 1.1, PI + 1.1], spd: [E * .8, E * 2.4], life: [.4, .8], size: [3, 8], colors: ['#ffffff', '#cfe4ff', '#6aa8ff'], shape: 'spark', add: true, g: 120 }); shake(); await fw(520); },
     /* 密佛格（七武海）「斬擊」：紫黑色新月斬直接劈在對手身上（裁切展開）→ 斬痕炸裂 */
     mihawk_slash: async A => { const f = A.f, e = A.t, d = A.d, u = f.h, E = e.h, an = AN.mihawk_slash.c; sfx('dark'); mv(A.S, 'dash');
       const W = Math.min(Math.max(E * 2.1, u * 1.8), visW() * .85), T = { x: e.x, y: e.y - E * .05 }; await fw(130); sfx('slash');
