@@ -14,7 +14,7 @@
    特效：紫紅色系漸層（VFX 表）。 */
 (function () {
   if (typeof CHARACTERS === 'undefined') return;
-  const V = 199, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
+  const V = 200, img = n => `assets/chars/${n}.webp?v=${V}`, ui = n => `assets/ui/${n}.webp?v=${V}`;
   const B = () => (typeof battle !== 'undefined' && battle) || null;
   const L = m => { try { log(m); } catch (e) { } };
   const R = (a, b) => a + Math.random() * (b - a), pct = x => Math.round(x * 100);
@@ -66,7 +66,7 @@
     EVENT_CALENDAR.push({ id: 'venus_viona', start: '2026-11-11 00:00', end: '2026-12-13 00:00', label: '11～12 月限定', preview: '2026-11-09 00:00' }); /* v188：11/11～12/12，開放前顯示預告 */
 
   /* 結算畫面臉部位置 */
-  window.addEventListener('DOMContentLoaded', () => { if (window.CHAR_FACE) Object.assign(CHAR_FACE, { 'assets/chars/viona.webp': [0.457, 0.085, 0.096], 'assets/chars/viona_venus.webp': [0.441, 0.281, 0.052], 'assets/chars/viona_bunny.webp': [0.554, 0.104, 0.112] }); });
+  window.addEventListener('DOMContentLoaded', () => { if (window.CHAR_FACE) Object.assign(CHAR_FACE, { 'assets/chars/viona.webp': [0.457, 0.085, 0.096], 'assets/chars/viona_venus.webp': [0.452, 0.272, 0.052], 'assets/chars/viona_bunny.webp': [0.579, 0.128, 0.118] }); });
 
   /* ---------- 戰鬥狀態 ---------- */
   const isV = f => !!(f && f.id === 'viona');
