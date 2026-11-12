@@ -22,7 +22,7 @@
   const sideOf = f => { const b = B(); return b && f === b.enemy ? 'R' : 'L'; };
   const say = (f, t) => { try { if (onScreen(f)) floatText(sideOf(f), t, 'status'); } catch (e) { } };
   const isBossT = t => { const b = B(); return !!(t && (t.voidImmune || (b && b.isBoss && t === b.enemy))); };
-  const SZ0 = .65, SZV = .95; /* v192 使用者 11/09 18:42：維納斯型態立繪 0.95；無名女郎 0.55 */
+  const SZ0 = .65, SZV = .95; /* v192 使用者 11/09 18:42：維納斯型態立繪 0.95；無名女郎 0.45（v200b） */
 
   /* ---------- 狀態 ---------- */
   if (typeof ABN !== 'undefined') {
@@ -55,7 +55,7 @@
   if (typeof CHARACTER_ORDER !== 'undefined' && !CHARACTER_ORDER.includes('viona')) CHARACTER_ORDER.push('viona');
   if (typeof CHAR_RARITY !== 'undefined') CHAR_RARITY.viona = 'UR+'; /* v189 使用者 11/09 改為 UR+ */
   if (typeof CHAR_OBTAIN !== 'undefined') CHAR_OBTAIN.viona = { boss: 0, bossFirst: 0, bossRepeat: 0, eventOnly: true, npc: '本遊戲原創角色・限定抽獎池「初代女帝」：集滿 300 碎片合成；碎片 100 片可兌換皮膚「無名女郎」（無法從一般召喚取得）' };
-  if (typeof SKINS !== 'undefined') SKINS.viona_bunny = { char: 'viona', name: '無名女郎', image: img('viona_bunny'), avatar: img('viona_bunny_face'), battleScale: .55 /* 使用者指定 0.55 */, how: '限定召喚「初代女帝」：碎片 100 片兌換' };
+  if (typeof SKINS !== 'undefined') SKINS.viona_bunny = { char: 'viona', name: '無名女郎', image: img('viona_bunny'), avatar: img('viona_bunny_face'), battleScale: .45 /* v200b 使用者 11/12 17:01 指定 0.45 */, how: '限定召喚「初代女帝」：碎片 100 片兌換' };
 
   /* 限定抽獎池＋檔期 */
   if (typeof EVENT_POOLS !== 'undefined' && !EVENT_POOLS.some(p => p.id === 'venus_viona'))
