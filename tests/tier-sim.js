@@ -9,8 +9,10 @@ async () => {
   const CC = [...CC_KEYS, 'skipAttack']; /* v156：與 battle.js 相同（石化、麻痺、疲憊、恐懼、暈眩＋封鎖）；舊版漏了暈眩與疲憊 */
   function act(A, B, side) { return act1(A, B, side); }
   function act1(A, B, side) {
-    for (const k of CC) if (A.status[k] > 0 && k !== 'freeze') { A.status[k]--; return; }
-    const av = A.skills.map((s, i) => [s, i]).filter(([s]) => s.pp > 0 && !s.locked);
+    /* v213：與 battle.js 相同——冰凍也是無法行動；各異常的附加效果（ccSideEffect）、封鎖消耗技能次數（sealPP）、固化封住的技能（__petriSeal） */
+    for (const k of CC) if (A.status[k] > 0) { A.status[k]--; if (k === 'skipAttack') { if (window.sealPP) sealPP(A); } else if (window.ccSideEffect) ccSideEffect(A, k); return; }
+    const seal = A.status.__petriSeal; A.status.__petriSeal = null;
+    const av = A.skills.map((s, i) => [s, i]).filter(([s, i]) => s.pp > 0 && !s.locked && i !== seal);
     if (!av.length) return;
     /* 會挑時機的 AI：對手血量低於 60% 或自己低於 40% 時放奧義；自己血量低時優先回復；其他時候偏好威力高的攻擊 */
     const hpA = A.hp / A.maxHp, hpB = B.hp / B.maxHp, ult = av.find(([s]) => s.ultimate), heal = av.find(([s]) => s.type === 'support' && s.effect && (s.effect.healRatio || s.effect.fullHeal || s.effect.regenTurns));
