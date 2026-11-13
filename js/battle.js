@@ -116,9 +116,10 @@ function statusChips(c) {
   if (st.shield > 0) chip('護盾 ' + Math.round(st.shield), 'good');
   if (st.decoys > 0) chip('小兵替身 ×' + st.decoys, 'good');
   if (st.healBlock > 0) chip('禁止回復 ' + st.healBlock, 'bad');
+  if (st.skipAttack > 0) chip('🚫封鎖 ' + st.skipAttack, 'bad', '無法行動，並消耗 1 次技能次數');
   if (st.lives > 0) chip('剩餘 ' + st.lives + ' 命', 'good');
   if (st.defDownTurns > 0) chip('防禦下降 ' + st.defDownTurns, 'bad');
-  if (battle && battle.eruption && battle.eruption.owner.hp > 0) chip(battle.eruption.owner === c ? '火山噴發・回復' : (battle.team.includes(battle.eruption.owner) !== battle.team.includes(c) ? `熔岩灼燒 -${Math.round((battle.eruption.ratio || 0.1) * 100)}%` : ''), battle.eruption.owner === c ? 'good' : 'bad');
+  if (battle && battle.eruption && battle.eruption.owner.hp > 0) chip(battle.eruption.owner === c ? '火山噴發・回復' : (battle.team.includes(battle.eruption.owner) !== battle.team.includes(c) ? '熔岩灼燒 -6～12%' : ''), battle.eruption.owner === c ? 'good' : 'bad');
   if (st.immunePermanent) chip('永久免疫', 'good'); else if (st.immune > 0) chip('免疫異常 ' + st.immune, 'good');
   if (st.regen > 0) chip('回復 ' + st.regen, 'good');
   if (st.fullRestoreTurns > 0) chip('回滿 ' + st.fullRestoreTurns, 'good');
@@ -253,7 +254,7 @@ async function executeAction(side, idx) {
   const unstoppable = !!(skill.effect && skill.effect.unstoppable);
   const cc = !unstoppable && CC_KEYS.find(k => actor.status[k] > 0);
   if (cc) { actor.status[cc]--; log(`${actor.name} 陷入${ABN[cc].name}，這回合無法使用技能`); floatText(S, ABN[cc].name, 'status'); await wait(650); return; }
-  if (!unstoppable && actor.status.skipAttack > 0) { actor.status.skipAttack--; log(`${actor.name} 本回合無法攻擊`); floatText(S, '封鎖', 'status'); await wait(600); return; }
+  if (!unstoppable && actor.status.skipAttack > 0) { actor.status.skipAttack--; log(`${actor.name} 被封鎖，本回合無法行動`); if (typeof sealPP === 'function') sealPP(actor); floatText(S, '封鎖', 'status'); await wait(600); return; }
   if (!unstoppable && actor.status.attackFail > 0 && chance(actor.status.attackFailChance)) { actor.status.attackFail--; log(`${actor.name} 的攻擊失效了`); floatText(S, '失效', 'status'); await wait(600); return; }
   if (actor.status.attackFail > 0) actor.status.attackFail--;
   if (side === 'P') { track('skills'); if (skill.ultimate) track('ults'); }

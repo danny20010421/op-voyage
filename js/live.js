@@ -55,7 +55,7 @@ const LIVE = (function () {
     if (actor.hp <= 0) return; let skill = idx === -1 ? STRUGGLE : actor.skills[idx]; if (!skill || skill.pp <= 0 || skill.locked) { const a = autoIdx(actor); skill = a === -1 ? STRUGGLE : actor.skills[a]; }
     const unstoppable = !!(skill.effect && skill.effect.unstoppable), cc = !unstoppable && CC_KEYS.find(k => actor.status[k] > 0);
     if (cc) { actor.status[cc]--; log(`${actor.name} 陷入${ABN[cc].name}，這回合無法使用技能`); return; }
-    if (!unstoppable && actor.status.skipAttack > 0) { actor.status.skipAttack--; log(`${actor.name} 本回合無法攻擊`); return; }
+    if (!unstoppable && actor.status.skipAttack > 0) { actor.status.skipAttack--; log(`${actor.name} 被封鎖，本回合無法行動`); if (typeof sealPP === 'function') sealPP(actor); return; }
     if (!unstoppable && actor.status.attackFail > 0 && Math.random() < actor.status.attackFailChance) { actor.status.attackFail--; log(`${actor.name} 的攻擊失效了`); return; }
     if (actor.status.attackFail > 0) actor.status.attackFail--;
     if (skill !== STRUGGLE) skill.pp--; actor.status.lastSkill = skill.name; log(`▶ ${actor.name} 使用「${skill.name}」`);

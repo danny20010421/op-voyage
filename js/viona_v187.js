@@ -26,8 +26,8 @@
 
   /* ---------- 狀態 ---------- */
   if (typeof ABN !== 'undefined') {
-    ABN.charm = { name: '魅惑', icon: '💗', desc: '被女帝的美貌迷住：攻擊 -1、速度 -1，受到「神妃」的傷害 +40%' };
-    ABN.subdue = { name: '臣服', icon: '🙇', desc: '向女帝臣服：無法行動，強化效果被解除' };
+    ABN.charm = { name: '魅惑', icon: '💗', desc: '被女帝的美貌迷住：無法行動，受到的傷害 +15～30%' }; /* v210 */ if (typeof CC_KEYS !== 'undefined' && !CC_KEYS.includes('charm')) CC_KEYS.push('charm');
+    ABN.subdue = { name: '臣服', icon: '🙇', desc: '無法行動，所有強化效果被解除' };
     if (typeof CC_KEYS !== 'undefined' && !CC_KEYS.includes('subdue')) CC_KEYS.push('subdue');
   }
 
@@ -113,7 +113,7 @@
         if (r && r.damage > 0 && isV(actor) && skill.type === 'attack' && !(r.meta && r.meta.execute)) {
           let m = 1;
           if (ef.vioIgnoreDef) m *= ignoreDef(target, ef.vioIgnoreDef);
-          if (ef.vioCharmBonus && target.status && target.status.charm > 0) { m *= 1 + ef.vioCharmBonus; L(`💗 對魅惑中的 ${target.name} 傷害 +${pct(ef.vioCharmBonus)}%`); }
+          if (false && ef.vioCharmBonus && target.status && target.status.charm > 0) { m *= 1 + ef.vioCharmBonus; L(`💗 對魅惑中的 ${target.name} 傷害 +${pct(ef.vioCharmBonus)}%`); }
           if (ef.vioFinal && !isBossT(target) && !(target.status && target.status.reflect > 0)) { const cap = Math.max(1, Math.floor(target.maxHp * .1)); if (target.hp > cap) { r.meta = r.meta || {}; r.meta.__vioCut = target.hp - cap; L(`🌅 黃昏降臨：${target.name} 的體力先被壓到最大體力的 10%`); } }
           if (ef.vioFinal) { const ig = R(.2, .5), mk = st(actor).marks, mb = 1 + Math.min(.45, .15 * mk); m *= ignoreDef(target, ig) * mb; L(`🌅 終焉·黃昏：無視 ${pct(ig)}% 防禦${mk ? `，女神之印 ${mk} 層最終傷害 +${pct(mb - 1)}%` : ''}`);
             if (st(actor).venus > 0) { const ex = Math.floor(calcAttackDamage(actor, target, { type: 'attack', power: 100, effect: { forceMultiplier: ef.vioFinal.venusMul || 1.6 } }) * 1.2); r.damage += ex; r.meta = r.meta || {}; r.meta.__vioJudg = ex; } }
@@ -130,7 +130,7 @@
     applySkillEffects = function (actor, target, skill, result) {
       const r = _ase.apply(this, arguments);
       try { if (isV(actor) && skill) { const ef = skill.effect || {}, I = st(actor), foe = target && target !== actor ? target : null;
-        if (ef.vioCharm && foe && foe.hp > 0 && Math.random() < ef.vioCharm && typeof inflict === 'function' && inflict(foe, 'charm', 2)) { foe.buffs.atk = Math.max(-6, (foe.buffs.atk || 0) - 1); foe.buffs.spd = Math.max(-6, (foe.buffs.spd || 0) - 1); say(foe, '魅惑'); }
+        if (ef.vioCharm && foe && foe.hp > 0 && Math.random() < ef.vioCharm && typeof inflict === 'function' && inflict(foe, 'charm', 1)) { say(foe, '魅惑'); }
         if (ef.vioSubdueStack && foe) { const p = Math.min(1, ef.vioSubdueStack * (I.marks + 1)); if (Math.random() < p) subdue(actor, foe, `機率 ${pct(p)}%`); else L(`🙇 臣服沒有成功（機率 ${pct(p)}%）`); }
         if (ef.vioVenus) { if (typeof clearNegativeStages === 'function') clearNegativeStages(actor); I.venus = ef.vioVenus.turns; I.fresh = 1; if (!I.base) setVenus(actor, true); I.marks = 2; L(`🌸 ${actor.name} 化身維納斯型態（${I.venus} 回合）！女神之印直接疊到 3 層`); say(actor, '維納斯降臨'); }
         if (ef.vioDot && foe && foe.hp > 0) { foe.status.__vioDot = { t: ef.vioDot[2], a: ef.vioDot[0], b: ef.vioDot[1] }; L(`💜 ${foe.name} 接下來 ${ef.vioDot[2]} 回合每回合受到 ${ef.vioDot[0]}～${ef.vioDot[1]} 固定傷害`); }
@@ -148,7 +148,7 @@
     endTurnStatus = function (c) {
       const r = _ets.apply(this, arguments);
       try {
-        if (c && c.status && c.status.charm > 0) { c.status.charm--; if (!c.status.charm) L(`💗 ${c.name} 從魅惑中清醒了`); }
+        /* v210：魅惑改為無法行動（CC_KEYS），在輪到出手時才減 1，這裡不再遞減 */
         const D = c && c.status && c.status.__vioDot; if (D && D.t > 0 && c.hp > 0) { const d = Math.round(R(D.a, D.b)); c.hp = Math.max(0, c.hp - d); D.t--; try { showDamage(sideOf(c), d, '#e04cff'); } catch (e) { } L(`💜 女神的刻印灼燒 ${c.name}：${d} 點固定傷害`); if (!D.t) c.status.__vioDot = null; }
         if (isV(c) && c.__vio && c.__vio.fresh) c.__vio.fresh = 0; /* 施放當回合不扣，維持之後完整 2 回合 */
         else if (isV(c) && c.__vio && c.__vio.venus > 0) { c.__vio.venus--; if (!c.__vio.venus) { setVenus(c, false); L(`🌸 ${c.name} 的維納斯型態結束了`); } }

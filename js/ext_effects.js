@@ -126,7 +126,7 @@
       if (I.owner.hp <= 0) { battle.iceAge = null; log('🧊 冰河融化了。'); return; }
       const ownerSide = battle.team.includes(I.owner) ? 'L' : 'R', side = sideOf(c);
       if (c === I.owner) { if (--I.left <= 0) { battle.iceAge = null; log('🧊 冰河時期結束，冰原開始融化。'); } }
-      else if (side !== ownerSide && c.hp > 0 && !c.voidImmune) { let d = Math.max(1, Math.floor(c.maxHp * I.ratio)); c.hp = Math.max(0, c.hp - d); showDamage(side, d, '#9fe6ff'); log(`🧊 ${c.name} 被冰河凍傷，損失 ${d} 體力！`); if (c.hp > 0) inflict(c, 'freeze', 1); }
+      else if (side !== ownerSide && c.hp > 0 && !c.voidImmune) { let d = Math.max(1, Math.floor(c.maxHp * I.ratio)); c.hp = Math.max(0, c.hp - d); showDamage(side, d, '#9fe6ff'); log(`🧊 ${c.name} 被冰河凍傷，損失 ${d} 體力！`); if (c.hp > 0 && Math.random() < .35) inflict(c, 'freeze', 1); } /* v210：冰凍改成無法行動，冰河時期每回合 35% 機率冰凍 */
     }
   };
 
