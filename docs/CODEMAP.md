@@ -70,6 +70,7 @@
 - `js/perf_v194.js`＋`css/perf_v194.css`: F:跨系統的效能與記憶體處理——離開島嶼時釋放 3D 後製緩衝（包住 showScreen）、分頁進背景時清特效；CSS：關閉的 .modal／.sheet／.loading 用 visibility:hidden、觸控裝置不做背景模糊 | S:新的全螢幕遮罩若用「opacity:0＋pointer-events:none」隱藏，記得一起加 visibility:hidden（否則仍會排版、佔圖層）；戰鬥的四層特效畫布（#bCanvas、#bBloom、#bPGL、#bVFX）閒置時是 visibility:hidden，新增畫特效的入口要走 FXE.add／kick／wake 才會顯示；量測工具在 /root/promo/v194（perf.py、mem.py、layers.py、sweep.py）
 - `js/battle_v195.js`＋`css/battle_v195.css`: F:①覆寫 floatText——傷害／補血／狀態文字畫在 #battleScreen 最上層 #bDmgTop（位置用 __camBox，連續命中錯開）；②結算畫面——把 #bResTitle／#bResDesc／.res-actions 搬進全螢幕版面（.rs-team 直條立繪、.rs-emblem 菱形徽章），包 startBattle 記下開戰時的等級經驗，#bResult 出現 show 時 fill() | S:新增結算按鈕仍用 #bRetry／#bBack；只有一個動作時 .rs-one（點擊任意位置＝#bBack.click()） ｜ v197：徽章 .rs-emblem 重新設計（--ew 推算尺寸；.rs-rays／.rs-gem／.rs-sp；文字 .rs-cn＋.rs-en）；seer.js 的舊勝利過場（#bVictory）已移除
 - `js/fx_v196.js`＋`assets/fx/v196/`: F:使用者素材的 8 招特效（MAP：角色 → 招式名 → 素材；VFX：dragon／burst／heart／drum／quake／ghosts／ghost／rail），install() 掛在 playChoreo 最外層；sp()（畫布素材，可裁切）、back()（立繪後方 DOM）、pt()、visTop()、visW()；開戰時預載出場角色的素材 | S:要替換素材直接換 assets/fx/v196 同名檔；新增招式在 MAP＋AN（定位點）＋VFX 加一筆；window.__fx196 供測試
+- `js/occlude_v212.js`: F:v212 劇情地圖名字標籤遮擋判斷（場景包圍盒＋線段檢查，world.js _labels 使用）
 - `js/status_v211.js`: F:v211 無法行動類異常的附加效果（ccSideEffect）、固化封住技能（petriRedirect）、麻痺追加傷害
 - `js/balance_v211.js`: F:v211 青雉、大和強化
 - `js/status_v210.js`: F:v210 負面狀態重新定義的資料面調整（燒傷 2 回合、冰凍 1 回合、說明同步）與 sealPP（封鎖消耗技能次數）

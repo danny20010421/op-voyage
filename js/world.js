@@ -331,7 +331,10 @@
         const s = r.project(x, y, z); if (!s || s.d > 75) return;
         let el = this.labelEls.get(key); if (!el) { el = document.createElement('div'); el.className = 'wlabel ' + cls; el.innerHTML = html; if (onclick) { el.onclick = onclick; el.classList.add('clickable'); } this.labels.appendChild(el); this.labelEls.set(key, el); }
         el.style.transform = `translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px) translate(-50%,-100%) scale(${Math.max(.72, Math.min(1.05, 26 / s.d + .3)).toFixed(3)})`;
-        el.style.opacity = s.d > 60 ? (75 - s.d) / 15 : 1; seen.add(key);
+        let op = s.d > 60 ? (75 - s.d) / 15 : 1;
+        /* v212：被房子、樹擋住的名字淡化（任務目標、自己的名字除外；每 0.15 秒重算一次） */
+        if (window.OCC212 && !/qtarget|\bme\b|marker/.test(cls)) { const now = performance.now(); if (!el._ot || now - el._ot > 150) { el._ot = now; el._oc = OCC212.blocked(this.scene, eye, x, y - 1.6, z); } if (el._oc) op *= .3; }
+        el.style.opacity = op; el.classList.toggle('occluded', !!el._oc); seen.add(key);
       };
       const tgt = this.target;
       for (const n of this.npcs) { const h = SCENES.lookScale(n.look) * 3.6 + .4; const q = tgt && tgt.type === 'npc' && tgt.ids.includes(n.id); put('n' + n.id + (q ? 'q' : ''), n.x, S0(this, n) + h, n.z, (q ? '<b class="qmark">!</b>' : '') + `<span>${n.name}</span>`, 'npc' + (q ? ' qtarget' : ''), () => this.goTo(n)); }
