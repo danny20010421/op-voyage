@@ -39,7 +39,7 @@
   }
   function go() {
     if (!pick.length) return; const team = pick.slice();
-    startBattle({ team: team.map(id => ({ id, lv: crewLv(id) })), enemyId: 'imu', enemySkin: 'imu_true', enemyLv: MAX_LV, chapterId: 'giant', isBoss: false, revives: 0, throne: true, bg: 'assets/ui/throne_bg.webp?v=28',
+    startBattle({ team: team.map(id => ({ id, lv: crewLv(id) })), enemyId: 'imu', enemySkin: 'imu_true', enemyLv: MAX_LV, chapterId: 'giant', isBoss: false, revives: 0, throne: true, bg: 'assets/ui/throne_bg.webp?v=b9a961d7',
       onEnd: r => { if (battle.__thRes) return battle.__thRes; const dmg = battle.voidDamage || 0, R = record(dmg, team);
         const Rw = reward(dmg, battle.enemy.hp <= 0);
         return battle.__thRes = { title: '挑戰結束', always: true, message: `本次累積傷害：<b class="th-res">${dmg.toLocaleString()}</b><br>${R.newBest ? '🏆 新的個人最高紀錄！' : `個人最高：${state().best.toLocaleString()}`}${R.rank ? `・本機排行第 ${R.rank} 名` : ''}<br>${Rw}`, next: { label: '再次挑戰', fn: () => go() }, alt: { label: '返回王座大廳', fn: () => openThrone() } }; },

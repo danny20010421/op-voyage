@@ -22,7 +22,7 @@
     document.querySelectorAll('.modal').forEach(m => new MutationObserver(queue).observe(m, { attributes: true, attributeFilter: ['class'] }));
     addEventListener('resize', queue);
     /* 洛克斯挑戰、皇帝領海的背景圖先預載 */
-    ['assets/ui/emperor_bg.webp?v=63'].forEach(u => { const i = new Image(); i.decoding = 'async'; i.src = u; });
+    ['assets/ui/emperor_bg.webp?v=1ea8c9c5'].forEach(u => { const i = new Image(); i.decoding = 'async'; i.src = u; });
   });
   window.__stabSync = sync;
 })();

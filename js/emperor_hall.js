@@ -9,7 +9,7 @@
     if (!el) { el = document.createElement('div'); el.className = 'eh-wrap'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', '皇帝領海・四皇'); }
     const L = (typeof EMPEROR_DOMAIN !== 'undefined' ? EMPEROR_DOMAIN.list : []);
     el.innerHTML = `<div class="eh-bg" aria-hidden="true"></div>
-      <header class="eh-head"><button class="icon-btn" data-x aria-label="回到大廳">‹</button><img src="assets/ui/emperor_logo.webp?v=78" alt=""><div><h2>皇帝領海</h2><small>選擇要挑戰的四皇</small></div></header>
+      <header class="eh-head"><button class="icon-btn" data-x aria-label="回到大廳">‹</button><img src="assets/ui/emperor_logo.webp?v=7f30405c" alt=""><div><h2>皇帝領海</h2><small>選擇要挑戰的四皇</small></div></header>
       <div class="eh-row">${L.map((e, k) => { const c = CHARACTERS[e.id], ph = phaseOf(e.id), done = ph > 3, own = typeof owned === 'function' && owned(e.id);
         return `<button class="eh-card ${done ? 'done' : ''}" data-id="${e.id}" style="--ec:${e.color};--d:${k * .08}s">
           <span class="eh-art"><img src="${charArt(e.id)}" alt="${c.name}"></span>

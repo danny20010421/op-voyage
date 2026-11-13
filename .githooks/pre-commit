@@ -1,0 +1,3 @@
+#!/bin/sh
+# v214：提交前自動更新版本號（依檔案內容）
+node tools/stamp.mjs >/dev/null && git add -u index.html js css

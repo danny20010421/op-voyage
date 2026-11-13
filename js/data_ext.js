@@ -396,7 +396,7 @@
   DEFAULT_NEWS.unshift({ id: 'd1112d', date: '2026-11-12', tag: '更新', title: '鷹眼新立繪・沙嵐與毀滅光炮重做', body: '・喬拉可爾·密佛格換上全新立繪，技能特效與七武海版共用並更強\n・克洛克達爾「沙嵐」全新演出：黃沙漫天、三道沙暴橫掃\n・大熊「毀滅光炮」全新肉球光炮演出' });
   /* 東海篇：斧手摩根改用專屬造型（金色短髮、鐵下巴、斧頭手、海軍大衣） */
   { const E = CHAPTERS.find(c => c.id === 'east'); const m = E && E.npcs.find(n => n.id === 'morgan_n'); if (m) m.look = 'morgan'; }
-  /* 白鬍子新立繪 */ CHARACTERS.whitebeard.image = 'assets/chars/whitebeard.webp?v=78'; CHARACTERS.whitebeard.ultimateBg = CHARACTERS.whitebeard.image;
+  /* 白鬍子新立繪 */ CHARACTERS.whitebeard.image = 'assets/chars/whitebeard.webp?v=6c4a17c0'; CHARACTERS.whitebeard.ultimateBg = CHARACTERS.whitebeard.image;
   /* 四皇的奧義：使用後恢復其他所有技能的次數 */
   ['whitebeard', 'shanks', 'kaido', 'bigmom'].forEach(id => { const u = CHARACTERS[id].skills[4]; u.effect.restoreAllPP = true; if (!/恢復其他所有技能/.test(u.desc)) u.desc += ' 使用後恢復其他所有技能的次數。'; });
   /* 立繪大小與面向（依玩家在「立繪調整」實測的數值寫入預設值，所有裝置一致） */

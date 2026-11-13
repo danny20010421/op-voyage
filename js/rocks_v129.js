@@ -4,7 +4,7 @@
    入口：皇帝領海展示頁（emperor_hall.js）下方的「洛克斯挑戰」橫條；存檔 SAVE.data.rocks = { phase, clears }。 */
 const ROCKS_TRIAL = {
   joinLv: 50,
-  bg: 'assets/ui/emperor_bg.webp?v=63',
+  bg: 'assets/ui/emperor_bg.webp?v=1ea8c9c5',
   phaseReward: { tokens: 10, berry: 10000 },  /* 首次通過第一～三關 */
   firstReward: { tokens: 50, berry: 50000 },  /* 首次擊敗真身 */
   replayReward: { berry: 10000 },
@@ -14,8 +14,8 @@ const ROCKS_TRIAL = {
       { id: 'roger', lv: 95, mod: { hp: 1.1, title: '神之谷・海賊王' } },
       { id: 'garp_hc', lv: 95, mod: { hp: 1.5, dmg: 1.15, allUp: 1, name: '卡普', title: '神之谷・海軍英雄' } }] },
     { name: '第三關・洛克斯的分身', desc: '強攻分身（傷害 ×1.1、攻擊 +2）與強守分身（體力 ×1.15、防禦 +3）。', stages: () => [
-      { id: 'rocks', lv: 95, mod: { hp: .75, dmg: 1.1, /* v167：洛克斯傷害提高後 1.25 → 1.1 */ atk: 2, name: '洛克斯（強攻分身）', title: '戴維的分身', image: 'assets/chars/rocks_atk.webp?v=130', avatar: 'assets/chars/rocks_atk_face.webp?v=129' } },
-      { id: 'rocks', lv: 95, mod: { hp: 1.15, dmg: .75, def: 3, name: '洛克斯（強守分身）', title: '戴維的分身', image: 'assets/chars/rocks_def.webp?v=130', avatar: 'assets/chars/rocks_def_face.webp?v=129' } }] },
+      { id: 'rocks', lv: 95, mod: { hp: .75, dmg: 1.1, /* v167：洛克斯傷害提高後 1.25 → 1.1 */ atk: 2, name: '洛克斯（強攻分身）', title: '戴維的分身', image: 'assets/chars/rocks_atk.webp?v=c60bcd6f', avatar: 'assets/chars/rocks_atk_face.webp?v=a810c481' } },
+      { id: 'rocks', lv: 95, mod: { hp: 1.15, dmg: .75, def: 3, name: '洛克斯（強守分身）', title: '戴維的分身', image: 'assets/chars/rocks_def.webp?v=b86fe8a0', avatar: 'assets/chars/rocks_def_face.webp?v=991eae0e' } }] },
     { name: '第四關・洛克斯真身', desc: '體力 14,000、開場全能力 +1，倒下後會復活一次。擊敗後洛克斯直接加入船隊。', stages: () => [
       { id: 'rocks', lv: 100, boss: true, mod: { hpFixed: 14000, allUp: 1, name: '洛克斯', title: '戴維・真身' } }] }
   ]

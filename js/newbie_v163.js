@@ -25,7 +25,7 @@
     return ssr.length ? ssr : all;
   }
   const rarOf2 = id => (typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[id]) || 'SSR';
-  const FRAME = 'assets/ui/slot_frame.webp?v=164', LEVER = 'assets/ui/slot_lever.webp?v=164';
+  const FRAME = 'assets/ui/slot_frame.webp?v=70743f8c', LEVER = 'assets/ui/slot_lever.webp?v=feabfd96';
   const preload = src => { try { const i = new Image(); i.decoding = 'async'; i.src = src; } catch (e) { } };
 
   /* ---------- 版面 ---------- */

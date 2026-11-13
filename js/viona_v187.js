@@ -191,7 +191,7 @@
      - 有維歐娜的戰鬥一開始就先下載；直向手機用 object-fit:cover 裁左右，人物在正中間不受影響。
      - 聲音跟著設定裡的音效音量／靜音；背景音樂播放期間降到 25%；瀏覽器不允許有聲自動播放時改成靜音播放；影片載入失敗直接跳過。
      - 戰鬥倍速 ×2 以上時影片也加速（最多 2 倍）。 */
-  const MOV = 'assets/video/viona_venus.mp4?v=201', POSTER = 'assets/video/viona_venus_poster.webp?v=201'; let movEl = null;
+  const MOV = 'assets/video/viona_venus.mp4?v=7e2362bd', POSTER = 'assets/video/viona_venus_poster.webp?v=d652ca04'; let movEl = null;
   function movPre() { if (movEl) return movEl; const v = document.createElement('video'); v.preload = 'auto'; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', ''); v.poster = POSTER; v.muted = true; /* 先用 mp4（iPhone、Safari），不支援 H.264 的瀏覽器改用 webm */
     [[MOV, 'video/mp4'], [MOV.replace('.mp4', '.webm'), 'video/webm']].forEach(([src, type]) => { const so = document.createElement('source'); so.src = src; so.type = type; v.appendChild(so); });
     if (!document.getElementById('vioMovCss')) { const c = document.createElement('style'); c.id = 'vioMovCss';
@@ -374,7 +374,7 @@
     }; }
   /* ---------- 專屬武器「神妃」（v192 使用者 11/09 18:42：抽中維歐娜免費送；裝備後攻擊 +5%、體力 +5%、受到的傷害 -5%） ----------
      存檔 SAVE.data.sigw[角色] = { eq: true/false }；開戰時（天梯即時對戰除外）套用。角色卡「技能一覽」上方顯示武器卡，可以裝備／卸下。 */
-  const SIGW = { viona: { name: '無上大快刀「神妃」', img: 'assets/fx/viona/sword.webp?v=199', atk: .05, hp: .05, dr: .05, desc: '初代女帝的佩刀，刀身纏繞著紫紅色的妖光。' } };
+  const SIGW = { viona: { name: '無上大快刀「神妃」', img: 'assets/fx/viona/sword.webp?v=5cc4facb', atk: .05, hp: .05, dr: .05, desc: '初代女帝的佩刀，刀身纏繞著紫紅色的妖光。' } };
   CHARACTERS.viona.sigWeapon = 'viona';
   const sw = () => (SAVE.data.sigw = SAVE.data.sigw || {});
   function giveSig(id) { if (!SIGW[id] || sw()[id]) return; sw()[id] = { eq: true }; SAVE.save(); setTimeout(() => { try { toast(`獲得專屬武器 ${SIGW[id].name}，已自動裝備！`, 'gold'); } catch (e) { } }, 1200); }

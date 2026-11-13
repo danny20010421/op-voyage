@@ -11,7 +11,7 @@ const GUILD_CFG = {
   fightHp: 60000,                           /* 每場戰鬥中 BOSS 的體力上限 */
   tryBerry: 3000,                           /* 每次挑戰的貝里 */
   killReward: { tokens: 15, berry: 20000 }, /* 擊敗後每位成員可領 */
-  bg: 'assets/ui/emperor_bg.webp?v=63'
+  bg: 'assets/ui/emperor_bg.webp?v=1ea8c9c5'
 };
 const GUILD = (function () {
   const G = GUILD_CFG, F = () => CLOUD.fb(), U = () => CLOUD.user();

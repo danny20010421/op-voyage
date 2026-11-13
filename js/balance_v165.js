@@ -13,7 +13,7 @@
     { key: 'base', label: '初始型態', name: C.name || '伊姆', title: C.title || '世界之王', image: C.image, avatar: C.avatar },
     { key: 'form1', label: '第一型態', name: '伊姆聖', title: '第一型態', image: img('imu_form1'), avatar: img('imu_form1_face'), scale: 1.25 },
     { key: 'form2', label: '第二型態', name: '世界之王・伊姆聖', title: '第二型態', image: img('imu_form2'), avatar: img('imu_form2_face'), scale: 1.8 }, /* v167：使用者 11/06 08:26 第二型態放大到約 1.8 */
-    { key: 'form3', label: '第三型態', name: '深淵聖靈・伊姆', title: '第三型態', image: `assets/chars/imu_form3.webp?v=169`, avatar: `assets/chars/imu_form3_face.webp?v=169`, scale: 5.5, turns: 5 } /* v169：使用者 11/07 00:36 新增第三型態（橫幅雙翼立繪）；v170b：使用者 11/07 13:48 對戰大小改 3 */
+    { key: 'form3', label: '第三型態', name: '深淵聖靈・伊姆', title: '第三型態', image: `assets/chars/imu_form3.webp?v=41c8be3e`, avatar: `assets/chars/imu_form3_face.webp?v=444653eb`, scale: 5.5, turns: 5 } /* v169：使用者 11/07 00:36 新增第三型態（橫幅雙翼立繪）；v170b：使用者 11/07 13:48 對戰大小改 3 */
   ];
   delete C.skinSkills; /* v165：型態取代皮膚鎖招 */
   C.desc = '坐在瑪莉喬亞「空白王座」上的世界之王，真實身分籠罩在黑影之中。初始型態只能使用「不死之身」與「最初20人」；施放「最初20人」晉升為第一型態「伊姆聖」、第二次晉升為第二型態「世界之王・伊姆聖」、第三次晉升為第三型態「深淵聖靈・伊姆」，立繪與技能都會改變；第四次施放降下「天罰」。【角色特性】免疫異常、免秒殺、免能力下降。';

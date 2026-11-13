@@ -100,7 +100,7 @@
 
 /* ===== 皇帝領海・四皇展示頁 ===== */
 .eh-wrap{position:fixed;inset:0;z-index:7000;display:flex;flex-direction:column;background:#06080f;color:#fff;overflow:hidden}
-.eh-bg{position:absolute;inset:0;background:url('../assets/ui/emperor_bg.webp?v=63') center/cover;filter:brightness(.35) saturate(1.1)}
+.eh-bg{position:absolute;inset:0;background:url('../assets/ui/emperor_bg.webp?v=1ea8c9c5') center/cover;filter:brightness(.35) saturate(1.1)}
 .eh-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,transparent,rgba(0,0,0,.75))}
 .eh-head{position:relative;z-index:2;display:flex;align-items:center;gap:12px;padding:calc(10px + var(--safeT,0px)) 16px 6px}
 .eh-head img{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 4px 14px rgba(255,190,70,.6))}

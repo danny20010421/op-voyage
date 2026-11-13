@@ -15,7 +15,7 @@ const LADDER = {
     { berry: 10000 }, { berry: 15000, items: { awaken_gem: 20 } }, { tokens: 10, items: { awaken_gem: 30, skill_book: 2 } }, { tokens: 20, items: { awaken_gem: 40, skill_book: 3 } },
     { tokens: 30, items: { awaken_gem: 60, skill_book: 4 } }, { tokens: 50, items: { awaken_gem: 80, skill_book: 5, skin_ticket: 1 } }, { tokens: 80, items: { awaken_gem: 120, skill_book: 8, skin_ticket: 1 } }
   ],
-  bg: 'assets/chapters/marineford.webp?v=44'
+  bg: 'assets/chapters/marineford.webp?v=6ea88456'
 };
 (function () {
   const $ = id => document.getElementById(id), fmt = n => (+n || 0).toLocaleString();

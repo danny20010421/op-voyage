@@ -6,7 +6,7 @@
    - duels/{自動 ID}：挑戰紀錄（attacker、defender、勝負、回合數），只有雙方看得到。
    非同步對戰：挑戰好友的「防守陣容」（對方上次同步時的出戰陣容），由電腦操作，三位依序上場，體力與技能次數延續。 */
 const PVP = {
-  bg: 'assets/chapters/marineford.webp?v=44',  /* 好友對戰的背景（勝敗都沒有獎勵） */
+  bg: 'assets/chapters/marineford.webp?v=6ea88456',  /* 好友對戰的背景（勝敗都沒有獎勵） */
   giftBerry: 500,     /* 好友禮物：每份貝里 */
   giftDailyClaim: 10  /* 每天最多領幾份禮物 */
 };

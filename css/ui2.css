@@ -201,7 +201,7 @@
 @media (max-width:860px){.bounty{grid-template-columns:78px 1fr!important}.bt-poster{height:86px!important}.bt-poster span{font-size:14px!important}.bounty [data-claim]{grid-column:1/-1}}
 
 /* ---------- 電話蟲助手 ---------- */
-.denden{background:url('../assets/ui/denden.webp?v=15') center/82% no-repeat,radial-gradient(circle at 50% 40%,#1f4468,#0c2034)!important;border:3px solid #f3c969!important;box-shadow:0 0 0 3px rgba(0,0,0,.35),0 8px 18px rgba(0,0,0,.45)!important}
+.denden{background:url('../assets/ui/denden.webp?v=e282695c') center/82% no-repeat,radial-gradient(circle at 50% 40%,#1f4468,#0c2034)!important;border:3px solid #f3c969!important;box-shadow:0 0 0 3px rgba(0,0,0,.35),0 8px 18px rgba(0,0,0,.45)!important}
 .denden>*,.denden::before{display:none!important}
 .denden::after{content:'H'!important;position:absolute;right:-4px;bottom:-4px;width:20px;height:20px;border-radius:6px;background:#f3c969;color:#3a2206;font:900 12px/20px var(--num);text-align:center;display:block!important}
 /* 修正：分頁隱藏、扭蛋機比例、拉霸高度 */
@@ -409,7 +409,7 @@
 }
 
 /* ===== v19：海軍本部背景 ===== */
-#gachaScreen[data-tab=navy]{background:linear-gradient(180deg,rgba(8,20,36,.55) 0%,rgba(8,20,36,.15) 30%,rgba(8,20,36,.55) 75%,rgba(8,20,36,.85) 100%),url('../assets/ui/navy_hq.webp?v=19') center 30%/cover no-repeat,#1a2a3e!important}
+#gachaScreen[data-tab=navy]{background:linear-gradient(180deg,rgba(8,20,36,.55) 0%,rgba(8,20,36,.15) 30%,rgba(8,20,36,.55) 75%,rgba(8,20,36,.85) 100%),url('../assets/ui/navy_hq.webp?v=aa9cc7a8') center 30%/cover no-repeat,#1a2a3e!important}
 #gachaScreen[data-tab=navy] .hub-inner{padding:18px 20px;border-radius:18px;background:rgba(10,24,42,.72);border:1px solid rgba(160,200,255,.25);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 20px 50px rgba(0,0,0,.4)}
 #gachaScreen[data-tab=navy] .hub-inner h3{color:#fff;display:flex;align-items:center;gap:10px}
 #gachaScreen[data-tab=navy] .hub-inner h3::before{content:'';width:34px;height:22px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 36'%3E%3Cpath d='M2 22C10 8 20 4 30 16 40 4 50 8 58 22 48 14 40 16 30 28 20 16 12 14 2 22z' fill='%238fc4ff'/%3E%3C/svg%3E") center/contain no-repeat}

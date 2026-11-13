@@ -22,7 +22,7 @@
   const RANK_COL = { SSS: '#ffe066', SS: '#ffd04a', S: '#c58bff', A: '#4fd3ff', B: '#6fe0a0', C: '#cfd8e6', D: '#9aa6b8', E: '#7a8496' };
   const S_UP = ['SSS', 'SS', 'S'];
   const BOSS = 'uta';                                   /* 固定 BOSS：美音 */
-  const DEMON_IMG = 'assets/chars/uta_totmusica.webp?v=121', DEMON_FACE = 'assets/chars/uta_totmusica_face.webp?v=121';
+  const DEMON_IMG = 'assets/chars/uta_totmusica.webp?v=5bec5cff', DEMON_FACE = 'assets/chars/uta_totmusica_face.webp?v=c070726e';
   const UTA = { need: 100, per: 20 };                   /* 美音碎片：每首不同的歌第一次拿到 S 以上 → 20 片（5 首＝100 片）；100 片合成 */
   /* BOSS 美音依難度：hp＝體力倍率（×音符數）、miss＝失誤扣血、every＝攻擊間隔（秒）、atk＝攻擊種類、wave＝歌聲衝擊傷害、fog＝催眠霧遮住的遠端比例、spd＝束縛加速倍率、demon＝魔王降臨 */
   const BOSS_CFG = {

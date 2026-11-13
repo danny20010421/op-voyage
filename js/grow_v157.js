@@ -208,7 +208,7 @@
   function skPanel() {
     const id = cur, c = CHARACTERS[id], S = c.skills.map((s, i) => skState(id, i));
     if (skSel < 0 || !S[skSel]) { const f = S.findIndex(x => x.can); skSel = f >= 0 ? f : 0; }
-    $(M, '.g7-panel').innerHTML = `<div class="g7-own"><span>${typeof itemIcon === 'function' && ITEMS.skill_book ? itemIcon(ITEMS.skill_book) : ''}秘傳書 <b>${fmt(inv().skill_book || 0)}</b></span><span><img src="assets/ui/coin_berry.webp?v=100" alt="">貝里 <b>${fmt(SAVE.data.berry || 0)}</b></span></div>
+    $(M, '.g7-panel').innerHTML = `<div class="g7-own"><span>${typeof itemIcon === 'function' && ITEMS.skill_book ? itemIcon(ITEMS.skill_book) : ''}秘傳書 <b>${fmt(inv().skill_book || 0)}</b></span><span><img src="assets/ui/coin_berry.webp?v=40bb4a53" alt="">貝里 <b>${fmt(SAVE.data.berry || 0)}</b></span></div>
       <ol class="g7-sks">${S.map((x, i) => `<li><button class="g7-sk ${i === skSel ? 'on' : ''} ${x.learned ? '' : 'lock'} ${x.s.ultimate ? 'ult' : ''}" data-sk="${i}" aria-pressed="${i === skSel}"><span class="n">${i + 1}</span><b>${esc(x.s.name)}</b><i class="t ${x.s.ultimate ? 'ult' : x.s.type === 'support' ? 'sup' : 'atk'}">${x.s.ultimate ? '奧義' : x.s.type === 'support' ? '輔助' : '攻擊'}</i><span class="l">${x.learned ? `Lv ${x.lv}<small>/5</small>` : '🔒'}</span>${x.can ? '<i class="g7-dot" aria-label="可以升級"></i>' : ''}</button></li>`).join('')}</ol>
       <div class="g7-skd"></div>`;
     updSk();

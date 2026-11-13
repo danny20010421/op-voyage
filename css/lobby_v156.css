@@ -113,7 +113,7 @@
 #modeScreen #lobby.l2.v6 .v6-side>.l2-team .lbt-av:first-of-type{margin-left:0!important}
 #modeScreen #lobby.l2.v6 .v6-side>.l2-team .lbt-av em{display:none!important}
 #modeScreen #lobby.l2.v6 .v6-side>.l2-team .lbt-empty{order:1;width:auto!important;padding:0 8px;height:40px;font-size:12px}
-#modeScreen #lobby.l2.v6 .v6-side>.l2-emperor{background:linear-gradient(90deg,rgba(40,14,10,.9),rgba(16,14,34,.55)),url(../assets/ui/emperor_bg.webp?v=100) center/cover!important}
+#modeScreen #lobby.l2.v6 .v6-side>.l2-emperor{background:linear-gradient(90deg,rgba(40,14,10,.9),rgba(16,14,34,.55)),url(../assets/ui/emperor_bg.webp?v=1ea8c9c5) center/cover!important}
 #modeScreen #lobby.l2.v6 .v6-side>.l2-emperor img{width:48px!important;height:48px!important;margin:0!important;flex:none}
 #modeScreen #lobby.l2.v6 .v6-side>.l2-emperor b{font-size:16px!important;line-height:20px!important;letter-spacing:.06em}
 #modeScreen #lobby.l2.v6 .v6-side>.l2-emperor small{display:block!important;font-size:12px;line-height:16px}

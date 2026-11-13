@@ -9,7 +9,7 @@
     let k = MAP[who]; if (typeof k === 'function') k = k(chId || (typeof CH !== 'undefined' && CH ? CH.id : '')); return k && CHARACTERS[k] && CHARACTERS[k].image ? k : null;
   }
   /* v106：還沒有立繪的角色／NPC 先用無臉人形示意（之後有立繪會自動換掉） */
-  const NPC_BLANK = 'assets/chars/npc_blank.webp?v=106', NPC_BLANK_FACE = 'assets/chars/npc_blank_face.webp?v=106';
+  const NPC_BLANK = 'assets/chars/npc_blank.webp?v=bc76f9cd', NPC_BLANK_FACE = 'assets/chars/npc_blank_face.webp?v=9b519e39';
   const isBlank = k => typeof k === 'string' && k.startsWith('__npc');
   function stageArt(who, chId) { const k = speakerArt(who, chId); return k || (who ? '__npc:' + who : null); }
   window.NPC_BLANK = NPC_BLANK; window.NPC_BLANK_FACE = NPC_BLANK_FACE;

@@ -22,7 +22,7 @@
 @keyframes mcBob{50%{transform:translateY(-6px) rotate(-3deg)}}
 .mc-coin{position:absolute;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fffbe8,#f3c969 45%,#a8741a);box-shadow:0 0 0 2px #7a4a0a inset;animation:coinFloat 2.4s ease-in-out infinite}
 .mc-coin.c1{left:18%;top:30%}.mc-coin.c2{left:72%;top:22%;animation-delay:-.8s}.mc-coin.c3{left:60%;top:45%;animation-delay:-1.5s;width:18px;height:18px}
-.m-stage .mc-art{background:url('../assets/chapters/east.webp?v=22') center/cover}
+.m-stage .mc-art{background:url('../assets/chapters/east.webp?v=04c5fbe4') center/cover}
 .m-stage .mc-art::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(8,18,32,.5))}
 .m-tower .mc-art{background:radial-gradient(60% 50% at 50% 30%,rgba(200,120,255,.45),transparent 70%),linear-gradient(180deg,#2a1a4a,#120a24)}
 .mc-tower{position:absolute;left:50%;bottom:0;width:90px;height:85%;margin-left:-45px;background:repeating-linear-gradient(180deg,#5a4a7a 0 22px,#4a3a6a 22px 26px);clip-path:polygon(30% 0,70% 0,78% 12%,70% 12%,78% 100%,22% 100%,30% 12%,22% 12%);filter:drop-shadow(0 0 16px rgba(200,140,255,.6))}
@@ -145,14 +145,14 @@
 .sb-tile img{max-width:100%;display:block}
 
 /* ===== v23 ===== */
-.m-run .mc-art{background:url('../assets/ui/mode_run.webp?v=23') center 40%/cover!important}
-.m-tower .mc-art{background:url('../assets/ui/mode_tower.webp?v=23') center 35%/cover!important}
+.m-run .mc-art{background:url('../assets/ui/mode_run.webp?v=c8c498d9') center 40%/cover!important}
+.m-tower .mc-art{background:url('../assets/ui/mode_tower.webp?v=2f514d37') center 35%/cover!important}
 .m-run .mc-art::after,.m-tower .mc-art::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(8,18,32,.55))}
-#towerScreen{background:linear-gradient(180deg,rgba(6,12,10,.55),rgba(6,12,10,.35) 40%,rgba(6,12,10,.75)),url('../assets/ui/tower_bg.webp?v=23') center/cover no-repeat,#0c0a1c!important}
+#towerScreen{background:linear-gradient(180deg,rgba(6,12,10,.55),rgba(6,12,10,.35) 40%,rgba(6,12,10,.75)),url('../assets/ui/tower_bg.webp?v=90ff52ec') center/cover no-repeat,#0c0a1c!important}
 .tw-floors,.tw-panel{background:rgba(12,18,16,.72)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(90,220,160,.25)!important}
 .tw-f.now{box-shadow:0 0 0 2px #7fe0b0!important;background:linear-gradient(90deg,rgba(90,220,160,.28),rgba(90,220,160,.06))!important}
 .tw-f.now .tw-st,.tw-info small{color:#9dffcf!important}
-#gachaScreen[data-tab=shop]{background:linear-gradient(180deg,rgba(20,10,4,.55),rgba(20,10,4,.25) 35%,rgba(20,10,4,.7)),url('../assets/ui/shop_bg.webp?v=23') center/cover no-repeat,#2a1a0a!important}
+#gachaScreen[data-tab=shop]{background:linear-gradient(180deg,rgba(20,10,4,.55),rgba(20,10,4,.25) 35%,rgba(20,10,4,.7)),url('../assets/ui/shop_bg.webp?v=46a1ef1f') center/cover no-repeat,#2a1a0a!important}
 #gachaScreen[data-tab=shop] .hub-inner{padding:18px 20px;border-radius:18px;background:rgba(24,14,6,.72);border:1px solid rgba(243,201,105,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .tc-btns{display:flex;flex-direction:column;gap:6px;align-items:stretch}
 /* 長按技能說明 */
@@ -174,12 +174,12 @@
 }
 
 /* ===== v24 ===== */
-#modeScreen{background:linear-gradient(180deg,rgba(6,18,34,.55),rgba(6,18,34,.25) 40%,rgba(6,18,34,.7)),url('../assets/ui/mode_bg.webp?v=24') center/cover no-repeat,#0c2440!important}
+#modeScreen{background:linear-gradient(180deg,rgba(6,18,34,.55),rgba(6,18,34,.25) 40%,rgba(6,18,34,.7)),url('../assets/ui/mode_bg.webp?v=cc6f2c18') center/cover no-repeat,#0c2440!important}
 .mode-head{filter:drop-shadow(0 2px 6px rgba(0,0,0,.7))}
-#gachaScreen[data-tab=bounty]{background:linear-gradient(180deg,rgba(20,6,6,.55),rgba(20,6,6,.2) 35%,rgba(20,6,6,.72)),url('../assets/ui/bounty_bg.webp?v=24') center/cover no-repeat,#1a0c0c!important}
+#gachaScreen[data-tab=bounty]{background:linear-gradient(180deg,rgba(20,6,6,.55),rgba(20,6,6,.2) 35%,rgba(20,6,6,.72)),url('../assets/ui/bounty_bg.webp?v=908bae54') center/cover no-repeat,#1a0c0c!important}
 #gachaScreen[data-tab=bounty] .hub-inner{padding:18px 20px;border-radius:18px;background:rgba(20,10,8,.66);border:1px solid rgba(255,120,100,.3);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 /* 懸賞單：使用 WANTED 海報圖，進度放在照片欄 */
-.bt-poster{width:78px!important;height:114px!important;padding:0!important;border-radius:2px!important;clip-path:none!important;transform:rotate(-3deg);background:url('../assets/ui/wanted.webp?v=24') center/100% 100% no-repeat!important;box-shadow:0 6px 12px rgba(0,0,0,.5)!important;position:relative;display:block!important}
+.bt-poster{width:78px!important;height:114px!important;padding:0!important;border-radius:2px!important;clip-path:none!important;transform:rotate(-3deg);background:url('../assets/ui/wanted.webp?v=39a515e0') center/100% 100% no-repeat!important;box-shadow:0 6px 12px rgba(0,0,0,.5)!important;position:relative;display:block!important}
 .bt-poster span,.bt-poster .bt-face{display:none!important}
 .bt-poster b{position:absolute;left:12%;right:12%;top:19%;height:41%;display:grid!important;place-items:center;font-family:var(--num);font-size:18px!important;color:#5a2a10!important;line-height:1.1;text-align:center}
 .bounty.done .bt-poster b{color:#b8231a!important;font-size:14px!important}
@@ -213,11 +213,11 @@
 .sb-lock{font-size:18px;opacity:.7}.sb-note{margin:6px 0 0;font-size:12px;color:#ffb3a0}
 
 /* ===== 登上虛空王座 ===== */
-.m-throne .mc-art{background:url('../assets/ui/throne_bg.webp?v=28') center 30%/cover!important}
+.m-throne .mc-art{background:url('../assets/ui/throne_bg.webp?v=b9a961d7') center 30%/cover!important}
 .m-throne .mc-art::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(8,18,32,.55))}
 @media (min-width:1200px){.mode-grid{grid-template-columns:repeat(4,minmax(0,1fr));max-width:1400px}}
 @media (min-width:861px) and (max-width:1199px){.mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mode-card{min-height:300px}}
-#throneScreen{background:linear-gradient(180deg,rgba(20,4,8,.55),rgba(20,4,8,.2) 40%,rgba(20,4,8,.8)),url('../assets/ui/throne_bg.webp?v=28') center/cover no-repeat,#1a0a0e!important}
+#throneScreen{background:linear-gradient(180deg,rgba(20,4,8,.55),rgba(20,4,8,.2) 40%,rgba(20,4,8,.8)),url('../assets/ui/throne_bg.webp?v=b9a961d7') center/cover no-repeat,#1a0a0e!important}
 .th-wrap{position:absolute;inset:calc(76px + var(--safeT,0px)) 0 0;display:grid;grid-template-columns:minmax(240px,300px) minmax(0,1fr) minmax(260px,340px);gap:16px;padding:10px clamp(12px,3vw,36px) calc(20px + var(--safeB,0px));overflow:auto;align-items:start}
 .th-boss,.th-pick,.th-rank{border-radius:18px;background:rgba(18,8,14,.74);border:1px solid rgba(243,201,105,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:16px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
 .th-art{border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 70%,rgba(200,40,40,.5),transparent 70%);aspect-ratio:3/4;display:grid;place-items:end center}

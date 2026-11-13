@@ -4,7 +4,7 @@
    - 觀戰：房間預設公開給登入的玩家讀取（open: true），好友面板會列出「好友正在對戰」，按「觀戰」即可即時觀看（觀戰者不能操作）。
    - 房間：rooms/{id}：host、guest、mode（1／3）、status（invite → pick → battle → done／declined／cancelled）、hPick／gPick（陣列）、turn、deadline、acts、state、sim、ev、winner、emo、open。
    - 每回合 30 秒；時間到還沒行動，由系統自動出招。即時對戰沒有獎勵，結果記在對戰紀錄（duels，mode: 'live'）。 */
-const LIVE_CFG = { turnSec: 30, inviteSec: 180, hostLostSec: 60, bg: 'assets/ui/throne_bg.webp?v=28' };
+const LIVE_CFG = { turnSec: 30, inviteSec: 180, hostLostSec: 60, bg: 'assets/ui/throne_bg.webp?v=b9a961d7' };
 const LIVE = (function () {
   const F = () => CLOUD.fb(), U = () => CLOUD.user();
   const esc3 = s => (typeof esc === 'function' ? esc(s) : String(s));

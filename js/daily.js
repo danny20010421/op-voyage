@@ -33,7 +33,7 @@
     const icon = R => R.items ? (() => { const k = Object.keys(R.items)[0]; return ITEMS[k] ? itemIcon(ITEMS[k]) : '<em>🎁</em>'; })() : R.tickets ? '<em>🎟</em>' : R.tokens ? '<em>🪙</em>' : '<em>💰</em>';
     const box = document.createElement('div'); box.className = 'dl-wrap lg7-wrap'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', '七日登入獎勵');
     box.innerHTML = `<div class="lg7"><button class="icon-btn sm lg7-x" data-x aria-label="關閉">×</button>
-      <header class="lg7-head"><img src="assets/ui/login_reward.webp?v=48" alt=""><div><h3><span>七</span>日之約</h3><p>每天登入領一次，第 7 天領完後重新開始。${ok ? '' : '<br><b>今天已經領過了，明天 00:00 再來！</b>'}</p></div></header>
+      <header class="lg7-head"><img src="assets/ui/login_reward.webp?v=0dab8ac7" alt=""><div><h3><span>七</span>日之約</h3><p>每天登入領一次，第 7 天領完後重新開始。${ok ? '' : '<br><b>今天已經領過了，明天 00:00 再來！</b>'}</p></div></header>
       <ol class="lg7-row">${LOGIN_REWARDS.map((R, i) => { const st = i < L.day ? 'got' : i === L.day ? (ok ? 'now' : 'next') : ''; return `<li class="lg7-day ${st} ${R.big || i === LOGIN_REWARDS.length - 1 ? 'big' : ''}" style="--d:${i * .06}s"><span class="lg7-n">${R.day}</span><span class="lg7-ic">${icon(R)}</span><b>${R.label}</b>${st === 'got' ? '<span class="lg7-ok" aria-label="已領取">✔</span>' : ''}${st === 'now' ? '<span class="lg7-now">今日可領</span>' : st === 'next' ? '<span class="lg7-nx">明天</span>' : ''}</li>`; }).join('')}</ol>
       <div class="lg7-foot"><small>已累積登入 ${SAVE.data.loginTotal || 0} 天</small><button class="btn-gold big" id="dlClaim" ${ok ? '' : 'disabled'}>${ok ? `領取第 ${L.day + 1} 天獎勵` : '明天再來'}</button></div></div>`;
     document.body.appendChild(box); if (window.fixIcons) fixIcons(box);

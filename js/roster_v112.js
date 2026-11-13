@@ -9,7 +9,7 @@
     if (k[4]) { k[4].effect = Object.assign({}, k[4].effect, { executeChance: .4, randomMultiplierRange: [5, 40] }); k[4].desc = k[4].desc.replace(/60%/g, '40%').replace(/5～50|5-50/g, '5～40'); } }
   if (typeof SKINS !== 'undefined') {
     delete SKINS.yamato_s2;
-    SKINS.yamato_geisha = { char: 'yamato', name: '和服歌妓', image: 'assets/chars/yamato_skin2.webp?v=112', avatar: 'assets/chars/yamato_skin2_face.webp?v=112', battleScale: .6, price: { tokens: 1500 }, how: '寶藏幣 1500 購買（皮膚圖鑑）' };
+    SKINS.yamato_geisha = { char: 'yamato', name: '和服歌妓', image: 'assets/chars/yamato_skin2.webp?v=9fb580bb', avatar: 'assets/chars/yamato_skin2_face.webp?v=63013093', battleScale: .6, price: { tokens: 1500 }, how: '寶藏幣 1500 購買（皮膚圖鑑）' };
     ['yamato_s3', 'yamato_s4'].forEach(k => { if (SKINS[k]) { const v = SKINS[k]; delete SKINS[k]; SKINS[k] = v; } }); /* 未推出的「？？？」排在新皮膚後面 */
   }
 })();

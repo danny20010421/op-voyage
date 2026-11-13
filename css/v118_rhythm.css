@@ -3,7 +3,7 @@
 .rg.show{display:block}
 body.rg-open{overflow:hidden}
 .rg button{font-family:inherit}
-.m-rhythm .mc-art{background:radial-gradient(60% 70% at 70% 40%,rgba(255,74,122,.35),transparent 70%),url('../assets/music/rhythm/jacket_shinjidai.webp?v=118') center 40%/cover!important}
+.m-rhythm .mc-art{background:radial-gradient(60% 70% at 70% 40%,rgba(255,74,122,.35),transparent 70%),url('../assets/music/rhythm/jacket_shinjidai.webp?v=b27ee133') center 40%/cover!important}
 .m-rhythm .mc-art::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(8,18,32,.55))}
 @media (min-width:861px){.lb-sheet .mode-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;max-width:1100px}}
 .lb-sheet .lbs-card{width:min(1100px,100%)}

@@ -10,4 +10,5 @@
 8. **修改檔案職責或介面時**，同步更新 `docs/CODEMAP.md`。
 9. **更新紀錄**：每個版本寫在 `CHANGELOG.md` 最上方的「未統整」區塊；**README 不逐版記錄**。每累積約 20 個版本統整成一段摘要，逐版原文移到 `docs/archive/`。
 10. **遊戲名稱**：正式名稱是「海賊新時代 AGE OF THE NEW OVERLORDS」；劇情裡的「偉大航路」是地名，照原作保留。
+12. **版本號**（v214 起）：index.html 的 `?v=` 與 js／css 裡寫死的素材網址 `?v=` 一律由 `node tools/stamp.mjs` 依檔案內容產生，不要手改；`git config core.hooksPath .githooks` 後每次 commit 會自動執行。`node tools/stamp.mjs --check` 檢查有沒有過期。
 11. **資料夾**：正式遊戲只用根目錄的 index.html；開發用頁面放 `dev/`；開發文件放 `docs/`。

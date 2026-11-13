@@ -38,7 +38,7 @@ const PASS = {
 
   /* ---------- 畫面 ---------- */
   let el = null, tab = 'daily';
-  const rewIcons = R => { const out = []; if (!R) return ''; if (R.tokens) out.push(['<img src="assets/ui/coin_token.webp?v=115" alt="">', `×${R.tokens}`, '寶藏幣']); if (R.berry) out.push(['<img src="assets/ui/coin_berry.webp?v=100" alt="">', fmt(R.berry), '貝里']);
+  const rewIcons = R => { const out = []; if (!R) return ''; if (R.tokens) out.push(['<img src="assets/ui/coin_token.webp?v=5ebb3d9c" alt="">', `×${R.tokens}`, '寶藏幣']); if (R.berry) out.push(['<img src="assets/ui/coin_berry.webp?v=40bb4a53" alt="">', fmt(R.berry), '貝里']);
     Object.entries(R.items || {}).forEach(([k, n]) => { const it = ITEMS[k]; if (it) out.push([typeof itemIcon === 'function' ? itemIcon(it) : '', `×${n}`, it.name]); });
     return out.map(([ic, n, name]) => `<span class="ps-rw" title="${esc(name)} ${n}"><span class="ps-ric">${ic}</span><em>${n}</em></span>`).join(''); };
   const GO = { chart: () => typeof openChart === 'function' && openChart(), bounty: () => typeof openHub === 'function' && openHub('bounty'), tower: () => window.openTower && openTower(), crew: () => typeof openCrew === 'function' && openCrew('crew'),
@@ -66,7 +66,7 @@ const PASS = {
       rows.push(`<li class="${reach ? 'reach' : ''} ${k === lv + 1 ? 'next' : ''} ${k % 5 === 0 ? 'big' : ''}"><span class="ps-lv">${k}</span>${cell('free', fGot, canFree(k), false)}${cell('paid', pGot, canPaid(k), !P.prem)}</li>`); }
     return `<section class="ps-card ps-head"><div class="ps-hl"><small>${seasonName(P.season)} 航海通行證・剩 ${daysLeft()} 天</small><b class="ps-big">Lv ${lv}<span>/${PASS.levels}</span></b>
         <div class="ps-bar"><i style="width:${maxed ? 100 : xpIn / PASS.xpPer * 100}%"></i></div><p>${maxed ? '已滿級！本季的獎勵都領完了嗎？' : `下一級還差 ${PASS.xpPer - xpIn} 經驗（每級 ${PASS.xpPer}）`}<br>經驗來源：每日活躍（1 點＝1 經驗，每天最多 100）、本週活躍寶箱（每個 +50）、海賊天梯（勝 +20、敗 +10）。每月 1 日換季，沒領的獎勵會消失。</p></div>
-        <div class="ps-hr">${P.prem ? '<span class="ps-prem on">進階通行證　已解鎖</span>' : `<button class="btn-gold ps-buy"><span>解鎖進階通行證</span><small><img src="assets/ui/coin_token.webp?v=115" alt="">${fmt(PASS.price)} 寶藏幣</small></button>`}
+        <div class="ps-hr">${P.prem ? '<span class="ps-prem on">進階通行證　已解鎖</span>' : `<button class="btn-gold ps-buy"><span>解鎖進階通行證</span><small><img src="assets/ui/coin_token.webp?v=5ebb3d9c" alt="">${fmt(PASS.price)} 寶藏幣</small></button>`}
           <button class="btn-ghost ps-all" ${n ? '' : 'disabled'}>全部領取${n ? `（${n}）` : ''}</button></div></section>
       <section class="ps-card ps-tl"><div class="ps-th"><span>等級</span><span>免費</span><span>進階</span></div><ol class="ps-lvls">${rows.join('')}</ol>
         <p class="ps-note">${sumText()}</p></section>`;
@@ -75,7 +75,7 @@ const PASS = {
     if (!el) return; if (window.ACT) ACT.sync();
     el.innerHTML = `<div class="ps-bg" aria-hidden="true"></div>
       <header class="ps-top"><button class="icon-btn" data-x aria-label="返回">‹</button><div><h2>航海通行證</h2><small>每日活躍・本週寶箱・每月通行證</small></div>
-        <span class="ps-coins"><img src="assets/ui/coin_token.webp?v=115" alt=""><b>${fmt(SAVE.data.tokens)}</b></span></header>
+        <span class="ps-coins"><img src="assets/ui/coin_token.webp?v=5ebb3d9c" alt=""><b>${fmt(SAVE.data.tokens)}</b></span></header>
       <nav class="ps-tabs" role="tablist"><button role="tab" data-t="daily" class="${tab === 'daily' ? 'on' : ''}" aria-selected="${tab === 'daily'}">每日活躍${window.ACT && ACT.claimable() ? '<i class="ps-dot"></i>' : ''}</button><button role="tab" data-t="pass" class="${tab === 'pass' ? 'on' : ''}" aria-selected="${tab === 'pass'}">通行證${pending() ? '<i class="ps-dot"></i>' : ''}</button></nav>
       <div class="ps-body">${tab === 'daily' ? dailyHtml() : passHtml()}</div>`;
     if (window.fixIcons) fixIcons(el);

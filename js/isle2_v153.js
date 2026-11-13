@@ -61,7 +61,7 @@
      花之都南岸的長橋改成之字形的上坡天橋，從岸邊一路爬到廣場。座標：設計座標（×SC＝世界座標）。 */
   mod('wano', (D, L) => { const OFF = 58, PY = OFF + 9 /* 廣場比模型前緣的小街屋頂還高，蓋住它們 */, PLZ = [0, -31, 14], EL = [32.5, 25.5, 13], RIM = 52;
     const inPlz = (dx, dz) => Math.hypot(dx - PLZ[0], dz - PLZ[1]) < PLZ[2], inMod = (dx, dz) => (dx / EL[0]) ** 2 + ((dz - EL[2]) / EL[1]) ** 2 < 1, inRim = (dx, dz) => Math.hypot(dx, dz - 13) < RIM || inPlz(dx, dz);
-    D.oniModel = { url: 'assets/models/onigashima.glb?v=154', pos: [0, OFF, 26], ry: Math.PI, s: 130, glow: [0, OFF + 26, 4] }; /* 模型往南移，前緣漂浮的碎岩不會穿進廣場 */
+    D.oniModel = { url: 'assets/models/onigashima.glb?v=3da55395', pos: [0, OFF, 26], ry: Math.PI, s: 130, glow: [0, OFF + 26, 4] }; /* 模型往南移，前緣漂浮的碎岩不會穿進廣場 */
     D.post2 = (v, dx, dz) => !inRim(dx, dz) ? v : inPlz(dx, dz) ? PY : inMod(dx, dz) ? OFF + 30 : -7;
     D.waterH = (h, dx, dz) => inRim(dx, dz) ? -7 : h; D.noGrass = inRim;
     { const cf = D.colorFn; D.colorFn = (x, y, z, c) => inRim(x / 2, z / 2) ? c.mix('#7a766e', '#8a857c', c.n2) : cf ? cf(x, y, z, c) : null; } /* 廣場是石頭，不長草 */

@@ -147,7 +147,7 @@ const TRIAL_CFG = { reward: { awaken_gem: 30, skill_book: 2 }, berry: 20000, lv:
     const r = rivalOf(id), ch = (typeof CHAPTERS !== 'undefined' ? CHAPTERS : []).find(x => x.boss === r);
     RUN = { id };
     startBattle({ team: [{ id, lv: crewLv(id) }], enemyId: r, enemyLv: TRIAL_CFG.lv, enemyMod: rivalMod(id), chapterId: 'east', isBoss: TRIAL_CFG.boss, revives: 0, trial: id,
-      bg: ch ? ch.art : 'assets/ui/emperor_bg.webp?v=63', onEnd: res => end(res), onLeave: () => back(id) });
+      bg: ch ? ch.art : 'assets/ui/emperor_bg.webp?v=1ea8c9c5', onEnd: res => end(res), onLeave: () => back(id) });
     log(`角色試煉：${CHARACTERS[id].name} 對上 ${CHARACTERS[r].name}`);
   }
   function end(res) {

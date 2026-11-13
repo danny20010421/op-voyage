@@ -19,7 +19,7 @@
 
 /* ---------- 挑戰頁 ---------- */
 .rk-wrap{position:fixed;inset:0;z-index:7000;display:flex;flex-direction:column;background:#07050a;color:#fff;overflow:hidden}
-.rk-bg{position:absolute;inset:0;background:url('../assets/ui/emperor_bg.webp?v=63') center/cover;filter:brightness(.28) saturate(.6) hue-rotate(-20deg)}
+.rk-bg{position:absolute;inset:0;background:url('../assets/ui/emperor_bg.webp?v=1ea8c9c5') center/cover;filter:brightness(.28) saturate(.6) hue-rotate(-20deg)}
 .rk-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(160,20,40,.35),rgba(0,0,0,.8) 75%)}
 .rk-head{position:relative;z-index:2;display:flex;align-items:center;gap:12px;padding:calc(8px + var(--safeT,0px)) 16px 8px;min-height:56px}
 .rk-head h2{margin:0;font:900 clamp(20px,3vw,28px)/1.2 var(--serif);letter-spacing:.16em;background:linear-gradient(180deg,#fff0f0,#ff7a6a);-webkit-background-clip:text;background-clip:text;color:transparent}

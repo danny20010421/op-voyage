@@ -24,7 +24,7 @@ const EMPEROR_DOMAIN = {
   ]
 };
 (function () {
-  const E = EMPEROR_DOMAIN, BG = 'assets/ui/emperor_bg.webp?v=63';
+  const E = EMPEROR_DOMAIN, BG = 'assets/ui/emperor_bg.webp?v=1ea8c9c5';
   let sel = E.list[0].id, RUN = null;
   const state = () => { const d = SAVE.data.emperor = SAVE.data.emperor || {}; E.list.forEach(x => { d[x.id] = d[x.id] || { phase: 1, clears: 0 }; }); return d; };
   const EMP = new Set(E.list.map(x => x.id));

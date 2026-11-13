@@ -30,7 +30,7 @@
   let curId = (POOLS().find(p => phase(p.id) === 'live') || POOLS()[0]).id; /* 預設打開開放中的活動 */
   const P = () => POOLS().find(p => p.id === curId) || POOLS()[0];
   /* 抽獎水晶：碎片＝彩虹水晶、道具＝銀色水晶（先出現水晶，打開後才顯示獎品） */
-  const CRYS_IMG = { shard: 'assets/ui/crystal_shard.webp?v=37', item: 'assets/ui/crystal_item.webp?v=37' };
+  const CRYS_IMG = { shard: 'assets/ui/crystal_shard.webp?v=610dceee', item: 'assets/ui/crystal_item.webp?v=6f53fb4d' };
   [CRYS_IMG.shard, CRYS_IMG.item].forEach(src => { const im = new Image(); im.src = src; });
   const RCOL = { N: '#6fd08c', R: '#5fb8ff', SR: '#c58bff', SSR: '#ffcf5a' };
   /* 每個活動池各自記錄抽獎券、碎片與保底（舊存檔的 SAVE.data.event 會自動轉移） */

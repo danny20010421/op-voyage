@@ -6,7 +6,7 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmt = n => Number(n || 0).toLocaleString();
-  const COIN = 'assets/ui/coin_token.webp?v=115';
+  const COIN = 'assets/ui/coin_token.webp?v=5ebb3d9c';
   const badge = l => `assets/ui/vip${l}.webp?v=115`, badgeS = l => `assets/ui/vip${l}_s.webp?v=115`;
   /* v165：日期一律用台灣時間（js/twtime_v165.js） */
   const dayStr = d => TW.dateKey(d ? +d : undefined);
@@ -84,13 +84,13 @@
   const D_ = (y, m, d) => TW.midnight(y, m, d); /* v165：檔期以台灣時間 00:00 為準 */
   const MCS = [
     { id: '2026-10', name: '萬聖火龍燼', label: '2026 年 10 月限時月費', start: D_(2026, 10, 1), end: D_(2026, 11, 1) - 1000, price: 300, /* v127：1200 → 300（使用者指定） */ days: 30, daily: 10, tickets: 10, select: 1,
-      chars: ['king'], skins: ['king_halloween', 'nami_witch'] /* v143：娜美萬聖節皮膚「月下魔法師」也包含在本期月費 */, banner: 'assets/ui/monthcard_2610.webp?v=115', ratio: '1100/712', theme: 'oct', face: ['king'], short: 'SSR 燼＋萬聖皮膚',
+      chars: ['king'], skins: ['king_halloween', 'nami_witch'] /* v143：娜美萬聖節皮膚「月下魔法師」也包含在本期月費 */, banner: 'assets/ui/monthcard_2610.webp?v=03eaf413', ratio: '1100/712', theme: 'oct', face: ['king'], short: 'SSR 燼＋萬聖皮膚',
       skinTag: '萬聖限定皮膚' },
     { id: '2026-11', name: '雙慶折扣・雙強左右開弓', label: '2026 年 11 月限時月費', start: D_(2026, 11, 1), end: D_(2026, 12, 1) - 1000, price: 300, days: 30, daily: 10, tickets: 10, select: 1,
-      chars: [], pick: 'mc_pick_2611', skins: ['gaban_skin1', 'rayleigh_skin1'], banner: 'assets/ui/monthcard_2611.webp?v=164', ratio: '1100/694', theme: 'nov', face: ['rayleigh', 'gaban'], short: '賈巴／雷利＋兩款皮膚',
+      chars: [], pick: 'mc_pick_2611', skins: ['gaban_skin1', 'rayleigh_skin1'], banner: 'assets/ui/monthcard_2611.webp?v=de5897d2', ratio: '1100/694', theme: 'nov', face: ['rayleigh', 'gaban'], short: '賈巴／雷利＋兩款皮膚',
       skinTag: '11 月限定皮膚', skinName: { gaban_skin1: ['賈巴', '揮金如土'], rayleigh_skin1: ['雷利', '價格斬殺'] } },
     { id: '2026-12', name: '聖誕樹下・巴托洛米奧的追求', label: '2026 年 12 月限時月費', start: D_(2026, 12, 1), end: D_(2027, 1, 1) - 1000, price: 300, days: 30, daily: 10, tickets: 10, select: 1,
-      chars: ['bartolomeo'], skins: ['bartolomeo_skin1'], banner: 'assets/ui/monthcard_2612.webp?v=164', ratio: '1100/621', theme: 'dec', face: ['bartolomeo'], short: '巴托洛米奧＋聖誕皮膚',
+      chars: ['bartolomeo'], skins: ['bartolomeo_skin1'], banner: 'assets/ui/monthcard_2612.webp?v=b4a9eee7', ratio: '1100/621', theme: 'dec', face: ['bartolomeo'], short: '巴托洛米奧＋聖誕皮膚',
       skinTag: '聖誕限定皮膚', skinName: { bartolomeo_skin1: ['巴托洛米奧', '極夜聖誕'] }, charName: { bartolomeo: '巴托洛米奧' } }
   ];
   /* 現在販售中的那期；都不在販售期間時，顯示最近一期已截止的（或第一期「即將開賣」） */
