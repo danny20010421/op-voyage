@@ -6,11 +6,9 @@ async () => {
   const noop = () => {}; ['log','floatText','showDamage','showHeal','triggerImpact','renderHUD','shake','flashScreen'].forEach(k => { try { window[k] = noop; } catch (e) {} });
   try { log = noop; } catch (e) {} try { showDamage = noop; } catch (e) {} try { showHeal = noop; } catch (e) {} try { floatText = noop; } catch (e) {} try { renderHUD = noop; } catch (e) {} try { triggerImpact = noop; } catch (e) {}
   const ids = CHARACTER_ORDER.filter(id => !['marine', 'mayor', 'imu', 'morgans'].includes(id)); const RR = {}; const tw = {};
-  const CC = [...CC_KEYS, 'skipAttack']; /* v156：與 battle.js 相同（石化、麻痺、疲憊、恐懼、暈眩＋封鎖）；舊版漏了暈眩與疲憊 */
   function act(A, B, side) { return act1(A, B, side); }
   function act1(A, B, side) {
-    /* v213：與 battle.js 相同——冰凍也是無法行動；各異常的附加效果（ccSideEffect）、封鎖消耗技能次數（sealPP）、固化封住的技能（__petriSeal） */
-    for (const k of CC) if (A.status[k] > 0) { A.status[k]--; if (k === 'skipAttack') { if (window.sealPP) sealPP(A); } else if (window.ccSideEffect) ccSideEffect(A, k); return; }
+    /* v214：出手前判定改用 battle_core.js 的 actGate（與 battle.js、live.js 同一套） */
     const seal = A.status.__petriSeal; A.status.__petriSeal = null;
     const av = A.skills.map((s, i) => [s, i]).filter(([s, i]) => s.pp > 0 && !s.locked && i !== seal);
     if (!av.length) return;
@@ -21,11 +19,10 @@ async () => {
     const early = POL === 'all' || (POL === 'me' && A.id === (window.__DUEL || {}).id);
     if (ult && (early || hpB < .6 || hpA < .4)) pick = ult; else if (heal && hpA < .45 && Math.random() < .7) pick = heal; if (!pick) { const nb = av.filter(([s]) => !s.ultimate); const bB = B.buffs.atk > 0 || B.buffs.def > 0 || B.buffs.spd > 0, bA = A.buffs.atk < 0 || A.buffs.def < 0 || A.buffs.spd < 0 || CC_KEYS.some(k => A.status[k] > 0) || A.status.weak > 0 || A.status.burn > 0; const d = bB && nb.find(([s]) => s.effect && s.effect.clearBuffs), c = bA && nb.find(([s]) => s.effect && s.effect.clearSelfDebuffs); if (c && Math.random() < .6) pick = c; else if (d && Math.random() < .6) pick = d; } /* v157：與敵方 AI 相同，對手有強化時驅散、自己有負面狀態時淨化 */
     if (!pick) { const atk = av.filter(([s]) => !s.ultimate); const w = atk.map(([s]) => ((s.type === 'attack' ? (s.power || 60) : 70) + 20) * (window.__aiW160 ? window.__aiW160(A, B, s) : 1)); /* v160：與敵方 AI 相同的印記／壓制時機 */ let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < atk.length; i++) { r -= w[i]; if (r < 0) { pick = atk[i]; break; } } pick = pick || av[0]; }
-    let skill = pick[0]; const P165 = window.IMU165 ? IMU165.preAct(A, B, A.skills.indexOf(skill)) : null; if (P165 && P165.skip) return; if (P165 && P165.idx >= 0 && A.skills[P165.idx]) skill = A.skills[P165.idx]; skill.pp--; /* v165：與 battle.js 相同的出招前判定（震懾、封印、招式失效、奧義壓制、支配、迴避；ext_v165.js） */
+    let skill = pick[0]; if (actGate(A, skill)) return; const P165 = window.IMU165 ? IMU165.preAct(A, B, A.skills.indexOf(skill)) : null; if (P165 && P165.skip) return; if (P165 && P165.idx >= 0 && A.skills[P165.idx]) skill = A.skills[P165.idx]; skill.pp--; /* v165：與 battle.js 相同的出招前判定（震懾、封印、招式失效、奧義壓制、支配、迴避；ext_v165.js） */
     const sk = JSON.parse(JSON.stringify(skill)); const tok = window.rocksPre ? rocksPre(A, B, sk) : null; try { return act2(A, B, side, sk); } finally { if (tok) rocksPost(tok); if (P165) IMU165.postAct(A, B, skill, P165); }
   }
   function act2(A, B, side, sk) {
-    if (A.status.attackFail > 0 && Math.random() < (A.status.attackFailChance || 0)) { A.status.attackFail--; return; } /* 與 battle.js 相同：攻擊失效 */ if (A.status.attackFail > 0) A.status.attackFail--;
     if (sk.type === 'attack' && B.status.invuln > 0) return;
     if (sk.type === 'attack' && B.status.dodge > 0) { B.status.dodge--; return; }
     const r = computeSkillOutcome(A, B, sk, {});

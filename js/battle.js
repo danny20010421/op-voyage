@@ -254,11 +254,7 @@ async function executeAction(side, idx) {
   const skill = idx === -1 ? STRUGGLE : actor.skills[idx]; if (actor.hp <= 0 || !skill || skill.pp <= 0) return;
   const S = side === 'P' ? 'L' : 'R', T = side === 'P' ? 'R' : 'L', wrap = $('bF' + S);
   const unstoppable = !!(skill.effect && skill.effect.unstoppable);
-  const cc = !unstoppable && CC_KEYS.find(k => actor.status[k] > 0);
-  if (cc) { actor.status[cc]--; log(`${actor.name} 陷入${ABN[cc].name}，這回合無法行動`); floatText(S, ABN[cc].name, 'status'); if (typeof ccSideEffect === 'function') ccSideEffect(actor, cc); await wait(650); return; }
-  if (!unstoppable && actor.status.skipAttack > 0) { actor.status.skipAttack--; log(`${actor.name} 被封鎖，本回合無法行動`); if (typeof sealPP === 'function') sealPP(actor); floatText(S, '封鎖', 'status'); await wait(600); return; }
-  if (!unstoppable && actor.status.attackFail > 0 && chance(actor.status.attackFailChance)) { actor.status.attackFail--; log(`${actor.name} 的攻擊失效了`); floatText(S, '失效', 'status'); await wait(600); return; }
-  if (actor.status.attackFail > 0) actor.status.attackFail--;
+  { const g = actGate(actor, skill); if (g) { floatText(S, g.label, 'status'); await wait(g.kind === 'cc' ? 650 : 600); return; } } /* v214：與 live.js、tier-sim 共用 */
   if (side === 'P') { track('skills'); if (skill.ultimate) track('ults'); }
   if (skill !== STRUGGLE) skill.pp--; actor.status.lastSkill = skill.name; renderSkills(); renderHUD();
   log(`${actor.name} 使用「${skill.name}」`, side === 'P' ? 'me' : 'foe');
