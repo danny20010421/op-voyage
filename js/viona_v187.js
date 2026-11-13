@@ -22,7 +22,7 @@
   const sideOf = f => { const b = B(); return b && f === b.enemy ? 'R' : 'L'; };
   const say = (f, t) => { try { if (onScreen(f)) floatText(sideOf(f), t, 'status'); } catch (e) { } };
   const isBossT = t => { const b = B(); return !!(t && (t.voidImmune || (b && b.isBoss && t === b.enemy))); };
-  const SZ0 = .65, SZV = .95; /* v192 使用者 11/09 18:42：維納斯型態立繪 0.95；無名女郎 0.45（v200b） */
+  const SZ0 = .55, SZV = 1.1; /* v209 使用者 11/13 21:44：原立繪 0.55、第四技能維納斯型態 1.1 */ /* v192 使用者 11/09 18:42：維納斯型態立繪 0.95；無名女郎 0.45（v200b） */
 
   /* ---------- 狀態 ---------- */
   if (typeof ABN !== 'undefined') {
