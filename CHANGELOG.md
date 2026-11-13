@@ -3,6 +3,8 @@
 每累積約 20 個版本統整一次。逐版的完整紀錄（v1～v97）保存在 [docs/archive/README_v1-v97_完整更新紀錄.md](docs/archive/README_v1-v97_完整更新紀錄.md)。
 
 ## 未統整（v98 起，下次在 v118 左右統整）
+### v215（使用者 11/14 04:01：同稀有度錯位修正）
+- js/balance.js 末段：41 位角色的 statScale 依同稀有度循環賽二分調整（tests/tier-sim.js，6 輪），C／R／RR／SR／SSR／UR 幾乎全部落在 44～58%（剩艾斯 43%、烏普 60% 在誤差內微調）。UR+／UR++ 照使用者要求不動；艾涅爾不動；白星、青雉、莫內、軍子宮依使用者指定的全角色勝率重新校正（59.4%、56.4%、46.6%、53.7%）；密佛格（UR）維持比七武海版強。
 ### v214（使用者 11/14 04:01：整理程式）
 - 出手前判定 actGate 三邊共用：battle.js、live.js、tests/tier-sim.js 都呼叫 battle_core.js 的 actGate（無法行動類異常、封鎖、攻擊失效），不再各寫一份。
 - 依檔案內容自動產生版本號：tools/stamp.mjs（index.html 的 js／css 與 js／css 內寫死的素材網址），.githooks/pre-commit 每次 commit 自動執行；AGENTS.md 第 12 條。

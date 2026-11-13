@@ -651,3 +651,12 @@
   const S = { shirahoshi: 1.185, aokiji: 1.17, monet: 1.135, gunko: .72 };
   Object.entries(S).forEach(([id, v]) => { if (CHARACTERS[id]) CHARACTERS[id].statScale = v; });
 })();
+
+/* ==== v215：同稀有度錯位修正（使用者 11/14 04:01）==== */
+/* 依 tests/tier-sim.js 同稀有度循環賽（每組 50 場，6 輪二分調整）只改 statScale，讓 C／R／RR／SR／SSR／UR 每位角色對同稀有度的平均勝率落在 44～58%。
+   不調整：UR+／UR++（刻意設計）、艾涅爾；白星、青雉、莫內、軍子宮依使用者指定的全角色勝率重新校正。密佛格（UR）保持比密佛格（七武海）強。 */
+(function () {
+  if (typeof CHARACTERS === 'undefined') return;
+  const S = { ace: 1.0, luffy0: 0.87, gunko: 0.735, monet: 1.15, aokiji: 1.19, shirahoshi: 1.05, alvida: 1.285, bartolomeo: 0.83, blackbeard_w: 1.279, buggy: 0.92, burgess: 1.072, coby0: 0.91, doflamingo: 1.147, franky: 0.882, gaban: 1.288, hancock: 0.859, hody: 1.08, jinbe: 1.152, katakuri: 1.09, kinemon: 1.02, king: 1.069, kizaru: 1.3, koby_mf: 1.059, koza: 0.974, law: 1.304, lucci: 1.009, luffy: 1.252, magellan: 1.17, makino: 1.125, marco: 1.081, mayor: 0.86, mihawk: 1.1, mihawk_w: 1.15, morgan: 1.3, perona: 0.888, reiju: 1.094, sanji: 0.96, sugar: 1.47, tama: 1.017, uta: 1.019, vasco: 1.133, vegapunk: 1.25, vergo: 1.165, vivi: 0.99, weevil: 1.32, wiper: 0.942, zoro: 1.143 };
+  Object.entries(S).forEach(([id, v]) => { if (CHARACTERS[id]) CHARACTERS[id].statScale = v; });
+})();
