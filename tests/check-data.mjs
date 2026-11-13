@@ -4,16 +4,16 @@ import fs from 'fs'; import vm from 'vm'; import { execSync } from 'child_proces
 const root = fileURLToPath(new URL('..', import.meta.url)), /* 解碼路徑：資料夾名稱有中文或空白時也能跑 */ rd = f => fs.readFileSync(root + f, 'utf8');
 const errs = [], warn = [];
 for (const f of fs.readdirSync(root + 'js')) if (f.endsWith('.js')) { try { execSync(`node --check "${root}js/${f}"`, { stdio: 'pipe' }); } catch (e) { errs.push(`語法錯誤 js/${f}: ${e.stderr}`); } }
-const ctx = { window: { addEventListener() { } }, console, addEventListener() { }, document: { addEventListener() { } } }; vm.createContext(ctx);
+const ctx = { window: { addEventListener() { } }, console, addEventListener() { }, document: { addEventListener() { }, createElement() { return { style: {}, appendChild() { }, setAttribute() { } }; }, querySelector() { return null; }, head: { appendChild() { } } }, Image: function () { }, setTimeout() { }, localStorage: { getItem() { return null; }, setItem() { } } }; vm.createContext(ctx);
 vm.runInContext(rd('js/data.js').replace(/^const /gm, 'var '), ctx);
 vm.runInContext(rd('js/data_ext.js'), ctx);
 vm.runInContext(rd('js/story_ext.js'), ctx);
 /* 後載入的角色擴充（多利、布洛基等）；活動池會用到 */
 vm.runInContext('var CHAR_RARITY = {};', ctx);
-for (const f of ['js/roster_v89.js', 'js/roster_v90.js', 'js/roster_v92.js', 'js/roster_v101.js', 'js/roster_v103.js', 'js/roster_v109.js', 'js/roster_v110.js', 'js/roster_v112.js', 'js/roster_v115.js', 'js/roster_v118.js', 'js/roster_v121.js', 'js/roster_v128.js', 'js/roster_v129.js', 'js/roster_v142.js', 'js/roster_v152.js', 'js/roster_v154.js', 'js/roster_v154w.js', 'js/roster_v164.js', 'js/roster_v91.js', 'js/skins_v143.js', 'js/codex_order_v164.js', 'js/balance_v165.js', 'js/balance_v167.js']) { try { vm.runInContext(rd(f), ctx); } catch (e) { warn.push(`${f} 無法在資料檢查中載入：${e.message}`); } }
+for (const f of ['js/roster.js', 'js/skins_v143.js', 'js/codex_order_v164.js', 'js/balance.js']) { try { vm.runInContext(rd(f), ctx); } catch (e) { warn.push(`${f} 無法在資料檢查中載入：${e.message}`); } }
 const { CHARACTERS: C, CHARACTER_ORDER: O, CHAR_OBTAIN: OB, CHAPTERS: CH, TREASURE: T, COLLECTION_SETS: S, EVENT_POOLS: EP, ITEMS: IT, LOGIN_REWARDS: LR } = ctx;
 const exists = u => fs.existsSync(root + String(u).split('?')[0]);
-const hub = rd('js/hub.js'), battle = rd('js/battle_core.js') + rd('js/battle.js') + rd('js/ext_effects.js') + rd('js/ext_v102.js') + rd('js/ext_v110.js') + rd('js/ext_v109.js') + rd('js/ext_v115.js') + rd('js/ext_v118.js') + rd('js/ext_v121.js') + rd('js/ext_v128.js') + rd('js/ext_v129.js') + rd('js/ext_v142.js') + rd('js/ext_v152.js') + rd('js/ext_v160.js') + rd('js/ext_v164.js') + rd('js/ext_v165.js') + rd('js/ext_v167.js');
+const hub = rd('js/hub.js'), battle = rd('js/battle_core.js') + rd('js/battle.js') + rd('js/ext.js') + rd('js/ext_late.js') + rd('js/status.js') + rd('js/balance.js') + rd('js/roster.js');
 const nos = {};
 for (const id of O) {
   const c = C[id]; if (!c) { errs.push(`CHARACTER_ORDER 有不存在的角色 ${id}`); continue; }

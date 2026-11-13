@@ -3,6 +3,11 @@
 每累積約 20 個版本統整一次。逐版的完整紀錄（v1～v97）保存在 [docs/archive/README_v1-v97_完整更新紀錄.md](docs/archive/README_v1-v97_完整更新紀錄.md)。
 
 ## 未統整（v98 起，下次在 v118 左右統整）
+### v214（使用者 11/14 04:01：整理程式）
+- 出手前判定 actGate 三邊共用：battle.js、live.js、tests/tier-sim.js 都呼叫 battle_core.js 的 actGate（無法行動類異常、封鎖、攻擊失效），不再各寫一份。
+- 依檔案內容自動產生版本號：tools/stamp.mjs（index.html 的 js／css 與 js／css 內寫死的素材網址），.githooks/pre-commit 每次 commit 自動執行；AGENTS.md 第 12 條。
+- 補丁檔合併：balance_v*.js → js/balance.js、roster_v*.js＋rocks_v166＋viona_v187 → js/roster.js、ext_effects～ext_v152 → js/ext.js、ext_v160～ext_v172 → js/ext_late.js、status_v210／v211 → js/status.js、fx_v*.js 等 → js/fx_skills.js。194 個 JS 檔 → 123 個。驗證：載入後的角色資料、全域函式、固定亂數種子的對戰模擬結果，合併前後完全一致；冒煙測試、全頁面巡檢、特效截圖正常。密佛格新立繪的網址覆寫移到 size_v209.js（必須在 bag_v116 之後）。
+- 技能說明對齊：甚平「武賴貫」破防機率 50% → 60%（說明跟數值不一致）；大和「大口真神形態」冰凍說明更新。
 ### v213（使用者 11/14 02:47：依全角色勝率調整）
 - js/balance_v213.js（只改 statScale）：白星 0.96 → 1.185（全角色勝率 45.2% → 59.0%）、青雉 1.365 → 1.17（79.9% → 55.9%，並撤回 v211 的青雉技能強化）、莫內 1.199 → 1.135（59.4% → 46.7%）、軍子宮 0.695 → 0.72（50.5% → 54.0%）。tier-sim 對全部 83 位角色各 80～100 場。
 ### v212b（測試工具）

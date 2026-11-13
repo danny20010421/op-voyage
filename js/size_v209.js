@@ -7,3 +7,6 @@
     enel: 1.3, wiper: 1, vivi: .75, kaido: 1.8, luffy_nika: 1.4, moria: 1.5, doflamingo: .95, koby_hc: .85, garp_hc: 1.3 };
   Object.entries(SZ).forEach(([id, v]) => { if (CHARACTERS[id]) CHARACTERS[id].battleScale = v; });
 })();
+/* v207：密佛格新立繪——頭像（bag_v116.js 會改成 ?v=116）與奧義背景（舊的 ?v=40）一起換新版本號，避免瀏覽器繼續用快取裡的舊圖 */
+(function () { const c = typeof CHARACTERS !== 'undefined' && CHARACTERS.mihawk; if (!c) return;
+  c.image = 'assets/chars/mihawk.webp?v=6f613a94'; c.avatar = 'assets/chars/mihawk_face.webp?v=443ee7ed'; c.ultimateBg = 'assets/chars/mihawk.webp?v=6f613a94'; })();
