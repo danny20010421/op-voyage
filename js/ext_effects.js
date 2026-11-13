@@ -9,7 +9,7 @@
     pvp: { order: 1, label: '對戰', stars: 0, hp: 1, atk: 0, def: 0, spd: 0, bossHp: 1, bossStages: 0, ai: 1.3, revives: 0, bossLvUp: 0 },
     egghead: { order: 9, label: '地獄', stars: 4, hp: 1.9, atk: 3, def: 2, spd: 2, bossHp: 1.62, bossStages: 2, ai: 1.32, revives: 2, bossLvUp: 23 }
   });
-  ABN.stun = { name: '暈眩', icon: '💫', desc: '無法使用技能' }; if (!CC_KEYS.includes('stun')) CC_KEYS.push('stun');
+  ABN.stun = { name: '暈眩', icon: '💫', desc: '無法行動，也無法使用道具' }; if (!CC_KEYS.includes('stun')) CC_KEYS.push('stun');
   VOID_PCT_KEYS.push('selfLostHpDamage');
   const RANK = { C: -.5, U: -.25, N: 0, R: 1, RR: 1.33, RRR: 1.66, SR: 2, SSR: 3, UR: 4, 'UR+': 5, 'UR++': 6 }; /* v130：補上 UR++ */
   const rarOf = f => (typeof CHAR_RARITY !== 'undefined' && CHAR_RARITY[f.id]) || 'SSR';

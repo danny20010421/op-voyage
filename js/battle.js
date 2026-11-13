@@ -209,6 +209,7 @@ function restoreBlocked(s) { const c = restoreCap(s); return c > 0 && (s.__resto
 function markRestored(s) { if (restoreCap(s)) { s.__restoredN = (s.__restoredN || (s.__restored ? 1 : 0)) + 1; s.__restored = true; } }
 function useItem(id) {
   if (!battle || battle.isBusy || battle.gameOver) return;
+  if (battle.player && battle.player.status.stun > 0) { if (typeof toast === 'function') toast('暈眩中，這回合無法使用道具'); else log('💫 暈眩中，這回合無法使用道具'); return; }
   if (!(SAVE.data.inventory[id] > 0) || battle.itemsUsed >= GAME_SETTINGS.itemsPerBattle) return;
   battle.isBusy = true; clearInterval(battle.timerHandle); closeDrawers();
   SAVE.data.inventory[id]--; SAVE.save(); battle.itemsUsed++; renderSkills(); renderBag();
@@ -248,12 +249,13 @@ async function applyItem(id) {
   renderHUD(); renderSkills(); await wait(520);
 }
 async function executeAction(side, idx) {
+  if (typeof petriRedirect === 'function') { const A0 = side === 'P' ? battle.player : battle.enemy; idx = petriRedirect(A0, idx); }
   const actor = side === 'P' ? battle.player : battle.enemy, target = side === 'P' ? battle.enemy : battle.player;
   const skill = idx === -1 ? STRUGGLE : actor.skills[idx]; if (actor.hp <= 0 || !skill || skill.pp <= 0) return;
   const S = side === 'P' ? 'L' : 'R', T = side === 'P' ? 'R' : 'L', wrap = $('bF' + S);
   const unstoppable = !!(skill.effect && skill.effect.unstoppable);
   const cc = !unstoppable && CC_KEYS.find(k => actor.status[k] > 0);
-  if (cc) { actor.status[cc]--; log(`${actor.name} 陷入${ABN[cc].name}，這回合無法使用技能`); floatText(S, ABN[cc].name, 'status'); await wait(650); return; }
+  if (cc) { actor.status[cc]--; log(`${actor.name} 陷入${ABN[cc].name}，這回合無法行動`); floatText(S, ABN[cc].name, 'status'); if (typeof ccSideEffect === 'function') ccSideEffect(actor, cc); await wait(650); return; }
   if (!unstoppable && actor.status.skipAttack > 0) { actor.status.skipAttack--; log(`${actor.name} 被封鎖，本回合無法行動`); if (typeof sealPP === 'function') sealPP(actor); floatText(S, '封鎖', 'status'); await wait(600); return; }
   if (!unstoppable && actor.status.attackFail > 0 && chance(actor.status.attackFailChance)) { actor.status.attackFail--; log(`${actor.name} 的攻擊失效了`); floatText(S, '失效', 'status'); await wait(600); return; }
   if (actor.status.attackFail > 0) actor.status.attackFail--;

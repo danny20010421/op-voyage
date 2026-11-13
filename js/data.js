@@ -92,7 +92,7 @@ const CHAPTER_DIFFICULTY = {
  dark:{order:9,label:'地獄',stars:4,hp:1.85,atk:3,def:2,spd:2,bossHp:1.60,bossStages:2,ai:1.30,revives:2,bossLvUp:22},
  giant:{order:10,label:'傳說',stars:5,hp:2.00,atk:3,def:3,spd:2,bossHp:1.70,bossStages:3,ai:1.35,revives:2,bossLvUp:25}
 };
-const GAME_SETTINGS = {turnSeconds:20, stageStep:0.20, bossRevives:1, itemsPerBattle:5, startTokens:5, clearBonus:5, dailyLimit:2, unlockAll:false, charRate:0.03,bossPctCap:0.15,gachaPity:150,rarityScale:{N: 1, R: 1.37, SR: 1, SSR: 1, UR: 1.04, 'UR+': 1.1},sweepDaily:5, charLv:20, shareExp:0.3, bossJoinFirst:0.5, bossJoinRepeat:0.2, bossJoinLv:20, lineupMax:3, levelSync:true, syncGap:6, atkStep:0.10, defStep:0.10, spdStep:0.05, freezeDot:0, burnDot:0.05, freezeSlow:0.5, weakDealt:0.15, armorBreak:0.05, typeEffect:true, typeUp:1.25, typeDown:0.8};
+const GAME_SETTINGS = {turnSeconds:20, stageStep:0.20, bossRevives:1, itemsPerBattle:5, startTokens:5, clearBonus:5, dailyLimit:2, unlockAll:false, charRate:0.03,bossPctCap:0.15,gachaPity:150,rarityScale:{N: 1, R: 1.37, SR: 1, SSR: 1, UR: 1.04, 'UR+': 1.1},sweepDaily:5, charLv:20, shareExp:0.3, bossJoinFirst:0.5, bossJoinRepeat:0.2, bossJoinLv:20, lineupMax:3, levelSync:true, syncGap:6, atkStep:0.10, defStep:0.10, spdStep:0.05, freezeDot:0, burnDot:0.05, freezeSlow:0, weakDealt:0.15, armorBreak:0.05, typeEffect:true, typeUp:1.25, typeDown:0.8};
 
 const ENCOUNTER_LINES = {
  "luffy0": [
