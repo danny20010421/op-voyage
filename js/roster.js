@@ -1078,7 +1078,7 @@ window.addEventListener('load', () => setTimeout(() => {
       sp('aura', { add: true, life: 1.5, x: f.x, y: f.bot + u * .04, ay: 1, w: u * .95, sy: q => .15 + 1.05 * eOut(q * 1.6), a: q => .6 * fd(q, .15, .75), r: (q, t) => Math.sin(t * 3) * .03 });
       await fw(220);
       back(A.S, 'wings', { x: f.x, y: f.top + u * .32, w: u * 2.4, dur: 1500, kf: wingsKF(.85) });
-      /* v221：白蛇改畫在特效層最上面（原本放在立繪後方，被身體、翅膀和光暈蓋掉看不到） */ snakeUp(f, d, u, 1.6, -.04, .1, 1.8);
+      /* v224：使用者 11/14 19:53 第四、第五招不要出現白蛇立繪 */
       moveFighter(A.S, 'float');
       await fw(560);
       sp('orb', { add: true, life: .5, x: f.x, y: f.top + u * .38, w: u * .7, s: q => .15 + .85 * eOut(q), a: q => fd(q, .2, .9), r: (q, t) => t * 4 });
@@ -1095,7 +1095,6 @@ window.addEventListener('load', () => setTimeout(() => {
       X().tint('#12001a', 1.2, .35);
       sigil(f.x, f.bot - 2, u * .95, { life: 3.2, flat: .3, spin: .9 * d });
       back(A.S, 'wings', { x: f.x, y: f.top + u * .32, w: Math.min(u * 2.8, Math.abs(e.x - f.x) * 1.5), dur: 3300, kf: wingsKF(.9) }); /* 直向手機兩人很近：翅膀不蓋住對手 */
-      snakeUp(f, d, u, 3.0, .02, .16, 1.85);
       moveFighter(A.S, 'float');
       /* ② 集氣 */
       const O = { x: f.x + d * u * .04, y: f.top - u * .26 };
