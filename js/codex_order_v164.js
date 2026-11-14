@@ -10,7 +10,7 @@
     m: ['頂上戰爭篇', '香波地諸島～女兒島～推進城～馬林福特'], f: ['魚人島篇', '魚人島'], d: ['德雷斯羅薩篇', '龐克哈薩特～德雷斯羅薩'], w: ['蛋糕島篇', '佐烏～萬國～世界會議'], o: ['和之國篇', '和之國'],
     h: ['蜂巢島篇', '蜂巢島'], g: ['蛋頭島篇', '蛋頭島'], b: ['巨人篇', '艾爾巴夫'], x: ['傳說', '空白的一百年'] };
   const GROUPS = [
-    ['crew', '草帽一夥', 'luffy0|初登場魯夫|e zoro|初登場索隆|e nami|娜美|e usopp|騙人布|e sanji|初登場香吉士|e chopper|托尼托尼·喬巴|a robin|妮可·羅賓|a franky|佛朗基|n brook|布魯克|t jinbe|甚平|m luffy|魯夫（巨人篇）|b'],
+    ['crew', '草帽一夥', 'luffy0|初登場魯夫|e zoro|開什|e nami|娜美|e usopp|騙人布|e sanji|厄布|e chopper|托尼托尼·喬巴|a robin|妮可·羅賓|a franky|佛朗基|n brook|布魯克|t jinbe|甚平|m luffy|魯夫（巨人篇）|b'],
     ['navy', '海軍與世界政府', 'coby0|初登場克比|e morgan|斧手摩根|e marine|海軍小兵|e helmeppo|貝魯梅柏|e nezumi|老鼠上校|e smoker|斯摩格|e tashigi|達斯琪|e hina|黑檻希娜|a ' +
       'lucci|羅布·路奇|n kaku|卡古|n kalifa|卡莉法|n blueno|布魯諾|n jabra|賈布拉|n kumadori|庫馬德利|n fukurou|福克羅|n spandam|斯潘達姆|n aokiji|青雉|n ' +
       'sengoku|佛之戰國|m tsuru|鶴中將|m kizaru|黃猿|m akainu|赤犬|m sentomaru|戰桃丸|m momonga|摩摩加中將|m garp_mf|卡普（頂上戰爭）|m koby_mf|克比（頂上戰爭）|m magellan|麥哲倫|m hannyabal|漢尼拔|m sadi|莎蒂|m charlos|查爾洛斯聖|m kong|空|m ' +
@@ -42,10 +42,10 @@
       'jora|喬拉|d machvise|馬哈拜斯|d sugar|砂糖|d rosinante|唐吉訶德·羅西南迪|d'],
     ['w', '蛋糕島篇', 'inuarashi|犬嵐公爵|w nekomamushi|貓蝮蛇老大|w pedro|佩德羅|w carrot|卡洛特|w wanda|萬達|w judge|文斯莫克·加治|w reiju|文斯莫克·蕾玖|w ichiji|文斯莫克·一治|w niji|文斯莫克·二治|w ' +
       'yonji|文斯莫克·四治|w sora|文斯莫克·索拉|w belo_betty|貝洛·貝蒂|w morley|莫利|w karasu|卡拉斯|w lindbergh|林德柏格|w'],
-    ['o', '和之國篇', 'kid|基德（電磁炮模式）|o kinemon|錦衛門|o tama|阿玉|o yamato|大和|o luffy_wano|魯夫（和之國篇）|o zoro_wano|索隆（和之國篇）|o sanji_wano|香吉士（和之國篇）|o robin_wano|妮可·羅賓（和之國篇）|o ' +
+    ['o', '和之國篇', 'kid|司諾|o kinemon|錦衛門|o tama|阿玉|o yamato|大和|o luffy_wano|魯夫（和之國篇）|o zoro_wano|索隆（和之國篇）|o sanji_wano|香吉士（和之國篇）|o robin_wano|妮可·羅賓（和之國篇）|o ' +
       'momonosuke|光月桃之助|o oden|光月御田|o toki|光月時|o hiyori|光月日和|o denjiro|傳次郎|o kawamatsu|河松|o raizo|雷藏|o kikunojo|菊之丞|o ashura|阿修羅童子|o kanjuro|勘十郎|o orochi|黑炭大蛇|o yasuie|霜月康義|o shinobu|忍|o'],
-    ['g', '蛋頭島篇', 'vegapunk|貝加龐克|g york|約克|g morgans|摩甘茲|g shaka|夏卡|g lilith|莉莉絲|g edison|艾迪森|g pythagoras|畢達哥拉斯|g atlas|阿特拉斯|g ginny|金妮|g emet|艾美特|g'],
-    ['b', '巨人篇', 'loki|洛基|b dorry|多利|b brogy|布洛基|b gunko|曼麥亞・軍子宮|b shamrock|費加蘭德・夏姆洛克聖|b gaban|賈巴|b harald|哈拉魯德|b jarul|雅爾|b hajrudin|漢裘爾頓|b ' +
+    ['g', '蛋頭島篇', 'vegapunk|艾恩斯坦克|g york|約克|g morgans|摩甘茲|g shaka|夏卡|g lilith|莉莉絲|g edison|艾迪森|g pythagoras|畢達哥拉斯|g atlas|阿特拉斯|g ginny|金妮|g emet|艾美特|g'],
+    ['b', '巨人篇', 'loki|洛基|b dorry|多利|b brogy|布洛基|b gunko|緋亞|b shamrock|費加蘭德・夏姆洛克聖|b gaban|真柒|b harald|哈拉魯德|b jarul|雅爾|b hajrudin|漢裘爾頓|b ' +
       'oimo|歐依莫|b kashii|卡西|b saul|哈古瓦爾·D·薩龍|b garling|菲加蘭德·加林聖|b sommers|索馬茲聖|b killingham|基林漢聖|b']
   ];
   const LAST = 'viona|賽博亞齊·維歐娜|x imu|伊姆|x rocks|洛克斯·D·吉貝克|x joyboy|喬伊波伊|x'; /* 使用者指定：伊姆、洛克斯、喬伊波伊依序放在最末三位 */

@@ -217,6 +217,8 @@ function applySkillEffects(actor,target,skill,result){
  if(ef.dotSequence&&target.status.immune<=0&&!target.status.immunePermanent){target.status.dots.push({turns:ef.dotSequence.length,sequence:ef.dotSequence,label:ef.dotLabel,index:0}); log(`🌪️ ${target.name} 陷入${ef.dotLabel}！`)}
  if(ef.clearBuffs){target.buffs.atk=Math.min(0,target.buffs.atk); target.buffs.def=Math.min(0,target.buffs.def); target.buffs.spd=Math.min(0,target.buffs.spd); log(`🌀 ${target.name} 的能力提升被清除！`)}
  if(ef.clearSelfDebuffs){clearAbnormal(actor);clearNegativeStages(actor);log(`✨ ${actor.name} 清除了自身的異常狀態與負面能力！`)}
+ if(ef.clearSelfStages){clearNegativeStages(actor);log(`✨ ${actor.name} 解除了自身的能力下降！`)}
+ if(ef.clearSelfAbn){clearAbnormal(actor);log(`✨ ${actor.name} 解除了自身的異常狀態！`)}
  if(ef.freezeChance&&chance(ef.freezeChance))inflict(target,'freeze',ef.freezeTurns||2);
  if(ef.petrifyChance&&chance(ef.petrifyChance))inflict(target,'petrify',ef.petrifyTurns||1);
  if(ef.nullifyEnemySkillTurns){target.status.skillNullify=ef.nullifyEnemySkillTurns; log(`🚫 ${target.name} 接下來技能附加效果將失效！`)}
