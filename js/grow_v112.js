@@ -77,7 +77,7 @@
   /* ---------- v131：覺醒（星級）分頁、技能等級列 ---------- */
   const fmtN = n => (+n || 0).toLocaleString();
   function ownChip(item) { const it = item ? ITEMS[item] : null, n = item ? (inv()[item] || 0) : (SAVE.data.berry || 0);
-    return `<span class="gw-chip">${it ? (typeof itemIcon === 'function' ? itemIcon(it) : '') : '<img src="assets/ui/coin_berry.webp?v=40bb4a53" alt="">'}<b>${it ? it.name : '貝里'}</b><em>${fmtN(n)}</em></span>`; }
+    return `<span class="gw-chip">${it ? (typeof itemIcon === 'function' ? itemIcon(it) : '') : '<img src="assets/ui/coin_berry.webp?v=5c0e832b" alt="">'}<b>${it ? it.name : '貝里'}</b><em>${fmtN(n)}</em></span>`; }
   function skLine(id, s, i) { const P = window.PROG, lv = P.skLv(id, i), mx = P.skMax(id), cost = lv < 5 ? P.skCost(lv + 1) : null, can = cost && lv < mx;
     const why = lv >= 5 ? '已達最高等級' : lv >= mx ? `角色 LV ${lv * 20} 解鎖 Lv${lv + 1}` : `秘傳書 ${cost.book}・貝里 ${fmtN(cost.berry)}`;
     const S2 = window.PROG2, spec = lv >= 5 && S2 ? `<div class="gw-spec"><span>專精</span>${S2.specOpts(s).map(k => `<button class="gw-spb ${S2.specOf(id, i) === k ? 'on' : ''}" data-spec="${i}:${k}"><b>${S2.SPEC_TXT[k][0]}</b><small>${S2.SPEC_TXT[k][1]}</small></button>`).join('')}</div>` : '';

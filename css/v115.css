@@ -1,9 +1,9 @@
 /* v115：寶藏幣新圖示、VIP 會員中心（會員／月費／儲值）、月費宣傳、VIP 徽章與頭像框、聊天氣泡 */
 
 /* ---------- 寶藏幣圖示（全遊戲共用 .coin-ico） ---------- */
-.coin-ico{background:url('../assets/ui/coin_token.webp?v=5ebb3d9c') center/contain no-repeat,radial-gradient(circle at 35% 30%,#fff4c8,#e8c170 35%,#a8761f 80%) center/82% 82% no-repeat!important;box-shadow:none!important;border-radius:50%!important}
+.coin-ico{background:url('../assets/ui/coin_token.webp?v=79247db3') center/contain no-repeat,radial-gradient(circle at 35% 30%,#fff4c8,#e8c170 35%,#a8761f 80%) center/82% 82% no-repeat!important;box-shadow:none!important;border-radius:50%!important}
 .coin-ico::after{content:none!important}
-.coin-fly{background:url('../assets/ui/coin_token.webp?v=5ebb3d9c') center/contain no-repeat!important;box-shadow:0 0 10px rgba(255,210,108,.8)!important}.coin-fly::after{content:none!important}
+.coin-fly{background:url('../assets/ui/coin_token.webp?v=79247db3') center/contain no-repeat!important;box-shadow:0 0 10px rgba(255,210,108,.8)!important}.coin-fly::after{content:none!important}
 .cer-img{width:48px;height:48px;object-fit:cover;border-radius:12px}
 .ev-ut{margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(255,138,58,.18);color:#ffb37a;font-style:normal;font-size:12px;font-weight:800}
 
@@ -246,3 +246,44 @@ img.vipf{box-shadow:0 0 0 2px var(--f1),0 0 0 4px var(--f2),0 0 12px var(--f2)}
 .mp-act{display:flex;justify-content:center}
 .mp-act .btn-gold{display:grid;place-items:center;min-width:200px;height:48px;border-radius:999px;font-size:16px;font-weight:900;line-height:1}
 @media (max-width:420px){.mp-row{gap:8px}.mp-art{width:80px;height:80px}}
+
+/* v216：錢幣圖示（寶藏幣／貝里）放在文字裡 */
+.cur-ic{width:1.15em;height:1.15em;vertical-align:-.22em;object-fit:contain;display:inline-block}
+
+/* ===== v216 儲值流程：首儲標籤、確認面板（付款方式＋電子發票）、儲值完成、儲值紀錄 ===== */
+.tp-firsttag{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:12px;background:#d8402f;color:#fff;font-size:12px;margin-right:4px}
+.tp-p{position:relative}.tp-tag{position:absolute;top:8px;left:8px;display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:12px;background:#d8402f;color:#fff;font:700 12px/1 system-ui;font-style:normal}
+.tp-p>small s{display:block;margin-top:4px;color:#8e826d}
+.tp-sheet-wrap{position:fixed;inset:0;z-index:2100;display:flex;align-items:flex-end;justify-content:center;background:rgba(2,6,16,.66)}
+.tp-sheet{width:min(560px,100%);max-height:92vh;overflow:auto;padding:16px 16px calc(24px + env(safe-area-inset-bottom));border-radius:24px 24px 0 0;background:linear-gradient(180deg,#221c15,#16120e);border:1px solid rgba(232,193,112,.35);border-bottom:0;color:#f3e7cf;box-shadow:0 -16px 48px rgba(0,0,0,.5)}
+.tp-sheet header{position:relative;display:flex;align-items:center;justify-content:center;height:48px}
+.tp-sheet h3{margin:0;font-size:18px;letter-spacing:2px}
+.tp-sx{position:absolute;right:0;top:4px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(232,193,112,.4);background:none;color:#f3e7cf;font-size:20px;display:grid;place-items:center}
+.tp-sheet h4{margin:16px 0 8px;font-size:14px;color:#d8c39a}
+.tp-rows{margin:8px 0 0}.tp-rows>div{display:flex;align-items:center;justify-content:space-between;min-height:40px;border-bottom:1px solid rgba(232,193,112,.14)}
+.tp-rows dt{color:#a8977a;font-size:14px}.tp-rows dd{margin:0;display:flex;align-items:center;gap:8px;font-weight:700}
+.tp-rows dd .up{color:#ffe2a0}.tp-rows .amt{font-size:18px;color:#ffe2a0}.tp-rows .amt s{font-size:13px;color:#8e826d;font-weight:400}
+.tp-rows .amt em{font:700 11px/1 system-ui;font-style:normal;background:#d8402f;color:#fff;border-radius:10px;padding:4px 8px}
+.tp-pay,.tp-inv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tp-inv{grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}
+.tp-pay button,.tp-inv button{position:relative;height:48px;border-radius:12px;border:1px solid rgba(232,193,112,.3);background:rgba(255,255,255,.03);color:#d8cbb0;font-size:14px;display:flex;align-items:center;justify-content:center}
+.tp-pay button.on,.tp-inv button.on{border:2px solid #f7dc95;color:#fff;background:rgba(247,220,149,.08)}
+.tp-pay i{position:absolute;top:-8px;right:8px;height:16px;line-height:16px;padding:0 6px;border-radius:8px;background:#3a3226;color:#bfae8c;font-size:10px;font-style:normal}
+.tp-in{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.tp-in input{height:48px;border-radius:12px;border:1px solid rgba(232,193,112,.35);background:#0f0c09;color:#fff;padding:0 16px;font-size:16px}
+.tp-err{color:#ff8a7a;font-size:12px}
+.tp-agree{display:flex;align-items:center;gap:8px;min-height:40px;margin:8px 0;font-size:13px;color:#bfae8c}.tp-agree input{width:20px;height:20px;accent-color:#e6bb5e}
+.tp-go{width:100%;height:48px;border-radius:24px;font-size:16px;font-weight:900}.tp-go:disabled{opacity:.45;filter:grayscale(.6)}
+.tp-done-wrap{align-items:center}
+.tp-done{width:min(360px,calc(100% - 32px));padding:32px 24px 24px;border-radius:24px;background:radial-gradient(80% 50% at 50% 0,rgba(255,210,108,.25),transparent 70%),#1a150f;border:1px solid rgba(232,193,112,.4);display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;color:#f3e7cf}
+.tp-bigc{width:112px;height:112px;filter:drop-shadow(0 0 24px rgba(255,210,108,.7));animation:tpPop .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes tpPop{from{transform:scale(.3) rotate(-30deg);opacity:0}to{transform:none;opacity:1}}
+.tp-done h3{margin:0;font-size:28px;color:#ffe2a0}.tp-done p{margin:0;font-size:13px;color:#bfae8c}
+.tp-lv{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 24px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(232,193,112,.3)}.tp-lv b{color:#ffe2a0}.tp-lv small{color:#8fe0a0}
+.tp-done button{width:100%;height:48px;border-radius:24px}
+.tp-hist ul{list-style:none;margin:8px 0;padding:0}.tp-hist li{display:flex;align-items:center;gap:16px;min-height:72px;border-bottom:1px solid rgba(232,193,112,.14)}
+.tp-hist li>div{flex:1;display:flex;flex-direction:column;gap:4px}.tp-hist li small{font-size:12px;color:#8e826d}
+.tp-hist li em{font-style:normal;font-size:12px;height:24px;padding:0 8px;border-radius:12px;display:flex;align-items:center;background:#3a3226;color:#bfae8c}.tp-hist li em.ok{background:#21402a;color:#8fe0a0}
+.tp-empty{text-align:center;color:#8e826d;padding:32px 0}
+.tp-c{width:24px;height:24px;object-fit:contain}
+.tp-p button{white-space:nowrap;padding:0 12px}.tp-p.p2 button{font-size:15px}

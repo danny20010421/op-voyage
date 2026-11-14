@@ -48,7 +48,7 @@ const RETURN_CFG = { awayDays: 30, windowDays: 14,
   });
   /* ---------- v137：領取畫面與大廳入口（使用者已同意示意圖） ---------- */
   const fmtR = (k, n) => k === 'berry' ? (n % 10000 ? n.toLocaleString() : (n / 10000) + '萬') : '×' + n;
-  const icon = k => k === 'tokens' ? '<img src="assets/ui/coin_token.webp?v=5ebb3d9c" alt="">' : k === 'berry' ? '<img src="assets/ui/coin_berry.webp?v=40bb4a53" alt="">' : (ITEMS[k] && typeof itemIcon === 'function' ? itemIcon(ITEMS[k]) : '');
+  const icon = k => k === 'tokens' ? '<img src="assets/ui/coin_token.webp?v=79247db3" alt="">' : k === 'berry' ? '<img src="assets/ui/coin_berry.webp?v=5c0e832b" alt="">' : (ITEMS[k] && typeof itemIcon === 'function' ? itemIcon(ITEMS[k]) : '');
   const nameOf = k => k === 'tokens' ? '寶藏幣' : k === 'berry' ? '貝里' : (ITEMS[k] ? ITEMS[k].name : k);
   const rwHtml = r => { const o = []; if (r.tokens) o.push(['tokens', r.tokens]); if (r.berry) o.push(['berry', r.berry]); Object.entries(r.items || {}).forEach(e => o.push(e)); return o.map(([k, n]) => `<span title="${nameOf(k)} ${fmtR(k, n)}">${icon(k)}${fmtR(k, n)}</span>`).join(''); };
   function close() { document.querySelectorAll('.qo-wrap.rt-wrap').forEach(o => o.remove()); }

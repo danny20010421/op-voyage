@@ -60,8 +60,8 @@ const PROG_CFG = {
   /* ---------- 發獎勵（寶箱、通行證、賽季共用） ---------- */
   function give(rew, why) {
     const list = []; if (!rew) return list;
-    if (rew.berry) { addBerry(rew.berry); list.push({ name: '貝里', count: rew.berry, img: 'assets/ui/coin_berry.webp?v=40bb4a53', rar: 'R' }); }
-    if (rew.tokens) { SAVE.data.tokens = (SAVE.data.tokens || 0) + rew.tokens; list.push({ name: '寶藏幣', count: rew.tokens, img: 'assets/ui/coin_token.webp?v=5ebb3d9c', rar: 'SR' }); }
+    if (rew.berry) { addBerry(rew.berry); list.push({ name: '貝里', count: rew.berry, img: 'assets/ui/coin_berry.webp?v=5c0e832b', rar: 'R' }); }
+    if (rew.tokens) { SAVE.data.tokens = (SAVE.data.tokens || 0) + rew.tokens; list.push({ name: '寶藏幣', count: rew.tokens, img: 'assets/ui/coin_token.webp?v=79247db3', rar: 'SR' }); }
     Object.entries(rew.items || {}).forEach(([k, n]) => { if (!ITEMS[k] || !n) return; inv()[k] = (inv()[k] || 0) + n; list.push({ item: k, count: n }); });
     SAVE.save(); if (typeof coins === 'function') coins();
     return list;

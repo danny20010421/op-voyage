@@ -6,7 +6,7 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmt = n => Number(n || 0).toLocaleString();
-  const COIN = 'assets/ui/coin_token.webp?v=5ebb3d9c';
+  const COIN = 'assets/ui/coin_token.webp?v=79247db3';
   const badge = l => `assets/ui/vip${l}.webp?v=115`, badgeS = l => `assets/ui/vip${l}_s.webp?v=115`;
   /* v165：日期一律用台灣時間（js/twtime_v165.js） */
   const dayStr = d => TW.dateKey(d ? +d : undefined);
@@ -48,7 +48,7 @@
   /* 發放獎勵，回傳 showRewards 用的清單 */
   function give(R, why) {
     const inv = SAVE.data.inventory = SAVE.data.inventory || {}, list = [];
-    if (R.berry) { addBerry(R.berry, true); list.push({ name: '貝里', count: R.berry, emoji: '💰' }); }
+    if (R.berry) { addBerry(R.berry, true); list.push({ name: '貝里', count: R.berry, img: 'assets/ui/coin_berry.webp?v=5c0e832b' }); }
     if (R.tokens) { SAVE.data.tokens = (SAVE.data.tokens || 0) + R.tokens; list.push({ name: '寶藏幣', count: R.tokens, img: COIN, rar: 'SR' }); }
     Object.entries(R.items || {}).forEach(([k, n]) => { inv[k] = (inv[k] || 0) + n; list.push({ item: k, count: n }); });
     SAVE.save(); if (typeof coins === 'function') coins(); return list;
@@ -64,10 +64,10 @@
     return got;
   }
   /* 儲值入帳（目前沒有開放付款，只給管理後台測試與日後金流使用） */
-  function recharge(n, why) {
+  function recharge(n, why, quiet) {
     n = Math.max(0, Math.floor(n || 0)); if (!n) return; const S = st(), before = level();
     S.paid = (S.paid || 0) + n; SAVE.data.tokens = (SAVE.data.tokens || 0) + n; SAVE.save(); if (typeof coins === 'function') coins();
-    toast(`儲值 ${fmt(n)} 寶藏幣${why ? '・' + why : ''}`, 'gold'); const after = level(); if (after > before) grantOnce(false); refreshLobby(); if (open_) render();
+    toast(`儲值 ${fmt(n)} 寶藏幣${why ? '・' + why : ''}`, 'gold'); const after = level(); let got = []; if (after > before) got = grantOnce(!!quiet) || []; refreshLobby(); if (open_) render(); return got;
   }
   function dailyReady() { const L = level(); return L > 0 && st().day !== dayStr() && !locked(); }
   function claimDaily() { if (!dailyReady()) return; const L = level(), S = st(); S.day = dayStr(); const list = give(perk(L).daily); popup('VIP 每日禮包', `VIP${L}・${dayStr()}`, list); refreshLobby(); if (open_) render(); }
@@ -268,13 +268,73 @@
     return `<div class="vp-me"><span class="vp-mb cn"><img src="${COIN}" alt=""></span><div><b>${fmt(m.price)} 寶藏幣 / ${m.days} 天</b><small>目前擁有 ${fmt(SAVE.data.tokens)} 枚</small></div></div>
       <div class="vp-acts">${s && np ? '<button class="btn-gold" data-a="pick">使用角色隨機卡</button>' : `<button class="btn-gold" data-a="buy" ${!s && sale ? '' : 'disabled'}>${s ? '已購買' : sale ? '購買月費' : '不在販售期間'}</button>`}</div>`;
   }
-  const PACKS = [{ nt: 5, tk: 1 }, { nt: 450, tk: 100 }, { nt: 800, tk: 1000 }];
+  /* v216（使用者 11/14 16:10）：1 寶藏幣＝NT$5；三個方案，帳號第一次儲值時顯示首儲優惠價（100＝495、1000＝4,900、10000＝49,000）。
+     流程：選方案 → 確認面板（付款方式＋電子發票：會員載具／手機條碼／自然人憑證／捐贈／公司統編）→ 付款 → 儲值完成；另有儲值紀錄。
+     金流尚未接上：一般玩家按付款會看到「付款服務即將開放」；後台開啟「付款測試模式」（localStorage op_pay_test=1）才會模擬付款成功入帳。 */
+  const PACKS = [{ tk: 100, nt: 500, first: 495 }, { tk: 1000, nt: 5000, first: 4900 }, { tk: 10000, nt: 50000, first: 49000 }];
+  const orders = () => { const S = st(); S.orders = S.orders || []; return S.orders; };
+  const isFirst = () => !orders().some(o => o.st === 'ok');
+  const priceOf = p => isFirst() ? p.first : p.nt;
+  const payTest = () => { try { return localStorage.getItem('op_pay_test') === '1'; } catch (e) { return false; } };
+  const INV = [['member', '會員載具', '寄到你的電子信箱'], ['mobile', '手機條碼載具', '例：/ABC1234'], ['cert', '自然人憑證', '例：AB12345678901234'], ['donate', '捐贈發票', '輸入愛心碼'], ['company', '公司統編', '8 碼統一編號＋抬頭']];
+  const invCheck = (t, v, v2) => t === 'member' ? /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) : t === 'mobile' ? /^\/[0-9A-Z.+-]{7}$/.test(v) : t === 'cert' ? /^[A-Z]{2}\d{14}$/.test(v) : t === 'donate' ? /^\d{3,7}$/.test(v) : t === 'company' ? /^\d{8}$/.test(v) && String(v2 || '').trim().length > 0 : false;
   function topHTML() {
-    return `<p class="vp-lead">儲值的寶藏幣會累積到 VIP 等級（目前累積 ${fmt(st().paid || 0)} 枚）。</p>
-      <ul class="tp-packs">${PACKS.map((p, i) => `<li class="tp-p p${i}"><span class="tp-art">${`<img src="${COIN}" alt="">`.repeat(i + 1)}</span><b><img src="${COIN}" alt="" class="tp-c">${fmt(p.tk)}</b><small>寶藏幣</small><button class="btn-gold" data-pay="${i}">NT$ ${fmt(p.nt)}</button></li>`).join('')}</ul>
-      <p class="vp-tip">本遊戲目前僅開放免費遊玩，暫無儲值服務。以上為預定方案，正式開放時會另行公告。</p>`;
+    const F = isFirst();
+    return `<p class="vp-lead">${F ? '<b class="tp-firsttag">首次儲值優惠</b> 帳號第一次儲值享優惠價・' : ''}1 寶藏幣＝NT$5，累積儲值會提升 VIP 等級（目前累積 ${fmt(st().paid || 0)} 枚）。</p>
+      <ul class="tp-packs">${PACKS.map((p, i) => `<li class="tp-p p${i}">${F ? '<em class="tp-tag">首儲優惠</em>' : ''}<span class="tp-art">${`<img src="${COIN}" alt="">`.repeat(i + 1)}</span><b><img src="${COIN}" alt="" class="tp-c">${fmt(p.tk)}</b><small>寶藏幣${F ? `<s>NT$ ${fmt(p.nt)}</s>` : ''}</small><button class="btn-gold" data-pay="${i}">NT$ ${fmt(priceOf(p))}</button></li>`).join('')}</ul>
+      <p class="vp-tip">寶藏幣只能透過儲值或限量活動取得；貝里在遊戲中就能獲得。付款與發票問題請聯絡客服。</p>`;
   }
-  function topBar() { return `<div class="vp-me"><span class="vp-mb cn"><img src="${COIN}" alt=""></span><div><b>${fmt(SAVE.data.tokens)} 寶藏幣</b><small>VIP${level()}・累積儲值 ${fmt(st().paid || 0)}</small></div></div><div class="vp-acts"><button class="btn-ghost" data-a="member">查看 VIP 福利</button></div>`; }
+  /* 確認購買面板 */
+  function paySheet(i) {
+    const p = PACKS[i], price = priceOf(p), F = isFirst(), S = st(), before = level(), after = levelOf((S.paid || 0) + p.tk);
+    const pref = SAVE.data.invoicePref || { t: 'member', v: '', v2: '' }; let t = pref.t, pm = 'card';
+    const w = document.createElement('div'); w.className = 'tp-sheet-wrap'; document.body.appendChild(w);
+    const draw = () => {
+      const inv = INV.find(x => x[0] === t);
+      w.innerHTML = `<div class="tp-sheet" role="dialog" aria-modal="true" aria-label="確認購買"><header><h3>確認購買</h3><button class="tp-sx" aria-label="關閉">×</button></header>
+        <dl class="tp-rows"><div><dt>方案</dt><dd><img src="${COIN}" alt="" class="tp-c">${fmt(p.tk)} 寶藏幣</dd></div>
+          <div><dt>購買後 VIP</dt><dd>${after > before ? `VIP${before} → <b class="up">VIP${after}</b>` : `VIP${before}`}</dd></div>
+          <div><dt>金額</dt><dd class="amt">${F ? `<s>NT$ ${fmt(p.nt)}</s>` : ''}NT$ ${fmt(price)}${F ? '<em>首儲優惠</em>' : ''}</dd></div></dl>
+        <h4>付款方式</h4><div class="tp-pay">${[['card', '信用卡'], ['apple', 'Apple Pay'], ['google', 'Google Pay'], ['cvs', '超商代碼']].map(([k, n]) => `<button class="${pm === k ? 'on' : ''}" data-pm="${k}">${n}${payTest() ? '' : '<i>即將開放</i>'}</button>`).join('')}</div>
+        <h4>電子發票</h4><div class="tp-inv">${INV.map(([k, n]) => `<button class="${t === k ? 'on' : ''}" data-inv="${k}">${n}</button>`).join('')}</div>
+        <div class="tp-in"><input id="tpInv" inputmode="${t === 'member' ? 'email' : t === 'donate' || t === 'company' ? 'numeric' : 'text'}" autocapitalize="characters" placeholder="${inv[2]}" value="${esc(pref.t === t ? pref.v : '')}" aria-label="${inv[1]}">${t === 'company' ? `<input id="tpInv2" placeholder="公司抬頭" value="${esc(pref.t === t ? pref.v2 || '' : '')}" aria-label="公司抬頭">` : ''}<small class="tp-err" hidden>格式不正確，請再確認</small></div>
+        <label class="tp-agree"><input type="checkbox" id="tpAgree"> 我已閱讀並同意《儲值條款》與《退款說明》</label>
+        <button class="btn-gold tp-go" id="tpGo" disabled>${payTest() ? `付款 NT$ ${fmt(price)}（測試模式）` : `前往付款 NT$ ${fmt(price)}`}</button></div>`;
+      const go = w.querySelector('#tpGo'), a = w.querySelector('#tpAgree'), i1 = w.querySelector('#tpInv'), i2 = w.querySelector('#tpInv2'), er = w.querySelector('.tp-err');
+      const norm = () => { if (t === 'mobile' || t === 'cert') i1.value = i1.value.toUpperCase().replace(/\s/g, ''); };
+      const valid = () => invCheck(t, i1.value.trim(), i2 && i2.value);
+      const upd = () => { norm(); go.disabled = !(a.checked && valid()); er.hidden = !i1.value.trim() || valid(); };
+      [a, i1, i2].forEach(x => x && (x.oninput = x.onchange = upd));
+      w.querySelectorAll('[data-inv]').forEach(b => b.onclick = () => { t = b.dataset.inv; draw(); });
+      w.querySelectorAll('[data-pm]').forEach(b => b.onclick = () => { pm = b.dataset.pm; draw(); });
+      w.querySelector('.tp-sx').onclick = () => w.remove(); w.onclick = e => { if (e.target === w) w.remove(); };
+      go.onclick = () => { if (go.disabled) return; const v = i1.value.trim(), v2 = i2 ? i2.value.trim() : ''; SAVE.data.invoicePref = { t, v, v2 }; SAVE.save();
+        if (!payTest()) return note('付款服務即將開放', '金流正在串接中，開放後就能用這個方案儲值。你填的發票資料已幫你記住，下次不用重填。');
+        const id = 'OP' + TW.dateKey().replace(/-/g, '').slice(2) + String(Date.now()).slice(-6);
+        orders().unshift({ id, t: Date.now(), tk: p.tk, nt: price, first: F, pm, inv: { t, v, v2 }, st: 'ok' }); w.remove(); const got = recharge(p.tk, '儲值', true); doneView(p, price, before, level(), id, got); };
+      upd(); setTimeout(() => i1.focus(), 50);
+    };
+    draw();
+  }
+  /* 儲值完成 */
+  function doneView(p, price, before, after, id, got) {
+    const w = document.createElement('div'); w.className = 'tp-sheet-wrap tp-done-wrap'; document.body.appendChild(w);
+    w.innerHTML = `<div class="tp-done" role="dialog" aria-modal="true" aria-label="儲值完成"><img class="tp-bigc" src="${COIN}" alt=""><h3>＋${fmt(p.tk)} 寶藏幣</h3><p>已入帳・NT$ ${fmt(price)}・訂單 ${id}</p>
+      ${after > before ? `<div class="tp-lv"><span>VIP${before} → <b>VIP${after}</b></span><small>按「太棒了」領取升級禮包</small></div>` : ''}
+      <button class="btn-gold" data-d="ok">太棒了</button><button class="btn-ghost" data-d="vip">查看 VIP 福利</button></div>`;
+    const gift = () => { if (got && got.length) popup('VIP 升級禮包', `恭喜達到 VIP${after}`, got); };
+    w.querySelector('[data-d="ok"]').onclick = () => { w.remove(); gift(); }; w.querySelector('[data-d="vip"]').onclick = () => { w.remove(); tab = 'member'; render(); gift(); };
+  }
+  /* 儲值紀錄 */
+  function historyView() {
+    const L = orders(), w = document.createElement('div'); w.className = 'tp-sheet-wrap'; document.body.appendChild(w);
+    const invTxt = o => { const x = INV.find(y => y[0] === o.inv.t); return `${x ? x[1] : ''}${o.inv.v ? ' ' + esc(o.inv.v) : ''}`; };
+    w.innerHTML = `<div class="tp-sheet tp-hist" role="dialog" aria-modal="true" aria-label="儲值紀錄"><header><h3>儲值紀錄</h3><button class="tp-sx" aria-label="關閉">×</button></header>
+      ${L.length ? `<ul>${L.map(o => `<li><img src="${COIN}" alt="" class="tp-c"><div><b>${fmt(o.tk)} 寶藏幣</b><small>${TW.dateKey(o.t)}・NT$ ${fmt(o.nt)}・${o.id}</small><small>發票：${invTxt(o)}</small></div><em class="${o.st === 'ok' ? 'ok' : ''}">${o.st === 'ok' ? '已入帳' : '處理中'}</em></li>`).join('')}</ul>` : '<p class="tp-empty">還沒有儲值紀錄</p>'}
+      <p class="vp-tip">付款後超過 30 分鐘未入帳，請帶著訂單編號聯絡客服。</p></div>`;
+    w.querySelector('.tp-sx').onclick = () => w.remove(); w.onclick = e => { if (e.target === w) w.remove(); };
+  }
+  function topBar() { return `<div class="vp-me"><span class="vp-mb cn"><img src="${COIN}" alt=""></span><div><b>${fmt(SAVE.data.tokens)} 寶藏幣</b><small>VIP${level()}・累積儲值 ${fmt(st().paid || 0)}</small></div></div><div class="vp-acts two"><button class="btn-ghost" data-a="hist">儲值紀錄</button><button class="btn-ghost" data-a="member">查看 VIP 福利</button></div>`; }
   function render() {
     const m = wrap(), L = level();
     m.innerHTML = `<div class="vp" data-view="${tab}">
@@ -285,9 +345,9 @@
     m.querySelector('.vp-x').onclick = close;
     m.querySelectorAll(".vp-tabs [data-tab]").forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); });
     m.querySelectorAll('[data-lv]').forEach(b => b.onclick = () => { sel = +b.dataset.lv; render(); const n = m.querySelector('.vp-lvs .on'); if (n) n.scrollIntoView({ inline: 'center', block: 'nearest' }); });
-    m.querySelectorAll('[data-pay]').forEach(b => b.onclick = NO_PAY);
+    m.querySelectorAll('[data-pay]').forEach(b => b.onclick = () => paySheet(+b.dataset.pay));
     const A = (k, f) => { const b = m.querySelector(`[data-a="${k}"]`); if (b) b.onclick = f; };
-    A('daily', claimDaily); A('gotop', () => { tab = 'top'; render(); }); A('member', () => { tab = 'member'; render(); }); A('buy', mcBuy); A('pick', () => window.openMcPick(MC.pick));
+    A('daily', claimDaily); A('hist', historyView); A('gotop', () => { tab = 'top'; render(); }); A('member', () => { tab = 'member'; render(); }); A('buy', mcBuy); A('pick', () => window.openMcPick(MC.pick));
     const on = m.querySelector('.vp-lvs .on'); if (on) requestAnimationFrame(() => { const nav = on.parentElement; nav.scrollLeft = on.offsetLeft - (nav.clientWidth - on.offsetWidth) / 2; });
     if (window.fixIcons) fixIcons(m);
   }

@@ -7,8 +7,8 @@
   function gains() {
     if (!snap) return []; const d = SAVE.data, G = [];
     Object.keys(d.roster || {}).filter(k => !snap.roster.includes(k) && CHARACTERS[k]).forEach(k => G.push({ char: k }));
-    if ((d.tokens || 0) > snap.tokens) G.push({ name: '寶藏幣', count: d.tokens - snap.tokens, emoji: '🪙', rar: 'SR' });
-    if ((d.berry || 0) > snap.berry) G.push({ name: '貝里', count: d.berry - snap.berry, emoji: '💰', rar: 'R' });
+    if ((d.tokens || 0) > snap.tokens) G.push({ name: '寶藏幣', count: d.tokens - snap.tokens, img: 'assets/ui/coin_token.webp?v=79247db3', rar: 'SR' });
+    if ((d.berry || 0) > snap.berry) G.push({ name: '貝里', count: d.berry - snap.berry, img: 'assets/ui/coin_berry.webp?v=5c0e832b', rar: 'R' });
     Object.entries(d.inventory || {}).forEach(([k, n]) => { const dn = n - (snap.inv[k] || 0); if (dn > 0 && ITEMS[k]) G.push({ item: k, count: dn }); });
     return G;
   }

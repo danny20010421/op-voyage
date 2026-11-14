@@ -93,14 +93,14 @@
     if (kind === 'fest') {
       const s = S(); s.badge[def.id] = (s.badge[def.id] || 0) + BADGE[t]; out.push({ name: '祭典徽章', count: BADGE[t], emoji: '🏅', rar: 'SR' });
       const P = livePools()[0]; if (P && typeof eventState === 'function') { try { const E = eventState(P); E.tickets = (E.tickets || 0) + FTICKET[t]; out.push({ item: 'event_ticket', count: FTICKET[t], name: '活動抽獎券' }); } catch (e) { } }
-      const b = 1500 * (t + 1); addBerry(b); out.push({ name: '貝里', count: b, emoji: '💰', rar: 'R' });
+      const b = 1500 * (t + 1); addBerry(b); out.push({ name: '貝里', count: b, img: 'assets/ui/coin_berry.webp?v=5c0e832b', rar: 'R' });
     } else {
       const R = def.rw(t);
-      if (R.berry) { addBerry(R.berry); out.push({ name: '貝里', count: R.berry, emoji: '💰', rar: 'R' }); }
+      if (R.berry) { addBerry(R.berry); out.push({ name: '貝里', count: R.berry, img: 'assets/ui/coin_berry.webp?v=5c0e832b', rar: 'R' }); }
       if (R.items) Object.entries(R.items).forEach(([k, n]) => { if (!ITEMS[k]) return; inv()[k] = (inv()[k] || 0) + n; out.push({ item: k, count: n }); });
       if (R.gear && window.GEAR) R.gear.forEach(r => { const maybe = r.endsWith('?'); if (maybe && Math.random() >= .35) return; const g = GEAR.addGear(GEAR.roll(null, r.replace('?', '')), true); if (g) out.push({ name: g.name, count: 1, emoji: '⚔️', rar: g.rar }); else out.push({ name: '寶物已滿（請先分解）', count: 0, emoji: '⚠️', rar: 'N' }); });
     }
-    if (first) { const n = FIRST[kind][t]; SAVE.data.tokens = (SAVE.data.tokens || 0) + n; out.push({ name: '寶藏幣（首次通關）', count: n, emoji: '🪙', rar: 'SSR' }); }
+    if (first) { const n = FIRST[kind][t]; SAVE.data.tokens = (SAVE.data.tokens || 0) + n; out.push({ name: '寶藏幣（首次通關）', count: n, img: 'assets/ui/coin_token.webp?v=79247db3', rar: 'SSR' }); }
     SAVE.save(); if (typeof coins === 'function') coins();
     return out.filter(x => x.item ? (x.count > 0) : true);
   }
@@ -169,9 +169,9 @@
   let tab = 'fest', sel = { realm: 'berry', tier: {} };
   const icoOf = g => g.gear && window.GEAR && GEAR.gearIcon ? GEAR.gearIcon({ slot: 'blade', rar: g.rar }, 56) : g.item && ITEMS[g.item] && typeof itemIcon === 'function' ? itemIcon(ITEMS[g.item]) : g.img ? `<img src="${g.img}" alt="">` : `<em>${g.emoji || '🎁'}</em>`;
   function rewardChips(kind, def, t) {
-    if (kind === 'fest') return `<span class="stg-chip">🏅 徽章 ×${BADGE[t]}</span>${livePools().length ? `<span class="stg-chip">🎟 抽獎券 ×${FTICKET[t]}</span>` : ''}<span class="stg-chip">💰 ${(1500 * (t + 1)).toLocaleString()}</span>`;
+    if (kind === 'fest') return `<span class="stg-chip">🏅 徽章 ×${BADGE[t]}</span>${livePools().length ? `<span class="stg-chip">🎟 抽獎券 ×${FTICKET[t]}</span>` : ''}<span class="stg-chip"><img class="cur-ic" src="assets/ui/coin_berry.webp?v=5c0e832b" alt="貝里"> ${(1500 * (t + 1)).toLocaleString()}</span>`;
     const R = def.rw(t), a = [];
-    if (R.berry) a.push(`💰 ${R.berry.toLocaleString()}`);
+    if (R.berry) a.push(`<img class="cur-ic" src="assets/ui/coin_berry.webp?v=5c0e832b" alt="貝里"> ${R.berry.toLocaleString()}`);
     if (R.items) Object.entries(R.items).forEach(([k, n]) => ITEMS[k] && a.push(`${ITEMS[k].name} ×${n}`));
     if (R.gear) R.gear.forEach(r => a.push(r.endsWith('?') ? `${r.slice(0, -1)} 寶物（35%）` : `${r} 寶物 ×1`));
     return a.map(x => `<span class="stg-chip">${x}</span>`).join('');
@@ -182,7 +182,7 @@
       return `<li class="stg-tier ${ok ? '' : 'lock'} ${cl ? 'done' : ''} t${t}">
         <div class="stg-t-h"><b>${T.name}${T.boss ? '<i class="stg-boss">BOSS</i>' : ''}</b><small>敵人 LV ${T.lv}</small><small>建議 LV ${T.rec}+</small></div>
         <div class="stg-foes">${def.foes[t].map(id => `<img src="${av(id)}" alt="${esc(nm(id))}" title="${esc(nm(id))}">`).join('')}<span>${def.foes[t].map(nm).join('、')}</span></div>
-        <div class="stg-rw">${rewardChips(kind, def, t)}${s.first[k] ? '' : `<span class="stg-chip first">首通 🪙×${FIRST[kind][t]}</span>`}</div>
+        <div class="stg-rw">${rewardChips(kind, def, t)}${s.first[k] ? '' : `<span class="stg-chip first">首通 <img class="cur-ic" src="assets/ui/coin_token.webp?v=79247db3" alt="寶藏幣">×${FIRST[kind][t]}</span>`}</div>
         <div class="stg-btns">${ok ? `<button class="btn-gold" data-go="${t}" ${rl > 0 ? '' : 'disabled'}>挑戰</button><button class="btn-ghost" data-sw="${t}" ${cl && rl > 0 ? '' : 'disabled'} title="${cl ? '' : '通關後可以掃蕩'}">掃蕩 ×${Math.max(0, rl)}</button>` : `<span class="stg-lock">🔒 通關${TIER[t - 1].name}後開放</span>`}</div>
       </li>`; }).join('')}</ol>`;
   }

@@ -10,8 +10,8 @@
 .l2-mission em .arw{width:18px;height:18px}
 
 /* ---------- 貝里新圖示 ---------- */
-.berry-ico{background:url('../assets/ui/coin_berry.webp?v=40bb4a53') center/contain no-repeat!important;color:transparent!important;font-size:0!important;box-shadow:none!important;border:0!important;border-radius:50%!important;text-shadow:none!important}
-.coin-fly.berry,.price .berry-ico{background:url('../assets/ui/coin_berry.webp?v=40bb4a53') center/contain no-repeat!important}
+.berry-ico{background:url('../assets/ui/coin_berry.webp?v=5c0e832b') center/contain no-repeat!important;color:transparent!important;font-size:0!important;box-shadow:none!important;border:0!important;border-radius:50%!important;text-shadow:none!important}
+.coin-fly.berry,.price .berry-ico{background:url('../assets/ui/coin_berry.webp?v=5c0e832b') center/contain no-repeat!important}
 
 /* ---------- 角色背包：位置改為小標籤 ---------- */
 .sb-top{flex-wrap:nowrap!important;align-items:center!important}

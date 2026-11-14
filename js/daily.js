@@ -30,7 +30,7 @@
   }
   function openLogin(auto) {
     const L = loginState(), ok = canClaim();
-    const icon = R => R.items ? (() => { const k = Object.keys(R.items)[0]; return ITEMS[k] ? itemIcon(ITEMS[k]) : '<em>🎁</em>'; })() : R.tickets ? '<em>🎟</em>' : R.tokens ? '<em>🪙</em>' : '<em>💰</em>';
+    const icon = R => R.items ? (() => { const k = Object.keys(R.items)[0]; return ITEMS[k] ? itemIcon(ITEMS[k]) : '<em>🎁</em>'; })() : R.tickets ? '<em>🎟</em>' : R.tokens ? '<img class="cur-ic" src="assets/ui/coin_token.webp?v=79247db3" alt="寶藏幣">' : '<img class="cur-ic" src="assets/ui/coin_berry.webp?v=5c0e832b" alt="貝里">';
     const box = document.createElement('div'); box.className = 'dl-wrap lg7-wrap'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', '七日登入獎勵');
     box.innerHTML = `<div class="lg7"><button class="icon-btn sm lg7-x" data-x aria-label="關閉">×</button>
       <header class="lg7-head"><img src="assets/ui/login_reward.webp?v=0dab8ac7" alt=""><div><h3><span>七</span>日之約</h3><p>每天登入領一次，第 7 天領完後重新開始。${ok ? '' : '<br><b>今天已經領過了，明天 00:00 再來！</b>'}</p></div></header>
@@ -42,7 +42,7 @@
     const c = box.querySelector('#dlClaim'); if (ok) c.onclick = () => {
       const R = LOGIN_REWARDS[L.day], got = grantReward(R); L.last = today(); L.day = (L.day + 1) % LOGIN_REWARDS.length; SAVE.data.loginTotal = (SAVE.data.loginTotal || 0) + 1; SAVE.save();
       close(); if (window.renderLobby) renderLobby();
-      const list = []; if (R.berry) list.push({ name: '貝里', count: R.berry, emoji: '💰' }); if (R.tokens) list.push({ name: '寶藏幣', count: R.tokens, emoji: '🪙', rar: 'SR' }); if (R.items) Object.entries(R.items).forEach(([k, n]) => list.push({ item: k, count: n })); if (R.tickets) list.push({ name: '活動抽獎券', count: R.tickets, emoji: '🎟', rar: 'SSR' });
+      const list = []; if (R.berry) list.push({ name: '貝里', count: R.berry, img: 'assets/ui/coin_berry.webp?v=5c0e832b' }); if (R.tokens) list.push({ name: '寶藏幣', count: R.tokens, img: 'assets/ui/coin_token.webp?v=79247db3', rar: 'SR' }); if (R.items) Object.entries(R.items).forEach(([k, n]) => list.push({ item: k, count: n })); if (R.tickets) list.push({ name: '活動抽獎券', count: R.tickets, emoji: '🎟', rar: 'SSR' });
       if (window.showRewards) showRewards({ title: '恭喜獲得', sub: `七日登入・第 ${R.day} 天` }, list); else toast(`登入獎勵：${got.join('、')}`, 'gold');
     };
   }
