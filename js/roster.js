@@ -988,6 +988,11 @@ window.addEventListener('load', () => setTimeout(() => {
     try { el.animate(o.kf, { duration: dur, easing: o.ease || 'linear', fill: 'forwards' }); } catch (e) { }
     setTimeout(() => el.remove(), dur + 60); return el; }
   const M = d => d < 0 ? ' scaleX(-1)' : '';
+  /* v221：白蛇從肩後盤上、蛇頭朝向對手（畫在特效畫布，不會被立繪擋住）：先從下方竄起放大 → 停住輕輕擺動 → 淡出 */
+  function snakeUp(f, d, u, life, ox, oy, wk) { const x0 = f.x - d * u * ox, y0 = f.top + u * oy;
+    sp('snake', { life, w: u * wk, fx: d < 0, x: (q, t) => x0 + Math.sin(t * 2.2) * u * .015, y: (q, t) => y0 + (1 - eOut(Math.min(1, t / .45))) * u * .35 - Math.sin(t * 3) * u * .02,
+      s: (q, t) => .55 + .45 * eOut(Math.min(1, t / .45)), r: (q, t) => (1 - eOut(Math.min(1, t / .45))) * -.14 * d + Math.sin(t * 2.4) * .02, a: (q, t) => Math.min(1, t / .25) * (q > .85 ? (1 - q) / .15 : 1) });
+    sp('snake', { add: true, life, w: u * wk * 1.04, fx: d < 0, x: x0, y: (q, t) => y0 + (1 - eOut(Math.min(1, t / .45))) * u * .35, s: (q, t) => .55 + .45 * eOut(Math.min(1, t / .45)), a: (q, t) => .35 * Math.min(1, t / .25) * (q > .7 ? Math.max(0, (1 - q) / .3) : 1) }); }
   /* 翅膀從背後展開：先收攏（窄、矮）→ 一口氣張開略過頭 → 回到原尺寸停住 → 淡出 */
   const wingsKF = (hold) => [{ opacity: 0, transform: 'scale(.12,.55)', easing: 'cubic-bezier(.2,.9,.3,1.2)' }, { opacity: 1, transform: 'scale(1.06,1.03)', offset: .22 }, { opacity: 1, transform: 'scale(1,1)', offset: .3 },
     { opacity: 1, transform: 'scale(1.02,1.02)', offset: hold }, { opacity: 0, transform: 'scale(1.1,1.06)' }];
@@ -1073,8 +1078,7 @@ window.addEventListener('load', () => setTimeout(() => {
       sp('aura', { add: true, life: 1.5, x: f.x, y: f.bot + u * .04, ay: 1, w: u * .95, sy: q => .15 + 1.05 * eOut(q * 1.6), a: q => .6 * fd(q, .15, .75), r: (q, t) => Math.sin(t * 3) * .03 });
       await fw(220);
       back(A.S, 'wings', { x: f.x, y: f.top + u * .32, w: u * 2.4, dur: 1500, kf: wingsKF(.85) });
-      back(A.S, 'snake', { x: f.x - d * u * .2, y: f.top + u * .38, w: u * 1.1, dur: 1400, ease: 'ease-out',
-        kf: [{ opacity: 0, transform: 'translate(0,45%) scale(.6) rotate(-8deg)' + M(d) }, { opacity: 1, transform: 'translate(0,0) scale(1) rotate(0)' + M(d), offset: .4 }, { opacity: 1, transform: 'translate(0,-3%) scale(1.02) rotate(2deg)' + M(d), offset: .85 }, { opacity: 0, transform: 'translate(0,-6%) scale(1.04)' + M(d) }] });
+      /* v221：白蛇改畫在特效層最上面（原本放在立繪後方，被身體、翅膀和光暈蓋掉看不到） */ snakeUp(f, d, u, 1.6, -.04, .1, 1.8);
       moveFighter(A.S, 'float');
       await fw(560);
       sp('orb', { add: true, life: .5, x: f.x, y: f.top + u * .38, w: u * .7, s: q => .15 + .85 * eOut(q), a: q => fd(q, .2, .9), r: (q, t) => t * 4 });
@@ -1091,8 +1095,7 @@ window.addEventListener('load', () => setTimeout(() => {
       X().tint('#12001a', 1.2, .35);
       sigil(f.x, f.bot - 2, u * .95, { life: 3.2, flat: .3, spin: .9 * d });
       back(A.S, 'wings', { x: f.x, y: f.top + u * .32, w: Math.min(u * 2.8, Math.abs(e.x - f.x) * 1.5), dur: 3300, kf: wingsKF(.9) }); /* 直向手機兩人很近：翅膀不蓋住對手 */
-      back(A.S, 'snake', { x: f.x - d * u * .24, y: f.top + u * .36, w: u * 1.25, dur: 3000, ease: 'ease-out',
-        kf: [{ opacity: 0, transform: 'translate(0,45%) scale(.6) rotate(-8deg)' + M(d) }, { opacity: 1, transform: 'translate(0,0) scale(1) rotate(0)' + M(d), offset: .25 }, { opacity: 1, transform: 'translate(0,-3%) scale(1.03) rotate(3deg)' + M(d), offset: .85 }, { opacity: 0, transform: 'translate(0,-6%) scale(1.06)' + M(d) }] });
+      snakeUp(f, d, u, 3.0, .02, .16, 1.85);
       moveFighter(A.S, 'float');
       /* ② 集氣 */
       const O = { x: f.x + d * u * .04, y: f.top - u * .26 };
