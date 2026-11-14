@@ -145,3 +145,5 @@
 }
 .p2-cell.can .p2-st b{white-space:nowrap;padding:0 8px}
 .p2-st{white-space:nowrap}
+/* v223：載入畫面不顯示 LOGO（使用者 11/14 19:47） */
+.ld-title{display:none!important}

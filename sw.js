@@ -13,7 +13,8 @@ self.addEventListener('fetch', e => {
   const req = e.request, url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== location.origin || req.headers.has('range')) return;
   if (req.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
-    e.respondWith(fetch(req).then(r => { const c = r.clone(); caches.open(CACHE).then(k => k.put(req, c)); return r; }).catch(() => caches.match(req).then(r => r || caches.match('./index.html'))));
+    /* v223：網頁本體一律向伺服器確認是否有新版（GitHub Pages 會讓瀏覽器快取 index.html 約 10 分鐘，剛更新時玩家常拿到舊版、看不到改動） */
+    e.respondWith(fetch(req, { cache: 'no-cache' }).then(r => { const c = r.clone(); caches.open(CACHE).then(k => k.put(req, c)); return r; }).catch(() => caches.match(req).then(r => r || caches.match('./index.html'))));
     return;
   }
   e.respondWith(caches.open(CACHE).then(async k => {

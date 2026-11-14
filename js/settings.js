@@ -2,7 +2,7 @@
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__installPrompt = e; });
 /* 設定頁（大廳「設定」與首頁「設定」共用）＋ 新手教學（大廳聚光燈導覽）。
    設定存在 localStorage：op_gfx（畫質）、op_motion（減少動態）、op_bspeed（預設戰鬥速度）、op_vibe（震動回饋）、op_live_pop（即時對戰邀請通知）、op_text（文字大小）、op_fxpro（技能特效高／低，v138）。 */
-const GAME_VERSION = 'v222';
+const GAME_VERSION = 'v223';
 /* v148：目前的畫質（沒選過時：電腦＝極致、手機平板＝高畫質，和 e3three.js 的 E3_ULTRA 規則相同） */
 function gfxNow() { try { const g = localStorage.getItem('op_gfx'); if (g) return g; return !matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) >= 700 && (navigator.deviceMemory || 8) >= 6 ? 'ultra' : 'high'; } catch (e) { return 'high'; } }
 (function () {
@@ -46,7 +46,7 @@ function gfxNow() { try { const g = localStorage.getItem('op_gfx'); if (g) retur
 
       <h4>說明</h4>${row('新手教學', '重新觀看大廳導覽', `<button class="btn-ghost sm st-act" data-go="guide">觀看</button>`)}${row('安裝到主畫面', '把遊戲加到手機主畫面，像 App 一樣全螢幕開啟', `<button class="btn-ghost sm st-act" data-go="install">安裝</button>`)}${row('屬性克制', '哪些屬性克制哪些屬性、傷害倍率', `<button class="btn-ghost sm st-act" data-go="help-type">查看</button>`)}${row('遊戲說明', '戰鬥規則、各種玩法介紹', `<button class="btn-ghost sm st-act" data-go="help-game">查看</button>`)}
         ${row('取得最新版本', '更新後畫面怪怪的，或想確認是最新版時使用（存檔不受影響）', `<button class="btn-ghost sm st-act" data-go="refresh">更新</button>`)}
-        <p class="st-ver">海賊新時代 ${GAME_VERSION}・資料版本 ${typeof DATA_VERSION !== 'undefined' ? DATA_VERSION : ''}</p></div></div>`;
+        <p class="st-ver">海賊新世代 ${GAME_VERSION}・資料版本 ${typeof DATA_VERSION !== 'undefined' ? DATA_VERSION : ''}</p></div></div>`;
     const q = s => panel.querySelectorAll(s);
     panel.querySelector('[data-x]').onclick = close;
     q('[data-sw=sound]').forEach(i => i.onchange = () => { AUDIO.setPref({ muted: !i.checked }); if (typeof syncSound === 'function') syncSound(); });
@@ -72,7 +72,7 @@ function gfxNow() { try { const g = localStorage.getItem('op_gfx'); if (g) retur
 /* ---------- 新手教學：大廳聚光燈導覽 ---------- */
 const GUIDE = (function () {
   const STEPS = [
-    { t: '歡迎來到海賊新時代！', d: '這裡是大廳，所有冒險都從這裡出發。跟著導覽花一分鐘認識主要功能吧！' },
+    { t: '歡迎來到海賊新世代！', d: '這裡是大廳，所有冒險都從這裡出發。跟著導覽花一分鐘認識主要功能吧！' },
     { s: '#lbGo', t: '出航', d: '主線劇情：在海圖上選擇篇章，登島探索、完成任務、打倒 BOSS。通關後還能挑戰「困難模式」拿星星。' },
     { s: '#lbTeam', t: '出戰陣容', d: '戰鬥時最多 3 位船員依序上場。點這裡可以更換、調整順序，等級越高越強。' },
     { s: '#lbModesBtn', t: '冒險', d: '奪寶大冒險、勇者之塔（250 層）、懸賞金交易所、皇帝領海、登上虛空王座、歌姬挑戰與海賊天梯，都在這裡。' },

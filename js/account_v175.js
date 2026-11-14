@@ -18,7 +18,7 @@
   }
   function newPlayer() { put('op_acct_asked', '1'); shut(); waiting = false; if (typeof _start === 'function') _start(); }
   function ask() {
-    const b = show(`<header><h3>⚓ 歡迎來到海賊新時代</h3></header>
+    const b = show(`<header><h3>⚓ 歡迎來到海賊新世代</h3></header>
       <p class="acq-hero">你之前玩過、已經有帳號了嗎？<br>登入後就能接續原本的進度，換手機也不會重來。</p>
       <div class="acq-btns"><button class="btn-gold big" data-a="have">我有帳號，登入</button><button class="btn-ghost big" data-a="new">我是新玩家，開始冒險</button></div>
       <p class="acq-note">新玩家之後也能在「設定 → 雲端存檔」綁定帳號，進度會一起保存。</p>`);

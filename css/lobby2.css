@@ -498,7 +498,7 @@ body.vn-on #worldScreen>*:not(.dialog):not(.vn-stage):not(canvas):not(#worldCanv
 body.vn-on #worldScreen>*:not(.dialog):not(.vn-stage):not(canvas):not(#worldCanvas){opacity:0!important;visibility:hidden!important;transition:opacity .25s,visibility 0s .25s}
 body.vn-on #dialog,body.vn-on #dialog *{filter:none!important}
 .hp-body b.hp-up{color:#7ae08a!important}.hp-body b.hp-dn{color:#ff8a7a!important}
-/* ===== 品牌：海賊新時代 ===== */
+/* ===== 品牌：海賊新世代 ===== */
 .login-main .logo h1.brand{margin:0 0 10px;line-height:0}
 .brand-logo{display:block;width:min(560px,86vw);height:auto;filter:drop-shadow(0 4px 18px rgba(0,0,0,.55)) drop-shadow(0 0 2px rgba(0,0,0,.6))}
 .ld-title{line-height:0;margin:0 0 6px}.ld-logo{display:block;width:min(460px,78vw);height:auto;margin:0 auto;filter:drop-shadow(0 4px 14px rgba(0,0,0,.6))}
