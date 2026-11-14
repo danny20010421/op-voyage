@@ -23,7 +23,7 @@
   /* 卡片、特寫鏡頭用的臉部位置（立繪寬高的比例） */
   window.CHAR_FACE = Object.assign(window.CHAR_FACE || {}, {"assets/chars/snow.webp": [0.55, 0.11, 0.141], "assets/chars/einstank.webp": [0.453, 0.212, 0.188], "assets/chars/fia.webp": [0.518, 0.079, 0.12], "assets/chars/shin.webp": [0.555, 0.134, 0.125], "assets/chars/ebu.webp": [0.522, 0.091, 0.243], "assets/chars/kaish.webp": [0.444, 0.068, 0.148]});
   /* 緋亞第五招「黑轉支配」的晉升立繪 */
-  try { CHARACTERS.gunko.skills.forEach(k => { if (k.effect && k.effect.formImage) k.effect.formImage.image = IMG('fia_dark'); }); } catch (e) { }
+  try { CHARACTERS.gunko.skills.forEach(k => { if (k.effect && k.effect.formImage) k.effect.formImage.image = IMG('fia_dark'); if (k.effect && k.effect.bgCutin) { k.effect.bgCutin.image = IMG('fia_ult'); k.effect.bgCutin.fit = 'cover'; k.effect.bgCutin.sub = '緋亞'; } /* v228：黑轉支配的戰鬥背景圖換成使用者提供的圖 */ }); } catch (e) { }
   const S = (name, type, pp, power, desc, tags, anima, effect, ult) => ({ name, type, pp, maxPP: pp, power, accuracy: 100, desc, tags, anima, effect, ...(ult ? { ultimate: true } : {}) });
   const sa = CHARACTERS.sanji; if (sa) { const old = sa.skills[4];
     sa.skills = [

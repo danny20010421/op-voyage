@@ -752,7 +752,7 @@
     scr.querySelectorAll('.cut-bg,.cut-fx').forEach(e => e.remove());
     const fx = document.createElement('div'); fx.className = 'cut-fx'; fx.innerHTML = `<i class="cut-black"></i><svg class="cut-bolts" viewBox="0 0 100 56" preserveAspectRatio="none">${[[50, 0, 44, 14, 52, 22, 46, 34], [50, 0, 58, 12, 50, 20, 60, 30], [0, 20, 16, 24, 22, 18, 36, 26], [100, 18, 84, 26, 78, 20, 64, 28], [20, 56, 28, 44, 24, 38, 38, 34], [80, 56, 72, 44, 78, 38, 62, 34]].map(p => `<polyline points="${p.join(' ')}"/>`).join('')}</svg><i class="cut-flash"></i>`; /* v154：標題只用遊戲本來的奧義標題（fx_v111 ultTitle），不再自己疊一層，也先收掉技能名橫幅 */
     const bn = document.getElementById('bBanner'); if (bn) bn.classList.remove('show');
-    const back = document.createElement('div'); back.className = 'cut-bg'; back.style.setProperty('--img', `url("${new URL(C.image, location.href).href}")`); /* 絕對網址：CSS 變數裡的相對路徑會以 css/ 為基準 */ back.innerHTML = '<i class="cut-img"></i><i class="cut-rgb"></i><i class="cut-vig"></i>';
+    const back = document.createElement('div'); back.className = 'cut-bg'; back.style.setProperty('--img', `url("${new URL(C.image, location.href).href}")`); /* 絕對網址：CSS 變數裡的相對路徑會以 css/ 為基準 */ back.innerHTML = '<i class="cut-img"></i><i class="cut-rgb"></i><i class="cut-vig"></i>'; if (C.fit === 'cover') back.classList.add('cover'); /* v228：橫幅的整張場景圖（緋亞）改成滿版顯示，不放大成特寫 */
     (document.getElementById('bGL') || bg).after(back); /* 3D 背景畫布在 #bBg 後面，要蓋在它上面 */ scr.appendChild(fx); scr.classList.add('cut-shake', 'cut-on');
     try { if (typeof AUDIO !== 'undefined' && AUDIO.sfx) AUDIO.sfx('boom'); } catch (e) { }
     setTimeout(() => scr.classList.remove('cut-shake'), 900); setTimeout(() => fx.remove(), 2100);
