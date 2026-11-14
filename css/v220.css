@@ -147,3 +147,64 @@
 .p2-st{white-space:nowrap}
 /* v223：載入畫面不顯示 LOGO（使用者 11/14 19:47） */
 .ld-title{display:none!important}
+/* ---- v225 海軍本部：重複卡兌換／遣散船員（照示意圖） ---- */
+.navy.nv2{display:flex!important;flex-direction:column;align-items:stretch!important;gap:0;grid-template-columns:none!important;max-width:720px;margin:0 auto;width:100%}
+.nv2-seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.nv2-seg button{all:unset;box-sizing:border-box;height:56px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(10,16,32,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:#fff}
+.nv2-seg button b{font-size:16px;line-height:22px}.nv2-seg button small{font-size:12px;line-height:16px;color:#9fb0cc}
+.nv2-seg button.on{border:2px solid #ffd36a;background:rgba(255,211,106,.1)}.nv2-seg button.on b{color:#ffe7a6}
+.nv2-hint{margin:0 0 8px;font-size:13px;line-height:20px;color:#9fb0cc;text-align:center}
+.nv2-rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.nv2-rows li{display:flex;align-items:center;gap:12px;min-height:72px;padding:8px 12px;border-radius:12px;background:rgba(21,32,56,.92);border:1px solid rgba(255,255,255,.14)}
+.nv2-av{width:48px;height:48px;border-radius:10px;object-fit:cover;flex:none;border:2px solid #6a7fa8;background:#0e1626}
+.nv2-av.r-SSR{border-color:#ffd36a}.nv2-av.r-UR,.nv2-av.r-UR\+,.nv2-av.r-UR\+\+{border-color:#ff6a6a}.nv2-av.r-SR{border-color:#c58bff}
+.nv2-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.nv2-t b{font-size:15px;line-height:20px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nv2-t small{display:flex;align-items:center;gap:6px;font-size:12px;line-height:16px;color:#9fb0cc}.nv2-t small .rar{position:static;font-size:10px;padding:0 4px}
+.nv2-step{display:flex;align-items:center;gap:4px;flex:none}
+.nv2-step button{all:unset;box-sizing:border-box;width:32px;height:32px;border-radius:8px;background:#0e1626;border:1px solid #4a5d82;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff;cursor:pointer}
+.nv2-step button[disabled]{opacity:.35;cursor:default}.nv2-step em{width:32px;text-align:center;font-style:normal;font-family:var(--num);font-size:17px;color:#fff}
+.nv2-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:160px;padding:24px;border-radius:12px;border:1px dashed rgba(255,255,255,.2);text-align:center}
+.nv2-empty b{font-size:16px;color:#fff}.nv2-empty small{font-size:13px;line-height:20px;color:#9fb0cc}
+.nv2-chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:8px;scrollbar-width:none}
+.nv2-chips button{all:unset;box-sizing:border-box;flex:none;height:32px;padding:0 14px;border-radius:16px;border:1px solid #4a5d82;font-size:13px;color:#dfe6f5;display:flex;align-items:center;cursor:pointer}
+.nv2-chips button.on{background:#ffd36a;color:#3a2408;border-color:#ffd36a;font-weight:800}
+.nv2-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.nv2-cd{all:unset;box-sizing:border-box;position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;border:2px solid #3a4e74;background:linear-gradient(180deg,#1d2c4c,#0e1626);cursor:pointer}
+.nv2-cd img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 12%}
+.nv2-cd .nv2-lv{position:absolute;top:4px;left:4px;font-size:10px;line-height:16px;padding:0 4px;border-radius:4px;background:rgba(0,0,0,.65);color:#fff}
+.nv2-cd .c-rar{position:absolute;top:24px;left:4px;font-size:9px}
+.nv2-cd .nv2-nm{position:absolute;left:0;right:0;bottom:0;height:24px;display:flex;align-items:center;justify-content:center;padding:0 4px;background:rgba(0,0,0,.7);font-size:11px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nv2-cd.sel{border-color:#ffd36a;box-shadow:0 0 0 2px rgba(255,211,106,.5)}
+.nv2-cd.sel:after{content:"✓";position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:#ffd36a;color:#3a2408;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center}
+.nv2-cd.lock img{filter:grayscale(1) brightness(.45)}.nv2-cd.lock{cursor:not-allowed;border-color:#2a3550}
+.nv2-lk{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 3px #000}
+.nv2-bar{position:sticky;bottom:0;z-index:3;margin-top:12px;padding:12px 0 calc(8px + var(--safeB,0px));display:flex;flex-direction:column;gap:8px;background:linear-gradient(180deg,rgba(11,15,24,0),rgba(11,15,24,.92) 24%)}
+.nv2-mode{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nv2-mode button{all:unset;box-sizing:border-box;height:40px;border-radius:12px;border:1px solid #4a5d82;display:flex;align-items:center;justify-content:center;font-size:14px;color:#dfe6f5;cursor:pointer;background:rgba(10,16,32,.7)}
+.nv2-mode button.on{border:2px solid #ffd36a;color:#ffd36a;font-weight:800}
+.nv2-sum{height:32px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;color:#dfe6f5}
+.nv2-sum b,.nv2-rw b.gold{display:inline-flex;align-items:center;gap:6px;color:#ffd36a;font-family:var(--num);font-size:20px}
+.nv2-sum .berry-ico,.nv2-rw .berry-ico{width:22px;height:22px}
+.nv2-go{all:unset;box-sizing:border-box;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;cursor:pointer;color:#fff;text-align:center}
+.nv2-go.gold{background:linear-gradient(180deg,#ffe9a8,#f2c35a 55%,#d99a2c);color:#2a1a04}
+.nv2-go.red{background:linear-gradient(180deg,#ff8a5a,#d8402f);box-shadow:0 4px 12px rgba(216,64,47,.35)}
+.nv2-go.ghost{border:1px solid rgba(255,255,255,.5)}
+.nv2-go[disabled]{opacity:.45;cursor:default;box-shadow:none}
+.nv2-sheet{position:fixed;inset:0;z-index:2100;display:flex;align-items:flex-end;justify-content:center}
+.nv2-dim{position:absolute;inset:0;background:rgba(0,0,0,.7)}
+.nv2-in{position:relative;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;border-radius:24px 24px 0 0;background:#141c2e;border-top:1px solid #4a5d82;padding:16px 16px calc(24px + var(--safeB,0px));box-sizing:border-box}
+@media (min-width:861px){.nv2-sheet{align-items:center}.nv2-in{border-radius:24px;border:1px solid #4a5d82}}
+.nv2-in h3{margin:8px 0 16px;text-align:center;font-size:18px;color:#fff}
+.nv2-mini{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:16px}
+.nv2-mini img{width:48px;height:48px;border-radius:10px;object-fit:cover;border:2px solid #6a7fa8}
+.nv2-rw{display:flex;justify-content:space-between;align-items:center;height:40px;border-bottom:1px solid #26324a;font-size:14px;color:#fff}.nv2-rw span{color:#9fb0cc}
+.nv2-tg{display:flex;align-items:center;gap:12px;margin:12px 0 0;padding:8px;border-radius:12px;background:rgba(255,211,106,.06);border:1px solid rgba(255,211,106,.25)}
+.nv2-tg img{width:48px;height:48px;border-radius:10px;object-fit:cover;flex:none}.nv2-tg div{flex:1;min-width:0}.nv2-tg b{display:block;font-size:15px;color:#fff}.nv2-tg small{font-size:13px;color:#ffd36a}
+.nv2-sm{all:unset;box-sizing:border-box;height:32px;padding:0 12px;border-radius:16px;border:1px solid rgba(255,255,255,.5);font-size:13px;color:#fff;cursor:pointer;display:flex;align-items:center}
+.nv2-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:8px;margin-top:8px;max-height:200px;overflow-y:auto}
+.nv2-pick button{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border-radius:10px;border:1px solid transparent;cursor:pointer}
+.nv2-pick button img{width:48px;height:48px;border-radius:10px;object-fit:cover}.nv2-pick button small{font-size:11px;color:#9fb0cc}
+.nv2-pick button.on{border-color:#ffd36a;background:rgba(255,211,106,.1)}
+.nv2-warn{margin:16px 0;padding:12px;border-radius:12px;background:#3a1a1a;border:1px solid #8a3a3a;font-size:13px;line-height:20px;color:#ffc9c0;text-align:center}
+.nv2-bt{display:grid;grid-template-columns:1fr 2fr;gap:8px}
+.navy.nv2>*{width:100%;box-sizing:border-box}.nv2-bar>*{width:100%}
