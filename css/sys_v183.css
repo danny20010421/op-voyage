@@ -98,3 +98,5 @@
 .cx-skills .sk-type.sigw{background:linear-gradient(90deg,#ffd36a,#e0a93c);color:#1a1306}
 .cx-skills .sk.sigw .sigw-btn,.cx-skills .sk.sigw .sigw-lock{margin-top:8px;height:32px;min-width:88px;display:inline-flex;align-items:center;justify-content:center;padding:0 16px}
 .cx-skills .sk.sigw .sigw-lock{border-radius:8px;background:rgba(0,0,0,.3);font-size:12px;color:#b8b2a0}
+/* v218：懸賞單貝里改用 coin_berry.webp 圖片 */
+#bountyList .bounty.v183 .bt-rew img.coin-stack,img.coin-stack{width:22px;height:22px;object-fit:contain}

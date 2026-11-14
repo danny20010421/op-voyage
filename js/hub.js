@@ -49,7 +49,7 @@ function bounties() {
   return d.bounty.list.filter(x => bountyDef(x.id)).map(x => { const def = bountyDef(x.id); return { ...def, ...x, prog: Math.min(def.goal, statOf(def.stat) - x.base) }; });
 }
 
-const COIN_STACK = '<svg class="coin-stack" viewBox="0 0 40 32" aria-hidden="true"><defs><linearGradient id="cs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".5" stop-color="#f3c969"/><stop offset="1" stop-color="#b8801a"/></linearGradient></defs><g stroke="#6b4a0a" stroke-width="1.2"><ellipse cx="14" cy="26" rx="11" ry="4" fill="url(#cs)"/><ellipse cx="14" cy="21" rx="11" ry="4" fill="url(#cs)"/><ellipse cx="14" cy="16" rx="11" ry="4" fill="url(#cs)"/><ellipse cx="28" cy="24" rx="10" ry="3.6" fill="url(#cs)"/><ellipse cx="28" cy="19.5" rx="10" ry="3.6" fill="url(#cs)"/><circle cx="24" cy="10" r="7.5" fill="url(#cs)"/></g><text x="24" y="13.2" font-size="8" text-anchor="middle" fill="#6b4a0a" font-weight="900">฿</text></svg>';
+const COIN_STACK = '<img class="coin-stack" src="assets/ui/coin_berry.webp?v=5c0e832b" alt="貝里">'; /* v218：貝里圖示統一用 coin_berry.webp */
 let hubTab = 'summon';
 function openHub(tab) { if (currentScreen !== 'gachaScreen') openGacha(); switchHub(tab || hubTab); }
 function switchHub(tab) {

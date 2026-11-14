@@ -23,7 +23,7 @@
     exp_s: 'grow', exp_m: 'grow', exp_l: 'grow', sweep: 'grow', skin_ticket: 'ticket', event_ticket: 'ticket', char_select: 'ticket', mc_pick_2611: 'ticket', awaken_gem: 'grow', skill_book: 'grow', summon_ticket: 'ticket' };
   const hub = t => { if (typeof openGacha === 'function') openGacha(typeof currentScreen !== 'undefined' ? currentScreen : 'modeScreen'); if (t && typeof switchHub === 'function') setTimeout(() => switchHub(t), 0); };
   const GO = {
-    afk: ['掛機寶藏（大廳左側）', () => window.QOL && QOL.openAfk()], ret: ['回歸玩家七日禮', () => window.RETURN && RETURN.open()],
+    story: ['劇情任務・首次通關', null], afk: ['掛機寶藏（大廳左側）', () => window.QOL && QOL.openAfk()], ret: ['回歸玩家七日禮', () => window.RETURN && RETURN.open()],
     summon: ['懸賞處・召喚', () => hub('summon')], shop: ['道具商店', () => hub('shop')], bounty: ['每日懸賞', () => hub('bounty')],
     tower: ['勇者之塔', () => window.openTower && openTower()], login: ['七日登入', () => window.openLogin && openLogin()], ach: ['成就', () => window.openAchievements && openAchievements()],
     vip: ['VIP 每日／升級禮包', () => window.openVIP && openVIP('member')], card: ['月費', () => window.openVIP && openVIP('card')],
@@ -37,7 +37,7 @@
     shield: ['shop', 'realm', 'summon', 'login'], tome: ['summon', 'login'], meat: ['summon', 'login'], feather: ['summon', 'login'], potion_m: ['shop', 'realm', 'summon'], guard_pot: ['shop', 'realm', 'fest', 'summon'], pp_l: ['shop', 'realm', 'summon'], haki_l: ['shop', 'fest', 'summon'],
     exp_s: ['realm', 'shop', 'tower', 'chest', 'vip'], exp_m: ['realm', 'shop', 'tower', 'vip'], exp_l: ['realm', 'fest', 'shop', 'tower', 'summon', 'vip'], sweep: ['supply', 'shop', 'fest', 'vip'],
     skin_ticket: ['ach', 'vip'], event_ticket: ['fest', 'card', 'vip', 'login'], char_select: ['card', 'vip'], mc_pick_2611: ['card'],
-    awaken_gem: ['realm', 'fest', 'activity', 'pass', 'ladder', 'dupe'], skill_book: ['realm', 'fest', 'activity', 'pass', 'ladder'], summon_ticket: ['afk', 'ret']
+    awaken_gem: ['realm', 'fest', 'activity', 'pass', 'ladder', 'dupe'], skill_book: ['realm', 'fest', 'activity', 'pass', 'ladder'], summon_ticket: ['story', 'bounty', 'login', 'activity', 'tower', 'shop', 'ach', 'pass', 'afk', 'ret'] /* v218：寶藏幣改為儲值限定後，遊戲內獎勵都改發召喚券 */
   };
   const USE = id => {
     const it = ITEMS[id] || {}, e = it.effect || {};
