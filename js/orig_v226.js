@@ -4,24 +4,24 @@
    這個檔案要放在所有角色資料與介紹（content_v180 等）之後載入。 */
 (function () {
   if (typeof CHARACTERS === 'undefined') return;
-  const IMG = (n) => `assets/chars/${n}.webp?v=226`;
+  const IMG = (n) => `assets/chars/${n}.webp?v=227`; /* v227：開什換立繪、艾恩斯坦克鏡射 */
   const O = {
-    kid: { name: '司諾', title: '新世代之星・磁力人', image: IMG('snow'), avatar: IMG('snow_face'), battleScale: .75,
+    kid: { name: '司諾', title: '新世代之星・磁力人', image: IMG('snow'), avatar: IMG('snow_face'), battleScale: .6,
       desc: '被磁魂之心灌輸，獲得控制磁力的能力者。是大海上被稱為「新世代強者」之一的新星。' },
     vegapunk: { name: '艾恩斯坦克', title: '世界最聰明的人', image: IMG('einstank'), avatar: IMG('einstank_face'), battleScale: .35,
       desc: '被智魂之心灌輸，獲得無限容納知識的大腦。是當今全世界最聰明的人。' },
-    gunko: { name: '緋亞', title: '神之使徒', image: IMG('fia'), avatar: IMG('fia_face'), ultimateBg: IMG('fia_dark'), battleScale: .65,
+    gunko: { name: '緋亞', title: '神之使徒', image: IMG('fia'), avatar: IMG('fia_face'), ultimateBg: IMG('fia_dark'), battleScale: .55,
       desc: '神之使徒之一，擁有不死之身與方位之心的能力，疑似是失去記憶的某國公主，真相不得而知。' },
     gaban: { name: '真柒', title: '海賊王的左右手', image: IMG('shin'), avatar: IMG('shin_face'), battleScale: .85,
       desc: '傳說中海賊王的左右手，目前隱居在巨人島上，等待著傳說中的英雄出現。與巨人族女子瑟利姆生下一子。' },
-    sanji: { name: '厄布', title: '海上餐廳一流廚師', image: IMG('ebu'), avatar: IMG('ebu_face'), battleScale: .7,
+    sanji: { name: '厄布', title: '海上餐廳一流廚師', image: IMG('ebu'), avatar: IMG('ebu_face'), battleScale: .6,
       desc: '海上餐廳的一流廚師，擅長使用腿腳攻擊對手。' },
-    zoro: { name: '開什', title: '三刀流海賊獵人', image: IMG('kaish'), avatar: IMG('kaish_face'), battleScale: .7,
+    zoro: { name: '開什', title: '三刀流海賊獵人', image: IMG('kaish'), avatar: IMG('kaish_face'), battleScale: .6,
       desc: '立志成為世界第一劍豪的海賊獵人，是個刻苦訓練的三刀流劍士。因誤會被海軍抓走虐待，被主角救出後，一同出海成為海賊。' }
   };
   Object.entries(O).forEach(([id, o]) => { const c = CHARACTERS[id]; if (!c) return; Object.assign(c, o); if (!o.ultimateBg) c.ultimateBg = o.image; });
   /* 卡片、特寫鏡頭用的臉部位置（立繪寬高的比例） */
-  window.CHAR_FACE = Object.assign(window.CHAR_FACE || {}, {"assets/chars/snow.webp": [0.55, 0.11, 0.141], "assets/chars/einstank.webp": [0.547, 0.212, 0.188], "assets/chars/fia.webp": [0.518, 0.079, 0.12], "assets/chars/shin.webp": [0.555, 0.134, 0.125], "assets/chars/ebu.webp": [0.522, 0.091, 0.243], "assets/chars/kaish.webp": [0.498, 0.08, 0.111]});
+  window.CHAR_FACE = Object.assign(window.CHAR_FACE || {}, {"assets/chars/snow.webp": [0.55, 0.11, 0.141], "assets/chars/einstank.webp": [0.453, 0.212, 0.188], "assets/chars/fia.webp": [0.518, 0.079, 0.12], "assets/chars/shin.webp": [0.555, 0.134, 0.125], "assets/chars/ebu.webp": [0.522, 0.091, 0.243], "assets/chars/kaish.webp": [0.444, 0.068, 0.148]});
   /* 緋亞第五招「黑轉支配」的晉升立繪 */
   try { CHARACTERS.gunko.skills.forEach(k => { if (k.effect && k.effect.formImage) k.effect.formImage.image = IMG('fia_dark'); }); } catch (e) { }
   const S = (name, type, pp, power, desc, tags, anima, effect, ult) => ({ name, type, pp, maxPP: pp, power, accuracy: 100, desc, tags, anima, effect, ...(ult ? { ultimate: true } : {}) });
