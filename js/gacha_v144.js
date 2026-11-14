@@ -667,7 +667,7 @@
     }
   
     /* ---------- v144：接上遊戲資料 ---------- */
-    function itemHtml(id) { if (A.icons[id]) return A.icons[id].h; const it = ITEMS[id]; if (!it) return ''; if (it.skin && typeof SKINS !== 'undefined' && SKINS[it.skin] && SKINS[it.skin].image) return `<img src="${abs(SKINS[it.skin].image)}" alt="">`; /* 皮膚：顯示皮膚立繪 */ if (it.img) return `<img class="it" src="${abs(it.img)}" alt="">`; try { return typeof itemIcon === 'function' ? itemIcon(it) : ''; } catch (e) { return ''; } }
+    function itemHtml(id) { if (A.icons[id] && !(window.ITEM_IMG && ITEM_IMG[id])) return A.icons[id].h; const it = ITEMS[id]; if (!it) return ''; if (it.skin && typeof SKINS !== 'undefined' && SKINS[it.skin] && SKINS[it.skin].image) return `<img src="${abs(SKINS[it.skin].image)}" alt="">`; /* 皮膚：顯示皮膚立繪 */ if (it.img) return `<img class="it" src="${abs(it.img)}" alt="">`; try { return typeof itemIcon === 'function' ? itemIcon(it) : ''; } catch (e) { return ''; } }
     function power(id) { const c = CHARACTERS[id]; let k = 1; try { k = typeof rarityScale === 'function' ? rarityScale(id) : 1; } catch (e) { } return Math.round(((c.maxHp || 1000) * 10 + (c.baseSpeed || 100) * 60) * k / 10) * 10; }
     /* 遊戲結果 → 演出等級：道具 N 白、R 藍、SR 紫、SSR 金；船員一律紅（大人物），UR 以上虹 */
     function mapRes(x) {

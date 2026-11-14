@@ -105,10 +105,10 @@ function shopGoods() {
 }
 function renderShop() {
   const B = SAVE.data.berry || 0, G = shopGoods(), L = G.filter(g => g.cat === shopCat);
-  const ico = g => g.id === '_token' ? '<span class="ico token-ico"><i class="coin-ico tk-ico"></i></span>' : itemIcon(g.it);
+  const ico = g => itemIcon(g.id === '_token' ? ITEMS.summon_ticket : g.it); /* v220：一般召喚券也用道具插圖 */
   $('shopList').className = 'shop-v183';
   $('shopList').innerHTML = `<nav class="sh-cats" role="tablist">${SHOP_CATS.map(([k, n]) => `<button role="tab" data-scat="${k}" class="${k === shopCat ? 'on' : ''}" aria-selected="${k === shopCat}">${n}</button>`).join('')}</nav>
-    <div class="sh-grid">${L.map(g => `<button class="sh-it r-${g.it.rarity || 'N'} ${g.id === shopSel ? 'sel' : ''}" data-sit="${g.id}"><span class="sh-ic">${ico(g)}</span><b>${g.it.name}</b><small>擁有 ${g.have.toLocaleString()}</small><em><i class="berry-ico">B</i>${g.price.toLocaleString()}</em></button>`).join('')}</div>`;
+    <div class="sh-grid">${L.map(g => `<button class="sh-it r-${g.it.rarity || 'N'} ${g.id === shopSel ? 'sel' : ''}" data-sit="${g.id}"><span class="sh-ic">${ico(g)}</span><b class="sh-nm">${g.it.name}</b><em class="sh-pr"><i class="berry-ico">B</i>${g.price.toLocaleString()}</em><small class="sh-hv">擁有 ${g.have.toLocaleString()}</small></button>`).join('')}</div>`;
   $('shopList').querySelectorAll('[data-scat]').forEach(b => b.onclick = () => { shopCat = b.dataset.scat; shopSel = null; renderShop(); });
   $('shopList').querySelectorAll('[data-sit]').forEach(b => b.onclick = () => { shopSel = b.dataset.sit; shopQty = 1; renderShop(); });
   /* 下方購買面板 */

@@ -100,7 +100,7 @@
       if (R.items) Object.entries(R.items).forEach(([k, n]) => { if (!ITEMS[k]) return; inv()[k] = (inv()[k] || 0) + n; out.push({ item: k, count: n }); });
       if (R.gear && window.GEAR) R.gear.forEach(r => { const maybe = r.endsWith('?'); if (maybe && Math.random() >= .35) return; const g = GEAR.addGear(GEAR.roll(null, r.replace('?', '')), true); if (g) out.push({ name: g.name, count: 1, emoji: '⚔️', rar: g.rar }); else out.push({ name: '寶物已滿（請先分解）', count: 0, emoji: '⚠️', rar: 'N' }); });
     }
-    if (first) { const n = FIRST[kind][t]; SAVE.data.inventory.summon_ticket = (SAVE.data.inventory.summon_ticket || 0) + n; out.push({ name: '一般召喚券（首次通關）', count: n, img: 'assets/ui/summon_ticket.webp?v=354e719c', rar: 'SSR' }); }
+    if (first) { const n = FIRST[kind][t]; SAVE.data.inventory.summon_ticket = (SAVE.data.inventory.summon_ticket || 0) + n; out.push({ name: '一般召喚券（首次通關）', count: n, img: 'assets/ui/summon_ticket.webp?v=5109b7b0', rar: 'SSR' }); }
     SAVE.save(); if (typeof coins === 'function') coins();
     return out.filter(x => x.item ? (x.count > 0) : true);
   }
@@ -182,7 +182,7 @@
       return `<li class="stg-tier ${ok ? '' : 'lock'} ${cl ? 'done' : ''} t${t}">
         <div class="stg-t-h"><b>${T.name}${T.boss ? '<i class="stg-boss">BOSS</i>' : ''}</b><small>敵人 LV ${T.lv}</small><small>建議 LV ${T.rec}+</small></div>
         <div class="stg-foes">${def.foes[t].map(id => `<img src="${av(id)}" alt="${esc(nm(id))}" title="${esc(nm(id))}">`).join('')}<span>${def.foes[t].map(nm).join('、')}</span></div>
-        <div class="stg-rw">${rewardChips(kind, def, t)}${s.first[k] ? '' : `<span class="stg-chip first">首通 <img class="cur-ic" src="assets/ui/summon_ticket.webp?v=354e719c" alt="一般召喚券">×${FIRST[kind][t]}</span>`}</div>
+        <div class="stg-rw">${rewardChips(kind, def, t)}${s.first[k] ? '' : `<span class="stg-chip first">首通 <img class="cur-ic" src="assets/ui/summon_ticket.webp?v=5109b7b0" alt="一般召喚券">×${FIRST[kind][t]}</span>`}</div>
         <div class="stg-btns">${ok ? `<button class="btn-gold" data-go="${t}" ${rl > 0 ? '' : 'disabled'}>挑戰</button><button class="btn-ghost" data-sw="${t}" ${cl && rl > 0 ? '' : 'disabled'} title="${cl ? '' : '通關後可以掃蕩'}">掃蕩 ×${Math.max(0, rl)}</button>` : `<span class="stg-lock">🔒 通關${TIER[t - 1].name}後開放</span>`}</div>
       </li>`; }).join('')}</ol>`;
   }
