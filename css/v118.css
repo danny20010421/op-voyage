@@ -11,6 +11,8 @@
 
 /* ---------- 貝里新圖示 ---------- */
 .berry-ico{background:url('../assets/ui/coin_berry.webp?v=5c0e832b') center/contain no-repeat!important;color:transparent!important;font-size:0!important;box-shadow:none!important;border:0!important;border-radius:50%!important;text-shadow:none!important}
+/* v219：舊版貝里圖示中間那條直線（style.css .berry-ico::after）會疊在新圖上，拿掉 */
+.berry-ico::after,.berry-ico::before{content:none!important;display:none!important}
 .coin-fly.berry,.price .berry-ico{background:url('../assets/ui/coin_berry.webp?v=5c0e832b') center/contain no-repeat!important}
 
 /* ---------- 角色背包：位置改為小標籤 ---------- */
