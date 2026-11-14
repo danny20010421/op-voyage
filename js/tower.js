@@ -68,7 +68,7 @@
     if (f === 250) { r.items.exp_l = 5; r.tokens = 3000; }
     return r;
   }
-  const rewardText = r => [`貝里 ${r.berry.toLocaleString()}`, r.tokens ? `寶藏幣 ×${r.tokens}` : '', ...Object.entries(r.items).map(([k, n]) => `${ITEMS[k].name} ×${n}`)].filter(Boolean).join('、');
+  const rewardText = r => [`貝里 ${r.berry.toLocaleString()}`, r.tokens ? `一般召喚券 ×${r.tokens}` : '', ...Object.entries(r.items).map(([k, n]) => `${ITEMS[k].name} ×${n}`)].filter(Boolean).join('、');
 
   function render() {
     const s = state(), cur = Math.min(TOWER.floors, s.floor), done = s.floor > TOWER.floors;

@@ -1,15 +1,19 @@
 /* 懸賞金交易所（畫面與交易）。行情計算在 js/exchange_head.js：全服同步、可重現。玩家自己的資料（持股、成交、已實現損益、每日投入額度）存在 SAVE.data.mkt。 */
 (function () {
-  const G = window.__MKT_ENGINE, { STOCKS, BASIC, CATS, etfParts, snapshot, tradeDay, sessionStart, nowTick, twClock, isOpen, fmt, r2, TICKS_DAY, BAR, TICK, FEE, TAX } = G;
-  const M = () => SAVE.data.mkt, X = () => G.view();
+  const G = window.__MKT_ENGINE, { STOCKS, BASIC, CATS, etfParts, snapshot, tradeDay, sessionStart, nowTick, twClock, isOpen, r2, TICKS_DAY, BAR, TICK, FEE, TAX } = G;
+  /* v216：寶藏幣只能儲值取得，交易所改用貝里交易。全服行情的點數 × K＝貝里（舊持股、損益依同比例換算） */
+  const K = 1000, fmt = x => Math.round(x).toLocaleString();
+  const SC = new WeakMap(), sc = v => { if (SC.has(v)) return SC.get(v); const s = {}; Object.entries(v.s).forEach(([id, S]) => { s[id] = { ...S, px: S.px * K, prev: S.prev * K, open: S.open * K, hi: S.hi * K, lo: S.lo * K, min: (S.min || []).map(x => x * K), days: (S.days || []).map(d => d.map(x => x * K)) }; }); const o = { ...v, s }; SC.set(v, o); return o; };
+  const M = () => SAVE.data.mkt, X = () => sc(G.view());
   let sel = 'straw', view = 'line', tab = 'market', cat = 'all', timer = null, banner = null, qty = 1, seenNews = null;
   function init() {
-    if (SAVE.data.mkt && SAVE.data.mkt.v === 4) return;
-    /* 舊版市場（v3 以前，每台裝置各自計算）：持股依當時價格換回寶藏幣，改用全服同步的新市場 */
+    if (SAVE.data.mkt && SAVE.data.mkt.v === 5) return;
+    if (SAVE.data.mkt && SAVE.data.mkt.v === 4) { const m = SAVE.data.mkt; Object.values(m.hold || {}).forEach(h => { h.cost *= K; }); m.realized = (m.realized || 0) * K; (m.trades || []).forEach(t => { t.amt *= K; t.px *= K; }); m.used = null; m.v = 5; SAVE.save(); return; }
+    /* 舊版市場（v3 以前，每台裝置各自計算）：持股依當時價格換回貝里，改用全服同步的新市場 */
     const o = SAVE.data.mkt; let back = 0;
     if (o && o.hold) Object.entries(o.hold).forEach(([id, h]) => { const S = o.s && o.s[id]; if (S && h.q) back += Math.floor(S.px * h.q); });
-    if (back > 0) { SAVE.data.tokens += back; setTimeout(() => toast(`交易所改為全服同步行情：舊持股已依市價換回 ${back} 枚寶藏幣`, 'gold'), 600); }
-    SAVE.data.mkt = { v: 4, hold: {}, trades: [], realized: (o && o.realized) || 0, used: null }; SAVE.save();
+    if (back > 0) { back *= K; SAVE.data.berry = (SAVE.data.berry || 0) + back; setTimeout(() => toast(`交易所改為全服同步行情：舊持股已依市價換回 ${fmt(back)} 貝里`, 'gold'), 600); }
+    SAVE.data.mkt = { v: 5, hold: {}, trades: [], realized: (o && o.realized) || 0, used: null }; SAVE.save();
   }
   /* 推進行情＝重新計算目前時刻的全服行情；有新新聞就跳出橫幅 */
   function advance(live) {
@@ -20,29 +24,29 @@
 
   /* ---------- 交易 ---------- */
   const price = id => X().s[id].px;
-  /* 每日投入上限：200 ＋ 航海等級 × 10 枚寶藏幣（以交易日計，賣出不會增加額度） */
-  const dailyCap = () => 200 + (typeof acctLevelInfo === 'function' ? acctLevelInfo().lv : 1) * 10;
+  /* 每日投入上限：（200 ＋ 航海等級 × 10）× 1000 貝里（以交易日計，賣出不會增加額度） */
+  const dailyCap = () => (200 + (typeof acctLevelInfo === 'function' ? acctLevelInfo().lv : 1) * 10) * K;
   const usedToday = () => (M().used && M().used.day === X().day) ? M().used.n : 0;
   function log(kind, id, q, amt) { const m = M(); m.trades.unshift({ k: kind, id, q, amt, px: price(id), at: Date.now() }); if (m.trades.length > 40) m.trades.length = 40; }
   function buy(id, q) {
     if (window.timeLocked && timeLocked()) { toast('裝置時間異常，交易所暫停交易'); return; }
     if (!isOpen()) { toast('目前休市中（台灣時間每天 05:00 開盤、隔天 04:00 收盤）'); return; }
     q = Math.floor(q); if (q <= 0) return; const cost = Math.ceil(price(id) * q * (1 + FEE));
-    const cap = dailyCap(), used = usedToday(); if (used + cost > cap) { toast(`今天的投入上限是 ${cap} 枚（已用 ${used} 枚），保護召喚用的寶藏幣`); return; }
-    if (SAVE.data.tokens < cost) { toast(`寶藏幣不足：需要 ${cost} 枚`); return; }
-    const h = M().hold[id] = M().hold[id] || { q: 0, cost: 0 }; SAVE.data.tokens -= cost; h.cost += cost; h.q += q; const U = M().used = M().used && M().used.day === X().day ? M().used : { day: X().day, n: 0 }; U.n += cost;
-    log('買進', id, q, cost); SFX.play('coin'); coins(); SAVE.save(); render(); toast(`買進 ${STOCKS.find(s => s.id === id).name} ${q} 股，花費 ${cost} 枚寶藏幣`, 'gold');
+    const cap = dailyCap(), used = usedToday(); if (used + cost > cap) { toast(`今天的投入上限是 ${fmt(cap)} 貝里（已用 ${fmt(used)}），保護培養用的貝里`); return; }
+    if ((SAVE.data.berry || 0) < cost) { toast(`貝里不足：需要 ${fmt(cost)}`); return; }
+    const h = M().hold[id] = M().hold[id] || { q: 0, cost: 0 }; SAVE.data.berry -= cost; h.cost += cost; h.q += q; const U = M().used = M().used && M().used.day === X().day ? M().used : { day: X().day, n: 0 }; U.n += cost;
+    log('買進', id, q, cost); SFX.play('coin'); coins(); SAVE.save(); render(); toast(`買進 ${STOCKS.find(s => s.id === id).name} ${q} 股，花費 ${fmt(cost)} 貝里`, 'gold');
   }
   function sell(id, q) {
     if (window.timeLocked && timeLocked()) { toast('裝置時間異常，交易所暫停交易'); return; }
     if (!isOpen()) { toast('目前休市中（台灣時間每天 05:00 開盤、隔天 04:00 收盤）'); return; }
     const h = M().hold[id]; if (!h || !h.q) return; q = Math.min(h.q, Math.floor(q)); if (q <= 0) return;
     const get = Math.floor(price(id) * q * (1 - FEE - TAX)), basis = h.cost * q / h.q; h.cost -= basis; h.q -= q; if (!h.q) delete M().hold[id];
-    M().realized = (M().realized || 0) + (get - basis); SAVE.data.tokens += get; log('賣出', id, q, get); SFX.play('coin'); coins(); SAVE.save(); render(); toast(`賣出 ${STOCKS.find(s => s.id === id).name} ${q} 股，拿回 ${get} 枚寶藏幣`, 'gold');
+    M().realized = (M().realized || 0) + (get - basis); SAVE.data.berry = (SAVE.data.berry || 0) + get; log('賣出', id, q, get); SFX.play('coin'); coins(); SAVE.save(); render(); toast(`賣出 ${STOCKS.find(s => s.id === id).name} ${q} 股，拿回 ${fmt(get)} 貝里`, 'gold');
   }
   const holdValue = () => Object.entries(M().hold).reduce((a, [id, h]) => a + h.q * price(id), 0);
   const holdCost = () => Object.values(M().hold).reduce((a, h) => a + h.cost, 0);
-  function indexVal() { const m = M(); let a = 0, b = 0; BASIC.forEach(s => { a += X().s[s.id].px / s.base; b += X().s[s.id].prev / s.base; }); return { v: a / BASIC.length * 1000, c: (a - b) / b }; }
+  function indexVal() { const m = M(); let a = 0, b = 0; const V = G.view(); BASIC.forEach(s => { a += V.s[s.id].px / s.base; b += V.s[s.id].prev / s.base; }); return { v: a / BASIC.length * 1000, c: (a - b) / b }; }
 
   /* ---------- 畫面 ---------- */
   const chg = id => { const S = X().s[id]; return (S.px - S.prev) / S.prev; };
@@ -58,11 +62,11 @@
   function render() {
     const root = $('xcBody'); if (!root) return; const m = M(), s = STOCKS.find(x => x.id === sel), S = X().s[sel], ix = indexVal(), open = isOpen();
     const hv = holdValue(), hc = holdCost(), h = m.hold[sel];
-    const maxBuy = Math.max(0, Math.floor(Math.min(SAVE.data.tokens, dailyCap() - usedToday()) / (S.px * (1 + FEE)))), maxSell = h ? h.q : 0, qmax = Math.max(1, maxBuy, maxSell); qty = Math.min(Math.max(1, qty), qmax);
+    const maxBuy = Math.max(0, Math.floor(Math.min(SAVE.data.berry || 0, dailyCap() - usedToday()) / (S.px * (1 + FEE)))), maxSell = h ? h.q : 0, qmax = Math.max(1, maxBuy, maxSell); qty = Math.min(Math.max(1, qty), qmax);
     root.innerHTML = `
       <div class="mk-top"><div class="mk-idx"><small>偉大航路指數</small><b class="${cls(ix.c)}">${fmt(ix.v)}</b><em class="${cls(ix.c)}">${sgn(ix.c)}</em></div>
         <div class="mk-st ${open ? 'on' : ''}"><i></i>${statusText()}</div>
-        <div class="mk-wallet"><small>寶藏幣・今日可投入</small><b>${SAVE.data.tokens.toLocaleString()}</b><em>${Math.max(0, dailyCap() - usedToday())} / ${dailyCap()}</em></div>
+        <div class="mk-wallet"><small>貝里・今日可投入</small><b>${fmt(SAVE.data.berry || 0)}</b><em>${fmt(Math.max(0, dailyCap() - usedToday()))} / ${fmt(dailyCap())}</em></div>
         <div class="mk-wallet"><small>持股市值</small><b>${fmt(hv)}</b><em class="${cls(hv - hc)}">${hc ? sgn((hv - hc) / hc) : ''}</em></div></div>
       <nav class="mk-tabs">${[['market', '行情'], ['chart', '走勢・交易'], ['hold', '我的持股'], ['news', '新聞']].map(([k, n]) => `<button class="${tab === k ? 'on' : ''}" data-tab="${k}">${n}</button>`).join('')}</nav>
       <div class="mk-grid tab-${tab}">
@@ -80,8 +84,8 @@
         </section>
         <section class="mk-side">
           <div class="mk-hold"><h4>我的持股</h4>${Object.keys(m.hold).length ? `<table><tr><th>標的</th><th>股數</th><th>均價</th><th>現價</th><th>損益</th></tr>${Object.entries(m.hold).map(([id, hh]) => { const x = STOCKS.find(z => z.id === id), pl = hh.q * price(id) - hh.cost; return `<tr data-sel="${id}"><td>${x.name}</td><td>${hh.q}</td><td>${fmt(hh.cost / hh.q)}</td><td>${fmt(price(id))}</td><td class="${cls(pl)}">${(pl >= 0 ? '+' : '') + fmt(pl)}<br><small>${sgn(pl / hh.cost)}</small></td></tr>`; }).join('')}</table>` : '<p class="mk-empty">還沒有持股。挑一個看好的海賊團買進吧！</p>'}
-            <p class="mk-real">已實現損益：<b class="${cls(m.realized || 0)}">${((m.realized || 0) >= 0 ? '+' : '') + Math.round(m.realized || 0).toLocaleString()}</b> 寶藏幣</p>
-            ${m.trades.length ? `<details><summary>最近成交</summary>${m.trades.slice(0, 12).map(t => `<p><span class="${t.k === '買進' ? 'up' : 'dn'}">${t.k}</span> ${STOCKS.find(z => z.id === t.id).name} ${t.q} 股 @${fmt(t.px)}・${t.amt} 枚</p>`).join('')}</details>` : ''}</div>
+            <p class="mk-real">已實現損益：<b class="${cls(m.realized || 0)}">${((m.realized || 0) >= 0 ? '+' : '') + Math.round(m.realized || 0).toLocaleString()}</b> 貝里</p>
+            ${m.trades.length ? `<details><summary>最近成交</summary>${m.trades.slice(0, 12).map(t => `<p><span class="${t.k === '買進' ? 'up' : 'dn'}">${t.k}</span> ${STOCKS.find(z => z.id === t.id).name} ${t.q} 股 @${fmt(t.px)}・${fmt(t.amt)} 貝里</p>`).join('')}</details>` : ''}</div>
           <div class="mk-news"><h4>即時新聞</h4>${X().news.slice(0, 18).map(n => `<p class="${n.clar ? 'clar' : n.up ? 'up' : 'dn'}" ${n.id ? `data-sel="${n.id}"` : ''}><time>${twClock(n.at)}</time>${n.clar ? '🔎 ' : n.macro ? '🌐 ' : n.up ? '📈 ' : '📉 '}${n.t}</p>`).join('') || '<p class="mk-empty">開盤後會陸續出現新聞。</p>'}</div>
         </section>
       </div>
@@ -90,7 +94,7 @@
     root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); });
     root.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => { cat = b.dataset.cat; render(); });
     root.querySelectorAll('[data-view]').forEach(b => b.onclick = () => { view = b.dataset.view; render(); });
-    const qi = $('mkQty'), est = () => { qty = +qi.value; $('mkQtyV').textContent = qty; $('mkEst').textContent = `買進約 ${Math.ceil(S.px * qty * (1 + FEE)).toLocaleString()} 枚・賣出約可得 ${Math.floor(S.px * Math.min(qty, maxSell) * (1 - FEE - TAX)).toLocaleString()} 枚`; };
+    const qi = $('mkQty'), est = () => { qty = +qi.value; $('mkQtyV').textContent = qty; $('mkEst').textContent = `買進約 ${Math.ceil(S.px * qty * (1 + FEE)).toLocaleString()} 貝里・賣出約可得 ${Math.floor(S.px * Math.min(qty, maxSell) * (1 - FEE - TAX)).toLocaleString()} 貝里`; };
     qi.oninput = est; est();
     $('mkBuy').onclick = () => buy(sel, Math.min(qty, maxBuy)); $('mkSell').onclick = () => sell(sel, Math.min(qty, maxSell));
     drawChart();
@@ -128,7 +132,7 @@
   function loop() { advance(true); if (currentScreen === 'exchangeScreen') { const ae = document.activeElement; if (!ae || ae.id !== 'mkQty') render(); } SAVE.save(); }
 
   /* 第一次進入：三步驟教學 */
-  function tutorial() { if (SAVE.data.mktTut) return; const steps = [['① 挑標的', '左邊（手機在「行情」分頁）是 37 檔海賊團、海軍、國家、ETF 與期貨。上方分類可以切換，紅色是上漲、綠色是下跌。'], ['② 看走勢・聽新聞', '中間是走勢圖，每 5 秒跳一次價。上方滑出「突發新聞」時，該標的接下來幾分鐘會明顯漲跌。所有玩家看到的行情都相同，可以一起討論；少數是假消息，之後會被澄清並反轉。'], ['③ 買進・賣出', `拉數量滑桿，按紅色「買進」或綠色「賣出」。每天最多投入 ${dailyCap()} 枚寶藏幣（航海等級越高越多），賣出的寶藏幣隨時可以拿去召喚。`]]; let i = 0;
+  function tutorial() { if (SAVE.data.mktTut) return; const steps = [['① 挑標的', '左邊（手機在「行情」分頁）是 37 檔海賊團、海軍、國家、ETF 與期貨。上方分類可以切換，紅色是上漲、綠色是下跌。'], ['② 看走勢・聽新聞', '中間是走勢圖，每 5 秒跳一次價。上方滑出「突發新聞」時，該標的接下來幾分鐘會明顯漲跌。所有玩家看到的行情都相同，可以一起討論；少數是假消息，之後會被澄清並反轉。'], ['③ 買進・賣出', `拉數量滑桿，按紅色「買進」或綠色「賣出」。用貝里交易，每天最多投入 ${fmt(dailyCap())} 貝里（航海等級越高越多），賣出拿回的貝里可以拿去培養船員。`]]; let i = 0;
     const box = document.createElement('div'); box.className = 'dl-wrap'; const draw = () => { box.innerHTML = `<div class="dl-card mk-tut"><img src="assets/ui/exchange_logo.webp?v=a6165762" alt=""><h3>${steps[i][0]}</h3><p>${steps[i][1]}</p><div class="mk-tut-dots">${steps.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div><button class="btn-gold big" id="mkTutNext">${i < steps.length - 1 ? '下一步' : '開始交易'}</button></div>`; box.querySelector('#mkTutNext').onclick = () => { if (++i >= steps.length) { SAVE.data.mktTut = true; SAVE.save(); box.remove(); } else draw(); }; }; draw(); document.body.appendChild(box); }
   window.openExchange = function () { init(); advance(); showScreen('exchangeScreen'); render(); tutorial(); clearInterval(timer); timer = setInterval(() => { if (currentScreen !== 'exchangeScreen') { clearInterval(timer); timer = null; return; } loop(); }, TICK); };
   window.addEventListener('DOMContentLoaded', () => { const b = $('xcBack'); if (b) b.onclick = () => openModes(); addEventListener('resize', () => { if (currentScreen === 'exchangeScreen') drawChart(); }); });

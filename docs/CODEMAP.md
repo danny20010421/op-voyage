@@ -16,9 +16,14 @@
 - `js/balance.js` ← `balance_v142.js`、`balance_v156.js`、`balance_v157.js`、`balance_v158.js`、`balance_v159.js`、`balance_v160.js`、`balance_v161.js`、`balance_v164.js`、`balance_v165.js`、`balance_v167.js`、`balance_v196.js`、`balance_v203.js`、`balance_v205.js`、`balance_v206.js`、`balance_v211.js`、`balance_v213.js`
 - `js/roster.js` ← `roster_v89.js`、`roster_v90.js`、`roster_v92.js`、`roster_v101.js`、`roster_v103.js`、`roster_v109.js`、`roster_v110.js`、`roster_v112.js`、`roster_v115.js`、`roster_v118.js`、`roster_v121.js`、`roster_v128.js`、`roster_v129.js`、`rocks_v166.js`、`roster_v142.js`、`roster_v152.js`、`roster_v185.js`、`viona_v187.js`、`roster_v154.js`、`roster_v154w.js`、`roster_v164.js`、`roster_v91.js`
 - `js/ext.js` ← `ext_effects.js`、`ext_v102.js`、`ext_v109.js`、`ext_v110.js`、`ext_v115.js`、`ext_v118.js`、`ext_v121.js`、`ext_v142.js`、`ext_v128.js`、`ext_v129.js`、`ext_v152.js`
-- `js/ext_late.js` ← `ext_v160.js`、`ext_v164.js`、`ext_v165.js`、`ext_v167.js`、`ext_v168.js`、`ext_v169.js`、`ext_v172.js`
+- `js/ext_late.js` ← `ext_v160.js`、`ext_v164.js`、`ext_v165.js`、`ext_v167.js`
+- `js/ext_late2.js` ← `ext_v168.js`、`ext_v169.js`
+- `js/fx_imu.js` ← `fx_imu_v170.js`、`ext_v172.js`
 - `js/status.js` ← `status_v210.js`、`status_v211.js`
-- `js/fx_skills.js` ← `fx_ult.js`、`fx_v104.js`、`fx_v105.js`、`fx_v115.js`、`fx_v118.js`、`fx_v121.js`、`fx_v128.js`、`fx_v129.js`、`fx_v130.js`、`fx_v142.js`、`fx_v106.js`、`fx_v171.js`、`fx_v111.js`、`fx_v165.js`、`fx_v138.js`、`fx_v140.js`、`fx3d_v145.js`、`fx_vfx_v155.js`、`fx_imu_v170.js`、`fx_v196.js`
+- `js/fx_base.js` ← `fx_ult.js`～`fx_v111.js`（ext.js 之後、roster.js 之前）
+- `js/fx_mid.js` ← `fx_v165.js`、`fx_v138.js`、`fx_v140.js`、`fx3d_v145.js`、`fx_vfx_v155.js`
+- `js/fx_skills.js` ← `fx_v196.js`
+- 注意（v217）：特效與 ext 檔會層層包住 playChoreo，順序必須是 fx_base → roster（維歐娜）→ ext_late → fx_mid → ext_late2 → fx_imu → battle_v195 → fx_skills，否則角色專屬特效會被通用特效蓋掉。
 
 - `js/data.js`: F:角色、篇章劇情、道具、難度等核心資料 | R:data_ext.js,story_ext.js | A:CHARACTERS,CHARACTER_ORDER,CHAPTERS,CHAPTER_DIFFICULTY,ITEMS,DATA_VERSION | S:改劇情或角色資料要把 DATA_VERSION 加一，否則後台舊設定會覆蓋新內容
 - `js/data_ext.js`: F:v63 起的資料擴充（新角色、新篇章、四皇、立繪縮放 VIS、公告） | R:data.js,hub.js | A:CHARACTERS 的新增欄位,DEFAULT_NEWS | S:立繪縮放以 VIS 表為準，後台「立繪調整」的本機設定優先於這裡

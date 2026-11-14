@@ -33,13 +33,13 @@ const PROG_CFG = {
     { at: 40, rew: { items: { exp_m: 1, skill_book: 1 } } },
     { at: 60, rew: { items: { awaken_gem: 10 } } },
     { at: 80, rew: { berry: 8000, items: { skill_book: 1 } } },
-    { at: 100, rew: { tokens: 3, items: { awaken_gem: 15 } } }
+    { at: 100, rew: { items: { summon_ticket: 3, awaken_gem: 15 } } }
   ],
   weekChest: [
-    { at: 150, rew: { tokens: 5, items: { exp_l: 1 } } },
+    { at: 150, rew: { items: { summon_ticket: 5, exp_l: 1 } } },
     { at: 300, rew: { items: { awaken_gem: 30, skill_book: 2 } } },
-    { at: 450, rew: { tokens: 8, items: { skill_book: 3 } } },
-    { at: 600, rew: { tokens: 12, items: { awaken_gem: 50, exp_l: 2 } } }
+    { at: 450, rew: { items: { summon_ticket: 8, skill_book: 3 } } },
+    { at: 600, rew: { items: { summon_ticket: 12, awaken_gem: 50, exp_l: 2 } } }
   ]
 };
 (function () {
@@ -57,7 +57,7 @@ const PROG_CFG = {
   const R = id => (SAVE.data.roster || {})[id];
   const fmt = n => (+n || 0).toLocaleString();
 
-  /* ---------- 發獎勵（寶箱、通行證、賽季共用） ---------- */
+  /* ---------- 發獎勵（寶箱、通行證、賽季共用）。v216：tokens 只用在付費路線與限量活動，遊戲內獎勵用 items.summon_ticket ---------- */
   function give(rew, why) {
     const list = []; if (!rew) return list;
     if (rew.berry) { addBerry(rew.berry); list.push({ name: '貝里', count: rew.berry, img: 'assets/ui/coin_berry.webp?v=5c0e832b', rar: 'R' }); }

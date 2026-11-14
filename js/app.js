@@ -13,7 +13,7 @@ const SAVE = {
     if (!okObj(d)) d = null;
     /* 主存檔讀不出來時，改用自動備份 */
     if (!d) { try { d = JSON.parse(localStorage.getItem(this.key + '_backup') || 'null'); if (!okObj(d)) d = null; if (d) setTimeout(() => { if (typeof toast === 'function') toast('主存檔損毀，已從自動備份還原', 'gold'); }, 1500); } catch (e) { } }
-    if (!d) d = { tokens: GAME_SETTINGS.startTokens, inventory: { potion_s: 2, pp_s: 1 }, chapters: {}, player: 'luffy', pulls: 0, pity: 0 };
+    if (!d) d = { tokens: 0, inventory: { potion_s: 2, pp_s: 1, summon_ticket: GAME_SETTINGS.startTokens }, chapters: {}, player: 'luffy', pulls: 0, pity: 0 };
     if (!okObj(d.chapters)) d.chapters = {}; if (!okObj(d.roster)) d.roster = {}; if (!okObj(d.inventory)) d.inventory = {}; if (typeof d.tokens !== 'number' || !isFinite(d.tokens)) d.tokens = 0;
     CHAPTERS.forEach(c => { d.chapters[c.id] = Object.assign({ step: 0, collected: [], defeated: [], talked: [], roster: null, cleared: false, rewarded: [] }, d.chapters[c.id] || {}); if (d.chapters[c.id].step > c.steps.length) d.chapters[c.id].step = c.steps.length; });
     d.berry = d.berry || 0; d.roster = d.roster || {}; if (!Array.isArray(d.lineup)) d.lineup = d.player && d.roster[d.player] ? [d.player] : []; d.lineup = d.lineup.filter(id => d.roster[id]).slice(0, GAME_SETTINGS.lineupMax); if (d.lineup.length) d.player = d.lineup[0]; d.inventory = d.inventory || {};
@@ -79,7 +79,10 @@ function syncLeader() { const L = SAVE.data.lineup; if (L.length) SAVE.data.play
 function inLineup(id) { return SAVE.data.lineup.includes(id); }
 function lineupAdd(id, front) { const L = SAVE.data.lineup; if (L.includes(id)) { if (front) { L.splice(L.indexOf(id), 1); L.unshift(id); } } else { if (L.length >= GAME_SETTINGS.lineupMax) L.pop(); front ? L.unshift(id) : L.push(id); } syncLeader(); }
 function lineupRemove(id) { const L = SAVE.data.lineup; if (L.length <= 1) return false; L.splice(L.indexOf(id), 1); syncLeader(); return true; }
-function addTokens(n, why) { if (!n) return; SFX.play('coin'); SAVE.data.tokens += n; SAVE.save(); coins(); toast(`獲得寶藏幣 ×${n}${why ? '・' + why : ''}`, 'gold'); ['coinTop', 'coinWorld', 'coinGacha'].forEach(i => { const el = $(i) && $(i).parentElement; if (el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } }); }
+/* v216：寶藏幣只能儲值或限量活動取得。遊戲內原本發寶藏幣的獎勵一律改發「一般召喚券」（1 張＝召喚 1 次）；真正發寶藏幣用 addPaidTokens */
+function ticketCount() { return (SAVE.data.inventory || {}).summon_ticket || 0; }
+function addTokens(n, why) { if (!n) return; SFX.play('coin'); const I = SAVE.data.inventory = SAVE.data.inventory || {}; I.summon_ticket = (I.summon_ticket || 0) + n; SAVE.save(); coins(); toast(`獲得一般召喚券 ×${n}${why ? '・' + why : ''}`, 'gold'); }
+function addPaidTokens(n, why) { if (!n) return; SFX.play('coin'); SAVE.data.tokens += n; SAVE.save(); coins(); toast(`獲得寶藏幣 ×${n}${why ? '・' + why : ''}`, 'gold'); ['coinTop', 'coinWorld', 'coinGacha'].forEach(i => { const el = $(i) && $(i).parentElement; if (el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } }); }
 const ICONS = {
   potion: '<path d="M26 8h12v10l10 16a14 14 0 0 1-12 22h-8A14 14 0 0 1 16 34l10-16z" fill="var(--c)"/><path d="M24 6h16v6H24z" fill="#8a6240"/><path d="M20 38h24a10 10 0 0 1-10 12h-4a10 10 0 0 1-10-12z" fill="#fff" opacity=".35"/>',
   flask: '<path d="M27 8h10v14l14 22a8 8 0 0 1-7 12H20a8 8 0 0 1-7-12l14-22z" fill="var(--c)"/><path d="M25 6h14v5H25z" fill="#8a6240"/><circle cx="28" cy="44" r="3" fill="#fff" opacity=".5"/><circle cx="36" cy="38" r="2" fill="#fff" opacity=".5"/>',
@@ -272,7 +275,7 @@ function selectChapter(id) {
     </div>`;
   const sail = $('sailBtn'); if (sail) sail.onclick = () => enterChapter(id);
   document.querySelectorAll('#arcCard [data-sweep]').forEach(b => b.onclick = () => sweepChapter(id, +b.dataset.sweep));
-  const rp = $('replayBtn'); if (rp) rp.onclick = () => confirmBox('重玩劇情？', '任務進度會從頭開始，敵人重新出現。已領過的寶藏幣不會重複發放。', '重玩', () => { Object.assign(st, { step: 0, collected: [], defeated: [], talked: [], roster: null }); SAVE.save(); enterChapter(id); });
+  const rp = $('replayBtn'); if (rp) rp.onclick = () => confirmBox('重玩劇情？', '任務進度會從頭開始，敵人重新出現。已領過的召喚券不會重複發放。', '重玩', () => { Object.assign(st, { step: 0, collected: [], defeated: [], talked: [], roster: null }); SAVE.save(); enterChapter(id); });
   const card = $('arcCard'); card.classList.remove('swap'); void card.offsetWidth; card.classList.add('swap');
 }
 
@@ -334,8 +337,8 @@ function openChest(ch) {
   const c = chestState(); if (!c || c.opened.includes(ch.idx)) return;
   c.opened.push(ch.idx); const ord = (CHAPTER_DIFFICULTY[CH.id] || {}).order || 1, berry = Math.round((300 + Math.random() * 900) * ord / 10) * 10, got = [`貝里 ${berry.toLocaleString()}`];
   addBerry(berry); const r = Math.random();
-  if (r < .25) { addTokens(1, '寶箱'); got.push('寶藏幣 ×1'); } else if (r < .5) { SAVE.data.inventory.exp_s = (SAVE.data.inventory.exp_s || 0) + 1; got.push('小經驗書 ×1'); } else if (r < .7) { SAVE.data.inventory.pot_s = (SAVE.data.inventory.pot_s || 0) + 1; got.push('小回復藥水 ×1'); }
-  if (c.opened.length >= c.spots.length) { addTokens(2, '寶箱全開'); got.push('全部寶箱獎勵：寶藏幣 ×2'); }
+  if (r < .25) { addTokens(1, '寶箱'); got.push('一般召喚券 ×1'); } else if (r < .5) { SAVE.data.inventory.exp_s = (SAVE.data.inventory.exp_s || 0) + 1; got.push('小經驗書 ×1'); } else if (r < .7) { SAVE.data.inventory.pot_s = (SAVE.data.inventory.pot_s || 0) + 1; got.push('小回復藥水 ×1'); }
+  if (c.opened.length >= c.spots.length) { addTokens(2, '寶箱全開'); got.push('全部寶箱獎勵：一般召喚券 ×2'); }
   SAVE.save(); track('chests'); SFX.play('rare'); toast(`打開寶箱：${got.join('、')}`, 'gold'); refreshWorld();
 }
 function worldState() {
@@ -423,7 +426,7 @@ function renderQuest() {
   if (s.type === 'escort') prog = `<span class="q-count">${ESC ? '護送中' : '尚未開始'}</span>`;
   const timer = s.type === 'timedCollect' ? `<b class="q-timer">${Math.ceil(TIMED ? TIMED.left : s.seconds)} 秒</b>` : s.type === 'race' ? `<b class="q-timer">${Math.ceil(RACE ? RACE.left : s.seconds)} 秒</b>` : '';
   const kind = { talk: '對話', talkAll: '打聽', goto: '前往', collect: '收集', timedCollect: '限時', defeat: '擊敗', gauntlet: '連戰', choice: '抉擇', boss: 'BOSS', race: '限時', stealth: '潛入', escort: '護送', dig: '探測', keys: '奪鑰', duel: '對決' }[s.type];
-  $('questBox').innerHTML = `<h3><span><em class="q-kind k-${s.type}">${kind}</em>任務 ${st.step + 1}/${total}</span>${s.title}</h3><p>${s.desc} ${prog}</p>${timer}${s.type === 'dig' ? detector : ''}<div class="q-foot">${chestTag()}${s.reward ? `<small class="q-rew"><i class="coin-ico"></i>×${s.reward}</small>` : ''}${s.type !== 'dig' ? '<button class="q-go" id="qGo">➤ 自動前往</button>' : ''}</div>`;
+  $('questBox').innerHTML = `<h3><span><em class="q-kind k-${s.type}">${kind}</em>任務 ${st.step + 1}/${total}</span>${s.title}</h3><p>${s.desc} ${prog}</p>${timer}${s.type === 'dig' ? detector : ''}<div class="q-foot">${chestTag()}${s.reward ? `<small class="q-rew"><i class="coin-ico tk-ico"></i>×${s.reward}</small>` : ''}${s.type !== 'dig' ? '<button class="q-go" id="qGo">➤ 自動前往</button>' : ''}</div>`;
   const q = $('questBox'); q.classList.remove('flash'); void q.offsetWidth; q.classList.add('flash');
   bindQuestMini();
 }
@@ -545,17 +548,17 @@ function onBattleEnd(r) {
       return { message: msgs.join('<br>'), next: { label: '迎戰下一位', fn: () => { const i = st.roster.indexOf(next); beginFight({ id: next, x: SPOTS()[i][0], z: SPOTS()[i][1], boss: false, kind: 'enemy' }, hp); } } };
     }
     CHAIN.wins.forEach(id => { if (!st.defeated.includes(id)) st.defeated.push(id); }); SAVE.save();
-    const b = SAVE.data.tokens; completeStep(); msgs.push(`連戰突破！任務完成：${s.title}（寶藏幣 +${SAVE.data.tokens - b}）`); return { message: msgs.join('<br>') };
+    const b = ticketCount(); completeStep(); msgs.push(`連戰突破！任務完成：${s.title}（召喚券 +${ticketCount() - b}）`); return { message: msgs.join('<br>') };
   }
   if (!r.win) return {};
   if (r.isBoss && !(s && s.type === 'duel' && r.enemyId === s.enemy)) {
-    if (s && s.type === 'boss') { window.__tbcNext = true; const before = SAVE.data.tokens; const first = !st.cleared; st.cleared = true; completeStep(); if (first) { SAVE.data.tokens += GAME_SETTINGS.clearBonus; msgs.push(`首次通關獎勵：寶藏幣 ×${GAME_SETTINGS.clearBonus}`); Object.entries(CHAR_OBTAIN).forEach(([cid, o]) => { if (o.reward === CH.id && !owned(cid)) { addCrew(cid, 10); msgs.push(`<b>${CHARACTERS[cid].name}</b> 加入了角色背包！（LV 10）`); } }); } SAVE.save(); coins(); const got = SAVE.data.tokens - before; if (got) msgs.unshift(`這一戰共得到寶藏幣 ×${got}`); /* v154：通關掉落角色（CHAR_OBTAIN[id].clearDrop＝章節 id；每次通關判定，直到加入） */ Object.entries(CHAR_OBTAIN).forEach(([cid, o]) => { if (o.clearDrop !== CH.id || owned(cid) || !CHARACTERS[cid]) return; if (Math.random() < (o.clearRate ?? .5)) { addCrew(cid, o.clearLv || 10); msgs.push(`<b>${CHARACTERS[cid].name}</b> 加入了角色背包！（LV ${o.clearLv || 10}）`); } else msgs.push(`${CHARACTERS[cid].name} 這次沒有加入。再次通關時仍有 ${Math.round((o.clearRate ?? .5) * 100)}% 機率加入。`); }); { const bid = CH.boss, ob = CHAR_OBTAIN[bid] || {}, rate = first ? (ob.bossFirst ?? ob.boss ?? GAME_SETTINGS.bossJoinFirst) : (ob.bossRepeat ?? ob.boss ?? GAME_SETTINGS.bossJoinRepeat), again = ob.boss != null ? ob.boss : GAME_SETTINGS.bossJoinRepeat; if (!owned(bid) && rate <= 0) msgs.push(ob.reward === '_emperor' ? `${CHARACTERS[bid].name} 只能在「皇帝領海」挑戰中取得。` : ob.eventOnly ? `${CHARACTERS[bid].name} 只能從限定活動抽獎池取得。` : `${CHARACTERS[bid].name} 無法透過戰鬥取得，只能在懸賞處召喚。`); else if (!owned(bid)) { if (Math.random() < rate) { addCrew(bid, GAME_SETTINGS.bossJoinLv); msgs.push(`<b>${CHARACTERS[bid].name}</b> 被你的實力打動，加入了角色背包！（LV ${GAME_SETTINGS.bossJoinLv}）`); } else msgs.push(`${CHARACTERS[bid].name} 這次沒有加入。再次擊敗時仍有 ${Math.round(again * 100)}% 機率加入。`); } } pendingClear = { first }; }
+    if (s && s.type === 'boss') { window.__tbcNext = true; const before = ticketCount(); const first = !st.cleared; st.cleared = true; completeStep(); if (first) { SAVE.data.inventory.summon_ticket = ticketCount() + GAME_SETTINGS.clearBonus; msgs.push(`首次通關獎勵：一般召喚券 ×${GAME_SETTINGS.clearBonus}`); Object.entries(CHAR_OBTAIN).forEach(([cid, o]) => { if (o.reward === CH.id && !owned(cid)) { addCrew(cid, 10); msgs.push(`<b>${CHARACTERS[cid].name}</b> 加入了角色背包！（LV 10）`); } }); } SAVE.save(); coins(); const got = ticketCount() - before; if (got) msgs.unshift(`這一戰共得到一般召喚券 ×${got}`); /* v154：通關掉落角色（CHAR_OBTAIN[id].clearDrop＝章節 id；每次通關判定，直到加入） */ Object.entries(CHAR_OBTAIN).forEach(([cid, o]) => { if (o.clearDrop !== CH.id || owned(cid) || !CHARACTERS[cid]) return; if (Math.random() < (o.clearRate ?? .5)) { addCrew(cid, o.clearLv || 10); msgs.push(`<b>${CHARACTERS[cid].name}</b> 加入了角色背包！（LV ${o.clearLv || 10}）`); } else msgs.push(`${CHARACTERS[cid].name} 這次沒有加入。再次通關時仍有 ${Math.round((o.clearRate ?? .5) * 100)}% 機率加入。`); }); { const bid = CH.boss, ob = CHAR_OBTAIN[bid] || {}, rate = first ? (ob.bossFirst ?? ob.boss ?? GAME_SETTINGS.bossJoinFirst) : (ob.bossRepeat ?? ob.boss ?? GAME_SETTINGS.bossJoinRepeat), again = ob.boss != null ? ob.boss : GAME_SETTINGS.bossJoinRepeat; if (!owned(bid) && rate <= 0) msgs.push(ob.reward === '_emperor' ? `${CHARACTERS[bid].name} 只能在「皇帝領海」挑戰中取得。` : ob.eventOnly ? `${CHARACTERS[bid].name} 只能從限定活動抽獎池取得。` : `${CHARACTERS[bid].name} 無法透過戰鬥取得，只能在懸賞處召喚。`); else if (!owned(bid)) { if (Math.random() < rate) { addCrew(bid, GAME_SETTINGS.bossJoinLv); msgs.push(`<b>${CHARACTERS[bid].name}</b> 被你的實力打動，加入了角色背包！（LV ${GAME_SETTINGS.bossJoinLv}）`); } else msgs.push(`${CHARACTERS[bid].name} 這次沒有加入。再次擊敗時仍有 ${Math.round(again * 100)}% 機率加入。`); } } pendingClear = { first }; }
   } else {
-    if (s && s.type === 'duel' && r.enemyId === s.enemy) { const b = SAVE.data.tokens; completeStep(); msgs.push(`⚔ 對決勝利！任務完成：${s.title}（寶藏幣 +${SAVE.data.tokens - b}）`); if (s.joins && !owned(s.joins)) { addCrew(s.joins, s.joinLv || 20); msgs.push(`<b>${CHARACTERS[s.joins].name}</b> 加入了你的船隊！`); } if (s.after) setTimeout(() => say(s.after), 900); return { message: msgs.join('<br>') }; }
+    if (s && s.type === 'duel' && r.enemyId === s.enemy) { const b = ticketCount(); completeStep(); msgs.push(`⚔ 對決勝利！任務完成：${s.title}（召喚券 +${ticketCount() - b}）`); if (s.joins && !owned(s.joins)) { addCrew(s.joins, s.joinLv || 20); msgs.push(`<b>${CHARACTERS[s.joins].name}</b> 加入了你的船隊！`); } if (s.after) setTimeout(() => say(s.after), 900); return { message: msgs.join('<br>') }; }
     /* 只有「擊敗／連戰／奪鑰」任務進行中的戰鬥才會讓敵人消失；提前打倒的敵人會留在原地，避免任務卡住 */
     if (s && ['defeat', 'gauntlet', 'keys'].includes(s.type) && !st.defeated.includes(r.enemyId)) st.defeated.push(r.enemyId); SAVE.save();
-    if (s && s.type === 'keys') { st.keys = (st.keys || 0) + 1; SAVE.save(); if (st.keys >= s.count) { const b = SAVE.data.tokens; completeStep(); msgs.push(`🔑 集齊 ${s.count} 把${s.item || '鑰匙'}！任務完成：${s.title}（寶藏幣 +${SAVE.data.tokens - b}）`); if (s.lines && s.lines.length) setTimeout(() => say(s.lines.slice(-1)), 900); } else msgs.push(`🔑 搶到第 ${st.keys} 把${s.item || '鑰匙'}！（${st.keys}/${s.count}）`); }
-    if (s && s.type === 'defeat') { if (st.defeated.length >= s.count) { const b = SAVE.data.tokens; completeStep(); msgs.push(`任務完成：${s.title}（寶藏幣 +${SAVE.data.tokens - b}）`); } else msgs.push(`任務進度：${st.defeated.length}/${s.count}`); }
+    if (s && s.type === 'keys') { st.keys = (st.keys || 0) + 1; SAVE.save(); if (st.keys >= s.count) { const b = ticketCount(); completeStep(); msgs.push(`🔑 集齊 ${s.count} 把${s.item || '鑰匙'}！任務完成：${s.title}（召喚券 +${ticketCount() - b}）`); if (s.lines && s.lines.length) setTimeout(() => say(s.lines.slice(-1)), 900); } else msgs.push(`🔑 搶到第 ${st.keys} 把${s.item || '鑰匙'}！（${st.keys}/${s.count}）`); }
+    if (s && s.type === 'defeat') { if (st.defeated.length >= s.count) { const b = ticketCount(); completeStep(); msgs.push(`任務完成：${s.title}（召喚券 +${ticketCount() - b}）`); } else msgs.push(`任務進度：${st.defeated.length}/${s.count}`); }
   }
   return { message: msgs.join('<br>') };
 }
@@ -611,7 +614,7 @@ function updateGachaBtns() {
   const t = SAVE.data.tokens; $('pull1').disabled = t < GACHA_COST.single || gachaBusy; $('pull10').disabled = t < GACHA_COST.ten || gachaBusy; if ($('pull100')) $('pull100').disabled = t < GACHA_COST.hundred || gachaBusy;
   const free = !SAVE.data.freeDraw && Object.keys(SAVE.data.roster).length > 0;
   $('freeBox').classList.toggle('hidden', !free); $('pullFree').disabled = gachaBusy;
-  $('gEmpty').textContent = t < 1 && !free ? '寶藏幣不夠了。回到篇章推進劇情任務就能再拿到。' : '';
+  $('gEmpty').textContent = t < 1 && ticketCount() < 1 && !free ? '召喚券和寶藏幣都用完了。推進劇情、完成懸賞與每日任務就能拿到一般召喚券。' : '';
   $('pull1').querySelector('small').textContent = `${GACHA_COST.single} 枚寶藏幣`; $('pull10').querySelector('small').textContent = `${GACHA_COST.ten} 枚・保底 SR 以上`;
 }
 /* 不會出現在扭蛋與拉霸的角色：NPC 與劇情獎勵角色 */
@@ -727,7 +730,7 @@ function spinCapsules(ms) {
 }
 function openBag() {
   const inv = SAVE.data.inventory, ids = Object.keys(ITEMS).filter(id => inv[id] > 0);
-  $('bagList').innerHTML = ids.length ? ids.map(id => { const it = ITEMS[id]; return `<div class="bagItem static r-${it.rarity}">${itemIcon(it)}<span class="bi-name">${it.name}<small>${it.desc}</small></span><b>×${inv[id]}</b>${it.effect.skinTicket ? `<button class="btn-gold sm" data-ticket>使用</button>` : ''}${it.effect.charSelect ? `<button class="btn-gold sm" data-csel>使用</button>` : ''}${it.effect.eventTicket ? `<button class="btn-gold sm" data-evt>前往</button>` : ''}</div>`; }).join('') : '<div class="bagEmpty">背包是空的。完成劇情任務拿到寶藏幣，就能到懸賞處抽道具。</div>';
+  $('bagList').innerHTML = ids.length ? ids.map(id => { const it = ITEMS[id]; return `<div class="bagItem static r-${it.rarity}">${itemIcon(it)}<span class="bi-name">${it.name}<small>${it.desc}</small></span><b>×${inv[id]}</b>${it.effect.skinTicket ? `<button class="btn-gold sm" data-ticket>使用</button>` : ''}${it.effect.charSelect ? `<button class="btn-gold sm" data-csel>使用</button>` : ''}${it.effect.eventTicket ? `<button class="btn-gold sm" data-evt>前往</button>` : ''}</div>`; }).join('') : '<div class="bagEmpty">背包是空的。完成劇情任務拿到召喚券，就能到懸賞處召喚。</div>';
   $('bagList').querySelectorAll('[data-ticket]').forEach(b => b.onclick = openSkinTicket);
   $('bagList').querySelectorAll('[data-csel]').forEach(b => b.onclick = () => window.openCharSelect && openCharSelect());
   $('bagList').querySelectorAll('[data-evt]').forEach(b => b.onclick = () => { closeModal('bagModal'); const e = $('lbEvent'); if (e && currentScreen === 'modeScreen') e.click(); else openGacha(currentScreen); });

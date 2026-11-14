@@ -485,7 +485,7 @@
     const first = !prev || !prev.cleared; const rw = { berry: failed ? 300 : { SSS: 12000, SS: 9000, S: 7000, A: 5000, B: 3500, C: 2500, D: 1500, E: 800 }[rank] * ({ easy: 1, normal: 1.6, hard: 2.4 }[g.dk]), tokens: !failed && first ? { easy: 3, normal: 6, hard: 12 }[g.dk] : 0 };
     if (isNew) R.best[k] = { score, rank, fc, acc: Math.round(acc * 1000) / 10, combo: g.maxCombo, cleared: !failed || (prev && prev.cleared) }; else if (!failed) prev.cleared = true;
     const up = utaProgress(g.S.id, rank, failed), U = R.uta;
-    SAVE.save(); if (rw.berry && typeof addBerry === 'function') addBerry(Math.round(rw.berry)); if (rw.tokens) { SAVE.data.tokens += rw.tokens; SAVE.save(); if (typeof coins === 'function') coins(); }
+    SAVE.save(); if (rw.berry && typeof addBerry === 'function') addBerry(Math.round(rw.berry)); if (rw.tokens) { SAVE.data.inventory.summon_ticket = (SAVE.data.inventory.summon_ticket || 0) + rw.tokens; SAVE.save(); if (typeof coins === 'function') coins(); }
     const S = g.S, D = DIFFS.find(x => x[0] === g.dk);
     const utaMsg = up.got ? `<b class="got">+${up.got} 美音碎片！</b><small>${U.shards} / ${UTA.need}${!hasUta() && U.shards >= UTA.need ? '・可以合成美音了' : ''}</small>`
       : up.dup ? `<b>這首歌已領過美音碎片</b><small>換一首還沒拿過 S 的歌（${U.shards} / ${UTA.need}）</small>`
@@ -501,7 +501,7 @@
           <div><dt>最高 COMBO</dt><dd>${g.maxCombo}</dd></div><div><dt>BOSS・${esc(CHARACTERS[g.foe].name)}${g.demon ? '（魔王）' : ''}</dt><dd>${g.defeated ? '已擊敗' : `剩 ${Math.round(g.ehp / g.emax * 100)}%`}</dd></div>
         </dl>
         <div class="rg-uta-res"><img src="${art(bossId(), 'avatar')}" alt=""><div>${utaMsg}</div></div>
-        <div class="rg-rew"><span>獎勵</span><b><i class="berry-ico">B</i>${Math.round(rw.berry).toLocaleString()}</b>${rw.tokens ? `<b><i class="coin-ico"></i>×${rw.tokens}<small>首次通關</small></b>` : ''}</div>
+        <div class="rg-rew"><span>獎勵</span><b><i class="berry-ico">B</i>${Math.round(rw.berry).toLocaleString()}</b>${rw.tokens ? `<b><i class="coin-ico tk-ico"></i>×${rw.tokens}<small>首次通關</small></b>` : ''}</div>
         <div class="rg-ract"><button class="btn-ghost" data-r="sel">選曲</button><button class="btn-gold" data-r="again">再挑戰</button></div>
       </section></div>`;
     view = 'result'; const W = el(); W.querySelector('[data-r=sel]').onclick = () => { view = 'select'; renderSelect(); }; W.querySelector('[data-r=again]').onclick = () => startGame(S, g.dk);

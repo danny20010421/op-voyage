@@ -28,14 +28,14 @@
     SAVE.save(); const rank = T.runs.findIndex(r => r.at === at) + 1;
     return { newBest: dmg > prev, rank };
   }
-  /* 獎勵：每 200 傷害 1 貝里（上限 30,000）；每 100 萬傷害 1 寶藏幣（單次 5、每日 10）；首次挑戰 +1。伊姆完全體不會被打倒 */
+  /* 獎勵：每 200 傷害 1 貝里（上限 30,000）；每 100 萬傷害 1 張召喚券（單次 5、每日 10）；首次挑戰 +1。伊姆完全體不會被打倒 */
   function reward(dmg, won) {
     const T = state(), today = window.today ? window.today() : new Date().toDateString(); /* v165：台灣日期 */ if (!T.tok || T.tok.day !== today) T.tok = { day: today, n: 0 };
     const first = !T.played; T.played = true;
     const berry = Math.min(30000, Math.floor(dmg / 200)); let tok = Math.min(5, Math.floor(dmg / 1000000), Math.max(0, 10 - T.tok.n)); T.tok.n += tok;
     if (first) tok += 1;
     SAVE.save(); if (berry) addBerry(berry); if (tok) addTokens(tok, '虛空王座'); if (window.checkTitles) checkTitles(false);
-    return `獲得 <b>${berry.toLocaleString()} 貝里</b>${tok ? `・<b>寶藏幣 ×${tok}</b>` : ''}${first ? '（含首次挑戰獎勵）' : ''}${T.tok.n >= 10 ? '<br><small>今天的寶藏幣獎勵已經拿滿了</small>' : ''}`;
+    return `獲得 <b>${berry.toLocaleString()} 貝里</b>${tok ? `・<b>一般召喚券 ×${tok}</b>` : ''}${first ? '（含首次挑戰獎勵）' : ''}${T.tok.n >= 10 ? '<br><small>今天的召喚券獎勵已經拿滿了</small>' : ''}`;
   }
   function go() {
     if (!pick.length) return; const team = pick.slice();

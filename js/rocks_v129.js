@@ -113,10 +113,10 @@ const ROCKS_TRIAL = {
     }
     RUN = null; const msgs = [`🏆 ${T.phases[R.ph - 1].name} 突破！`];
     team().forEach(id => gainExp(id, 800 + R.ph * 400, true));
-    if (R.ph < N) { if (st.phase === R.ph) { st.phase++; addTokens(T.phaseReward.tokens, '洛克斯挑戰'); addBerry(T.phaseReward.berry); msgs.push(`獲得 寶藏幣 ×${T.phaseReward.tokens}、貝里 ${T.phaseReward.berry.toLocaleString()}`); } msgs.push(`下一關：${T.phases[R.ph].name}`); }
+    if (R.ph < N) { if (st.phase === R.ph) { st.phase++; addTokens(T.phaseReward.tokens, '洛克斯挑戰'); addBerry(T.phaseReward.berry); msgs.push(`獲得 一般召喚券 ×${T.phaseReward.tokens}、貝里 ${T.phaseReward.berry.toLocaleString()}`); } msgs.push(`下一關：${T.phases[R.ph].name}`); }
     else {
       const first = !st.clears; st.clears = (st.clears || 0) + 1; st.phase = N + 1;
-      if (first) { addTokens(T.firstReward.tokens, '洛克斯挑戰'); addBerry(T.firstReward.berry); msgs.push(`首次擊敗洛克斯真身：寶藏幣 ×${T.firstReward.tokens}、貝里 ${T.firstReward.berry.toLocaleString()}`); }
+      if (first) { addTokens(T.firstReward.tokens, '洛克斯挑戰'); addBerry(T.firstReward.berry); msgs.push(`首次擊敗洛克斯真身：一般召喚券 ×${T.firstReward.tokens}、貝里 ${T.firstReward.berry.toLocaleString()}`); }
       else { addBerry(T.replayReward.berry); msgs.push(`貝里 +${T.replayReward.berry.toLocaleString()}`); }
       if (!owned('rocks')) { addCrew('rocks', T.joinLv); msgs.push(`🏴‍☠️ <b>${C.name}</b> 加入船隊！（UR++・LV ${T.joinLv}）`); setTimeout(() => window.showRewards && showRewards({ title: '洛克斯加入！', sub: '「戴維」認同了你的實力' }, [{ char: 'rocks' }]), 900); }
     }

@@ -24,7 +24,7 @@ const WEATHER_FEST = { id: 'weather142', name: '天候祭', start: Date.parse('2
   const statOf = k => k === '_pulls' ? (SAVE.data.pulls || 0) : ((SAVE.data.stats || {})[k] || 0);
   function state() { const id = weekId(); let S = SAVE.data.weekly; if (!S || S.week !== id) { S = SAVE.data.weekly = { week: id, base: {}, got: [] }; W.missions.forEach(m => { S.base[m.stat] = statOf(m.stat); }); SAVE.save(); } return S; }
   const prog = m => { const S = state(); return Math.max(0, Math.min(m.goal, statOf(m.stat) - (S.base[m.stat] ?? statOf(m.stat)))); };
-  const rtext = R => [R.tokens ? `寶藏幣 ×${R.tokens}` : '', R.berry ? `貝里 ${R.berry.toLocaleString()}` : ''].filter(Boolean).join('、');
+  const rtext = R => [R.tokens ? `一般召喚券 ×${R.tokens}` : '', R.berry ? `貝里 ${R.berry.toLocaleString()}` : ''].filter(Boolean).join('、');
   function give(R, why) { if (R.tokens) addTokens(R.tokens, why); if (R.berry) addBerry(R.berry); SAVE.save(); if (typeof coins === 'function') coins(); }
   const F = WEATHER_FEST, fLive = () => Date.now() >= F.start && Date.now() < F.end;
   function fState() { if (!SAVE.data) return null; let S = SAVE.data.wfest; if (!S || S.id !== F.id) { if (!fLive()) return null; S = SAVE.data.wfest = { id: F.id, base: statOf(F.stat), got: false }; SAVE.save(); } return S; }

@@ -4,13 +4,13 @@
       v137：領取視窗（每天第一次進大廳自動跳出）與大廳左側「回歸禮」入口（只在回歸期間出現）。 */
 const RETURN_CFG = { awayDays: 30, windowDays: 14,
   rewards: [
-    { tokens: 30, berry: 50000 },
+    { tokens: 10, berry: 50000, items: { summon_ticket: 20 } }, /* v216：寶藏幣只留少量（限量活動），其餘改召喚券 */
     { items: { summon_ticket: 5, exp_s: 10 } },
     { items: { awaken_gem: 40, skill_book: 2 } },
     { berry: 80000, items: { exp_l: 3 } },
     { items: { summon_ticket: 5, awaken_gem: 40 } },
     { berry: 120000, items: { skill_book: 3 } },
-    { tokens: 80, items: { event_ticket: 5 } }
+    { tokens: 20, items: { summon_ticket: 60, event_ticket: 5 } }
   ] };
 (function () {
   if (typeof ITEMS !== 'undefined' && !ITEMS.summon_ticket) ITEMS.summon_ticket = { name: '一般召喚券', rarity: 'SR', icon: 'scroll', color: '#5fb8ff', desc: '懸賞處召喚用的召喚券，1 張＝抽 1 次（十連用 10 張）。召喚時會優先使用，不夠時才用寶藏幣。', effect: { summonTicket: true } };

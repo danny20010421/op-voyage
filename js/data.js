@@ -4,11 +4,11 @@ const DATA_VERSION = 72;
 const LOGIN_REWARDS = [
  {day:1, label:'貝里 5,000', berry:5000},
  {day:2, label:'掃蕩券 ×3', items:{sweep:3}},
- {day:3, label:'寶藏幣 ×3', tokens:3},
+ {day:3, label:'一般召喚券 ×3', tokens:3},
  {day:4, label:'航海日誌 ×3', items:{exp_m:3}},
  {day:5, label:'活動抽獎券 ×3', tickets:3},
  {day:6, label:'奧義秘卷 ×2', items:{tome:2}},
- {day:7, label:'寶藏幣 ×10', tokens:10, big:true}
+ {day:7, label:'一般召喚券 ×10', tokens:10, big:true}
 ];
 /* 圖片版本：換圖時加一，瀏覽器就會重新下載（不影響後台設定） */
 const ASSET_VERSION = 33;

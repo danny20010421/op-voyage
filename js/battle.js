@@ -174,7 +174,7 @@ function renderBag() {
   const inv = SAVE.data.inventory; const ids = Object.keys(ITEMS).filter(id => inv[id] > 0 && !ITEMS[id].effect.exp && !ITEMS[id].effect.sweep && !ITEMS[id].effect.skinTicket && !ITEMS[id].effect.grow && !ITEMS[id].effect.eventTicket && !ITEMS[id].effect.charSelect && !ITEMS[id].effect.summonTicket); /* v131：培養與票券道具不在戰鬥背包出現 */
   const left = battle ? GAME_SETTINGS.itemsPerBattle - battle.itemsUsed : 0;
   $('bBagList').innerHTML = ids.length ? ids.map(id => { const it = ITEMS[id]; return `<button class="bagItem r-${it.rarity}" data-id="${id}" ${left <= 0 ? 'disabled' : ''}>${itemIcon(it)}<span class="bi-name">${it.name}<small>${it.desc}</small></span><b>×${inv[id]}</b></button>`; }).join('')
-    : `<div class="bagEmpty">背包是空的。完成劇情任務拿到寶藏幣，就能到扭蛋機抽道具。</div>`;
+    : `<div class="bagEmpty">背包是空的。完成劇情任務拿到召喚券，就能到懸賞處召喚。</div>`;
   $('bBagList').querySelectorAll('.bagItem').forEach(b => b.onclick = () => useItem(b.dataset.id));
   $('bBagNote').textContent = `本場還能使用 ${left} 次道具，使用道具會佔用本回合行動。`;
 }

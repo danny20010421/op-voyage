@@ -27,7 +27,7 @@ const HARD_MODE = {
     return [...pool.slice(0, minions).map(id => ({ id, boss: false })), ...duels.slice(0, H.maxFights - 1 - minions), boss];
   }
   const lvOf = (c, f) => Math.min(MAX_LV, (ENEMY_LEVEL[c.id] || 30) + H.lvUp + (f.boss ? BOSS_LEVEL_BONUS + ((CHAPTER_DIFFICULTY[c.id] || {}).bossLvUp || 0) : 0));
-  const rewardText = R => [R.tokens ? `寶藏幣 ×${R.tokens}` : '', R.berry ? `貝里 ${R.berry.toLocaleString()}` : '', ...Object.entries(R.items || {}).map(([k, n]) => `${ITEMS[k] ? ITEMS[k].name : k} ×${n}`)].filter(Boolean).join('、');
+  const rewardText = R => [R.tokens ? `一般召喚券 ×${R.tokens}` : '', R.berry ? `貝里 ${R.berry.toLocaleString()}` : '', ...Object.entries(R.items || {}).map(([k, n]) => `${ITEMS[k] ? ITEMS[k].name : k} ×${n}`)].filter(Boolean).join('、');
   const starRow = n => `<span class="hm-stars">${[1, 2, 3].map(k => `<i class="${k <= n ? 'on' : ''}">★</i>`).join('')}</span>`;
   let RUN = null;
   function block(c) {

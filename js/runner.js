@@ -231,7 +231,7 @@
     SFX.play(rec ? 'rare' : 'miss');
     setTimeout(() => panel(`<div class="rn-card"><h2>${rec ? '新紀錄！' : '航行結束'}</h2>
       <div class="rn-res"><div><small>航行距離</small><b>${dist} m</b></div><div><small>金幣</small><b>${G.coins}</b></div><div><small>抵達海域</small><b>${zoneAt(dist).Z.name}</b></div></div>
-      <p class="rn-reward">獲得 <b>${berry.toLocaleString()} 貝里</b>${tok > 0 ? `・<b>寶藏幣 ×${tok}</b>` : ''}${R.tok.n >= 5 ? '<br><small>今天的寶藏幣獎勵已經拿滿了</small>' : ''}</p>
+      <p class="rn-reward">獲得 <b>${berry.toLocaleString()} 貝里</b>${tok > 0 ? `・<b>一般召喚券 ×${tok}</b>` : ''}${R.tok.n >= 5 ? '<br><small>今天的召喚券獎勵已經拿滿了</small>' : ''}</p>
       <div class="rn-btns"><button class="btn-primary big" id="rnGo">再航行一次</button><button class="btn-ghost" id="rnQuit">返回</button></div></div>`), 700);
     setTimeout(() => { $('rnGo').onclick = () => { $('rnPanel').classList.remove('show'); newGame(); G.started = true; G.last = performance.now() / 1000; }; $('rnQuit').onclick = () => openModes(); }, 720);
   }

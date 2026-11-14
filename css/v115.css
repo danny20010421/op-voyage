@@ -3,6 +3,8 @@
 /* ---------- 寶藏幣圖示（全遊戲共用 .coin-ico） ---------- */
 .coin-ico{background:url('../assets/ui/coin_token.webp?v=79247db3') center/contain no-repeat,radial-gradient(circle at 35% 30%,#fff4c8,#e8c170 35%,#a8761f 80%) center/82% 82% no-repeat!important;box-shadow:none!important;border-radius:50%!important}
 .coin-ico::after{content:none!important}
+/* v216：一般召喚券圖示（遊戲內獎勵改發召喚券） */
+.coin-ico.tk-ico{background:url('../assets/ui/summon_ticket.webp?v=354e719c') center/contain no-repeat!important;border-radius:0!important}
 .coin-fly{background:url('../assets/ui/coin_token.webp?v=79247db3') center/contain no-repeat!important;box-shadow:0 0 10px rgba(255,210,108,.8)!important}.coin-fly::after{content:none!important}
 .cer-img{width:48px;height:48px;object-fit:cover;border-radius:12px}
 .ev-ut{margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(255,138,58,.18);color:#ffb37a;font-style:normal;font-size:12px;font-weight:800}

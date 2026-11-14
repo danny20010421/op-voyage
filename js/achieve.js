@@ -1,5 +1,5 @@
 /* 成就：把「冒險／收藏／經濟」三條主線串在一起。每條線的成就獎勵，都是另一條線需要的資源：
-   冒險 → 寶藏幣（拿去召喚）；收藏 → 貝里與掃蕩券（拿去培養與推進）；經濟 → 抽獎券與選擇券（拿去收藏）。 */
+   冒險 → 一般召喚券（拿去召喚）；收藏 → 貝里與掃蕩券（拿去培養與推進）；經濟 → 抽獎券與選擇券（拿去收藏）。 */
 (function () {
   const d = () => SAVE.data, st = () => d().stats || {};
   const cleared = () => CHAPTERS.filter(c => (d().chapters[c.id] || {}).cleared).length;
@@ -11,7 +11,7 @@
   const maxLv = () => Math.max(1, ...Object.values(d().roster || {}).map(r => r.lv || 1));
   const profit = () => Math.max(0, Math.round(((d().mkt || {}).realized) || 0));
   const LINES = {
-    adv: { name: '冒險', color: '#e8b64a', reward: '寶藏幣', items: [
+    adv: { name: '冒險', color: '#e8b64a', reward: '召喚券', items: [
       ['adv1', '第一座島', '通關 1 個篇章', () => cleared(), 1, { tokens: 5 }], ['adv2', '偉大航路前半段', '通關 5 個篇章', () => cleared(), 5, { tokens: 15 }], ['adv3', '航向新世界', `通關全部 ${CHAPTERS.length} 個篇章`, () => cleared(), CHAPTERS.length, { tokens: 40 }],
       ['adv4', '身經百戰', '戰鬥勝利 100 場', () => st().wins || 0, 100, { tokens: 10 }], ['adv5', '千場傳說', '戰鬥勝利 1000 場', () => st().wins || 0, 1000, { tokens: 30 }],
       ['adv6', '登塔者', '勇者之塔最高到達第 30 層', () => (d().tower || {}).best || 0, 30, { tokens: 15 }], ['adv7', '塔頂之人', '勇者之塔最高到達第 100 層', () => (d().tower || {}).best || 0, 100, { tokens: 40 }],
@@ -21,17 +21,17 @@
       ['col4', '傳說級', '擁有 3 位 UR 船員', ur, 3, { berry: 20000, sweep: 5 }], ['col5', '換裝達人', '擁有 3 款皮膚', skins, 3, { berry: 10000, sweep: 3 }],
       ['col6', '羈絆', '開通 3 組圖鑑羈絆', sets, 3, { berry: 15000, sweep: 5 }], ['col7', '歷史的解讀者', '解讀 3 塊歷史本文', poneg, 3, { berry: 20000, sweep: 5 }], ['col8', '登峰造極', '任一船員達到 LV 100', maxLv, 100, { berry: 30000, sweep: 10 }] ] },
     eco: { name: '經濟', color: '#5fe09a', reward: '抽獎券・選擇券', items: [
-      ['eco1', '第一筆獲利', '交易所累積已實現獲利 100 枚寶藏幣', profit, 100, { tickets: 3 }], ['eco2', '大海賊投資家', '交易所累積已實現獲利 1000 枚寶藏幣', profit, 1000, { tickets: 10, skinTicket: 1 }],
+      ['eco1', '第一筆獲利', '交易所累積已實現獲利 10 萬貝里', profit, 100000, { tickets: 3 }], ['eco2', '大海賊投資家', '交易所累積已實現獲利 100 萬貝里', profit, 1000000, { tickets: 10, skinTicket: 1 }],
       ['eco3', '召喚師', '累積召喚 100 次', () => d().pulls || 0, 100, { tickets: 5 }], ['eco4', '懸賞獵人', '領取懸賞獎勵 30 次', () => st().bounty || 0, 30, { tickets: 5 }],
       ['eco5', '每日航海', '七日登入累積領取 14 次', () => d().loginTotal || 0, 14, { tickets: 5 }], ['eco6', '掃蕩專家', '掃蕩 50 場戰鬥', () => st().sweeps || 0, 50, { tickets: 3 }] ] }
   };
   const A = () => (d().achieve = d().achieve || { got: [] });
   function grant(rw) { const out = [];
-    if (rw.tokens) { addTokens(rw.tokens, '成就'); out.push(`寶藏幣 ×${rw.tokens}`); }
+    if (rw.tokens) { addTokens(rw.tokens, '成就'); out.push(`一般召喚券 ×${rw.tokens}`); }
     if (rw.berry) { addBerry(rw.berry); out.push(`貝里 ${rw.berry.toLocaleString()}`); }
     if (rw.sweep) { d().inventory.sweep = (d().inventory.sweep || 0) + rw.sweep; out.push(`掃蕩券 ×${rw.sweep}`); }
     if (rw.skinTicket) { d().inventory.skin_ticket = (d().inventory.skin_ticket || 0) + rw.skinTicket; out.push(`限定皮膚選擇券 ×${rw.skinTicket}`); }
-    if (rw.tickets) { try { eventState().tickets += rw.tickets; out.push(`活動抽獎券 ×${rw.tickets}`); } catch (e) { addTokens(rw.tickets, '成就'); out.push(`寶藏幣 ×${rw.tickets}`); } }
+    if (rw.tickets) { try { eventState().tickets += rw.tickets; out.push(`活動抽獎券 ×${rw.tickets}`); } catch (e) { addTokens(rw.tickets, '成就'); out.push(`一般召喚券 ×${rw.tickets}`); } }
     SAVE.save(); coins(); return out; }
   const all = () => Object.values(LINES).flatMap(L => L.items);
   window.achieveClaimable = () => all().filter(([id, , , f, goal]) => !A().got.includes(id) && f() >= goal).length;
@@ -39,7 +39,7 @@
     line = line || 'adv'; const L = LINES[line];
     const box = document.querySelector('.ach-wrap') || document.body.appendChild(Object.assign(document.createElement('div'), { className: 'dl-wrap ach-wrap' }));
     /* v183：可領取 → 進行中（完成度高的在前）→ 已領取；顯示獎勵內容；分頁加「全部領取」 */
-    const rwTxt = rw => [rw.tokens && `寶藏幣 ×${rw.tokens}`, rw.berry && `貝里 ${rw.berry.toLocaleString()}`, rw.sweep && `掃蕩券 ×${rw.sweep}`, rw.tickets && `抽獎券 ×${rw.tickets}`, rw.skinTicket && `皮膚選擇券 ×${rw.skinTicket}`].filter(Boolean).join('・');
+    const rwTxt = rw => [rw.tokens && `召喚券 ×${rw.tokens}`, rw.berry && `貝里 ${rw.berry.toLocaleString()}`, rw.sweep && `掃蕩券 ×${rw.sweep}`, rw.tickets && `抽獎券 ×${rw.tickets}`, rw.skinTicket && `皮膚選擇券 ×${rw.skinTicket}`].filter(Boolean).join('・');
     const view = L.items.map(it => { const v = it[3](), goal = it[4]; return { it, v, done: v >= goal, got: A().got.includes(it[0]), pct: Math.min(100, v / goal * 100) }; })
       .sort((a, b) => ((a.got ? 2 : a.done ? 0 : 1) - (b.got ? 2 : b.done ? 0 : 1)) || b.pct - a.pct);
     const ready = view.filter(x => x.done && !x.got);

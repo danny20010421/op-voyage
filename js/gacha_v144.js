@@ -711,6 +711,6 @@
     API.onShown = () => { try { gachaBusy = false; updateGachaBtns(); coins(); } catch (e) { } };
     API.onClose = () => { close(); try { gachaBusy = false; updateGachaBtns(); coins(); } catch (e) { } };
     API.onAgain = n => { close(); try { gachaBusy = false; } catch (e) { }
-      pull(n); setTimeout(() => { if (!OPEN && !(typeof gachaBusy !== 'undefined' && gachaBusy)) { try { _toast('寶藏幣不足，無法再抽一次', 'warn'); } catch (e) { } } }, 60); };
+      pull(n); setTimeout(() => { if (!OPEN && !(typeof gachaBusy !== 'undefined' && gachaBusy)) { try { _toast('召喚券與寶藏幣不足，無法再抽一次', 'warn'); } catch (e) { } } }, 60); };
   });
 })();

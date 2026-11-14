@@ -12,8 +12,8 @@ const LADDER = {
   tiers: [['青銅', 1000, '#c08a5a'], ['白銀', 1150, '#c8d2dc'], ['黃金', 1300, '#ffcf5a'], ['白金', 1450, '#8fe8e0'], ['鑽石', 1600, '#8fb8ff'], ['四皇', 1800, '#ff6a7a'], ['海賊王', 2000, '#ffe9a0']],
   /* 賽季獎勵（依本季最高段位） */
   season: [
-    { berry: 10000 }, { berry: 15000, items: { awaken_gem: 20 } }, { tokens: 10, items: { awaken_gem: 30, skill_book: 2 } }, { tokens: 20, items: { awaken_gem: 40, skill_book: 3 } },
-    { tokens: 30, items: { awaken_gem: 60, skill_book: 4 } }, { tokens: 50, items: { awaken_gem: 80, skill_book: 5, skin_ticket: 1 } }, { tokens: 80, items: { awaken_gem: 120, skill_book: 8, skin_ticket: 1 } }
+    { berry: 10000 }, { berry: 15000, items: { awaken_gem: 20 } }, { items: { summon_ticket: 10, awaken_gem: 30, skill_book: 2 } }, { items: { summon_ticket: 20, awaken_gem: 40, skill_book: 3 } },
+    { items: { summon_ticket: 30, awaken_gem: 60, skill_book: 4 } }, { items: { summon_ticket: 50, awaken_gem: 80, skill_book: 5, skin_ticket: 1 } }, { items: { summon_ticket: 80, awaken_gem: 120, skill_book: 8, skin_ticket: 1 } }
   ],
   bg: 'assets/chapters/marineford.webp?v=6ea88456'
 };

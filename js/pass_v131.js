@@ -9,9 +9,9 @@ const PASS = {
   /* 每一級的獎勵：免費／進階 */
   reward(lv) {
     const F = [{ berry: 4000 }, { items: { exp_m: 1 } }, { items: { awaken_gem: 8 } }, { items: { skill_book: 1 } }], P = [{ items: { awaken_gem: 12 } }, { items: { skill_book: 2 } }, { items: { exp_l: 1 } }, { berry: 10000 }];
-    if (lv === 30) return { free: { tokens: 10, items: { exp_l: 2 } }, paid: { tokens: 30, items: { skin_ticket: 1, awaken_gem: 40 } } };
-    if (lv === 15) return { free: { tokens: 3 }, paid: { tokens: 10, items: { awaken_gem: 30, skill_book: 3 } } };
-    if (lv % 5 === 0) return { free: { tokens: 3 }, paid: { tokens: 10, items: { awaken_gem: 20 } } };
+    if (lv === 30) return { free: { items: { summon_ticket: 10, exp_l: 2 } }, paid: { tokens: 30, items: { skin_ticket: 1, awaken_gem: 40 } } };
+    if (lv === 15) return { free: { items: { summon_ticket: 3 } }, paid: { tokens: 10, items: { awaken_gem: 30, skill_book: 3 } } };
+    if (lv % 5 === 0) return { free: { items: { summon_ticket: 3 } }, paid: { tokens: 10, items: { awaken_gem: 20 } } };
     return { free: F[(lv - 1) % 4], paid: P[(lv - 1) % 4] };
   }
 };

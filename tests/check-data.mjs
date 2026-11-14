@@ -13,7 +13,7 @@ vm.runInContext('var CHAR_RARITY = {};', ctx);
 for (const f of ['js/roster.js', 'js/skins_v143.js', 'js/codex_order_v164.js', 'js/balance.js']) { try { vm.runInContext(rd(f), ctx); } catch (e) { warn.push(`${f} 無法在資料檢查中載入：${e.message}`); } }
 const { CHARACTERS: C, CHARACTER_ORDER: O, CHAR_OBTAIN: OB, CHAPTERS: CH, TREASURE: T, COLLECTION_SETS: S, EVENT_POOLS: EP, ITEMS: IT, LOGIN_REWARDS: LR } = ctx;
 const exists = u => fs.existsSync(root + String(u).split('?')[0]);
-const hub = rd('js/hub.js'), battle = rd('js/battle_core.js') + rd('js/battle.js') + rd('js/ext.js') + rd('js/ext_late.js') + rd('js/status.js') + rd('js/balance.js') + rd('js/roster.js');
+const hub = rd('js/hub.js'), battle = rd('js/battle_core.js') + rd('js/battle.js') + rd('js/ext.js') + rd('js/ext_late.js') + rd('js/ext_late2.js') + rd('js/fx_imu.js') + rd('js/status.js') + rd('js/balance.js') + rd('js/roster.js');
 const nos = {};
 for (const id of O) {
   const c = C[id]; if (!c) { errs.push(`CHARACTER_ORDER 有不存在的角色 ${id}`); continue; }

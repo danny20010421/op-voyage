@@ -24,7 +24,7 @@ const BOUNTY_POOL = [
   { id: 'tower3', text: '勇者之塔突破 3 層', stat: 'towerWins', goal: 3, berry: 2000, tokens: 1 },
   { id: 'chest1', text: '在島上打開 1 個寶箱', stat: 'chests', goal: 1, berry: 1500 }
 ];
-/* 高級懸賞：每天一張，難度較高，完成可得寶藏幣 ×5 */
+/* 高級懸賞：每天一張，難度較高，完成可得一般召喚券 ×5 */
 const BOUNTY_PREMIUM = [
   { id: 'p_win15', text: '擊敗 15 名敵人', stat: 'wins', goal: 15, berry: 5000, tokens: 5, premium: true },
   { id: 'p_boss2', text: '擊敗 2 名篇章 BOSS', stat: 'bossWins', goal: 2, berry: 5000, tokens: 5, premium: true },
@@ -73,7 +73,7 @@ function claimBounty(id, quiet) {
   if (window.timeLocked && timeLocked()) { toast('裝置時間異常，暫時無法領取懸賞獎勵'); return null; }
   const x = SAVE.data.bounty.list.find(y => y.id === id), def = x && bountyDef(x.id); if (!x || x.claimed) return null;
   x.claimed = true; track('bounty'); SAVE.save(); addBerry(def.berry); if (def.tokens) addTokens(def.tokens, '懸賞任務');
-  if (!quiet) { SFX.play('coin'); toast(`領到賞金 ${def.berry.toLocaleString()} 貝里${def.tokens ? `＋寶藏幣 ×${def.tokens}` : ''}`, 'gold'); }
+  if (!quiet) { SFX.play('coin'); toast(`領到賞金 ${def.berry.toLocaleString()} 貝里${def.tokens ? `＋一般召喚券 ×${def.tokens}` : ''}`, 'gold'); }
   return def;
 }
 function renderBounty() {
@@ -84,12 +84,12 @@ function renderBounty() {
   let all = $('bountyAll'); if (!all) { all = document.createElement('button'); all.id = 'bountyAll'; all.className = 'btn-gold bt-all'; head.appendChild(all); }
   all.textContent = ready.length ? `全部領取（${ready.length}）` : '全部領取'; all.disabled = !ready.length;
   all.onclick = () => { let berry = 0, tk = 0; ready.forEach(b => { const d = claimBounty(b.id, true); if (d) { berry += d.berry; tk += d.tokens || 0; } }); if (!berry) return;
-    SFX.play('coin'); toast(`領到賞金 ${berry.toLocaleString()} 貝里${tk ? `＋寶藏幣 ×${tk}` : ''}`, 'gold'); if (window.eventBountyCheck) setTimeout(eventBountyCheck, 60); renderBounty(); };
+    SFX.play('coin'); toast(`領到賞金 ${berry.toLocaleString()} 貝里${tk ? `＋一般召喚券 ×${tk}` : ''}`, 'gold'); if (window.eventBountyCheck) setTimeout(eventBountyCheck, 60); renderBounty(); };
   $('bountyList').innerHTML = sorted.map(b => { const done = b.prog >= b.goal, st = b.claimed ? '已領' : done ? '可領' : `${b.prog}/${b.goal}`;
     return `<article class="bounty v183 ${b.premium ? 'premium' : ''} ${b.claimed ? 'claimed' : done ? 'done' : ''}">
     <div class="bt-poster"><span>${b.premium ? '高級' : 'WANTED'}</span><b>${st}</b></div>
     <div class="bt-body"><h4>${b.text}</h4><div class="bar"><i style="width:${b.prog / b.goal * 100}%"></i></div>
-      <p class="bt-rew">${COIN_STACK}<b>${b.berry.toLocaleString()}</b>${b.tokens ? `<span class="bt-plus">＋</span><i class="coin-ico"></i><b>×${b.tokens}</b>` : ''}</p></div>
+      <p class="bt-rew">${COIN_STACK}<b>${b.berry.toLocaleString()}</b>${b.tokens ? `<span class="bt-plus">＋</span><i class="coin-ico tk-ico"></i><b>×${b.tokens}</b>` : ''}</p></div>
     ${b.claimed ? '<button class="btn-ghost" disabled>已領取</button>' : done ? `<button class="btn-gold" data-claim="${b.id}">領取</button>` : `<button class="btn-ghost" data-go="${b.stat}">前往</button>`}</article>`; }).join('');
   $('bountyList').querySelectorAll('[data-claim]').forEach(btn => btn.onclick = () => { if (claimBounty(btn.dataset.claim)) { if (window.eventBountyCheck) setTimeout(eventBountyCheck, 60); renderBounty(); } });
   $('bountyList').querySelectorAll('[data-go]').forEach(btn => btn.onclick = () => bountyGo(btn.dataset.go));
@@ -100,12 +100,12 @@ const shopCatOf = id => { const it = ITEMS[id] || {}; if (it.cat) return 'battle
 let shopCat = 'battle', shopSel = null, shopQty = 1;
 function shopGoods() {
   const G = SHOP.filter(x => ITEMS[x.id]).map(x => ({ id: x.id, price: x.price, it: ITEMS[x.id], cat: shopCatOf(x.id), have: (SAVE.data.inventory || {})[x.id] || 0 }));
-  G.push({ id: '_token', price: TOKEN_PRICE, cat: 'ticket', have: SAVE.data.tokens || 0, it: { name: '寶藏幣', rarity: 'SR', desc: '用於懸賞召喚。用貝里兌換寶藏幣。' } });
+  G.push({ id: '_token', price: TOKEN_PRICE, cat: 'ticket', have: ticketCount(), it: { name: '一般召喚券', rarity: 'SR', desc: '懸賞處召喚用，1 張＝召喚 1 次。用貝里兌換。' } });
   return G;
 }
 function renderShop() {
   const B = SAVE.data.berry || 0, G = shopGoods(), L = G.filter(g => g.cat === shopCat);
-  const ico = g => g.id === '_token' ? '<span class="ico token-ico"><i class="coin-ico"></i></span>' : itemIcon(g.it);
+  const ico = g => g.id === '_token' ? '<span class="ico token-ico"><i class="coin-ico tk-ico"></i></span>' : itemIcon(g.it);
   $('shopList').className = 'shop-v183';
   $('shopList').innerHTML = `<nav class="sh-cats" role="tablist">${SHOP_CATS.map(([k, n]) => `<button role="tab" data-scat="${k}" class="${k === shopCat ? 'on' : ''}" aria-selected="${k === shopCat}">${n}</button>`).join('')}</nav>
     <div class="sh-grid">${L.map(g => `<button class="sh-it r-${g.it.rarity || 'N'} ${g.id === shopSel ? 'sel' : ''}" data-sit="${g.id}"><span class="sh-ic">${ico(g)}</span><b>${g.it.name}</b><small>擁有 ${g.have.toLocaleString()}</small><em><i class="berry-ico">B</i>${g.price.toLocaleString()}</em></button>`).join('')}</div>`;

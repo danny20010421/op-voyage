@@ -2,7 +2,7 @@
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__installPrompt = e; });
 /* 設定頁（大廳「設定」與首頁「設定」共用）＋ 新手教學（大廳聚光燈導覽）。
    設定存在 localStorage：op_gfx（畫質）、op_motion（減少動態）、op_bspeed（預設戰鬥速度）、op_vibe（震動回饋）、op_live_pop（即時對戰邀請通知）、op_text（文字大小）、op_fxpro（技能特效高／低，v138）。 */
-const GAME_VERSION = 'v216';
+const GAME_VERSION = 'v217';
 /* v148：目前的畫質（沒選過時：電腦＝極致、手機平板＝高畫質，和 e3three.js 的 E3_ULTRA 規則相同） */
 function gfxNow() { try { const g = localStorage.getItem('op_gfx'); if (g) return g; return !matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) >= 700 && (navigator.deviceMemory || 8) >= 6 ? 'ultra' : 'high'; } catch (e) { return 'high'; } }
 (function () {
@@ -77,7 +77,7 @@ const GUIDE = (function () {
     { s: '#lbTeam', t: '出戰陣容', d: '戰鬥時最多 3 位船員依序上場。點這裡可以更換、調整順序，等級越高越強。' },
     { s: '#lbModesBtn', t: '冒險', d: '奪寶大冒險、勇者之塔（250 層）、懸賞金交易所、皇帝領海、登上虛空王座、歌姬挑戰與海賊天梯，都在這裡。' },
     { s: '#l2Emperor', t: '皇帝領海', d: '挑戰四皇：打贏隊長、分身與真身，四皇就會加入你的船隊。' },
-    { s: '[data-lb=gacha]', t: '召喚', d: '用寶藏幣召喚新船員。左下角的限定召喚會定期輪替，集滿碎片也能換角色。' },
+    { s: '[data-lb=gacha]', t: '召喚', d: '用一般召喚券或寶藏幣召喚新船員。左下角的限定召喚會定期輪替，集滿碎片也能換角色。' },
     { s: '#lbBounty', t: '每日懸賞與活動', d: '左側是公告、每日懸賞、活動中心、七日登入、成就與寶藏日誌，有紅點就代表有獎勵可領。' },
     { s: '[data-lb=guild]', t: '船團', d: '和好友組成船團，每週一起挑戰船團 BOSS，還有船團留言板。' },
     { s: '[data-lb=friends]', t: '好友', d: '登入帳號後可以加好友、留言、送禮、即時對戰與觀戰，還有全球排行榜。' },

@@ -30,7 +30,7 @@ function finalRush(i, hp) {
       const first = !SAVE.data.treasure.done; SAVE.data.treasure.done = true; SAVE.save();
       if (first) { addTokens(F.reward.tokens, '拉夫德魯'); addBerry(F.reward.berry); SAVE.data.lineup.forEach(id => gainExp(id, 20000, true, true)); }
       finalDone = true;
-      return { message: first ? `你抵達了拉夫德魯！<br>寶藏幣 ×${F.reward.tokens}、貝里 ${F.reward.berry.toLocaleString()}、陣容全員經驗 +20000` : '你再次闖過了最終試煉。' };
+      return { message: first ? `你抵達了拉夫德魯！<br>一般召喚券 ×${F.reward.tokens}、貝里 ${F.reward.berry.toLocaleString()}、陣容全員經驗 +20000` : '你再次闖過了最終試煉。' };
     },
     onLeave: () => { if (finalDone) { finalDone = false; storyCard(F.name, F.ending, '回到海圖', () => openChart()); } else openChart(); } });
 }
@@ -73,7 +73,7 @@ function decodeStone(chId) {
       treasureFoundAll().push(chId); SAVE.save(); addTokens(3, '歷史本文'); addBerry(3000);
       const lines = (p.lines || []).map(l => (l[0] === '@robin' ? '羅賓：「' + l[1] + '」' : l[1]));
       const n = treasureFoundAll().length, all = n >= T.pieces.length;
-      storyCard(p.name, [...lines, `獲得寶藏幣 ×3、貝里 3,000。主線進度：${n}/${T.pieces.length}${all ? '。所有歷史本文都解讀完成了！' : ''}`], '收下', () => openTreasure());
+      storyCard(p.name, [...lines, `獲得一般召喚券 ×3、貝里 3,000。主線進度：${n}/${T.pieces.length}${all ? '。所有歷史本文都解讀完成了！' : ''}`], '收下', () => openTreasure());
     }
   });
   box.querySelector('#trpReplay').onclick = () => { if (!busy) show(); };

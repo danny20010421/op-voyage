@@ -54,8 +54,8 @@ function renderAdmin(tab) {
       ${field('每回合選技秒數', 'turnSeconds', S.turnSeconds, 'number', 'min="5" max="120"')}
       ${field('BOSS 復活次數', 'bossRevives', S.bossRevives, 'number', 'min="0" max="5"')}
       ${field('每場可用道具次數', 'itemsPerBattle', S.itemsPerBattle, 'number', 'min="0" max="20"')}
-      ${field('新玩家初始寶藏幣', 'startTokens', S.startTokens, 'number', 'min="0"')}
-      ${field('首次通關獎勵寶藏幣', 'clearBonus', S.clearBonus, 'number', 'min="0"')}
+      ${field('新玩家初始召喚券', 'startTokens', S.startTokens, 'number', 'min="0"')}
+      ${field('首次通關獎勵召喚券', 'clearBonus', S.clearBonus, 'number', 'min="0"')}
       ${field('替補船員分享經驗比例', 'shareExp', S.shareExp, 'number', 'step="0.05" min="0" max="1"')}
       ${field('攻擊每階增減（0.10 = 10%）', 'atkStep', S.atkStep, 'number', 'step="0.01" min="0" max="0.5"')}
       ${field('防禦每階增減', 'defStep', S.defStep, 'number', 'step="0.01" min="0" max="0.5"')}
@@ -209,7 +209,7 @@ function adminTool(t) {
   if (t === 'getChar') { const id = $('admGetChar').value; if (owned(id)) { toast(`${CHARACTERS[id].name} 已經在船上了`); return; } addCrew(id, 50); toast(`${CHARACTERS[id].name} 加入了船隊（LV 50）`, 'gold'); renderAdmin('tools'); return; }
   if (t === 'getSkin') { const k = $('admGetSkin').value, S = SAVE.data.skins = SAVE.data.skins || { owned: [], equip: {} }; S.owned = S.owned || []; if (S.owned.includes(k)) { toast('已經擁有這款皮膚'); return; } S.owned.push(k); SAVE.save(); toast(`獲得皮膚「${SKINS[k].name}」`, 'gold'); return; }
   if (t === 'export') { const blob = new Blob([JSON.stringify(adminLoad(), null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'op_admin_config.json'; a.click(); }
-  if (t === 'tokens') { addTokens(10, '後台發放'); }
+  if (t === 'tokens') { addPaidTokens(10, '後台發放'); }
   if (t === 'unlock') { CHAPTERS.forEach(c => SAVE.data.chapters[c.id].cleared = true); SAVE.save(); toast('全部篇章已標記通關'); }
   if (t === 'lvup') { const r = SAVE.data.roster[SAVE.data.player]; if (r) { r.lv = Math.min(MAX_LV, r.lv + 10); r.exp = 0; SAVE.save(); toast(`${CHARACTERS[SAVE.data.player].name} 升到 LV ${r.lv}`); } }
   if (t === 'allchars') { CHARACTER_ORDER.forEach(id => addCrew(id, 50)); toast('已獲得全部角色'); }

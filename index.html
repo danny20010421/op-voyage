@@ -42,7 +42,7 @@
 <link rel="stylesheet" href="css/v112.css?v=fa384fa7">
 <link rel="stylesheet" href="css/v113.css?v=35d73397">
 <link rel="stylesheet" href="css/v114.css?v=1341258d">
-<link rel="stylesheet" href="css/v115.css?v=89208485">
+<link rel="stylesheet" href="css/v115.css?v=a56a53a0">
 <link rel="stylesheet" href="css/v116.css?v=989e5783">
 <link rel="stylesheet" href="css/v117.css?v=14930d44">
 <link rel="stylesheet" href="css/v118.css?v=5e82f814">
@@ -207,7 +207,7 @@
         <div class="mode-grid">
       <button class="mode-card m-run" data-mode="run"><span class="mc-art" aria-hidden="true"></span><span class="mc-body"><b>奪寶大冒險</b><small>左右槳交替划船，越遠越刺激，沿途搶金幣</small><em id="mdRunBest"></em></span></button>
       <button class="mode-card m-tower" data-mode="tower"><span class="mc-art" aria-hidden="true"></span><span class="mc-body"><b>勇者之塔</b><small>挑戰各地海賊，每 10 層一位 BOSS，共 250 層</small><em id="mdTowerProg"></em></span></button>
-      <button class="mode-card m-xc" data-mode="exchange"><span class="mc-art" aria-hidden="true"></span><span class="mc-body"><b>懸賞金交易所</b><small>用寶藏幣買賣海賊團股票，每天 09:00～22:00 即時開盤</small><em id="mdXcBest"></em></span></button>
+      <button class="mode-card m-xc" data-mode="exchange"><span class="mc-art" aria-hidden="true"></span><span class="mc-body"><b>懸賞金交易所</b><small>用貝里買賣海賊團股票，每天 09:00～22:00 即時開盤</small><em id="mdXcBest"></em></span></button>
       <button class="mode-card m-emperor" data-mode="emperor"><span class="mc-art" aria-hidden="true"></span><span class="mc-body"><b>皇帝領海</b><small>挑戰四皇：隊長連戰、分身、真身，擊敗後四皇加入船隊；集齊六皇再戰洛克斯</small><em id="mdEmpProg"></em></span></button>
       <button class="mode-card m-throne" data-mode="throne"><span class="mc-art" aria-hidden="true"></span><span class="mc-body"><b>登上虛空王座</b><small>派出三位船員挑戰伊姆完全體，比拚累積傷害</small><em id="mdThroneBest"></em></span></button>
     </div>
@@ -273,7 +273,7 @@
     <div class="captain" id="captainChip"></div>
     <div class="topbar-right">
       <button class="icon-btn snd" data-snd aria-label="音樂開關">♪</button>
-      <div class="coin berry" title="貝里：打贏敵人、完成任務獲得，可在商店使用"><i class="berry-ico">B</i><b class="berryVal">0</b></div><div class="coin" title="寶藏幣：完成劇情任務獲得"><i class="coin-ico"></i><b id="coinTop">0</b></div>
+      <div class="coin berry" title="貝里：打贏敵人、完成任務獲得，可在商店使用"><i class="berry-ico">B</i><b class="berryVal">0</b></div><div class="coin" title="寶藏幣：儲值或限量活動取得"><i class="coin-ico"></i><b id="coinTop">0</b></div>
     </div>
   </header>
   <div class="chart">
@@ -434,7 +434,7 @@
     </div></div>
     <div class="g-panel">
       <div class="free-box hidden" id="freeBox"><div><b>新手福利</b><p>免費召喚一位 LV 100 的強力船員！</p></div><button class="btn-gold big" id="pullFree">免費拉霸</button></div>
-      <p class="g-lead">完成劇情任務獲得寶藏幣。有機會直接抽到新船員；經驗書在「船員」畫面使用，戰鬥道具在對戰中按「道具」使用。</p>
+      <p class="g-lead">完成劇情任務、懸賞與每日任務獲得一般召喚券（優先使用），也可以用寶藏幣召喚。有機會直接抽到新船員；經驗書在「船員」畫面使用，戰鬥道具在對戰中按「道具」使用。</p>
       <div class="g-pulls">
         <button class="btn-gold big" id="pull1">抽 1 次<small>1 枚寶藏幣</small></button>
         <button class="btn-primary big" id="pull10">抽 10 次<small>9 枚・保底 SR 以上</small></button>
@@ -602,8 +602,8 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="loading" id="loading"><div class="ld-wheel"></div><span>載入中</span></div>
 
-<script src="js/data.js?v=dd6db4f3"></script>
-<script src="js/data_ext.js?v=cbecd530"></script>
+<script src="js/data.js?v=cb952af2"></script>
+<script src="js/data_ext.js?v=bc655195"></script>
 <script src="js/story_ext.js?v=22aed051"></script>
 <script src="js/story_more.js?v=6ded6bf3"></script>
 <script src="js/story_more2.js?v=69f8c58d"></script>
@@ -636,20 +636,21 @@
 <script type="importmap">{ "imports": { "three": "./vendor/three/three.module.js", "three/addons/": "./vendor/three/addons/" } }</script>
 <!-- v135：Three.js 版 3D 畫面（約 2 MB）改成第一次登島時才下載（window.ensure3D，js/engine3d.js） -->
 <script src="js/battle_core.js?v=3d3b49dc"></script>
-<script src="js/battle.js?v=ffce5184"></script>
+<script src="js/battle.js?v=2e1cab95"></script>
 <script src="js/cam_v173.js?v=1be31bf4"></script>
 <script src="js/audio.js?v=409038bf"></script>
 <script src="js/fx.js?v=3e6262a6"></script>
 <script src="js/fx_choreo.js?v=0e5db5b7"></script>
 <script src="js/ext.js?v=132a271a"></script>
 <script src="js/story_boss_v156.js?v=7fa9624c"></script>
-<script src="js/admin.js?v=bae756e5"></script>
+<script src="js/fx_base.js?v=408df1aa"></script>
+<script src="js/admin.js?v=193afdbe"></script>
 <script src="js/visual_admin.js?v=64afbcdd"></script>
-<script src="js/app.js?v=6c967101"></script>
-<script src="js/hardmode.js?v=25b7a621"></script>
-<script src="js/hub.js?v=2db8eb44"></script>
+<script src="js/app.js?v=2610e3eb"></script>
+<script src="js/hardmode.js?v=819596ad"></script>
+<script src="js/hub.js?v=4a519138"></script>
 <script src="js/seer.js?v=3180e1b9"></script>
-<script src="js/treasure.js?v=7e6ac9cf"></script>
+<script src="js/treasure.js?v=2f222a7c"></script>
 <script src="js/crew.js?v=659ee2a1"></script>
 <script src="js/grow_v112.js?v=515a86dd"></script>
 <script src="js/grow_v157.js?v=20c390dc"></script>
@@ -660,19 +661,19 @@
 <script src="js/home.js?v=0a7d747d"></script>
 <script src="js/modes.js?v=14bc444b"></script>
 <script src="js/lobbyicons.js?v=c08f3157"></script>
-<script src="js/lobby.js?v=867883a2"></script>
+<script src="js/lobby.js?v=45e72f1d"></script>
 <script src="js/timeguard.js?v=3ac00237"></script>
-<script src="js/daily.js?v=58f93794"></script>
-<script src="js/achieve.js?v=f5375507"></script>
+<script src="js/daily.js?v=0f62cf83"></script>
+<script src="js/achieve.js?v=4d68c59b"></script>
 <script src="js/exchange_head.js?v=bfbc949f"></script>
-<script src="js/exchange.js?v=a9db9d6c"></script>
+<script src="js/exchange.js?v=3c9cb1ea"></script>
 <script src="js/uiicons.js?v=8d20de55"></script>
-<script src="js/runner.js?v=7d5b6f52"></script>
-<script src="js/tower.js?v=9dc88071"></script>
-<script src="js/throne.js?v=440db584"></script>
-<script src="js/emperor.js?v=2716fb36"></script>
+<script src="js/runner.js?v=7f9e9c28"></script>
+<script src="js/tower.js?v=e35528aa"></script>
+<script src="js/throne.js?v=10ba1e25"></script>
+<script src="js/emperor.js?v=ef67d678"></script>
 <script src="js/emperor_hall.js?v=13c5cd3e"></script>
-<script src="js/rocks_v129.js?v=ef517fe4"></script>
+<script src="js/rocks_v129.js?v=27b11a44"></script>
 <script src="js/ceremony.js?v=3789a158"></script>
 <script src="js/help.js?v=e1f50c29"></script>
 <script src="js/story_stage.js?v=1cb3547b"></script>
@@ -684,43 +685,46 @@
 <script src="js/account_v175.js?v=d03878c6"></script>
 <script src="js/social.js?v=5039f966"></script>
 <script src="js/live.js?v=a72b8a00"></script>
-<script src="js/guild.js?v=d23b7e4a"></script>
-<script src="js/settings.js?v=92473d73"></script>
-<script src="js/weekly.js?v=12ace0fd"></script>
+<script src="js/guild.js?v=29180bc0"></script>
+<script src="js/settings.js?v=02d27938"></script>
+<script src="js/weekly.js?v=f081cba8"></script>
 <script src="js/event.js?v=18edc224"></script>
 <script src="js/music.js?v=e9e817e7"></script>
 <script src="js/vip_v115.js?v=1f2fbfed"></script>
 <script src="js/skins_v143.js?v=4f367f05"></script>
-<script src="js/gacha_v144.js?v=2a1810d7"></script>
+<script src="js/gacha_v144.js?v=bf6d691f"></script>
 <script src="js/bag_v116.js?v=09404156"></script>
 <script src="js/rhythm_charts.js?v=1d25ef4a"></script>
-<script src="js/rhythm_v118.js?v=75f7d8b8"></script>
+<script src="js/rhythm_v118.js?v=101e2ba9"></script>
 <script src="js/lobby_v118.js?v=5a7ca6d9"></script>
 <script src="js/lobby_v121.js?v=3ed90b34"></script>
-<script src="js/progress_v131.js?v=35f42e9f"></script>
+<script src="js/progress_v131.js?v=13b97d28"></script>
 <script src="js/progress_v132.js?v=57e9797c"></script>
 <script src="js/trial_v133.js?v=fde054dd"></script>
 <script src="js/hint_v134.js?v=14f927a0"></script>
 <script src="js/qol_v135.js?v=49624225"></script>
-<script src="js/ret_v136.js?v=c5fa40d3"></script>
+<script src="js/ret_v136.js?v=24887fb1"></script>
 <script src="js/codex_v155.js?v=93bd7b65"></script>
 <script src="js/codex_order_v164.js?v=81a5c356"></script>
 <script src="js/lobby_v145.js?v=b249b7fb"></script>
 <script src="js/lobby_v156.js?v=7e9504df"></script>
 <script src="js/stab_v139.js?v=dd98c68d"></script>
-<script src="js/pass_v131.js?v=b9d0ca26"></script>
-<script src="js/ladder_v131.js?v=e89199fc"></script>
+<script src="js/pass_v131.js?v=e52c4ac6"></script>
+<script src="js/ladder_v131.js?v=b2e8c053"></script>
 <script src="js/modes_v156.js?v=6b968f79"></script>
 <script src="js/gcard_v157.js?v=8ab33398"></script>
 <script src="js/newbie_v163.js?v=7d56409b"></script>
-<script src="js/ext_late.js?v=371c11ce"></script>
+<script src="js/ext_late.js?v=c3506431"></script>
+<script src="js/fx_mid.js?v=7e5fee81"></script>
+<script src="js/ext_late2.js?v=8e808563"></script>
+<script src="js/fx_imu.js?v=a7191ae3"></script>
 <script src="js/items_v179.js?v=1e69d8b2"></script>
 <script src="js/content_v180.js?v=fe5687c9"></script>
-<script src="js/stages_v181.js?v=437321e9"></script>
+<script src="js/stages_v181.js?v=5b628e85"></script>
 <script src="js/passives_v190.js?v=f2e02188"></script>
 <script src="js/perf_v194.js?v=9364b81f"></script>
 <script src="js/battle_v195.js?v=889e022b"></script>
-<script src="js/fx_skills.js?v=9f0c6c88"></script>
+<script src="js/fx_skills.js?v=a54df7d9"></script>
 <script src="js/size_v209.js?v=ac0be6f0"></script>
 <script src="js/status.js?v=a1c79d44"></script>
 <script src="js/loader.js?v=7321770e"></script>
